@@ -1,0 +1,126 @@
+"use server";
+
+import { supabase } from "@/lib/supabase";
+import { revalidatePath } from "next/cache";
+
+export async function addPurchase(formData: FormData) {
+    const purchase_date = formData.get("date") as string;
+    const brand_id = formData.get("brand_id") as string;
+    const new_brand_name = formData.get("new_brand_name") as string;
+    const notes = formData.get("notes") as string;
+    const price_per_tube = parseFloat(formData.get("price") as string);
+
+    if (!purchase_date || isNaN(price_per_tube)) {
+        throw new Error("Date and price are required");
+    }
+
+    const price_per_cock = Number((price_per_tube / 12).toFixed(2));
+
+    let finalBrandId = brand_id;
+
+    // 1. Create new brand if needed
+    if (new_brand_name && new_brand_name.trim() !== "") {
+        const cleanBrandName = new_brand_name.trim();
+
+        // Check if brand already exists to prevent duplicate failures
+        const { data: existingBrand } = await supabase
+            .from("brands")
+            .select("id")
+            .ilike("name", cleanBrandName)
+            .single();
+
+        if (existingBrand) {
+            finalBrandId = existingBrand.id;
+        } else {
+            const { data: newBrand, error: brandError } = await supabase
+                .from("brands")
+                .insert([{ name: cleanBrandName }])
+                .select()
+                .single();
+
+            if (brandError || !newBrand) {
+                throw new Error("Failed to create new brand: " + brandError?.message);
+            }
+            finalBrandId = newBrand.id;
+        }
+    }
+
+    if (!finalBrandId) {
+        throw new Error("A brand must be selected or created");
+    }
+
+    // 2. Generate tube number (count existing tubes for this brand)
+    const { count, error: countError } = await supabase
+        .from("purchases")
+        .select("*", { count: "exact" })
+        .eq("brand_id", finalBrandId);
+
+    if (countError) {
+        throw new Error("Failed to generate tube number: " + countError.message);
+    }
+
+    const tube_number = (count || 0) + 1;
+
+    // 3. Insert purchase (represents one tube)
+    const { error: purchaseError } = await supabase
+        .from("purchases")
+        .insert([{
+            brand_id: finalBrandId,
+            purchase_date,
+            tube_number,
+            notes: notes ? notes.trim() : null,
+            initial_quantity: 12,
+            remaining_quantity: 12,
+            price_per_tube,
+            price_per_cock
+        }]);
+
+    if (purchaseError) {
+        throw new Error("Failed to add purchase: " + purchaseError.message);
+    }
+
+    revalidatePath("/");
+    revalidatePath("/purchases");
+}
+
+export async function editPurchase(id: string, formData: FormData) {
+    const purchase_date = formData.get("date") as string;
+    const brand_id = formData.get("brand_id") as string;
+    const notes = formData.get("notes") as string;
+    const price_per_tube = parseFloat(formData.get("price") as string);
+
+    if (!purchase_date || isNaN(price_per_tube) || !brand_id) {
+        throw new Error("Date, brand, and price are required");
+    }
+
+    const price_per_cock = Number((price_per_tube / 12).toFixed(2));
+
+    const { error } = await supabase
+        .from("purchases")
+        .update({
+            purchase_date,
+            brand_id,
+            notes: notes ? notes.trim() : null,
+            price_per_tube,
+            price_per_cock
+        })
+        .eq("id", id);
+
+    if (error) {
+        throw new Error("Failed to update purchase: " + error.message);
+    }
+
+    revalidatePath("/");
+    revalidatePath("/purchases");
+}
+
+export async function deletePurchase(id: string) {
+    const { error } = await supabase.from("purchases").delete().eq("id", id);
+
+    if (error) {
+        throw new Error("Failed to delete purchase: " + error.message);
+    }
+
+    revalidatePath("/");
+    revalidatePath("/purchases");
+}
