@@ -1,13 +1,14 @@
 import { supabase } from "@/lib/supabase";
 import { PackagePlus } from "lucide-react";
 import { DatePicker } from "@/components/DatePicker";
-import { addPurchase } from "./actions";
+import { addPurchase } from "@/lib/actions/purchases";
 import { PurchasesList } from "./PurchasesList";
 import { PurchasesForm } from "./PurchasesForm";
 
 export const revalidate = 0; // Disable static rendering
 
-export default async function PurchasesPage() {
+export default async function PurchasesPage({ params }: { params: Promise<{ mode: string }> }) {
+    await params;
     const [{ data: brands, error: brandsError }, { data: purchases, error: purchasesError }] = await Promise.all([
         supabase.from("brands").select("*").order("name"),
         supabase.from("purchases").select("*, brands(name)").order("purchase_date", { ascending: false }).order("created_at", { ascending: false })

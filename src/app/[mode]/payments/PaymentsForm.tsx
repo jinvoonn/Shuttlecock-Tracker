@@ -2,7 +2,7 @@
 
 import { HandCoins, DollarSign } from "lucide-react";
 import { DatePicker } from "@/components/DatePicker";
-import { addPayment } from "./actions";
+import { addPayment } from "@/lib/actions/payments";
 import { useRole } from "@/context/AuthContext";
 
 interface Player {

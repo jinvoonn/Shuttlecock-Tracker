@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Trash2, Calendar, Target, MapPin, Edit3 } from "lucide-react";
 import { SessionForm } from "./SessionForm";
-import { deleteSession } from "./actions";
+import { deleteSession } from "@/lib/actions/sessions";
 import { useRole } from "@/context/AuthContext";
 
 interface SessionItemProps {

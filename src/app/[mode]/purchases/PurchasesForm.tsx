@@ -2,7 +2,7 @@
 
 import { PackagePlus } from "lucide-react";
 import { DatePicker } from "@/components/DatePicker";
-import { addPurchase } from "./actions";
+import { addPurchase } from "@/lib/actions/purchases";
 import { useRole } from "@/context/AuthContext";
 
 interface Brand {

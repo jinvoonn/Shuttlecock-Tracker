@@ -26,17 +26,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark scroll-smooth">
       <body
         className={`${inter.variable} ${outfit.variable} font-sans antialiased bg-slate-950 text-slate-50 min-h-screen selection:bg-sky-500/30`}
       >
         <AuthProvider>
-          <div className="flex flex-col md:flex-row min-h-screen relative">
-            <Navigation />
-            <main className="flex-1 pb-20 md:pb-0 overflow-y-auto">
-              {children}
-            </main>
-          </div>
+          {children}
         </AuthProvider>
       </body>
     </html>

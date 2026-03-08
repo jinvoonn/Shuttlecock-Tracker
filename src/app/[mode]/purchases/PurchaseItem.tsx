@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { editPurchase, deletePurchase } from "./actions";
+import { editPurchase, deletePurchase } from "@/lib/actions/purchases";
 import { Trash2, Calendar, Archive, Edit3, X, Check, Tag } from "lucide-react";
 import { DatePicker } from "@/components/DatePicker";
 import clsx from "clsx";

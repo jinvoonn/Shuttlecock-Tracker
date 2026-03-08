@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { Folder } from "@/components/Folder";
 import { FilterBar } from "@/components/FilterBar";
 import { HandCoins, Trash2, Calendar, User } from "lucide-react";
-import { deletePayment } from "./actions";
+import { deletePayment } from "@/lib/actions/payments";
 import { useRole } from "@/context/AuthContext";
 
 interface Payment {

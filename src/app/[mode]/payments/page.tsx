@@ -4,7 +4,8 @@ import { PaymentsForm } from "./PaymentsForm";
 
 export const revalidate = 0;
 
-export default async function PaymentsPage() {
+export default async function PaymentsPage({ params }: { params: Promise<{ mode: string }> }) {
+    await params;
     const [{ data: players, error: playersError }, { data: payments, error: paymentsError }] = await Promise.all([
         supabase.from("players").select("*").order("name"),
         supabase.from("payments").select("*, players(name)").order("date", { ascending: false }).order("created_at", { ascending: false })

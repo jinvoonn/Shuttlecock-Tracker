@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { addSession, editSession } from "./actions";
+import { addSession, editSession } from "@/lib/actions/sessions";
 import { PlusCircle, Target, Users, MapPin, X, Check, Edit3 } from "lucide-react";
 import { DatePicker } from "@/components/DatePicker";
 import clsx from "clsx";

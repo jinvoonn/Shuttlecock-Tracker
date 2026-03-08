@@ -4,7 +4,8 @@ import { SessionsList } from "./SessionsList";
 
 export const revalidate = 0;
 
-export default async function SessionsPage() {
+export default async function SessionsPage({ params }: { params: Promise<{ mode: string }> }) {
+    await params;
     const [
         { data: sessions, error: sessionsError },
         { data: players, error: playersError },

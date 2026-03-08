@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { quickSettle } from "@/app/payments/actions";
+import { quickSettle } from "@/lib/actions/payments";
 import { HandCoins, Loader2, CheckCircle2 } from "lucide-react";
 import clsx from "clsx";
 import { useRole } from "@/context/AuthContext";
