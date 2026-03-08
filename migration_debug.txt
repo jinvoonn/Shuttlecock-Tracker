@@ -1,0 +1,116 @@
+[dotenv@17.3.1] injecting env (2) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+Starting migration...
+Tubes found: 0
+Brands to check: []
+Session: 2023-09-13 created.
+Session: 2023-09-28 created.
+Session: 2023-10-01 created.
+Session: 2023-10-08 created.
+Session: 2023-10-20 created.
+Session: 2023-10-22 created.
+Session: 2023-10-29 created.
+Session: 2023-11-05 created.
+Session: 2024-12-03 created.
+Session: 2023-12-10 created.
+Session: 2023-12-17 created.
+Session: 2023-12-23 created.
+Session: 2023-11-06 created.
+Session: 2023-11-12 created.
+Session: 2023-11-20 created.
+Session: 2023-11-27 created.
+Session: 2024-01-05 created.
+Session: 2024-01-07 created.
+Session: 2024-01-14 created.
+Session: 2024-02-18 created.
+Session: 2023-12-31 created.
+Session: 2024-02-21 created.
+Session: 2024-01-28 created.
+Session: 2024-02-04 created.
+Session: 2024-02-08 created.
+Session: 2024-02-25 created.
+Session: 2024-03-10 created.
+Session: 2024-03-17 created.
+Session: 2024-03-20 created.
+Session: 2024-03-23 created.
+Session: 2024-03-31 created.
+Session: 2024-04-03 created.
+Session: 2024-04-07 created.
+Session: 2024-04-08 created.
+Session: 2024-04-14 created.
+Session: 2024-04-19 created.
+Session: 2024-04-21 created.
+Session: 2024-04-26 created.
+Session: 2024-04-28 created.
+Session: 2024-05-01 created.
+Session: 2024-05-05 created.
+Session: 2024-05-08 created.
+Session: 2024-05-12 created.
+Session: 2024-05-19 created.
+Session: 2024-05-26 created.
+Session: 2024-09-06 created.
+Session: 2024-09-16 created.
+Session: 2024-06-23 created.
+Session: 2024-06-30 created.
+Session: 2024-07-06 created.
+Session: 2024-07-07 created.
+Session: 2024-07-21 created.
+Session: 2024-11-04 created.
+Session: 2024-08-11 created.
+Session: 2024-07-28 created.
+Session: 2024-08-18 created.
+Session: 2024-08-25 created.
+Session: 2024-08-31 created.
+Session: 2024-09-08 created.
+Session: 2024-09-22 created.
+Session: 2024-09-29 created.
+Session: 2024-10-06 created.
+Session: 2024-10-13 created.
+Session: 2024-10-20 created.
+Session: 2024-11-03 created.
+Session: 2024-11-10 created.
+Session: 2024-11-24 created.
+Session: 2024-11-30 created.
+Session: 2024-12-07 created.
+Session: 2024-12-15 created.
+Session: 2024-12-22 created.
+Session: 2024-12-29 created.
+Session: 2025-05-01 created.
+Session: 2025-04-01 created.
+Session: 2025-01-12 created.
+Session: 2025-01-19 created.
+Session: 2025-01-26 created.
+Session: 2025-01-31 created.
+Session: 2025-02-02 created.
+Session: 2025-02-09 created.
+Session: 2025-02-16 created.
+Session: 2025-04-27 created.
+Session: 2025-05-04 created.
+Session: 2025-05-11 created.
+Session: 2025-05-18 created.
+Session: 2025-05-25 created.
+Session: 2025-06-01 created.
+Session: 2025-06-08 created.
+Session: 2025-06-22 created.
+Session: 2025-06-29 created.
+Session: 2025-07-06 created.
+Session: 2025-07-13 created.
+Session: 2025-07-20 created.
+Session: 2025-09-28 created.
+Session: 2025-10-05 created.
+Session: 2025-10-12 created.
+Session: 2025-10-19 created.
+Session: 2025-11-02 created.
+Session: 2025-12-20 created.
+Session: 2025-12-28 created.
+Session: 2026-01-18 created.
+Session: 2026-01-25 created.
+Session: 2025-01-25 created.
+Session: 2026-02-01 created.
+Payment: Poi ($18.44920635) imported.
+Payment: Zhen Teck ($5.534761905) imported.
+Payment: Koo Chee ($8.763373016) imported.
+Payment: Cheng Jin ($18.44920635) imported.
+Payment: Huai Xiang ($18.44920635) imported.
+Payment: Jang Zhe ($9.685833333) imported.
+Payment: Khai Yi ($18.44920635) imported.
+Migration Completed Successully!
