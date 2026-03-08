@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { usePathname } from "next/navigation";
+import { ADMIN_SECRET } from "@/lib/constants";
 
 type Role = "admin" | "viewer";
 
@@ -19,7 +20,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (pathname.startsWith("/admin")) {
+        if (pathname.includes(`/${ADMIN_SECRET}`)) {
             setRole("admin");
         } else {
             setRole("viewer");

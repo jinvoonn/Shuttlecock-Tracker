@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { Navigation } from "@/components/Navigation";
+import { ADMIN_SECRET } from "@/lib/constants";
 
 export default async function ModeLayout({
     children,
@@ -11,7 +12,7 @@ export default async function ModeLayout({
     const { mode } = await params;
 
     // Validate mode
-    if (mode !== "admin" && mode !== "view") {
+    if (mode !== ADMIN_SECRET && mode !== "view") {
         redirect("/view");
     }
 

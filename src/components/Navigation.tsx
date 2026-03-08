@@ -5,11 +5,12 @@ import { usePathname } from "next/navigation";
 import { LayoutDashboard, ShoppingCart, CalendarDays, DollarSign, Eye } from "lucide-react";
 import clsx from "clsx";
 import { useRole } from "@/context/AuthContext";
+import { ADMIN_SECRET } from "@/lib/constants";
 
 export function Navigation() {
     const pathname = usePathname();
     const { role, isAdmin } = useRole();
-    const mode = isAdmin ? "admin" : "view";
+    const mode = isAdmin ? ADMIN_SECRET : "view";
 
     const navLinks = [
         { name: "Dashboard", href: `/${mode}`, icon: LayoutDashboard },
