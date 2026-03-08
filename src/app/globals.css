@@ -6,15 +6,11 @@
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #09090b; /* zinc-950 */
-    --foreground: #fafafa; /* zinc-50 */
-  }
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --card: #1e293b;
+  --primary: #38bdf8;
+  --secondary: #94a3b8;
 }
 
 body {

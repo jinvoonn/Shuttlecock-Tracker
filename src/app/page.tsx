@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { ArrowDownRight, ArrowUpRight, CheckCircle2, CircleDollarSign, Package } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, CheckCircle2, CircleDollarSign, Package, User } from "lucide-react";
 import { SettleButton } from "@/components/SettleButton";
 import clsx from "clsx";
 
@@ -98,100 +98,108 @@ export default async function DashboardPage() {
   const totalPoolBalance = players.reduce((acc, p) => acc + p.balance, 0);
 
   return (
-    <div className="p-4 md:p-8 max-w-6xl mx-auto animate-in fade-in duration-500">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-100 to-emerald-400 mb-2">
+    <div className="p-4 md:p-8 max-w-6xl mx-auto animate-in fade-in duration-700">
+      <header className="mb-10">
+        <h1 className="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-slate-50 via-sky-100 to-sky-400 mb-2 tracking-tight">
           Dashboard
         </h1>
-        <p className="text-zinc-400">Overview of group costs and balances.</p>
+        <p className="text-slate-400 font-medium">Overview of group costs and balances.</p>
       </header>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-        <div className="p-6 rounded-2xl bg-zinc-900/50 border border-zinc-800/50 relative overflow-hidden group">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="p-6 rounded-3xl bg-slate-900/40 border border-slate-800 backdrop-blur-sm relative overflow-hidden group transition-all hover:bg-slate-900/60">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="flex justify-between items-start mb-4 relative z-10">
+          <div className="flex justify-between items-start mb-6 relative z-10">
             <div>
-              <p className="text-sm font-medium text-zinc-400">Total Group Balance</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Pool Balance</p>
               <p className={clsx(
-                "text-3xl font-semibold mt-1",
+                "text-3xl font-black font-mono tracking-tighter",
                 totalPoolBalance >= 0 ? "text-emerald-400" : "text-rose-400"
               )}>
                 {totalPoolBalance >= 0 ? "+" : "-"}RM {Math.abs(totalPoolBalance).toFixed(2)}
               </p>
             </div>
-            <div className="p-3 rounded-full bg-zinc-800/80 text-emerald-400 backdrop-blur-md">
+            <div className="p-3.5 rounded-2xl bg-slate-800 text-emerald-400 border border-slate-700 shadow-inner">
               <CircleDollarSign className="w-6 h-6" />
             </div>
           </div>
-          <p className="text-xs text-zinc-500 relative z-10">Net sum of all payments minus sessions costs</p>
+          <p className="text-[10px] text-slate-600 font-medium uppercase tracking-tight relative z-10">Net sum of all payments minus costs</p>
         </div>
 
-        <div className="p-6 rounded-2xl bg-zinc-900/50 border border-zinc-800/50 relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="flex justify-between items-start mb-4 relative z-10">
+        <div className="p-6 rounded-3xl bg-slate-900/40 border border-slate-800 backdrop-blur-sm relative overflow-hidden group transition-all hover:bg-slate-900/60">
+          <div className="absolute inset-0 bg-gradient-to-br from-sky-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="flex justify-between items-start mb-6 relative z-10">
             <div>
-              <p className="text-sm font-medium text-zinc-400">Total Spent on Shuttles</p>
-              <p className="text-3xl font-semibold mt-1 text-zinc-100">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Total Spent</p>
+              <p className="text-3xl font-black font-mono tracking-tighter text-slate-50">
                 RM {totalPurchasesCost.toFixed(2)}
               </p>
             </div>
-            <div className="p-3 rounded-full bg-zinc-800/80 text-cyan-400 backdrop-blur-md">
+            <div className="p-3.5 rounded-2xl bg-slate-800 text-sky-400 border border-slate-700 shadow-inner">
               <Package className="w-6 h-6" />
             </div>
           </div>
-          <p className="text-xs text-zinc-500 relative z-10">Sum of all tube purchase prices</p>
+          <p className="text-[10px] text-slate-600 font-medium uppercase tracking-tight relative z-10">Sum of all tube purchase prices</p>
         </div>
 
-        <div className="p-6 rounded-2xl bg-zinc-900/50 border border-zinc-800/50 relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="flex justify-between items-start mb-4 relative z-10">
+        <div className="p-6 rounded-3xl bg-slate-900/40 border border-slate-800 backdrop-blur-sm relative overflow-hidden group transition-all hover:bg-slate-900/60">
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="flex justify-between items-start mb-6 relative z-10">
             <div>
-              <p className="text-sm font-medium text-zinc-400">Dead Shuttles</p>
-              <p className="text-3xl font-semibold mt-1 text-zinc-100">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Dead Shuttles</p>
+              <p className="text-3xl font-black font-mono tracking-tighter text-slate-50">
                 {totalDeadShuttles}
               </p>
             </div>
-            <div className="p-3 rounded-full bg-zinc-800/80 text-amber-400 backdrop-blur-md">
+            <div className="p-3.5 rounded-2xl bg-slate-800 text-violet-400 border border-slate-700 shadow-inner">
               <CheckCircle2 className="w-6 h-6" />
             </div>
           </div>
-          <p className="text-xs text-zinc-500 relative z-10">Total shuttles reported dead from sessions</p>
+          <p className="text-[10px] text-slate-600 font-medium uppercase tracking-tight relative z-10">Total reported used in sessions</p>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/30 backdrop-blur-sm overflow-hidden">
-        <div className="px-6 py-5 border-b border-zinc-800/80 flex items-center justify-between bg-zinc-900/50">
-          <h2 className="text-lg font-medium text-zinc-100">Player Balances</h2>
-          <span className="text-xs font-medium px-2.5 py-1 bg-zinc-800 rounded-lg text-zinc-400">
-            {players.length} Players
+      <div className="rounded-3xl border border-slate-800 bg-slate-900/40 backdrop-blur-sm overflow-hidden shadow-2xl shadow-slate-950/50">
+        <div className="px-6 py-6 border-b border-slate-800 flex items-center justify-between bg-slate-900/60">
+          <h2 className="text-lg font-bold uppercase tracking-tight text-slate-200">Player Balances</h2>
+          <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 bg-slate-800/80 rounded-full text-slate-500 border border-slate-700/50">
+            {players.length} Registered
           </span>
         </div>
 
         {players.length === 0 ? (
-          <div className="p-12 text-center text-zinc-500">
-            No players recorded yet. Add some sessions and payments!
+          <div className="p-20 text-center">
+            <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-700 text-slate-600">
+              <User className="w-8 h-8" />
+            </div>
+            <h3 className="text-slate-300 font-bold mb-1">No players found</h3>
+            <p className="text-slate-500 text-sm max-w-xs mx-auto">
+              No data recorded yet. Add some sessions and payments to see balances!
+            </p>
           </div>
         ) : (
-          <div className="divide-y divide-zinc-800/50">
+          <div className="divide-y divide-slate-800/50">
             {players.map((player) => {
               const isDebt = player.balance < 0;
               const isSettled = Math.abs(player.balance) < 0.01;
               return (
-                <div key={player.id} className="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-4 hover:bg-zinc-800/30 transition-colors gap-4">
+                <div key={player.id} className="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-5 hover:bg-slate-800/30 transition-all gap-5 group/item">
                   <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-full bg-zinc-800 flex items-center justify-center border border-zinc-700 font-medium text-zinc-300 shrink-0">
+                    <div className="h-12 w-12 rounded-2xl bg-slate-800 flex items-center justify-center border border-slate-700 font-bold text-slate-400 shrink-0 group-hover/item:border-slate-600 group-hover/item:text-slate-200 transition-all shadow-inner">
                       {player.name.charAt(0).toUpperCase()}
                     </div>
                     <div className="min-w-0">
-                      <p className="font-medium text-zinc-200 truncate">{player.name}</p>
-                      <p className="text-xs text-zinc-500 truncate">
-                        Paid RM {player.totalPayments.toFixed(2)} • Shared RM {player.totalShares.toFixed(2)}
-                      </p>
+                      <p className="font-bold text-slate-200 truncate group-hover/item:text-slate-50 transition-colors">{player.name}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[10px] font-bold uppercase tracking-tight text-slate-600">Paid RM {player.totalPayments.toFixed(2)}</span>
+                        <span className="w-1 h-1 rounded-full bg-slate-800" />
+                        <span className="text-[10px] font-bold uppercase tracking-tight text-slate-600">Shared RM {player.totalShares.toFixed(2)}</span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 w-full sm:w-auto">
+                  <div className="flex items-center justify-between sm:justify-end gap-5 sm:gap-10 w-full sm:w-auto border-t sm:border-t-0 border-slate-800/50 pt-4 sm:pt-0">
                     {isDebt && (
                       <SettleButton
                         playerId={player.id}
@@ -200,23 +208,26 @@ export default async function DashboardPage() {
                       />
                     )}
 
-                    <div className="flex flex-col items-end sm:min-w-[100px]">
+                    <div className="flex flex-col items-end sm:min-w-[120px]">
                       <div className={clsx(
-                        "flex items-center gap-1 font-semibold",
-                        isSettled ? "text-zinc-400" : isDebt ? "text-rose-400" : "text-emerald-400"
+                        "flex items-center gap-1.5 font-bold font-mono tracking-tighter",
+                        isSettled ? "text-slate-500" : isDebt ? "text-rose-400" : "text-emerald-400"
                       )}>
-                        {isSettled ? null : isDebt ? <ArrowDownRight className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
-                        <span className="text-lg">
+                        {isSettled ? null : isDebt ? <ArrowDownRight className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
+                        <span className="text-xl">
                           RM {Math.abs(player.balance).toFixed(2)}
                         </span>
                       </div>
                       {!isSettled && (
-                        <span className="text-[10px] uppercase text-zinc-500 font-medium">
+                        <span className={clsx(
+                          "text-[10px] uppercase font-bold tracking-widest mt-0.5",
+                          isDebt ? "text-rose-500/50" : "text-emerald-500/50"
+                        )}>
                           {isDebt ? "In Debt" : "Credit"}
                         </span>
                       )}
                       {isSettled && (
-                        <span className="text-[10px] uppercase text-zinc-500 font-medium text-right w-full">
+                        <span className="text-[10px] uppercase text-slate-600 font-bold tracking-widest mt-0.5">
                           Settled
                         </span>
                       )}
@@ -229,5 +240,6 @@ export default async function DashboardPage() {
         )}
       </div>
     </div>
+
   );
 }

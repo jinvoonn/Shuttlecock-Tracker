@@ -5,6 +5,7 @@ import { addSession, editSession } from "./actions";
 import { PlusCircle, Target, Users, MapPin, X, Check, Edit3 } from "lucide-react";
 import { DatePicker } from "@/components/DatePicker";
 import clsx from "clsx";
+import { useRole } from "@/context/AuthContext";
 
 interface Player {
     id: string;
@@ -42,6 +43,7 @@ export function SessionForm({
     isEdit?: boolean,
     onCancel?: () => void
 }) {
+    const { isAdmin } = useRole();
     const [date, setDate] = useState(initialData?.date || new Date().toISOString().split('T')[0]);
     const [location, setLocation] = useState(initialData?.location || "");
     const [notes, setNotes] = useState(initialData?.notes || "");
@@ -51,6 +53,8 @@ export function SessionForm({
     const [newPlayers, setNewPlayers] = useState<string[]>([]);
 
     const [usage, setUsage] = useState<Record<string, number>>(initialData?.usage || {});
+
+    if (!isAdmin && !isEdit) return null;
 
     const handleAddExistingPlayer = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const val = e.target.value;
@@ -98,7 +102,6 @@ export function SessionForm({
                 if (onCancel) onCancel();
             } else {
                 await addSession(JSON.stringify(payload));
-                // Reset form on success
                 setSelectedPlayerIds([]);
                 setNewPlayers([]);
                 setUsage({});
@@ -116,44 +119,42 @@ export function SessionForm({
         if (remaining >= 8) return "bg-emerald-500 shadow-emerald-500/50";
         if (remaining >= 4) return "bg-yellow-500 shadow-yellow-500/50";
         if (remaining >= 1) return "bg-rose-500 shadow-rose-500/50";
-        return "bg-zinc-600 shadow-zinc-600/50";
+        return "bg-slate-600 shadow-slate-600/50";
     }
 
     return (
         <div className={clsx(
-            "border rounded-2xl p-6 transition-all duration-300",
-            isEdit ? "bg-violet-950/10 border-violet-500/30" : "bg-zinc-900/30 border-zinc-800/80 lg:sticky lg:top-8"
+            "border rounded-2xl p-6 transition-all duration-300 animate-in slide-in-from-left-4",
+            isEdit ? "bg-violet-900/10 border-violet-500/30" : "bg-slate-900/40 border-slate-800 lg:sticky lg:top-8"
         )}>
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                     <div className={clsx(
                         "p-2.5 rounded-xl",
-                        isEdit ? "bg-violet-500/10 text-violet-400" : "bg-cyan-500/10 text-cyan-400"
+                        isEdit ? "bg-violet-500/10 text-violet-400" : "bg-sky-500/10 text-sky-400"
                     )}>
                         {isEdit ? <Edit3 className="w-5 h-5" /> : <PlusCircle className="w-5 h-5" />}
                     </div>
-                    <h2 className="text-lg font-medium text-zinc-100">{isEdit ? "Edit Session" : "Log Session"}</h2>
+                    <h2 className="text-lg font-medium text-slate-100 uppercase tracking-tight">{isEdit ? "Edit Session" : "Log Session"}</h2>
                 </div>
                 {isEdit && onCancel && (
-                    <button onClick={onCancel} className="text-zinc-500 hover:text-zinc-300 p-2">
+                    <button onClick={onCancel} className="text-slate-500 hover:text-slate-300 p-2">
                         <X className="w-5 h-5" />
                     </button>
                 )}
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6 text-sm">
-
-                {/* Basic Details */}
                 <div className="space-y-4">
                     <div>
-                        <label className="block font-medium text-zinc-400 mb-1">Date</label>
+                        <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1 ml-1">Date</label>
                         <DatePicker name="date" defaultValue={date} onChange={setDate} />
                     </div>
 
                     <div>
-                        <label className="block font-medium text-zinc-400 mb-1">Location (Optional)</label>
+                        <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1 ml-1">Location (Optional)</label>
                         <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
                                 <MapPin className="w-4 h-4" />
                             </div>
                             <input
@@ -161,22 +162,21 @@ export function SessionForm({
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
                                 placeholder="Where did you play?"
-                                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-4 py-2.5 text-zinc-200 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all"
+                                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500/50"
                             />
                         </div>
                     </div>
                 </div>
 
-                {/* Players Section */}
-                <div className="space-y-4 pt-4 border-t border-zinc-800/50">
-                    <h3 className="font-medium text-zinc-300 flex items-center gap-2">
-                        <Users className="w-4 h-4 text-zinc-500" /> Attendees
+                <div className="space-y-4 pt-4 border-t border-slate-800/50">
+                    <h3 className="text-[10px] font-bold uppercase text-slate-500 flex items-center gap-2">
+                        <Users className="w-4 h-4" /> Attendees
                     </h3>
 
                     <div className="flex gap-2">
                         <select
                             onChange={handleAddExistingPlayer}
-                            className="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-zinc-200 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 text-sm"
+                            className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500/50 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M6%209L12%2015L18%209%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')] bg-[length:1.25rem] bg-[right_0.75rem_center] bg-no-repeat"
                             defaultValue=""
                         >
                             <option value="" disabled>Select Existing Player ▼</option>
@@ -192,36 +192,36 @@ export function SessionForm({
                             placeholder="New player name..."
                             value={newPlayerName}
                             onChange={(e) => setNewPlayerName(e.target.value)}
-                            className="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-zinc-200 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 text-sm"
+                            className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500/50"
                         />
                         <button
                             type="button"
                             onClick={handleAddNewPlayer}
-                            className="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 px-3 py-2 rounded-lg font-medium transition-colors whitespace-nowrap"
+                            className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2.5 rounded-xl font-bold text-xs uppercase transition-all whitespace-nowrap"
                         >
                             + Add
                         </button>
                     </div>
 
                     {(selectedPlayerIds.length > 0 || newPlayers.length > 0) && (
-                        <div className="bg-zinc-950/50 p-3 rounded-xl border border-zinc-800/50">
-                            <p className="text-xs text-zinc-500 mb-2">Selected Players:</p>
+                        <div className="bg-slate-950/50 p-3 rounded-xl border border-slate-800/50">
+                            <p className="text-[10px] font-bold uppercase text-slate-600 mb-2 ml-1">Selected Players:</p>
                             <div className="flex flex-wrap gap-2">
                                 {selectedPlayerIds.map(id => {
                                     const p = players.find(x => x.id === id);
                                     return (
-                                        <div key={id} className="flex items-center gap-1.5 bg-zinc-800/80 px-2 py-1 rounded text-xs text-zinc-300">
+                                        <div key={id} className="flex items-center gap-1.5 bg-slate-800 px-2.5 py-1 rounded-lg text-xs text-slate-300 border border-slate-700">
                                             {p?.name}
-                                            <button type="button" onClick={() => removeSelectedPlayer(id)} className="text-zinc-500 hover:text-rose-400">
+                                            <button type="button" onClick={() => removeSelectedPlayer(id)} className="text-slate-500 hover:text-rose-400">
                                                 <X className="w-3 h-3" />
                                             </button>
                                         </div>
                                     );
                                 })}
                                 {newPlayers.map(name => (
-                                    <div key={name} className="flex items-center gap-1.5 bg-cyan-900/30 text-cyan-200 px-2 py-1 rounded text-xs border border-cyan-800/50">
+                                    <div key={name} className="flex items-center gap-1.5 bg-sky-900/30 text-sky-200 px-2.5 py-1 rounded-lg text-xs border border-sky-800/50">
                                         {name} <span className="text-[9px] opacity-70">(New)</span>
-                                        <button type="button" onClick={() => removeNewPlayer(name)} className="text-cyan-500 hover:text-cyan-300 ml-1">
+                                        <button type="button" onClick={() => removeNewPlayer(name)} className="text-sky-500 hover:text-sky-300 ml-1">
                                             <X className="w-3 h-3" />
                                         </button>
                                     </div>
@@ -231,16 +231,15 @@ export function SessionForm({
                     )}
                 </div>
 
-                {/* Shuttlecock Usage Section */}
-                <div className="space-y-4 pt-4 border-t border-zinc-800/50">
-                    <h3 className="font-medium text-zinc-300 flex items-center gap-2">
-                        <Target className="w-4 h-4 text-zinc-500" /> Shuttlecock Usage
+                <div className="space-y-4 pt-4 border-t border-slate-800/50">
+                    <h3 className="text-[10px] font-bold uppercase text-slate-500 flex items-center gap-2">
+                        <Target className="w-4 h-4" /> Shuttlecock Usage
                     </h3>
 
                     {purchases.length === 0 ? (
-                        <p className="text-xs text-zinc-500 italic">No available shuttlecock tubes.</p>
+                        <p className="text-xs text-slate-500 italic ml-1">No available shuttlecock tubes.</p>
                     ) : (
-                        <div className="space-y-3 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
+                        <div className="space-y-2 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
                             {purchases.map(p => {
                                 const brandName = p.brands?.name || 'Unknown';
                                 const remaining = p.remaining_quantity;
@@ -248,23 +247,21 @@ export function SessionForm({
                                 const val = usage[p.id] || 0;
 
                                 return (
-                                    <div key={p.id} className="flex items-center justify-between bg-zinc-950/50 p-3 rounded-lg border border-zinc-800/50">
+                                    <div key={p.id} className="flex items-center justify-between bg-slate-950/50 p-3 rounded-xl border border-slate-800/50">
                                         <div className="flex items-center gap-3">
                                             <div className={clsx("w-2 h-2 rounded-full", colorClass)} />
                                             <div>
-                                                <p className="font-medium text-zinc-300 text-sm">
-                                                    {brandName} <span className="text-zinc-500 text-xs">({p.tube_number})</span>
+                                                <p className="font-medium text-slate-300 text-sm">
+                                                    {brandName} <span className="text-slate-500 text-xs">({p.tube_number})</span>
                                                 </p>
-                                                <p className="text-[10px] text-zinc-500 flex gap-2">
+                                                <p className="text-[10px] text-slate-500 flex gap-2">
                                                     <span>{remaining} left</span>
-                                                    <span className="text-emerald-500/80 font-mono font-bold">RM {Number(p.price_per_tube || 0).toFixed(2)}</span>
-                                                    <span className="opacity-70 font-mono">RM {Number(p.price_per_cock || 0).toFixed(2)}/pc</span>
+                                                    <span className="text-sky-400 font-mono font-bold">RM {Number(p.price_per_tube || 0).toFixed(2)}</span>
                                                 </p>
                                             </div>
                                         </div>
 
                                         <div className="flex items-center gap-2">
-                                            <label className="text-xs text-zinc-500">Use:</label>
                                             <input
                                                 type="number"
                                                 min="0"
@@ -276,7 +273,7 @@ export function SessionForm({
                                                         [p.id]: isNaN(v) ? 0 : Math.max(0, v)
                                                     });
                                                 }}
-                                                className="w-16 bg-zinc-900 border border-zinc-700 rounded-md px-2 py-1 text-center font-mono text-zinc-200 focus:outline-none focus:border-cyan-500"
+                                                className="w-16 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1.5 text-center font-mono text-slate-200 focus:outline-none focus:ring-1 focus:ring-sky-500/50"
                                                 placeholder="0"
                                             />
                                         </div>
@@ -287,12 +284,12 @@ export function SessionForm({
                     )}
                 </div>
 
-                <div className="flex gap-3 mt-4">
+                <div className="flex gap-3 pt-2">
                     {isEdit && onCancel && (
                         <button
                             type="button"
                             onClick={onCancel}
-                            className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium py-3 px-4 rounded-xl transition-all"
+                            className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs uppercase py-3.5 px-4 rounded-xl transition-all"
                         >
                             Cancel
                         </button>
@@ -300,8 +297,8 @@ export function SessionForm({
                     <button
                         type="submit"
                         className={clsx(
-                            "flex-[2] text-white font-medium py-3 px-4 rounded-xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2",
-                            isEdit ? "bg-violet-600 hover:bg-violet-500 shadow-violet-500/20" : "bg-cyan-600 hover:bg-cyan-500 shadow-cyan-500/20"
+                            "flex-[2] text-white font-bold text-xs uppercase py-3.5 px-4 rounded-xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2",
+                            isEdit ? "bg-violet-600 hover:bg-violet-500 shadow-violet-500/20" : "bg-sky-600 hover:bg-sky-500 shadow-sky-500/20"
                         )}
                     >
                         {isEdit ? <Check className="w-4 h-4" /> : <PlusCircle className="w-4 h-4" />}

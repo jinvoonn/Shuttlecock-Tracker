@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import { Navigation } from "@/components/Navigation";
+import { AuthProvider } from "@/context/AuthContext";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: "#0f172a",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -27,14 +28,16 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${inter.variable} ${outfit.variable} font-sans antialiased bg-zinc-950 text-zinc-50 min-h-screen selection:bg-emerald-500/30`}
+        className={`${inter.variable} ${outfit.variable} font-sans antialiased bg-slate-950 text-slate-50 min-h-screen selection:bg-sky-500/30`}
       >
-        <div className="flex flex-col md:flex-row min-h-screen relative">
-          <Navigation />
-          <main className="flex-1 pb-20 md:pb-0 overflow-y-auto">
-            {children}
-          </main>
-        </div>
+        <AuthProvider>
+          <div className="flex flex-col md:flex-row min-h-screen relative">
+            <Navigation />
+            <main className="flex-1 pb-20 md:pb-0 overflow-y-auto">
+              {children}
+            </main>
+          </div>
+        </AuthProvider>
       </body>
     </html>
   );

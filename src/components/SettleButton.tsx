@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { quickSettle } from "@/app/payments/actions";
-import { CheckCircle2, Loader2, DollarSign } from "lucide-react";
+import { HandCoins, Loader2, CheckCircle2 } from "lucide-react";
 import clsx from "clsx";
+import { useRole } from "@/context/AuthContext";
 
 interface SettleButtonProps {
     playerId: string;
@@ -12,11 +13,12 @@ interface SettleButtonProps {
 }
 
 export function SettleButton({ playerId, playerName, amount }: SettleButtonProps) {
+    const { isAdmin } = useRole();
     const [loading, setLoading] = useState(false);
     const [done, setDone] = useState(false);
 
     const handleSettle = async () => {
-        if (amount <= 0) return;
+        if (!isAdmin || amount <= 0) return;
 
         setLoading(true);
         try {
@@ -30,15 +32,17 @@ export function SettleButton({ playerId, playerName, amount }: SettleButtonProps
         }
     };
 
+    if (!isAdmin) return null;
+
     return (
         <button
             onClick={handleSettle}
             disabled={loading || done || amount <= 0}
             className={clsx(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all active:scale-[0.95] shrink-0",
+                "flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all active:scale-[0.95] shrink-0 border shadow-lg",
                 done
-                    ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50"
-                    : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 hover:border-zinc-500"
+                    ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/40 shadow-emerald-500/10"
+                    : "bg-slate-800/80 hover:bg-sky-600 text-slate-300 hover:text-white border-slate-700 hover:border-sky-500 shadow-slate-950/20"
             )}
             title={`Record RM ${amount.toFixed(2)} payment for ${playerName}`}
         >
@@ -47,7 +51,7 @@ export function SettleButton({ playerId, playerName, amount }: SettleButtonProps
             ) : done ? (
                 <CheckCircle2 className="w-3.5 h-3.5" />
             ) : (
-                <DollarSign className="w-3.5 h-3.5" />
+                <HandCoins className="w-3.5 h-3.5" />
             )}
             {done ? "Settled" : "Quick Settle"}
         </button>
