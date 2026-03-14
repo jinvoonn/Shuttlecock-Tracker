@@ -21,6 +21,8 @@ export default async function SessionsPage({ params }: { params: Promise<{ mode:
           id, 
           team_a_score, 
           team_b_score, 
+          team_a_ids,
+          team_b_ids,
           created_at, 
           players_a1:team_a_player1 ( name ),
           players_a2:team_a_player2 ( name ),

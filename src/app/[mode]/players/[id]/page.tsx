@@ -32,7 +32,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
         
     const totalSessions = attendedSessions?.length || 0;
 
-    // Fetch matches the player participated in (Flat Structure)
+    // Fetch matches the player participated in (Flexible Structure)
     const { data: matches } = await supabase
         .from("matches")
         .select(`
@@ -40,14 +40,16 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
             created_at,
             team_a_score,
             team_b_score,
-            sessions ( date ),
-            players_a1:team_a_player1 ( id, name ),
-            players_a2:team_a_player2 ( id, name ),
-            players_b1:team_b_player1 ( id, name ),
-            players_b2:team_b_player2 ( id, name )
+            team_a_ids,
+            team_b_ids,
+            sessions ( date )
         `)
-        .or(`team_a_player1.eq.${id},team_a_player2.eq.${id},team_b_player1.eq.${id},team_b_player2.eq.${id}`)
+        .or(`team_a_ids.cs.{${id}},team_b_ids.cs.{${id}}`)
         .order("created_at", { ascending: false });
+
+    // Fetch all players to map IDs to names for match history
+    const { data: allPlayers } = await supabase.from("players").select("id, name");
+    const playerMap = Object.fromEntries((allPlayers || []).map(p => [p.id, p.name]));
 
     // Calculate generic stats
     let totalMatchesCount = 0;
@@ -57,7 +59,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
     const formattedMatches = (matches || []).map((m: any) => {
         totalMatchesCount++;
         
-        const isTeamA = m.players_a1?.id === id || m.players_a2?.id === id;
+        const isTeamA = (m.team_a_ids || []).includes(id);
         
         const myScore = isTeamA ? m.team_a_score : m.team_b_score;
         const oppScore = isTeamA ? m.team_b_score : m.team_a_score;
@@ -68,13 +70,11 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
         if (isWin) wins++;
         else if (!isDraw) losses++;
         
-        const myPartner = isTeamA 
-            ? (m.players_a1?.id === id ? m.players_a2?.name : m.players_a1?.name)
-            : (m.players_b1?.id === id ? m.players_b2?.name : m.players_b1?.name);
-            
-        const opponents = isTeamA
-            ? [m.players_b1?.name, m.players_b2?.name]
-            : [m.players_a1?.name, m.players_a2?.name];
+        const myTeam = isTeamA ? m.team_a_ids : m.team_b_ids;
+        const oppTeam = isTeamA ? m.team_b_ids : m.team_a_ids;
+
+        const myPartners = (myTeam || []).filter((pid: string) => pid !== id);
+        const opponents = (oppTeam || []);
 
         return {
             id: m.id,
@@ -83,8 +83,8 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
             isDraw,
             myScore,
             oppScore,
-            partners: [myPartner].filter(Boolean),
-            opponents: opponents.filter(Boolean)
+            partners: myPartners.map((pid: string) => playerMap[pid] || "Unknown"),
+            opponents: opponents.map((pid: string) => playerMap[pid] || "Unknown")
         };
     });
 
