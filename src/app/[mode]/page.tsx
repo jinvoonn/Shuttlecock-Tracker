@@ -88,61 +88,61 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
 
       {/* Summary Cards - now 4 cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-        <div className="p-5 rounded-3xl bg-slate-900/40 border border-slate-800 backdrop-blur-sm relative overflow-hidden group transition-all hover:bg-slate-900/60 hover:border-emerald-500/30">
+        <div className="p-5 rounded-3xl glass-card relative overflow-hidden group transition-all glass-card-hover hover:border-emerald-500/30">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="relative z-10">
-            <div className="flex justify-between items-start mb-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Pool Balance</p>
-              <div className="p-2 rounded-xl bg-slate-800 text-emerald-400 border border-slate-700">
-                <CircleDollarSign className="w-4 h-4" />
+            <div className="flex justify-between items-start mb-4">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Pool Balance</p>
+              <div className="p-2.5 rounded-2xl bg-slate-950/50 text-emerald-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/10">
+                <CircleDollarSign className="w-4.5 h-4.5" />
               </div>
             </div>
-            <p className={clsx("text-2xl font-black font-mono tracking-tighter", totalPoolBalance >= 0 ? "text-emerald-400" : "text-rose-400")}>
+            <p className={clsx("text-3xl font-black font-mono tracking-tighter", totalPoolBalance >= 0 ? "text-emerald-400" : "text-rose-400")}>
               {totalPoolBalance >= 0 ? "+" : "-"}RM {Math.abs(totalPoolBalance).toFixed(2)}
             </p>
-            <p className="text-[10px] text-slate-600 font-medium uppercase tracking-tight mt-2">Net payments minus costs</p>
+            <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mt-3 opacity-60">Net Pool</p>
           </div>
         </div>
 
-        <div className="p-5 rounded-3xl bg-slate-900/40 border border-slate-800 backdrop-blur-sm relative overflow-hidden group transition-all hover:bg-slate-900/60 hover:border-sky-500/30">
+        <div className="p-5 rounded-3xl glass-card relative overflow-hidden group transition-all glass-card-hover hover:border-sky-500/30">
           <div className="absolute inset-0 bg-gradient-to-br from-sky-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="relative z-10">
-            <div className="flex justify-between items-start mb-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Total Spent</p>
-              <div className="p-2 rounded-xl bg-slate-800 text-sky-400 border border-slate-700">
-                <Package className="w-4 h-4" />
+            <div className="flex justify-between items-start mb-4">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Total Spent</p>
+              <div className="p-2.5 rounded-2xl bg-slate-950/50 text-sky-400 border border-sky-500/20 shadow-lg shadow-sky-500/10">
+                <Package className="w-4.5 h-4.5" />
               </div>
             </div>
-            <p className="text-2xl font-black font-mono tracking-tighter text-slate-50">RM {totalPurchasesCost.toFixed(2)}</p>
-            <p className="text-[10px] text-slate-600 font-medium uppercase tracking-tight mt-2">Sum of all tube purchases</p>
+            <p className="text-3xl font-black font-mono tracking-tighter text-slate-50">RM {totalPurchasesCost.toFixed(2)}</p>
+            <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mt-3 opacity-60">Inventory</p>
           </div>
         </div>
 
-        <div className="p-5 rounded-3xl bg-slate-900/40 border border-slate-800 backdrop-blur-sm relative overflow-hidden group transition-all hover:bg-slate-900/60 hover:border-violet-500/30">
+        <div className="p-5 rounded-3xl glass-card relative overflow-hidden group transition-all glass-card-hover hover:border-violet-500/30">
           <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="relative z-10">
-            <div className="flex justify-between items-start mb-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Shuttles Used</p>
-              <div className="p-2 rounded-xl bg-slate-800 text-violet-400 border border-slate-700">
-                <CheckCircle2 className="w-4 h-4" />
+            <div className="flex justify-between items-start mb-4">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Shuttles</p>
+              <div className="p-2.5 rounded-2xl bg-slate-950/50 text-violet-400 border border-violet-500/20 shadow-lg shadow-violet-500/10">
+                <CheckCircle2 className="w-4.5 h-4.5" />
               </div>
             </div>
-            <p className="text-2xl font-black font-mono tracking-tighter text-slate-50">{totalShuttlesUsed}</p>
-            <p className="text-[10px] text-slate-600 font-medium uppercase tracking-tight mt-2">Total used across all sessions</p>
+            <p className="text-3xl font-black font-mono tracking-tighter text-slate-50">{totalShuttlesUsed}</p>
+            <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mt-3 opacity-60">Used</p>
           </div>
         </div>
 
-        <div className="p-5 rounded-3xl bg-slate-900/40 border border-slate-800 backdrop-blur-sm relative overflow-hidden group transition-all hover:bg-slate-900/60 hover:border-amber-500/30">
+        <div className="p-5 rounded-3xl glass-card relative overflow-hidden group transition-all glass-card-hover hover:border-amber-500/30">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="relative z-10">
-            <div className="flex justify-between items-start mb-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Total Sessions</p>
-              <div className="p-2 rounded-xl bg-slate-800 text-amber-400 border border-slate-700">
-                <CalendarDays className="w-4 h-4" />
+            <div className="flex justify-between items-start mb-4">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Sessions</p>
+              <div className="p-2.5 rounded-2xl bg-slate-950/50 text-amber-400 border border-amber-500/20 shadow-lg shadow-amber-500/10">
+                <CalendarDays className="w-4.5 h-4.5" />
               </div>
             </div>
-            <p className="text-2xl font-black font-mono tracking-tighter text-slate-50">{totalSessions}</p>
-            <p className="text-[10px] text-slate-600 font-medium uppercase tracking-tight mt-2">Games played together</p>
+            <p className="text-3xl font-black font-mono tracking-tighter text-slate-50">{totalSessions}</p>
+            <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mt-3 opacity-60">Total</p>
           </div>
         </div>
       </div>

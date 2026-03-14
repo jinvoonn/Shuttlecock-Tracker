@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { Navigation } from "@/components/Navigation";
+import { MobileNav } from "@/components/MobileNav";
 import { ADMIN_SECRET } from "@/lib/constants";
 
 export default async function ModeLayout({
@@ -17,9 +18,10 @@ export default async function ModeLayout({
     }
 
     return (
-        <div className="flex flex-col md:flex-row min-h-screen bg-slate-950 text-slate-50">
+        <div className="min-h-screen text-slate-100">
             <Navigation />
-            <main className="flex-1 pb-20 md:pb-0 pt-12 md:pt-0 overflow-y-auto">
+            <MobileNav />
+            <main className="md:ml-64 p-4 pb-32 md:pb-8 animate-in fade-in duration-1000">
                 {children}
             </main>
         </div>

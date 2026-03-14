@@ -53,30 +53,30 @@ export function DashboardClient({ players }: { players: Player[] }) {
     const colorMap = Object.fromEntries(players.map((p, i) => [p.id, i % AVATAR_COLORS.length]));
 
     return (
-        <div className="rounded-3xl border border-slate-800 bg-slate-900/40 backdrop-blur-sm overflow-hidden shadow-2xl shadow-slate-950/50">
-            <div className="px-6 py-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/60 flex-wrap gap-3">
+        <div className="glass-card rounded-3xl overflow-hidden shadow-2xl relative">
+            <div className="px-6 py-5 border-b border-slate-800/50 flex items-center justify-between bg-slate-900/40 backdrop-blur-md flex-wrap gap-3">
                 <div className="flex items-center gap-3">
-                    <h2 className="text-lg font-bold uppercase tracking-tight text-slate-200">Player Balances</h2>
-                    <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 bg-slate-800/80 rounded-full text-slate-500 border border-slate-700/50">
-                        {players.length} Registered
+                    <h2 className="text-lg font-black uppercase tracking-tight text-slate-100 italic">Player Balances</h2>
+                    <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 bg-sky-500/10 rounded-full text-sky-400 border border-sky-500/20">
+                        {players.length} Active
                     </span>
                 </div>
 
                 {/* Sort toggle */}
-                <div className="flex items-center gap-1 bg-slate-800/60 rounded-xl p-1 border border-slate-700/50">
+                <div className="flex items-center gap-1 bg-slate-950/50 rounded-xl p-1 border border-slate-800/50">
                     {([
-                        { key: "debt", label: "By Debt" },
+                        { key: "debt", label: "Debt" },
                         { key: "alpha", label: "A–Z" },
-                        { key: "settled-last", label: "Unsettled" },
+                        { key: "settled-last", label: "Settled" },
                     ] as { key: SortMode; label: string }[]).map(opt => (
                         <button
                             key={opt.key}
                             onClick={() => setSortMode(opt.key)}
                             className={clsx(
-                                "text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg transition-all duration-200",
+                                "text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg transition-all duration-300",
                                 sortMode === opt.key
-                                    ? "bg-sky-500 text-slate-950 shadow"
-                                    : "text-slate-400 hover:text-slate-200"
+                                    ? "bg-sky-500 text-slate-950 shadow-lg shadow-sky-500/20"
+                                    : "text-slate-500 hover:text-slate-300"
                             )}
                         >
                             {opt.label}
@@ -87,14 +87,14 @@ export function DashboardClient({ players }: { players: Player[] }) {
 
             {sortedPlayers.length === 0 ? (
                 <div className="p-20 text-center">
-                    <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-700 text-slate-600">
+                    <div className="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-700/50 text-slate-600">
                         <ArrowUpDown className="w-8 h-8" />
                     </div>
                     <h3 className="text-slate-300 font-bold mb-1">No players found</h3>
                     <p className="text-slate-500 text-sm max-w-xs mx-auto">No data recorded yet.</p>
                 </div>
             ) : (
-                <div className="divide-y divide-slate-800/50">
+                <div className="divide-y divide-slate-800/30">
                     {sortedPlayers.map((player) => {
                         const isDebt = player.balance < 0;
                         const isSettled = Math.abs(player.balance) < 0.01;
@@ -104,38 +104,45 @@ export function DashboardClient({ players }: { players: Player[] }) {
                             : 1;
 
                         return (
-                            <div key={player.id} className="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-5 hover:bg-slate-800/30 transition-all gap-4 group/item">
-                                <div className="flex items-center gap-4 flex-1 min-w-0">
+                            <div key={player.id} className="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-5 hover:bg-white/5 transition-all duration-300 gap-4 group/item relative overflow-hidden">
+                                {/* Subtle background glow for negative/positive */}
+                                {!isSettled && (
+                                    <div className={clsx(
+                                        "absolute inset-0 opacity-0 group-hover/item:opacity-5 transition-opacity pointer-events-none",
+                                        isDebt ? "bg-rose-500" : "bg-emerald-500"
+                                    )} />
+                                )}
+
+                                <div className="flex items-center gap-4 flex-1 min-w-0 z-10">
                                     <Link href={`/${mode}/players/${player.id}`} className="flex items-center gap-4 flex-1 min-w-0 group/link">
                                         {/* Color-coded avatar */}
                                         <div className={clsx(
-                                            "h-12 w-12 rounded-2xl flex items-center justify-center font-bold text-lg shrink-0 ring-2 transition-all shadow-inner",
+                                            "h-12 w-12 rounded-2xl flex items-center justify-center font-black text-lg shrink-0 ring-1 transition-all shadow-2xl",
                                             colorClass,
-                                            "group-hover/link:ring-4 group-hover/link:scale-105"
+                                            "group-hover/link:ring-2 group-hover/link:scale-110 group-hover/link:shadow-sky-500/20"
                                         )}>
                                             {player.name.charAt(0).toUpperCase()}
                                         </div>
 
                                         <div className="min-w-0 flex-1">
-                                            <p className="font-bold text-slate-200 truncate group-hover/link:text-sky-400 transition-colors flex items-center gap-2">
+                                            <p className="font-black text-slate-100 text-base truncate group-hover/link:text-sky-400 transition-colors flex items-center gap-2 tracking-tight">
                                                 <span className="truncate">{player.name}</span>
-                                                <ArrowUpRight className="w-3.5 h-3.5 shrink-0 opacity-0 -ml-2 group-hover/link:opacity-100 group-hover/link:ml-0 transition-all text-sky-400" />
+                                                <ArrowUpRight className="w-4 h-4 shrink-0 opacity-0 -translate-x-2 group-hover/link:opacity-100 group-hover/link:translate-x-0 transition-all text-sky-400" />
                                             </p>
-                                            <div className="flex items-center gap-x-2 gap-y-1 mt-1 flex-wrap">
-                                                <span className="text-[10px] font-bold uppercase tracking-tight text-slate-600 whitespace-nowrap">
-                                                    Paid RM {player.totalPayments.toFixed(2)}
+                                            <div className="flex items-center gap-x-3 mt-1 underline-offset-4">
+                                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                                                    Paid <span className="text-slate-300">RM {player.totalPayments.toFixed(2)}</span>
                                                 </span>
-                                                <span className="w-1 h-1 rounded-full bg-slate-700 hidden sm:block" />
-                                                <span className="text-[10px] font-bold uppercase tracking-tight text-slate-600 whitespace-nowrap">
-                                                    Cost RM {player.totalShares.toFixed(2)}
+                                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                                                    Cost <span className="text-slate-300">RM {player.totalShares.toFixed(2)}</span>
                                                 </span>
                                             </div>
                                             {/* Progress bar */}
-                                            <div className="mt-2.5 h-1.5 w-full max-w-[160px] bg-slate-800 rounded-full overflow-hidden">
+                                            <div className="mt-3 h-1 w-full max-w-[140px] bg-slate-800/50 rounded-full overflow-hidden border border-white/5">
                                                 <div
                                                     className={clsx(
                                                         "h-full rounded-full transition-all duration-1000",
-                                                        isSettled ? "bg-slate-500" : isDebt ? "bg-rose-500" : "bg-emerald-500"
+                                                        isSettled ? "bg-slate-600" : isDebt ? "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.4)]" : "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"
                                                     )}
                                                     style={{ width: `${paidRatio * 100}%` }}
                                                 />
@@ -144,7 +151,27 @@ export function DashboardClient({ players }: { players: Player[] }) {
                                     </Link>
                                 </div>
 
-                                <div className="flex items-center justify-between sm:justify-end gap-5 sm:gap-6 w-full sm:w-auto border-t sm:border-t-0 border-slate-800/50 pt-4 sm:pt-0">
+                                <div className="flex items-center justify-between sm:justify-end gap-5 sm:gap-8 w-full sm:w-auto border-t sm:border-t-0 border-white/5 pt-4 sm:pt-0 z-10">
+                                    <div className="flex flex-col items-end min-w-[100px]">
+                                        <div className={clsx(
+                                            "flex items-center gap-1 font-black font-mono tracking-tighter text-2xl transition-all",
+                                            isSettled ? "text-slate-600" : isDebt ? "text-rose-400 group-hover/item:scale-105" : "text-emerald-400 group-hover/item:scale-105"
+                                        )}>
+                                            <span className="text-xs mr-0.5 opacity-50">RM</span>
+                                            {Math.abs(player.balance).toFixed(2)}
+                                        </div>
+                                        <span className={clsx(
+                                            "text-[9px] uppercase font-black tracking-[0.2em] mt-0.5 px-2 py-0.5 rounded border transition-all",
+                                            isSettled 
+                                                ? "text-slate-600 border-slate-800" 
+                                                : isDebt 
+                                                    ? "text-rose-500 border-rose-500/20 bg-rose-500/5" 
+                                                    : "text-emerald-500 border-emerald-500/20 bg-emerald-500/5"
+                                        )}>
+                                            {isSettled ? "Settled ✓" : isDebt ? "Owed" : "Exceed"}
+                                        </span>
+                                    </div>
+                                    
                                     {isDebt && (
                                         <SettleButton
                                             playerId={player.id}
@@ -152,25 +179,6 @@ export function DashboardClient({ players }: { players: Player[] }) {
                                             amount={Math.abs(player.balance)}
                                         />
                                     )}
-
-                                    <div className="flex flex-col items-end sm:min-w-[120px]">
-                                        <div className={clsx(
-                                            "flex items-center gap-1.5 font-bold font-mono tracking-tighter",
-                                            isSettled ? "text-slate-500" : isDebt ? "text-rose-400" : "text-emerald-400"
-                                        )}>
-                                            {!isSettled && (isDebt
-                                                ? <ArrowDownRight className="w-5 h-5" />
-                                                : <ArrowUpRight className="w-5 h-5" />
-                                            )}
-                                            <span className="text-2xl">RM {Math.abs(player.balance).toFixed(2)}</span>
-                                        </div>
-                                        <span className={clsx(
-                                            "text-[10px] uppercase font-bold tracking-widest mt-0.5",
-                                            isSettled ? "text-slate-600" : isDebt ? "text-rose-500/60" : "text-emerald-500/60"
-                                        )}>
-                                            {isSettled ? "Settled ✓" : isDebt ? "In Debt" : "Credit"}
-                                        </span>
-                                    </div>
                                 </div>
                             </div>
                         );

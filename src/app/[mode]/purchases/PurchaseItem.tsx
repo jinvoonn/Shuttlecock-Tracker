@@ -122,26 +122,26 @@ export function PurchaseItem({ purchase, brands }: { purchase: Purchase, brands:
     }
 
     return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/40 backdrop-blur-sm p-4 flex flex-col sm:flex-row gap-4 sm:items-center justify-between group relative overflow-hidden transition-all hover:bg-slate-900/60">
-            <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-xl bg-slate-800 flex items-center justify-center border border-slate-700 text-slate-500 shrink-0 shadow-inner group-hover:bg-slate-700/80 transition-colors">
-                    <Archive className="w-6 h-6" />
+        <div className="glass-card rounded-2xl p-5 flex flex-col sm:flex-row gap-4 sm:items-center justify-between group relative overflow-hidden transition-all duration-500 glass-card-hover">
+            <div className="flex items-center gap-5">
+                <div className="h-14 w-14 rounded-2xl bg-slate-950/40 flex items-center justify-center border border-white/5 text-slate-500 shrink-0 shadow-2xl group-hover:bg-sky-500/10 group-hover:text-sky-400 group-hover:border-sky-500/20 transition-all duration-500">
+                    <Archive className="w-7 h-7" />
                 </div>
                 <div>
-                    <h3 className="font-medium text-slate-200 flex items-center gap-2">
-                        {brandName} ({purchase.tube_number})
+                    <h3 className="font-black text-slate-100 text-lg flex items-center gap-2 tracking-tight italic">
+                        {brandName} <span className="text-slate-500 not-italic font-mono text-sm tracking-tighter ml-1">#{purchase.tube_number}</span>
                     </h3>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2">
-                        <span className="text-[10px] font-bold uppercase text-slate-500 flex items-center gap-1.5 whitespace-nowrap">
-                            <Calendar className="w-3 h-3 text-sky-500/80" />
+                    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-2 underline-offset-4">
+                        <span className="text-[10px] font-black uppercase text-slate-500 tracking-[0.2em] flex items-center gap-1.5 whitespace-nowrap">
+                            <Calendar className="w-3.5 h-3.5 text-sky-500/80" />
                             {new Date(purchase.purchase_date).toLocaleDateString()}
                         </span>
-                        <div className="flex items-center gap-3">
-                            <span className="text-[10px] font-bold uppercase text-sky-400 font-mono scale-105">RM {Number(purchase.price_per_tube || 0).toFixed(2)}</span>
-                            <span className="text-[10px] font-medium text-slate-600 font-mono">RM {Number(purchase.price_per_cock || 0).toFixed(2)}/pc</span>
+                        <div className="flex items-center gap-4">
+                            <span className="text-[10px] font-black uppercase text-sky-400 font-mono tracking-tighter bg-sky-400/5 px-2 py-0.5 rounded-lg border border-sky-400/10">RM {Number(purchase.price_per_tube || 0).toFixed(2)}</span>
+                            <span className="text-[10px] font-bold text-slate-600 font-mono tracking-tighter">RM {Number(purchase.price_per_cock || 0).toFixed(2)} /pc</span>
                         </div>
                         {purchase.notes && (
-                            <span className="text-[10px] text-slate-500 bg-slate-800/50 px-2 py-0.5 rounded italic truncate max-w-[150px] sm:max-w-none">
+                            <span className="text-[10px] text-slate-500 font-medium italic opacity-80 truncate max-w-[150px] sm:max-w-none">
                                 {purchase.notes}
                             </span>
                         )}
@@ -149,28 +149,28 @@ export function PurchaseItem({ purchase, brands }: { purchase: Purchase, brands:
                 </div>
             </div>
 
-            <div className="flex items-center justify-between sm:justify-end gap-3 sm:w-auto w-full border-t sm:border-t-0 border-slate-800/50 pt-3 sm:pt-0 mt-1 sm:mt-0">
-                <div className="flex items-center gap-3">
-                    <div className={clsx("w-2.5 h-2.5 rounded-full shadow-lg", colorClass)} title="Remaining Indicator" />
+            <div className="flex items-center justify-between sm:justify-end gap-5 sm:w-auto w-full border-t sm:border-t-0 border-white/5 pt-4 sm:pt-0 mt-1 sm:mt-0">
+                <div className="flex items-center gap-4">
+                    <div className={clsx("w-3 h-3 rounded-full shadow-[0_0_12px_rgba(0,0,0,0.5)] transition-all duration-500 group-hover:scale-125", colorClass)} title="Remaining Indicator" />
                     <div className="text-right">
-                        <p className="text-xs font-bold text-slate-200 font-mono leading-none">
-                            {purchase.remaining_quantity} <span className="text-[10px] text-zinc-600 font-normal uppercase tracking-tighter">/ {purchase.initial_quantity} left</span>
+                        <p className="text-sm font-black text-slate-100 font-mono tracking-tighter leading-none">
+                            {purchase.remaining_quantity} <span className="text-[10px] text-zinc-600 font-black uppercase tracking-widest ml-1">/ {purchase.initial_quantity} left</span>
                         </p>
                     </div>
                 </div>
 
                 {isAdmin && (
-                    <div className="flex items-center gap-1 ml-2">
+                    <div className="flex items-center gap-1.5 ml-4">
                         <button
                             onClick={() => setIsEditing(true)}
-                            className="p-2.5 rounded-xl text-slate-600 hover:text-violet-400 hover:bg-violet-500/10 transition-all"
+                            className="p-2.5 rounded-xl text-slate-500 hover:text-violet-400 hover:bg-violet-500/10 transition-all duration-300 border border-transparent hover:border-violet-500/20"
                             title="Edit tube"
                         >
                             <Edit3 className="w-4 h-4" />
                         </button>
 
                         <form action={deletePurchase.bind(null, purchase.id)}>
-                            <button type="submit" className="p-2.5 rounded-xl text-slate-600 hover:text-rose-400 hover:bg-rose-500/10 transition-all" title="Delete tube">
+                            <button type="submit" className="p-2.5 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all duration-300 border border-transparent hover:border-rose-500/20" title="Delete tube">
                                 <Trash2 className="w-4 h-4" />
                             </button>
                         </form>

@@ -18,10 +18,10 @@ export function Folder({ title, children, defaultOpen = false }: FolderProps) {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={clsx(
-                    "w-full flex items-center justify-between p-4 rounded-2xl border transition-all duration-300 group",
+                    "w-full flex items-center justify-between p-4 rounded-2xl border transition-all duration-500 group glass-card glass-card-hover",
                     isOpen
-                        ? "bg-slate-800/80 border-sky-500/30 text-sky-400"
-                        : "bg-slate-900/40 border-slate-800 text-slate-400 hover:bg-slate-800/50 hover:border-slate-700"
+                        ? "border-sky-500/30 text-sky-400 bg-sky-500/5 shadow-lg shadow-sky-500/5"
+                        : "text-slate-400 hover:text-slate-200"
                 )}
             >
                 <div className="flex items-center gap-3">

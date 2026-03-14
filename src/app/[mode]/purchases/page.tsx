@@ -33,11 +33,11 @@ export default async function PurchasesPage({ params }: { params: Promise<{ mode
 
     return (
         <div className="p-4 md:p-8 max-w-6xl mx-auto animate-in fade-in duration-700">
-            <header className="mb-8">
-                <h1 className="text-3xl font-bold text-slate-50 mb-2">
-                    Shuttlecock Purchases
+            <header className="mb-10">
+                <h1 className="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-slate-50 via-sky-100 to-sky-400 mb-2 tracking-tighter italic">
+                    Shuttlecocks
                 </h1>
-                <p className="text-slate-400">Track your inventory and detailed tube costs.</p>
+                <p className="text-slate-400 font-bold tracking-tight text-sm">Track your inventory and detailed tube costs.</p>
             </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
