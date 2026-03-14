@@ -9,10 +9,6 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const activeUrl = supabaseUrl || 'https://placeholder.supabase.co';
 const activeKey = supabaseKey || 'placeholder';
 
-if (!supabaseUrl || !supabaseKey) {
-    console.warn(
-        '⚠️ Supabase environment variables are missing. This is expected during a Vercel build if they are not yet set, but the site will not work until they are added to Vercel Settings.'
-    );
-}
-
 export const supabase = createClient(activeUrl, activeKey);
+
+export const isSupabaseConfigured = !!supabaseUrl && !!supabaseKey && supabaseUrl !== 'https://placeholder.supabase.co';

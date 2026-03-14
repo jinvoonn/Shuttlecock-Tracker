@@ -1,11 +1,24 @@
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import DesktopDashboard from "@/stitch-designs/desktop/Dashboard";
 import MobileDashboard from "@/stitch-designs/mobile/Dashboard";
+import { AlertCircle, Terminal } from "lucide-react";
 
 export const revalidate = 0;
 
 export default async function DashboardPage({ params }: { params: Promise<{ mode: string }> }) {
   await params;
+  if (!isSupabaseConfigured) {
+    return (
+      <div className="p-8 flex flex-col items-center justify-center min-h-screen text-amber-500 bg-[#020617] text-center max-w-md mx-auto">
+        <AlertCircle className="size-12 mb-4" />
+        <p className="font-black italic uppercase text-2xl tracking-tighter">Configuration Required</p>
+        <p className="text-sm text-slate-400 mt-2 font-bold tracking-tight">
+          Vercel Environment Variables are missing. Please add <code className="text-[#13ec80]">NEXT_PUBLIC_SUPABASE_URL</code> and <code className="text-[#13ec80]">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> in Project Settings.
+        </p>
+      </div>
+    );
+  }
+
   const [
     { data: paymentsData, error: paymentsError },
     { data: purchasesData, error: purchasesError },
@@ -13,16 +26,20 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
     { data: sessionUsageData, error: sessionUsageError }
   ] = await Promise.all([
     supabase.from("payments").select("amount, players(id, name)"),
-    supabase.from("purchases").select("price_per_tube, quantity, brand"), // fetch quantity for inventory
+    supabase.from("purchases").select("price_per_tube, initial_quantity, brands(name)"),
     supabase.from("sessions").select(`id, session_players ( players ( id, name ) )`),
     supabase.from("session_usage").select("session_id, quantity_used, purchases(price_per_cock)")
   ]);
 
   if (paymentsError || purchasesError || sessionsError || sessionUsageError) {
+    console.error("Dashboard Fetch Error:", { paymentsError, purchasesError, sessionsError, sessionUsageError });
     return (
       <div className="p-8 flex flex-col items-center justify-center min-h-screen text-rose-500 bg-[#020617]">
         <p className="font-black italic uppercase text-2xl tracking-tighter">Failed to fetch data</p>
         <p className="text-sm text-slate-500 mt-2 font-bold tracking-widest uppercase">Database Connection Error</p>
+        <div className="mt-6 p-4 bg-slate-900/50 rounded-xl border border-slate-800 font-mono text-[10px] text-slate-500 max-w-lg overflow-auto">
+           {JSON.stringify({ paymentsError, purchasesError, sessionsError, sessionUsageError }, null, 2)}
+        </div>
       </div>
     );
   }
@@ -73,7 +90,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
   const totalPoolBalance = players.reduce((acc, p) => acc + p.balance, 0);
 
   // Calculate generic mock stock if not present
-  const totalTubes = (purchasesData || []).reduce((acc, curr) => acc + Number(curr.quantity || 1), 0);
+  const totalTubes = (purchasesData || []).reduce((acc, curr) => acc + Number(curr.initial_quantity || 1), 0);
   const remainingTubes = Math.max(0, totalTubes - Math.floor(totalShuttlesUsed / 12));
   const totalShuttles = totalTubes * 12;
 
