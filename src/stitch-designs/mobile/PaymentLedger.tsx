@@ -86,8 +86,8 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
           {/* Player Balances Section */}
           <section className="space-y-6">
             <div className="flex items-center justify-between px-1">
-              <h2 className="text-xs font-black uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500 italic">Player Balances</h2>
-              <span className="text-[10px] font-black px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 uppercase tracking-widest shadow-inner">{players.length} Registered</span>
+              <h2 className="text-xs font-black uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500 italic">History</h2>
+              <span className="text-[10px] font-black px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 uppercase tracking-widest shadow-inner">{payments.length} Transactions</span>
             </div>
 
             {/* Player List */}
