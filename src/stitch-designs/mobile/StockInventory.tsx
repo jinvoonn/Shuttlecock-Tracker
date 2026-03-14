@@ -3,16 +3,16 @@
 import React from 'react';
 import { 
   Search, 
-  UserCircle, 
   Package, 
   Plus, 
-  LayoutGrid, 
-  Activity, 
-  Banknote,
+  Trash2,
+  Edit2,
   ShoppingCart,
   TrendingDown,
   ChevronRight
 } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 interface StockStats {
   totalStock: number;
@@ -32,7 +32,7 @@ interface PurchaseHistory {
   id: string;
   name: string;
   date: string;
-  price: number;
+  pricePerTube: number;
 }
 
 interface MobileStockInventoryProps {
@@ -42,6 +42,10 @@ interface MobileStockInventoryProps {
 }
 
 export default function MobileStockInventory({ stats, activeTubes, history }: MobileStockInventoryProps) {
+  const pathname = usePathname() || '';
+  const currentMode = pathname.split('/')[1] || 'view';
+  const basePath = `/${currentMode}`;
+
   return (
     <div className="bg-[#020617] font-['Inter',_sans-serif] text-slate-100 antialiased min-h-screen pb-40">
       <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-800 shadow-2xl">
@@ -142,7 +146,7 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
                       <p className="text-[9px] uppercase font-black tracking-widest text-slate-600 mt-1">{new Date(item.date).toLocaleDateString()}</p>
                     </div>
                   </div>
-                  <p className="font-black font-['JetBrains_Mono',_monospace] text-sm text-[#34d399] tracking-tighter">${item.price.toFixed(2)}</p>
+                  <p className="font-black font-['JetBrains_Mono',_monospace] text-sm text-[#34d399] tracking-tighter">RM{(item.pricePerTube || 0).toFixed(2)}</p>
                 </div>
               ))}
             </div>
@@ -150,9 +154,12 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
         </main>
 
         {/* Floating Action Button */}
-        <button className="fixed bottom-32 right-8 size-16 bg-[#34d399] text-[#020617] rounded-3xl shadow-[0_20px_50px_rgba(52,211,153,0.3)] flex items-center justify-center z-50 hover:scale-110 active:scale-90 transition-all border-b-4 border-[#059669]">
+        <Link 
+          href={`${basePath}/purchases/add`}
+          className="fixed bottom-32 right-8 size-16 bg-[#34d399] text-[#020617] rounded-3xl shadow-[0_20px_50px_rgba(52,211,153,0.3)] flex items-center justify-center z-50 hover:scale-110 active:scale-90 transition-all border-b-4 border-[#059669]"
+        >
           <Plus className="size-8 font-black" />
-        </button>
+        </Link>
       </div>
     </div>
   );

@@ -18,25 +18,44 @@ interface MatchModalProps {
 }
 
 export default function AddMatchModal({ sessionId, players, onClose, onSuccess }: MatchModalProps) {
-  const [teamA, setTeamA] = useState<string[]>(['', '']);
-  const [teamB, setTeamB] = useState<string[]>(['', '']);
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
+  const [teamA, setTeamA] = useState<string[]>([]);
+  const [teamB, setTeamB] = useState<string[]>([]);
   const [scoreA, setScoreA] = useState<number>(0);
   const [scoreB, setScoreB] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSave = async () => {
-    const teamAIds = teamA.filter(Boolean);
-    const teamBIds = teamB.filter(Boolean);
-
-    if (teamAIds.length === 0 || teamBIds.length === 0) {
-      setError("Each team needs at least one player.");
-      return;
+  const togglePlayer = (id: string) => {
+    setError(null);
+    if (selectedPlayerIds.includes(id)) {
+      setSelectedPlayerIds(prev => prev.filter(pid => pid !== id));
+      setTeamA(prev => prev.filter(pid => pid !== id));
+      setTeamB(prev => prev.filter(pid => pid !== id));
+    } else {
+      if (selectedPlayerIds.length >= 4) {
+        setError("Maximum 4 players allowed per match.");
+        return;
+      }
+      setSelectedPlayerIds(prev => [...prev, id]);
     }
+  };
 
-    const allIds = [...teamAIds, ...teamBIds];
-    if (new Set(allIds).size !== allIds.length) {
-      setError("A player cannot be in two teams at once.");
+  const assignToTeam = (id: string, team: 'A' | 'B') => {
+    if (team === 'A') {
+      if (teamA.length >= 2) return;
+      setTeamA(prev => [...prev, id]);
+      setTeamB(prev => prev.filter(pid => pid !== id));
+    } else {
+      if (teamB.length >= 2) return;
+      setTeamB(prev => [...prev, id]);
+      setTeamA(prev => prev.filter(pid => pid !== id));
+    }
+  };
+
+  const handleSave = async () => {
+    if (teamA.length === 0 || teamB.length === 0) {
+      setError("Each team needs at least one player.");
       return;
     }
 
@@ -46,8 +65,8 @@ export default function AddMatchModal({ sessionId, players, onClose, onSuccess }
     try {
       const payload = {
         sessionId,
-        teamAIds,
-        teamBIds,
+        teamAIds: teamA,
+        teamBIds: teamB,
         scoreA,
         scoreB
       };
@@ -80,7 +99,7 @@ export default function AddMatchModal({ sessionId, players, onClose, onSuccess }
           </button>
         </div>
 
-        <div className="p-8 space-y-10">
+        <div className="p-8 space-y-8 max-h-[80vh] overflow-y-auto">
           {error && (
             <div className="bg-rose-500/10 border border-rose-500/20 p-4 rounded-xl flex items-center gap-3 text-rose-400 text-sm font-bold uppercase tracking-tight">
               <AlertCircle className="size-5" />
@@ -88,73 +107,94 @@ export default function AddMatchModal({ sessionId, players, onClose, onSuccess }
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            {/* Team A */}
-            <div className="space-y-6">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                 <span className="text-xs font-black uppercase tracking-widest text-[#13ec80]">Team A</span>
-                 <input 
-                   type="number" 
-                   value={scoreA}
-                   onChange={(e) => setScoreA(parseInt(e.target.value) || 0)}
-                   className="w-16 bg-slate-950 border border-slate-800 rounded-lg p-2 text-center font-mono font-black text-xl text-[#13ec80] outline-none focus:ring-1 focus:ring-[#13ec80]"
-                 />
-              </div>
-              <div className="space-y-3">
-                {[0, 1].map(i => (
-                  <select
-                    key={i}
-                    value={teamA[i]}
-                    onChange={(e) => {
-                      const next = [...teamA];
-                      next[i] = e.target.value;
-                      setTeamA(next);
-                    }}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-slate-100 font-bold uppercase text-xs focus:ring-1 focus:ring-[#13ec80] outline-none appearance-none"
+          <div className="space-y-4">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Select Players (2-4)</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {players.map(p => {
+                const isSelected = selectedPlayerIds.includes(p.id);
+                const team = teamA.includes(p.id) ? 'A' : teamB.includes(p.id) ? 'B' : null;
+
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => togglePlayer(p.id)}
+                    className={clsx(
+                      "p-3 rounded-xl border text-left transition-all relative group",
+                      isSelected 
+                        ? "bg-[#13ec80]/10 border-[#13ec80]/50 text-slate-100" 
+                        : "bg-slate-950 border-slate-800 text-slate-500 hover:border-slate-700"
+                    )}
                   >
-                    <option value="">Select Player {i + 1}...</option>
-                    {players.map(p => (
-                      <option key={p.id} value={p.id}>{p.name}</option>
-                    ))}
-                  </select>
+                    <p className="text-xs font-bold uppercase tracking-tight truncate">{p.name}</p>
+                    {isSelected && (
+                      <div className="mt-2 flex gap-1">
+                        <span 
+                          onClick={(e) => { e.stopPropagation(); assignToTeam(p.id, 'A'); }}
+                          className={clsx(
+                            "text-[8px] font-black px-1.5 py-0.5 rounded cursor-pointer",
+                            team === 'A' ? "bg-[#13ec80] text-[#020617]" : "bg-slate-800 text-slate-400 hover:text-white"
+                          )}
+                        >
+                          T.A
+                        </span>
+                        <span 
+                          onClick={(e) => { e.stopPropagation(); assignToTeam(p.id, 'B'); }}
+                          className={clsx(
+                            "text-[8px] font-black px-1.5 py-0.5 rounded cursor-pointer",
+                            team === 'B' ? "bg-slate-400 text-[#020617]" : "bg-slate-800 text-slate-400 hover:text-white"
+                          )}
+                        >
+                          T.B
+                        </span>
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-8 py-6 border-y border-slate-800/50">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black tracking-widest text-[#13ec80] uppercase italic">Team A Score</span>
+                <input 
+                  type="number" 
+                  value={scoreA}
+                  onChange={(e) => setScoreA(parseInt(e.target.value) || 0)}
+                  className="w-16 bg-slate-950 border border-slate-800 rounded-lg p-2 text-center font-mono font-black text-xl text-[#13ec80] outline-none"
+                />
+              </div>
+              <div className="space-y-1">
+                {teamA.map(id => (
+                  <p key={id} className="text-[10px] font-black text-slate-300 uppercase italic">
+                    • {players.find(p => p.id === id)?.name}
+                  </p>
                 ))}
               </div>
             </div>
 
-            {/* Team B */}
-            <div className="space-y-6">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                 <span className="text-xs font-black uppercase tracking-widest text-slate-400">Team B</span>
-                 <input 
-                   type="number" 
-                   value={scoreB}
-                   onChange={(e) => setScoreB(parseInt(e.target.value) || 0)}
-                   className="w-16 bg-slate-950 border border-slate-800 rounded-lg p-2 text-center font-mono font-black text-xl text-slate-100 outline-none focus:ring-1 focus:ring-slate-500"
-                 />
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black tracking-widest text-slate-400 uppercase italic">Team B Score</span>
+                <input 
+                  type="number" 
+                  value={scoreB}
+                  onChange={(e) => setScoreB(parseInt(e.target.value) || 0)}
+                  className="w-16 bg-slate-950 border border-slate-800 rounded-lg p-2 text-center font-mono font-black text-xl text-slate-100 outline-none"
+                />
               </div>
-              <div className="space-y-3">
-                {[0, 1].map(i => (
-                  <select
-                    key={i}
-                    value={teamB[i]}
-                    onChange={(e) => {
-                      const next = [...teamB];
-                      next[i] = e.target.value;
-                      setTeamB(next);
-                    }}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-slate-100 font-bold uppercase text-xs focus:ring-1 focus:ring-slate-500 outline-none appearance-none"
-                  >
-                    <option value="">Select Player {i + 1}...</option>
-                    {players.map(p => (
-                      <option key={p.id} value={p.id}>{p.name}</option>
-                    ))}
-                  </select>
+              <div className="space-y-1">
+                {teamB.map(id => (
+                  <p key={id} className="text-[10px] font-black text-slate-300 uppercase italic">
+                    • {players.find(p => p.id === id)?.name}
+                  </p>
                 ))}
               </div>
             </div>
           </div>
 
-          <div className="pt-8 border-t border-slate-800 flex justify-end gap-4">
+          <div className="pt-4 flex justify-end gap-4">
             <button 
               onClick={onClose}
               className="px-8 py-4 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-white transition-colors"
@@ -163,8 +203,8 @@ export default function AddMatchModal({ sessionId, players, onClose, onSuccess }
             </button>
             <button 
               onClick={handleSave}
-              disabled={isSubmitting}
-              className="bg-[#13ec80] hover:bg-[#13ec80]/90 text-slate-950 px-12 py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-[#13ec80]/20 disabled:opacity-50"
+              disabled={isSubmitting || teamA.length === 0 || teamB.length === 0}
+              className="bg-[#13ec80] hover:bg-[#13ec80]/90 text-slate-950 px-12 py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-[#13ec80]/20 disabled:opacity-30"
             >
               {isSubmitting ? 'Saving...' : 'Save Match'}
             </button>

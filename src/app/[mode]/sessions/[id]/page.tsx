@@ -9,7 +9,8 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
 
   const [
     { data: session, error: sessionError },
-    { data: matchesData, error: matchesError }
+    { data: matchesData, error: matchesError },
+    { data: allSessions, error: allSessionsError }
   ] = await Promise.all([
     supabase
       .from("sessions")
@@ -33,16 +34,20 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
         players_b1:team_b_player1 ( name ),
         players_b2:team_b_player2 ( name )
       `)
-      .eq("session_id", id)
+      .eq("session_id", id),
+    supabase.from("sessions").select("id").order("date", { ascending: true }).order("created_at", { ascending: true })
   ]);
 
-  if (sessionError || matchesError || !session) {
+  if (sessionError || matchesError || allSessionsError || !session) {
     return (
       <div className="p-8 text-rose-500 font-black italic uppercase flex items-center justify-center min-h-screen bg-[#020617]">
         Session not found or error loading data
       </div>
     );
   }
+
+  const sessionIndex = (allSessions || []).findIndex(s => s.id === id);
+  const sessionNum = sessionIndex !== -1 ? sessionIndex + 1 : "??";
 
   const sessionDate = new Date(session.date);
 
@@ -70,7 +75,7 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
 
   const sessionMeta = {
     id: session.id,
-    name: `Session ${session.id.slice(0, 4)}`,
+    name: `Session ${sessionNum}`,
     date: sessionDate.toLocaleDateString(),
     time: sessionDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     location: session.location || "Default Court",

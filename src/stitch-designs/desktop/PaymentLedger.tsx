@@ -148,6 +148,7 @@ export default function DesktopPaymentLedger({ payments }: DesktopPaymentLedgerP
                       <th className="px-6 py-4">Player Name</th>
                       <th className="px-6 py-4">Payment Date</th>
                       <th className="px-6 py-4 text-right">Amount</th>
+                      <th className="px-6 py-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/50">
@@ -162,10 +163,30 @@ export default function DesktopPaymentLedger({ payments }: DesktopPaymentLedgerP
                           <p className="text-sm font-bold text-slate-100 uppercase tracking-tight">{p.playerName}</p>
                         </td>
                         <td className="px-6 py-4 font-mono text-sm text-slate-400">{p.date}</td>
-                        <td className="px-6 py-4 text-right">
+                        <td className="px-6 py-4 text-right whitespace-nowrap">
                           <span className="font-mono text-sm font-bold text-[#13ec80]">
                             +RM{p.amount.toFixed(2)}
                           </span>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex justify-end gap-2">
+                            <button 
+                              onClick={() => {/* TODO: Implement Edit */}}
+                              className="p-1.5 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors"
+                            >
+                              <Search className="size-3.5" />
+                            </button>
+                            <button 
+                              onClick={() => {
+                                if (window.confirm("Are you sure you want to delete this payment record?")) {
+                                  // TODO: call deletePayment
+                                }
+                              }}
+                              className="p-1.5 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
+                            >
+                              <Package className="size-3.5" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}

@@ -114,7 +114,7 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
             </div>
           </div>
           <div className="flex items-center gap-6">
-            <Link href={`${basePath}/add-new-stock-stitch`} className="bg-[#13ec80] text-[#020617] px-6 py-2 rounded font-black text-xs tracking-tighter hover:brightness-110 transition-all uppercase shadow-lg shadow-[#13ec80]/20 border border-[#13ec80]">
+            <Link href={`${basePath}/purchases/add`} className="bg-[#13ec80] text-[#020617] px-6 py-2 rounded font-black text-xs tracking-tighter hover:brightness-110 transition-all uppercase shadow-lg shadow-[#13ec80]/20 border border-[#13ec80]">
               Add New Stock
             </Link>
             <div className="flex items-center gap-3">
@@ -134,7 +134,7 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
               <p className="text-slate-500 mt-2 uppercase tracking-widest text-xs font-bold">Asset management & consumption tracking</p>
             </div>
             <Link 
-              href={`${basePath}/add-new-stock-stitch`}
+              href={`${basePath}/purchases/add`}
               className="bg-[#13ec80] text-slate-950 font-black px-6 py-3 rounded uppercase tracking-tighter flex items-center gap-2 hover:brightness-110 transition-all shadow-lg shadow-[#13ec80]/20"
             >
               <PlusSquare className="size-5" />
@@ -228,26 +228,58 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
               <table className="w-full text-left bg-slate-900/60 border-collapse">
                 <thead>
                   <tr className="bg-slate-950/50 text-slate-500 uppercase text-[10px] font-black tracking-widest border-b border-slate-800">
-                    <th className="px-6 py-4">Brand/Model (#)</th>
-                    <th className="px-6 py-4">Date</th>
+                    <th className="px-6 py-4">Brand / Tube #</th>
+                    <th className="px-6 py-4">Purchase Date</th>
                     <th className="px-6 py-4 text-center">Remaining</th>
                     <th className="px-6 py-4 text-right">Price/Tube</th>
                     <th className="px-6 py-4 text-right">Price/Cock</th>
+                    <th className="px-6 py-4 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/80 text-sm">
                   {history.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="px-6 py-8 text-center text-slate-500 font-bold">No purchase history available.</td>
+                      <td colSpan={6} className="px-6 py-8 text-center text-slate-500 font-bold">No purchase history available.</td>
                     </tr>
                   )}
                   {filteredHistory.map(item => (
-                    <tr key={item.id} className="hover:bg-slate-800/50 transition-colors">
-                      <td className="px-6 py-4 font-bold text-slate-100">{item.name} ({item.tubeNumber})</td>
-                      <td className="px-6 py-4 font-mono text-slate-400 italic">{item.date}</td>
-                      <td className="px-6 py-4 text-center font-mono text-[#13ec80]">{item.remaining} cocks</td>
-                      <td className="px-6 py-4 text-right font-mono font-bold text-slate-100">RM{item.pricePerTube.toFixed(2)}</td>
+                    <tr key={item.id} className="hover:bg-slate-800/50 transition-colors group">
+                      <td className="px-6 py-4 font-bold text-slate-100 italic uppercase tracking-tight">
+                        {item.name} <span className="text-[#13ec80]">#{item.tubeNumber}</span>
+                      </td>
+                      <td className="px-6 py-4 font-mono text-slate-400 text-xs italic">{item.date}</td>
+                      <td className="px-6 py-4 text-center">
+                        <span className={clsx(
+                          "font-mono text-xs px-2 py-0.5 rounded",
+                          item.remaining <= 4 ? "bg-rose-500/10 text-rose-400" : "bg-emerald-500/10 text-emerald-400"
+                        )}>
+                          {item.remaining} / 12
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right font-mono font-bold text-slate-300">RM{item.pricePerTube.toFixed(2)}</td>
                       <td className="px-6 py-4 text-right font-mono font-bold text-[#13ec80]">RM{item.pricePerCock.toFixed(2)}</td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button 
+                            className="p-1.5 hover:bg-slate-700/50 rounded text-slate-400 hover:text-white transition-colors"
+                            onClick={() => {/* TODO: Implement Edit Modal */}}
+                            title="Edit Record"
+                          >
+                             <Search className="size-3.5" />
+                          </button>
+                          <button 
+                            className="p-1.5 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
+                            onClick={() => {
+                              if (window.confirm("Are you sure you want to delete this purchase record?")) {
+                                // TODO: call deletePurchase server action
+                              }
+                            }}
+                            title="Delete Record"
+                          >
+                             <Package className="size-3.5" />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

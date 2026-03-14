@@ -182,6 +182,28 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
                       <span className={clsx("text-2xl font-mono font-black leading-none", session.totalNet >= 0 ? 'text-emerald-400' : 'text-rose-400')}>
                         {session.totalNet >= 0 ? '+' : '-'}RM{Math.abs(session.totalNet).toFixed(2)}
                       </span>
+                      <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                         <button 
+                           className="p-2 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors"
+                           onClick={(e) => {
+                             e.preventDefault();
+                             // TODO: Implement Edit
+                           }}
+                         >
+                            <Search className="size-4" />
+                         </button>
+                         <button 
+                           className="p-2 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
+                           onClick={(e) => {
+                             e.preventDefault();
+                             if (window.confirm("Are you sure you want to delete this session? This will also delete all matches and restore used shuttles.")) {
+                                // TODO: Link to deleteSession
+                             }
+                           }}
+                         >
+                            <Package className="size-4" />
+                         </button>
+                      </div>
                     </div>
                   </div>
                 </div>

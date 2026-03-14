@@ -58,8 +58,9 @@ export default async function PurchasesPage({ params }: { params: Promise<{ mode
     history.push({
       id: p.id,
       name: brandName,
+      brandName: brandName, // Added for clarity
       tubeNumber: p.tube_number || 0,
-      date: new Date(p.purchase_date || p.created_at).toLocaleDateString(),
+      date: new Date(p.purchase_date || p.created_at).toISOString().split('T')[0],
       remaining: p.remaining_quantity || 0,
       pricePerTube: p.price_per_tube || 0,
       pricePerCock: p.price_per_cock || 0

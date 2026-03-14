@@ -10,7 +10,8 @@ import {
   Package, 
   CheckCircle2,
   AlertCircle,
-  ArrowLeft
+  ArrowLeft,
+  Search
 } from 'lucide-react';
 import Link from 'next/link';
 import clsx from 'clsx';
@@ -213,15 +214,36 @@ export default function DesktopSessionDetails({ session, matches, attendees }: D
                     <span className="text-[10px] font-black italic uppercase tracking-widest text-slate-500">
                       {match.type} • {match.court}
                     </span>
-                    {match.status === 'Completed' ? (
-                      <span className="text-[10px] font-bold text-[#13ec80] flex items-center gap-1">
-                        <CheckCircle2 className="size-3" /> COMPLETED
-                      </span>
-                    ) : (
-                      <span className="text-[10px] font-bold text-[#13ec80] animate-pulse flex items-center gap-1">
-                        <AlertCircle className="size-3 fill-current" /> LIVE
-                      </span>
-                    )}
+                    <div className="flex items-center gap-3">
+                      {match.status === 'Completed' ? (
+                        <span className="text-[10px] font-bold text-[#13ec80] flex items-center gap-1">
+                          <CheckCircle2 className="size-3" /> COMPLETED
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold text-[#13ec80] animate-pulse flex items-center gap-1">
+                          <AlertCircle className="size-3 fill-current" /> LIVE
+                        </span>
+                      )}
+                      
+                      <div className="flex items-center gap-1 border-l border-slate-300 dark:border-[#1e293b] ml-2 pl-2">
+                        <button 
+                          onClick={() => {/* TODO: Implement Edit Match */}}
+                          className="p-1 hover:bg-slate-300 dark:hover:bg-slate-700 rounded text-slate-400 hover:text-white transition-colors"
+                        >
+                          <Search className="size-3.5" />
+                        </button>
+                        <button 
+                          onClick={() => {
+                            if (window.confirm("Are you sure you want to delete this match?")) {
+                              // TODO: call deleteMatch
+                            }
+                          }}
+                          className="p-1 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
+                        >
+                          <Package className="size-3.5" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                   <div className="p-6 grid grid-cols-7 items-center gap-4">
                     <div className="col-span-3 text-right">

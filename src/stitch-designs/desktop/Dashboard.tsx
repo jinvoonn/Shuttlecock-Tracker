@@ -120,8 +120,8 @@ export default function DesktopDashboard({ stats, players, isAdmin, upcomingSess
                   <TrendingUp className="size-6 text-emerald-400" />
                 </div>
               </div>
-              <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1 italic">Total Owed</p>
-              <h3 className="text-3xl font-black italic text-emerald-400 tracking-tighter shrink-0 leading-none">
+              <p className="text-red-500 text-[10px] font-black uppercase tracking-widest mb-1 italic">Total Owed</p>
+              <h3 className="text-3xl font-black italic text-red-500 tracking-tighter shrink-0 leading-none">
                 RM{stats.totalOwed.toFixed(2)}
               </h3>
             </div>
