@@ -25,7 +25,7 @@ export default async function PurchasesPage({ params }: { params: Promise<{ mode
     { data: sessionUsageData, error: sessionUsageError }
   ] = await Promise.all([
     supabase.from("purchases").select("*, brands(name)").order("tube_number", { ascending: false }),
-    supabase.from("session_usage").select("quantity_used, created_at").gte('created_at', new Date(new Date().setHours(0,0,0,0)).toISOString())
+    supabase.from("session_usage").select("quantity_used")
   ]);
 
   if (purchasesError || sessionUsageError) {

@@ -49,8 +49,41 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
         .order("created_at", { ascending: false });
 
     // Fetch all players to map IDs to names for match history
-    const { data: allPlayers } = await supabase.from("players").select("id, name");
-    const playerMap = Object.fromEntries((allPlayers || []).map(p => [p.id, p.name]));
+    const { data: allPlayersData } = await supabase.from("players").select("id, name");
+    const playerMap = Object.fromEntries((allPlayersData || []).map(p => [p.id, p.name]));
+
+    // Fetch payments for balance calculation
+    const { data: paymentsData } = await supabase.from("payments").select("*").eq("player_id", id).order("date", { ascending: false });
+    const totalPayments = (paymentsData || []).reduce((acc, p) => acc + Number(p.amount || 0), 0);
+
+    // Fetch session costs to calculate owed amount
+    const { data: sessionParticipation } = await supabase.from("session_players").select("session_id");
+    const sessionIds = (sessionParticipation || []).map(sp => sp.session_id);
+    
+    let totalOwed = 0;
+    if (sessionIds.length > 0) {
+        const { data: sesUsage } = await supabase.from("session_usage").select("session_id, quantity_used, purchases(price_per_cock)").in("session_id", sessionIds);
+        const { data: sesPlayers } = await supabase.from("session_players").select("session_id").in("session_id", sessionIds);
+        
+        const costs: Record<string, number> = {};
+        (sesUsage || []).forEach(su => {
+            const purchase = Array.isArray(su.purchases) ? su.purchases[0] : su.purchases;
+            costs[su.session_id] = (costs[su.session_id] || 0) + (Number(purchase?.price_per_cock || 0) * Number(su.quantity_used || 0));
+        });
+        
+        const counts: Record<string, number> = {};
+        (sesPlayers || []).forEach(sp => {
+            counts[sp.session_id] = (counts[sp.session_id] || 0) + 1;
+        });
+        
+        sessionIds.forEach(sid => {
+            const sessionCost = costs[sid] || 0;
+            const playerAmount = sessionCost / (counts[sid] || 1);
+            totalOwed += playerAmount;
+        });
+    }
+
+    const currentBalance = totalPayments - totalOwed;
 
     // Calculate generic stats
     let totalMatchesCount = 0;
@@ -193,31 +226,22 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                     <p className="text-2xl font-bold font-mono text-emerald-400 relative z-10">{winRate}%</p>
                 </div>
                 <div className="bg-slate-900/60 p-5 rounded-2xl border border-slate-800/80 shadow-lg relative overflow-hidden flex flex-col justify-center">
-                    <p className="text-[10px] font-bold uppercase text-slate-500 mb-2">Recent Form</p>
-                    <div className="flex items-center justify-center gap-1.5">
-                        {recentForm.map((res, i) => (
-                            <span 
-                                key={i} 
-                                className={clsx(
-                                    "w-6 h-6 flex items-center justify-center text-[10px] font-black rounded-md border",
-                                    res === "W" ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400" :
-                                    res === "D" ? "bg-slate-700/20 border-slate-600/30 text-slate-400" :
-                                    "bg-rose-500/20 border-rose-500/30 text-rose-400"
-                                )}
-                            >
-                                {res}
-                            </span>
-                        ))}
-                    </div>
+                    <p className="text-[10px] font-bold uppercase text-slate-500 mb-2">Balance</p>
+                    <p className={clsx(
+                        "text-2xl font-black font-mono tracking-tighter italic leading-none",
+                        currentBalance >= 0 ? "text-emerald-400" : "text-rose-400"
+                    )}>
+                        {currentBalance >= 0 ? "+" : "-"}RM{Math.abs(currentBalance).toFixed(2)}
+                    </p>
                 </div>
                 <div className="bg-slate-900/60 p-5 rounded-2xl border border-slate-800/80 shadow-lg flex flex-col justify-center gap-2">
                     <div className="flex items-center justify-between text-xs px-2">
-                        <span className="text-slate-500 font-bold uppercase">Wins</span>
-                        <span className="font-mono text-emerald-400 font-bold">{wins}</span>
+                        <span className="text-slate-500 font-bold uppercase">Paid</span>
+                        <span className="font-mono text-emerald-400 font-bold whitespace-nowrap">RM{totalPayments.toFixed(2)}</span>
                     </div>
                     <div className="flex items-center justify-between text-xs px-2">
-                        <span className="text-slate-500 font-bold uppercase">Losses</span>
-                        <span className="font-mono text-rose-400 font-bold">{losses}</span>
+                        <span className="text-slate-500 font-bold uppercase">Sessions</span>
+                        <span className="font-mono text-slate-300 font-bold">{totalSessions}</span>
                     </div>
                 </div>
             </div>
@@ -276,58 +300,83 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                 </div>
             </div>
 
-            <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-6">
-                <h2 className="text-sm font-bold uppercase tracking-tight text-slate-500 mb-4 flex items-center gap-2">
-                    <Swords className="w-5 h-5 text-slate-400" /> Match History
-                </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20">
+                <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-6">
+                    <h2 className="text-sm font-bold uppercase tracking-tight text-slate-500 mb-4 flex items-center gap-2 italic">
+                        <Swords className="w-5 h-5 text-slate-400" /> Match History
+                    </h2>
 
-                {formattedMatches.length === 0 ? (
-                    <div className="text-center py-12 text-slate-500 text-sm italic">
-                        No matches recorded yet.
-                    </div>
-                ) : (
-                    <div className="space-y-3">
-                        {formattedMatches.map((m: any) => (
-                            <div key={m.id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-950/50 p-4 rounded-xl border border-slate-800/80 gap-4">
-                                <div className="flex items-center gap-4">
-                                    <div className="flex flex-col items-center justify-center w-12 h-12 rounded-lg bg-slate-900 border border-slate-800 shrink-0">
-                                        <span className="text-[9px] font-bold uppercase text-slate-600 leading-none">{new Date(m.date).toLocaleString('default', { month: 'short' })}</span>
-                                        <span className="text-sm font-bold text-slate-300 font-mono mt-0.5">{new Date(m.date).getDate()}</span>
+                    {formattedMatches.length === 0 ? (
+                        <div className="text-center py-12 text-slate-500 text-sm italic">
+                            No matches recorded yet.
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {formattedMatches.map((m: any) => (
+                                <div key={m.id} className="flex flex-col bg-slate-950/50 p-4 rounded-xl border border-slate-800/80 gap-4">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex flex-col items-center justify-center w-10 h-10 rounded-lg bg-slate-900 border border-slate-800 shrink-0">
+                                                <span className="text-[11px] font-black text-slate-300 font-mono">{new Date(m.date).getDate()}</span>
+                                                <span className="text-[8px] font-bold uppercase text-slate-600 leading-none">{new Date(m.date).toLocaleString('default', { month: 'short' })}</span>
+                                            </div>
+                                            <div>
+                                                {m.isWin ? (
+                                                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 uppercase italic">Win</span>
+                                                ) : m.isDraw ? (
+                                                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-400 uppercase italic">Draw</span>
+                                                ) : (
+                                                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 uppercase italic">Loss</span>
+                                                )}
+                                                <div className="flex items-center gap-1.5 mt-1 font-mono text-[10px] tracking-tight">
+                                                    <span className={m.isWin ? "text-emerald-400 font-bold" : "text-slate-300"}>{m.myScore}</span>
+                                                    <span className="text-slate-600">-</span>
+                                                    <span className={!m.isWin && !m.isDraw ? "text-emerald-400 font-bold" : "text-slate-300"}>{m.oppScore}</span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <div className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                                            {m.isWin ? (
-                                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 uppercase">Win</span>
-                                            ) : m.isDraw ? (
-                                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-400 uppercase">Draw</span>
-                                            ) : (
-                                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 uppercase">Loss</span>
-                                            )}
-                                        </div>
-                                        <div className="text-xs text-slate-500 mt-1">
-                                            Partner: <span className="text-slate-400">{m.partners.length > 0 ? m.partners.join(" + ") : "None (Singles)"}</span>
-                                        </div>
+                                    <div className="text-[10px] text-slate-500 leading-tight">
+                                        <p className="mb-1 uppercase tracking-tighter">Partner: <span className="text-slate-300">{m.partners.length > 0 ? m.partners.join(" + ") : "None"}</span></p>
+                                        <p className="uppercase tracking-tighter">Opponents: <span className="text-slate-300">{m.opponents.join(" + ")}</span></p>
                                     </div>
                                 </div>
-
-                                <div className="flex items-center gap-4 pl-16 sm:pl-0">
-                                    <div className="text-right">
-                                        <div className="text-xs text-slate-500 mb-0.5 uppercase tracking-tight font-bold">vs Opponents</div>
-                                        <div className="text-xs text-slate-400">{m.opponents.length > 0 ? m.opponents.join(" + ") : "Unknown"}</div>
-                                    </div>
-                                    <div className="bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 font-mono text-sm tracking-widest shrink-0">
-                                        <span className={m.isWin ? "text-emerald-400 font-bold" : "text-slate-300"}>{m.myScore}</span>
-                                        <span className="text-slate-600 mx-1.5">-</span>
-                                        <span className={!m.isWin && !m.isDraw ? "text-emerald-400 font-bold" : "text-slate-300"}>{m.oppScore}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
-            </main>
+
+                <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-6">
+                    <h2 className="text-sm font-bold uppercase tracking-tight text-slate-500 mb-4 flex items-center gap-2 italic">
+                        <Wallet className="w-5 h-5 text-emerald-400" /> Payment History
+                    </h2>
+
+                    {(paymentsData || []).length === 0 ? (
+                        <div className="text-center py-12 text-slate-500 text-sm italic">
+                            No payments recorded.
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {(paymentsData || []).map((pay: any) => (
+                                <div key={pay.id} className="flex items-center justify-between bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-2 bg-emerald-500/5 rounded-lg border border-emerald-500/10">
+                                            <Wallet className="w-4 h-4 text-emerald-400" />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-black text-slate-200 uppercase tracking-tighter italic">Payment Received</p>
+                                            <p className="text-[10px] text-slate-500 font-mono mt-0.5">{pay.date}</p>
+                                        </div>
+                                    </div>
+                                    <p className="text-sm font-black font-mono text-emerald-400 italic">+RM{pay.amount.toFixed(2)}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
+    </main>
+</div>
     );
 }

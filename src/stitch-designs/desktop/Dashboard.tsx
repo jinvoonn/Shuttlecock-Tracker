@@ -7,7 +7,9 @@ import {
   Package, 
   Wallet, 
   Search, 
-  Activity 
+  Activity,
+  TrendingUp,
+  TrendingDown
 } from 'lucide-react';
 import clsx from 'clsx';
 import Link from 'next/link';
@@ -23,13 +25,10 @@ interface PlayerStat {
 
 interface DashboardProps {
   stats: {
+    totalOwed: number;
     totalShuttlesUsed: number;
     totalSessions: number;
-    totalPoolBalance: number;
-    inventory: {
-      totalTubes: number;
-      totalShuttles: number;
-    };
+    inventory: number;
   };
   players: PlayerStat[];
   isAdmin?: boolean;
@@ -112,43 +111,58 @@ export default function DesktopDashboard({ stats, players, isAdmin, upcomingSess
         </header>
 
         <div className="p-8 space-y-8 max-w-6xl mx-auto w-full">
-          {/* Quick Stats Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl relative overflow-hidden group hover:border-[#13ec80]/30 transition-all shadow-xl">
-              <div className="absolute -top-4 -right-4 size-24 opacity-5 group-hover:opacity-10 transition-opacity">
-                <Activity className="size-full" />
+          {/* Metric Grid - Exactly 4 Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Total Owed */}
+            <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 p-6 rounded-2xl group hover:border-emerald-500/50 transition-all shadow-lg shadow-emerald-500/5">
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-3 bg-emerald-500/10 rounded-xl">
+                  <TrendingUp className="size-6 text-emerald-400" />
+                </div>
               </div>
-              <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Shuttles Used</p>
-              <p className="text-4xl font-mono font-black text-slate-100 tracking-tighter">{stats.totalShuttlesUsed}</p>
+              <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1 italic">Total Owed</p>
+              <h3 className="text-3xl font-black italic text-emerald-400 tracking-tighter shrink-0 leading-none">
+                RM{stats.totalOwed.toFixed(2)}
+              </h3>
             </div>
 
-            <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl relative overflow-hidden group hover:border-[#13ec80]/30 transition-all shadow-xl">
-              <div className="absolute -top-4 -right-4 size-24 opacity-5 group-hover:opacity-10 transition-opacity">
-                <CalendarDays className="size-full" />
+            {/* Shuttles Used */}
+            <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 p-6 rounded-2xl group hover:border-sky-500/50 transition-all shadow-lg shadow-sky-500/5">
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-3 bg-sky-500/10 rounded-xl">
+                  <Activity className="size-6 text-sky-400" />
+                </div>
               </div>
-              <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Sessions</p>
-              <p className="text-4xl font-mono font-black text-slate-100 tracking-tighter">{stats.totalSessions}</p>
+              <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1 italic">Shuttles Used</p>
+              <h3 className="text-3xl font-black italic text-slate-100 tracking-tighter shrink-0 leading-none">
+                {stats.totalShuttlesUsed}
+              </h3>
             </div>
 
-            <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl relative overflow-hidden group hover:border-[#13ec80]/30 transition-all shadow-xl">
-              <div className="absolute -top-4 -right-4 size-24 opacity-5 group-hover:opacity-10 transition-opacity">
-                <Wallet className="size-full" />
+            {/* Total Sessions */}
+            <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 p-6 rounded-2xl group hover:border-amber-500/50 transition-all shadow-lg shadow-amber-500/5">
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-3 bg-amber-500/10 rounded-xl">
+                  <CalendarDays className="size-6 text-amber-400" />
+                </div>
               </div>
-              <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Pool Balance</p>
-              <p className={clsx("text-4xl font-mono font-black tracking-tighter", stats.totalPoolBalance >= 0 ? "text-emerald-400" : "text-rose-400")}>
-                {stats.totalPoolBalance >= 0 ? "+" : "-"}RM {Math.abs(stats.totalPoolBalance).toFixed(2)}
-              </p>
+              <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1 italic">Total Sessions</p>
+              <h3 className="text-3xl font-black italic text-slate-100 tracking-tighter shrink-0 leading-none">
+                {stats.totalSessions}
+              </h3>
             </div>
 
-            <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl relative overflow-hidden group hover:border-[#13ec80]/30 transition-all shadow-xl">
-              <div className="absolute -top-4 -right-4 size-24 opacity-5 group-hover:opacity-10 transition-opacity">
-                <Package className="size-full" />
+            {/* Inventory */}
+            <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 p-6 rounded-2xl group hover:border-rose-500/50 transition-all shadow-lg shadow-rose-500/5">
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-3 bg-rose-500/10 rounded-xl">
+                  <Package className="size-6 text-rose-400" />
+                </div>
               </div>
-              <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Inventory</p>
-              <p className="text-xl font-mono font-black text-slate-100 leading-tight tracking-tighter">
-                {stats.inventory.totalTubes} Tubes Left<br/>
-                <span className="text-sm text-slate-500 font-medium tracking-normal">// {stats.inventory.totalShuttles} Shuttles</span>
-              </p>
+              <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1 italic">Inventory</p>
+              <h3 className="text-3xl font-black italic text-slate-100 tracking-tighter shrink-0 leading-none">
+                {stats.inventory} <span className="text-xs italic lowercase">Shuttlecocks</span>
+              </h3>
             </div>
           </div>
 
@@ -189,74 +203,56 @@ export default function DesktopDashboard({ stats, players, isAdmin, upcomingSess
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
                     <thead>
-                      <tr className="text-slate-500 text-[10px] uppercase font-black tracking-[0.2em] border-b border-slate-800">
-                        <th className="px-8 py-4">Player</th>
-                        <th className="px-8 py-4">Status</th>
-                        <th className="px-8 py-4">Balance</th>
+                      <tr className="text-slate-500 text-xs uppercase font-black tracking-[0.2em] border-b border-slate-800 italic">
+                        <th className="px-8 py-5">Player</th>
+                        <th className="px-8 py-5 text-right">Money Owed</th>
+                        <th className="px-8 py-5 text-center">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800/50">
-                      {players.map((player) => {
-                        const isSurplus = player.balance >= 0;
-                        const isSevereDebt = player.balance < -50;
-                        const initial = player.name.charAt(0).toUpperCase();
-
-                        return (
-                          <tr key={player.id} className="hover:bg-slate-950/50 transition-colors group/row">
-                            <td className="px-8 py-6">
-                              <div className="flex items-center gap-4">
-                                <div className="size-10 rounded-xl bg-slate-800 flex items-center justify-center font-black text-sm text-slate-400 border border-slate-700 group-hover/row:border-slate-500 transition-all">
-                                  {initial}
-                                </div>
-                                <Link 
-                                  href={`${basePath}/players/${player.id}`}
-                                  className="font-black text-slate-100 text-sm hover:text-[#13ec80] transition-colors"
-                                >
-                                  {player.name}
-                                </Link>
+                      {players.map((player) => (
+                        <tr key={player.id} className="hover:bg-slate-950/50 transition-colors group/row">
+                          <td className="px-8 py-6">
+                            <div className="flex items-center gap-4">
+                              <div className="size-10 rounded-xl bg-slate-800 flex items-center justify-center font-black text-sm text-[#13ec80] border border-slate-700">
+                                {player.name.charAt(0).toUpperCase()}
                               </div>
-                            </td>
-                            <td className="px-8 py-6">
-                               <span className={clsx(
-                                "px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border",
-                                isSurplus 
-                                  ? "bg-emerald-400/10 text-emerald-400 border-emerald-400/20"
-                                  : isSevereDebt
-                                    ? "bg-rose-400/10 text-rose-400 border-rose-400/20"
-                                    : "bg-amber-400/10 text-amber-400 border-amber-400/20"
-                              )}>
-                                {isSurplus ? 'Paid' : isSevereDebt ? 'Overdue' : 'Pending'}
-                              </span>
-                            </td>
-                            <td className={clsx(
-                              "px-8 py-6 font-mono font-black text-sm tracking-tighter",
-                              isSurplus ? "text-emerald-400" : "text-rose-400",
+                              <Link 
+                                href={`${basePath}/players/${player.id}`}
+                                className="font-black text-slate-100 text-sm hover:text-[#13ec80] transition-colors uppercase italic tracking-tight"
+                              >
+                                {player.name}
+                              </Link>
+                            </div>
+                          </td>
+                          <td className="px-8 py-6 text-right">
+                            <p className={clsx(
+                              "font-mono font-black text-lg tracking-tighter leading-none italic",
+                              player.balance >= 0 ? "text-emerald-400" : "text-rose-400",
                             )}>
-                              {isSurplus ? '+' : '-'}RM {Math.abs(player.balance).toFixed(2)}
-                            </td>
+                              {player.balance >= 0 ? '+' : '-'}RM {Math.abs(player.balance).toFixed(2)}
+                            </p>
+                          </td>
+                          <td className="px-8 py-6 text-center">
                             {isAdmin && (
-                              <td className="px-8 py-6 text-right">
-                                {!isSurplus && (
-                                  <button 
-                                    onClick={async () => {
-                                      if (confirm(`Settle up RM ${Math.abs(player.balance).toFixed(2)} for ${player.name}?`)) {
-                                        const { quickSettle } = await import("@/lib/actions/payments");
-                                        await quickSettle(player.id, Math.abs(player.balance));
-                                      }
-                                    }}
-                                    className="bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-emerald-500/20 transition-all"
-                                  >
-                                    Settle
-                                  </button>
-                                )}
-                              </td>
+                              <button 
+                                onClick={async () => {
+                                  if (confirm(`Quick Settle RM ${Math.abs(player.balance).toFixed(2)} for ${player.name}?`)) {
+                                    const { quickSettle } = await import("@/lib/actions/payments");
+                                    await quickSettle(player.id, Math.abs(player.balance));
+                                  }
+                                }}
+                                className="bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-emerald-500/20 transition-all active:scale-95"
+                              >
+                                Quick Settle
+                              </button>
                             )}
-                          </tr>
-                        );
-                      })}
+                          </td>
+                        </tr>
+                      ))}
                       {players.length === 0 && (
                         <tr>
-                           <td colSpan={3} className="px-8 py-10 text-center text-slate-500 font-bold text-sm">
+                           <td colSpan={3} className="px-8 py-10 text-center text-slate-500 font-bold text-sm italic uppercase tracking-widest">
                              No player records found.
                            </td>
                         </tr>

@@ -23,19 +23,21 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
   }
 
   const [
+    { data: playersData, error: playersError },
     { data: paymentsData, error: paymentsError },
     { data: purchasesData, error: purchasesError },
     { data: sessionsData, error: sessionsError },
     { data: sessionUsageData, error: sessionUsageError }
   ] = await Promise.all([
-    supabase.from("payments").select("amount, players(id, name)"),
+    supabase.from("players").select("id, name"),
+    supabase.from("payments").select("amount, player_id"),
     supabase.from("purchases").select("price_per_tube, initial_quantity, remaining_quantity, brands(name)"),
-    supabase.from("sessions").select(`id, session_players ( players ( id, name ) )`),
+    supabase.from("sessions").select(`id, session_players ( player_id )`),
     supabase.from("session_usage").select("session_id, quantity_used, purchases(price_per_cock)")
   ]);
 
-  if (paymentsError || purchasesError || sessionsError || sessionUsageError) {
-    console.error("Dashboard Fetch Error:", { paymentsError, purchasesError, sessionsError, sessionUsageError });
+  if (playersError || paymentsError || purchasesError || sessionsError || sessionUsageError) {
+    console.error("Dashboard Fetch Error:", { playersError, paymentsError, purchasesError, sessionsError, sessionUsageError });
     return (
       <div className="p-8 flex flex-col items-center justify-center min-h-screen text-rose-500 bg-[#020617]">
         <p className="font-black italic uppercase text-2xl tracking-tighter">Failed to fetch data</p>
@@ -52,49 +54,68 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
 
   const playerBalances: Record<string, { name: string; id: string; totalShares: number; totalPayments: number; balance: number }> = {};
 
+  (playersData || []).forEach(p => {
+    playerBalances[p.id] = { id: p.id, name: p.name, totalShares: 0, totalPayments: 0, balance: 0 };
+  });
+
   (paymentsData || []).forEach(p => {
-    // @ts-expect-error type mismatches
-    const id = p.players?.id || "unknown";
-    // @ts-expect-error type mismatches
-    const name = p.players?.name || "Unknown";
-    if (!playerBalances[id]) playerBalances[id] = { id, name, totalShares: 0, totalPayments: 0, balance: 0 };
-    playerBalances[id].totalPayments += Number(p.amount || 0);
+    const id = p.player_id;
+    if (playerBalances[id]) {
+      playerBalances[id].totalPayments += Number(p.amount || 0);
+    }
   });
 
   const sessionCosts: Record<string, number> = {};
   (sessionUsageData || []).forEach(su => {
     const sId = su.session_id;
-    // @ts-expect-error type mismatches
-    const price_per_cock = Number(su.purchases?.price_per_cock || 0);
-    sessionCosts[sId] = (sessionCosts[sId] || 0) + (price_per_cock * su.quantity_used);
+    // Handle Supabase join result being possibly an array or object
+    const purchase = Array.isArray(su.purchases) ? su.purchases[0] : su.purchases;
+    const price_per_cock = Number(purchase?.price_per_cock || 0);
+    sessionCosts[sId] = (sessionCosts[sId] || 0) + (price_per_cock * Number(su.quantity_used || 0));
+  });
+
+  (sessionsData || []).forEach(s => {
+    const cost = sessionCosts[s.id] || 0;
+    const attendees = s.session_players || [];
+    if (attendees.length > 0) {
+      const share = cost / attendees.length;
+      attendees.forEach((ap: any) => {
+        if (playerBalances[ap.player_id]) {
+          playerBalances[ap.player_id].totalShares += share;
+        }
+      });
+    }
   });
 
   const players = Object.values(playerBalances).map(stats => ({
     ...stats,
     balance: stats.totalPayments - stats.totalShares,
-  }));
+  })).sort((a, b) => a.balance - b.balance);
 
-  const totalPoolBalance = players.reduce((acc, p) => acc + p.balance, 0);
-
-  // Calculate inventory based on remaining values
-  const totalTubes = (purchasesData || []).filter(p => (p.remaining_quantity || 0) > 0).length;
+  const totalOwed = players.filter(p => p.balance < 0).reduce((acc, p) => acc + Math.abs(p.balance), 0);
   const totalShuttles = (purchasesData || []).reduce((acc, curr) => acc + Number(curr.remaining_quantity || 0), 0);
 
   const statsProps = {
+    totalOwed,
     totalShuttlesUsed,
     totalSessions,
-    totalPoolBalance,
+    inventory: totalShuttles
+  };
+
+  const mobileStatsProps = {
+    ...statsProps,
+    totalPoolBalance: players.reduce((acc, p) => acc + p.balance, 0),
     inventory: {
-      totalTubes,
-      remainingTubes: totalTubes, // Add this for type compatibility temporarily or update the component interface
-      totalShuttles,
+        totalTubes: (purchasesData || []).filter(p => (p.remaining_quantity || 0) > 0).length,
+        totalShuttles: totalShuttles,
+        remainingTubes: (purchasesData || []).filter(p => (p.remaining_quantity || 0) > 0).length
     }
   };
 
   return (
     <>
       <div className="block lg:hidden">
-        <MobileDashboard stats={statsProps} players={players} />
+        <MobileDashboard stats={mobileStatsProps as any} players={players} />
       </div>
       <div className="hidden lg:block">
         <DesktopDashboard stats={statsProps} players={players} isAdmin={isAdmin} />
