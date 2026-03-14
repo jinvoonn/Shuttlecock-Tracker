@@ -118,23 +118,23 @@ export function DashboardClient({ players }: { players: Player[] }) {
 
                                         <div className="min-w-0 flex-1">
                                             <p className="font-bold text-slate-200 truncate group-hover/link:text-sky-400 transition-colors flex items-center gap-2">
-                                                {player.name}
-                                                <ArrowUpRight className="w-3.5 h-3.5 opacity-0 -ml-2 group-hover/link:opacity-100 group-hover/link:ml-0 transition-all text-sky-400" />
+                                                <span className="truncate">{player.name}</span>
+                                                <ArrowUpRight className="w-3.5 h-3.5 shrink-0 opacity-0 -ml-2 group-hover/link:opacity-100 group-hover/link:ml-0 transition-all text-sky-400" />
                                             </p>
-                                            <div className="flex items-center gap-2 mt-1 flex-wrap">
-                                                <span className="text-[10px] font-bold uppercase tracking-tight text-slate-600">
+                                            <div className="flex items-center gap-x-2 gap-y-1 mt-1 flex-wrap">
+                                                <span className="text-[10px] font-bold uppercase tracking-tight text-slate-600 whitespace-nowrap">
                                                     Paid RM {player.totalPayments.toFixed(2)}
                                                 </span>
-                                                <span className="w-1 h-1 rounded-full bg-slate-700" />
-                                                <span className="text-[10px] font-bold uppercase tracking-tight text-slate-600">
+                                                <span className="w-1 h-1 rounded-full bg-slate-700 hidden sm:block" />
+                                                <span className="text-[10px] font-bold uppercase tracking-tight text-slate-600 whitespace-nowrap">
                                                     Cost RM {player.totalShares.toFixed(2)}
                                                 </span>
                                             </div>
                                             {/* Progress bar */}
-                                            <div className="mt-2 h-1 w-full max-w-[160px] bg-slate-800 rounded-full overflow-hidden">
+                                            <div className="mt-2.5 h-1.5 w-full max-w-[160px] bg-slate-800 rounded-full overflow-hidden">
                                                 <div
                                                     className={clsx(
-                                                        "h-full rounded-full transition-all duration-700",
+                                                        "h-full rounded-full transition-all duration-1000",
                                                         isSettled ? "bg-slate-500" : isDebt ? "bg-rose-500" : "bg-emerald-500"
                                                     )}
                                                     style={{ width: `${paidRatio * 100}%` }}

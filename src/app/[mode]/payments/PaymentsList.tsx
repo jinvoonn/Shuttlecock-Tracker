@@ -35,8 +35,8 @@ export function PaymentsList({ payments }: { payments: Payment[] }) {
         setEndDate("");
     };
 
-    return (
-        <Folder title="Payment History" defaultOpen={true}>
+    const content = (
+        <>
             <FilterBar
                 startDate={startDate}
                 endDate={endDate}
@@ -54,7 +54,7 @@ export function PaymentsList({ payments }: { payments: Payment[] }) {
                     </p>
                 </div>
             ) : (
-                <div className="grid gap-3 transition-all">
+                <div className="grid gap-3 transition-all mt-4">
                     {filteredPayments.map((payment) => (
                         <div key={payment.id} className="rounded-2xl border border-slate-800 bg-slate-900/40 backdrop-blur-sm p-5 flex flex-col sm:flex-row gap-4 sm:items-center justify-between group transition-all hover:bg-slate-900/60">
                             <div className="flex items-start gap-4">
@@ -92,6 +92,24 @@ export function PaymentsList({ payments }: { payments: Payment[] }) {
                     ))}
                 </div>
             )}
+        </>
+    );
+
+    if (!isAdmin) {
+        return (
+            <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                    <HandCoins className="w-5 h-5 text-sky-400" />
+                    <h2 className="text-xl font-bold text-slate-100">Payment History</h2>
+                </div>
+                {content}
+            </div>
+        );
+    }
+
+    return (
+        <Folder title="Payment History" defaultOpen={true}>
+            {content}
         </Folder>
     );
 }

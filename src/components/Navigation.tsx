@@ -31,20 +31,7 @@ export function Navigation() {
                 <span className="font-bold text-slate-200 text-sm tracking-tight">{pageName}</span>
             </div>
 
-            {/* Viewer Mode Banner */}
-            {!isAdmin && (
-                <div className="fixed top-12 md:top-0 left-0 right-0 z-[60] py-2 bg-amber-500 text-slate-950 text-center font-bold text-xs uppercase tracking-widest shadow-lg animate-in slide-in-from-top duration-500">
-                    <div className="flex items-center justify-center gap-2">
-                        <Eye className="w-4 h-4" />
-                        Viewer Mode – Read Only
-                    </div>
-                </div>
-            )}
-
-            <nav className={clsx(
-                "fixed bottom-0 w-full border-t border-slate-800 bg-slate-900/90 backdrop-blur-xl pb-safe md:relative md:inset-auto md:w-64 md:border-t-0 md:border-r md:h-screen md:bg-slate-900/50 z-50",
-                !isAdmin && "md:pt-8"
-            )}>
+            <nav className="fixed bottom-0 w-full border-t border-slate-800 bg-slate-900/90 backdrop-blur-xl pb-safe md:relative md:inset-auto md:w-64 md:border-t-0 md:border-r md:h-screen md:bg-slate-900/50 z-50">
                 <div className="flex h-16 items-center justify-around px-4 md:h-full md:flex-col md:justify-start md:px-6 md:py-8 md:gap-4 md:items-start">
                     <div className="hidden md:flex flex-col gap-6 w-full mb-8">
                         <Logo />

@@ -6,6 +6,8 @@ import { FilterBar } from "@/components/FilterBar";
 import { PurchaseItem } from "./PurchaseItem";
 import { Archive } from "lucide-react";
 
+import { useRole } from "@/context/AuthContext";
+
 interface Purchase {
     id: string;
     brand_id: string;
@@ -25,6 +27,7 @@ interface Brand {
 }
 
 export function PurchasesList({ purchases, brands }: { purchases: Purchase[], brands: Brand[] }) {
+    const { isAdmin } = useRole();
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [brandId, setBrandId] = useState("");
@@ -46,8 +49,8 @@ export function PurchasesList({ purchases, brands }: { purchases: Purchase[], br
         setBrandId("");
     };
 
-    return (
-        <Folder title="Shuttlecock Purchases" defaultOpen={true}>
+    const content = (
+        <>
             <FilterBar
                 startDate={startDate}
                 endDate={endDate}
@@ -68,12 +71,30 @@ export function PurchasesList({ purchases, brands }: { purchases: Purchase[], br
                     </p>
                 </div>
             ) : (
-                <div className="grid gap-3 transition-all">
+                <div className="grid gap-3 transition-all mt-4">
                     {filteredPurchases.map((purchase) => (
                         <PurchaseItem key={purchase.id} purchase={purchase} brands={brands} />
                     ))}
                 </div>
             )}
+        </>
+    );
+
+    if (!isAdmin) {
+        return (
+            <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                    <Archive className="w-5 h-5 text-sky-400" />
+                    <h2 className="text-xl font-bold text-slate-100">Shuttlecock Purchased</h2>
+                </div>
+                {content}
+            </div>
+        );
+    }
+
+    return (
+        <Folder title="Shuttlecock Purchased" defaultOpen={true}>
+            {content}
         </Folder>
     );
 }

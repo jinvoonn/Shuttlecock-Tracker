@@ -131,14 +131,20 @@ export function PurchaseItem({ purchase, brands }: { purchase: Purchase, brands:
                     <h3 className="font-medium text-slate-200 flex items-center gap-2">
                         {brandName} ({purchase.tube_number})
                     </h3>
-                    <div className="text-[10px] font-bold uppercase text-slate-500 mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-2">
-                        <span className="flex items-center gap-1.5">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2">
+                        <span className="text-[10px] font-bold uppercase text-slate-500 flex items-center gap-1.5 whitespace-nowrap">
                             <Calendar className="w-3 h-3 text-sky-500/80" />
                             {new Date(purchase.purchase_date).toLocaleDateString()}
                         </span>
-                        <span className="text-sky-400 font-mono font-black scale-105">RM {Number(purchase.price_per_tube || 0).toFixed(2)}</span>
-                        <span className="text-slate-600 font-mono font-medium">RM {Number(purchase.price_per_cock || 0).toFixed(2)}/pc</span>
-                        {purchase.notes && <span className="text-slate-700 lowercase italic normal-case"> • {purchase.notes}</span>}
+                        <div className="flex items-center gap-3">
+                            <span className="text-[10px] font-bold uppercase text-sky-400 font-mono scale-105">RM {Number(purchase.price_per_tube || 0).toFixed(2)}</span>
+                            <span className="text-[10px] font-medium text-slate-600 font-mono">RM {Number(purchase.price_per_cock || 0).toFixed(2)}/pc</span>
+                        </div>
+                        {purchase.notes && (
+                            <span className="text-[10px] text-slate-500 bg-slate-800/50 px-2 py-0.5 rounded italic truncate max-w-[150px] sm:max-w-none">
+                                {purchase.notes}
+                            </span>
+                        )}
                     </div>
                 </div>
             </div>

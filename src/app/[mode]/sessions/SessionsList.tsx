@@ -5,6 +5,7 @@ import { Folder } from "@/components/Folder";
 import { FilterBar } from "@/components/FilterBar";
 import { SessionItem } from "./SessionItem";
 import { Calendar, ChevronDown, ChevronRight } from "lucide-react";
+import { useRole } from "@/context/AuthContext";
 
 interface Session {
     id: string;
@@ -21,6 +22,7 @@ interface Purchase { id: string; remaining_quantity: number; tube_number: number
 export function SessionsList({ sessions, allPlayers, allPurchases }: {
     sessions: any[], allPlayers: Player[], allPurchases: Purchase[]
 }) {
+    const { isAdmin } = useRole();
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [collapsedMonths, setCollapsedMonths] = useState<Set<string>>(new Set());
@@ -56,8 +58,8 @@ export function SessionsList({ sessions, allPlayers, allPurchases }: {
         return new Date(Number(year), Number(month) - 1).toLocaleString("default", { month: "long", year: "numeric" });
     };
 
-    return (
-        <Folder title="Play Sessions" defaultOpen={true}>
+    const content = (
+        <div className="mt-2">
             <FilterBar
                 startDate={startDate}
                 endDate={endDate}
@@ -73,7 +75,7 @@ export function SessionsList({ sessions, allPlayers, allPurchases }: {
                     <p className="text-slate-500 text-sm max-w-sm mx-auto">Adjust your filters or log a new session.</p>
                 </div>
             ) : (
-                <div className="space-y-6 mt-2">
+                <div className="space-y-6 mt-4">
                     {groupedByMonth.map(([monthKey, monthSessions]) => {
                         const isCollapsed = collapsedMonths.has(monthKey);
                         return (
@@ -114,6 +116,24 @@ export function SessionsList({ sessions, allPlayers, allPurchases }: {
                     })}
                 </div>
             )}
+        </div>
+    );
+
+    if (!isAdmin) {
+        return (
+            <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                    <Calendar className="w-5 h-5 text-sky-400" />
+                    <h2 className="text-xl font-bold text-slate-100">Play Sessions</h2>
+                </div>
+                {content}
+            </div>
+        );
+    }
+
+    return (
+        <Folder title="Play Sessions" defaultOpen={true}>
+            {content}
         </Folder>
     );
 }
