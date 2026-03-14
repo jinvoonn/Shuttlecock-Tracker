@@ -15,14 +15,16 @@ import {
   Trash,
   History as HistoryIcon
 } from 'lucide-react';
-import { deletePayment } from '@/lib/actions/payments';
+import { usePathname, useRouter } from "next/navigation";
+import { editPayment, deletePayment } from '@/lib/actions/payments';
 
 import { useState } from 'react';
-import { useRouter, usePathname } from "next/navigation";
+import { DatePicker } from '@/components/DatePicker';
 
 interface PaymentRecord {
   id: string;
   playerName: string;
+  playerId: string;
   amount: number;
   date: string;
 }
@@ -37,8 +39,9 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
   const [searchTerm, setSearchTerm] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-  const filteredPayments = payments.filter(p => 
+  const filteredPayments = payments.filter(p =>
     p.playerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.date.includes(searchTerm)
   );
@@ -131,20 +134,52 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
                       </div>
                    </div>
 
-                    <div className="flex justify-end gap-2 pt-5 border-t border-slate-100 dark:border-slate-800 relative z-10">
-                      <button 
-                        onClick={() => router.push(`${basePath}/payments/edit/${p.id}`)}
-                        className="size-11 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-[#13ec80] active:scale-90 transition-all shadow-sm"
-                      >
-                        <Pencil className="size-4" />
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(p.id, p.playerName)}
-                        className="size-11 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-400 hover:text-rose-500 active:scale-90 transition-all shadow-sm"
-                      >
-                        <Trash className="size-4" />
-                      </button>
-                   </div>
+                    {editingId === p.id ? (
+                      <div className="pt-5 border-t border-slate-100 dark:border-slate-800 animate-in fade-in slide-in-from-top-1 duration-200">
+                        <form action={async (formData) => {
+                          await editPayment(p.id, formData);
+                          setEditingId(null);
+                          router.refresh();
+                        }} className="space-y-4">
+                          <input type="hidden" name="player_id" value={p.playerId || ""} />
+                          <div className="grid grid-cols-1 gap-3">
+                            <div>
+                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 ml-1 text-left">Date</p>
+                              <DatePicker name="date" defaultValue={p.date} />
+                            </div>
+                            <div>
+                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 ml-1 text-left">Amount (RM)</p>
+                              <input 
+                                type="number" 
+                                name="amount" 
+                                step="0.01"
+                                defaultValue={p.amount}
+                                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-[#13ec80]/20 outline-none text-left" 
+                              />
+                            </div>
+                          </div>
+                          <div className="flex gap-2 justify-end">
+                            <button type="button" onClick={() => setEditingId(null)} className="px-4 py-2 rounded-xl text-[10px] font-black uppercase text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">Cancel</button>
+                            <button type="submit" className="px-4 py-2 rounded-xl text-[10px] font-black uppercase bg-[#13ec80] text-slate-950 shadow-lg shadow-[#13ec80]/20">Save</button>
+                          </div>
+                        </form>
+                      </div>
+                    ) : (
+                      <div className="flex justify-end gap-2 pt-5 border-t border-slate-100 dark:border-slate-800 relative z-10">
+                        <button 
+                          onClick={() => setEditingId(p.id)}
+                          className="size-11 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-[#13ec80] active:scale-90 transition-all shadow-sm"
+                        >
+                          <Pencil className="size-4" />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(p.id, p.playerName)}
+                          className="size-11 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-400 hover:text-rose-500 active:scale-90 transition-all shadow-sm"
+                        >
+                          <Trash className="size-4" />
+                        </button>
+                      </div>
+                    )}
                 </div>
               ))}
             </div>
@@ -152,7 +187,9 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
         </main>
 
         {/* Floating Action Button */}
-        <button className="fixed bottom-32 right-8 size-16 bg-[#13ec80] text-slate-950 rounded-3xl shadow-[0_20px_50px_rgba(19,236,128,0.3)] flex items-center justify-center z-40 hover:scale-110 active:scale-90 transition-all border-b-4 border-[#059669]">
+        <button 
+          onClick={() => router.push(`${basePath}/payments/record-transaction`)}
+          className="fixed bottom-32 right-8 size-16 bg-[#13ec80] text-slate-950 rounded-3xl shadow-[0_20px_50px_rgba(19,236,128,0.3)] flex items-center justify-center z-40 hover:scale-110 active:scale-90 transition-all border-b-4 border-[#059669]">
           <Plus className="size-8 font-black" />
         </button>
 

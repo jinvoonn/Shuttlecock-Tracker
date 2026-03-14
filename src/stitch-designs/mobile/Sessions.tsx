@@ -11,8 +11,12 @@ import {
   Package,
   Banknote,
   ChevronRight,
-  ArrowLeft
+  ArrowLeft,
+  Pencil,
+  Trash,
+  Target
 } from 'lucide-react';
+import { deleteSession } from '@/lib/actions/sessions';
 import { useRouter, usePathname } from 'next/navigation';
 
 interface SessionData {
@@ -39,6 +43,18 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
+
+  const handleDelete = async (id: string, label: string) => {
+    if (window.confirm(`Are you sure you want to delete session at ${label}?`)) {
+      try {
+        await deleteSession(id);
+        router.refresh();
+      } catch (err) {
+        alert("Failed to delete session");
+      }
+    }
+  };
+
   return (
     <div className="bg-[#f6f8f7] dark:bg-[#020617] font-['Lexend',_sans-serif] text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
       <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-200 dark:border-slate-800 shadow-2xl pb-24">
@@ -47,7 +63,7 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-black italic tracking-tighter text-[#13ec80] uppercase">Sessions</h1>
             <button
-              onClick={() => router.push(`${basePath}/sessions/new`)}
+              onClick={() => router.push(`${basePath}/sessions/log`)}
               className="bg-[#13ec80] hover:bg-[#13ec80]/90 text-slate-950 px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-[#13ec80]/20 active:scale-95 transition-all">
               <Plus className="size-4" />
               LOG NEW
@@ -87,12 +103,36 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
                     {session.location}
                   </h3>
                 </div>
-                <div className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${
-                  session.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
-                  session.status === 'Outstanding' ? 'bg-rose-500/10 text-rose-500 dark:text-rose-400' :
-                  'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
-                }`}>
-                  {session.status}
+                
+                <div className="flex flex-col gap-2 items-end">
+                  <div className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${
+                    session.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
+                    session.status === 'Outstanding' ? 'bg-rose-500/10 text-rose-500 dark:text-rose-400' :
+                    'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                  }`}>
+                    {session.status}
+                  </div>
+                  <div className="flex gap-1.5">
+                    <button 
+                      onClick={() => router.push(`${basePath}/sessions/${session.id}/record-match`)}
+                      className="size-8 rounded-lg bg-orange-500/10 text-orange-500 flex items-center justify-center active:scale-90 transition-all border border-orange-500/20"
+                      title="Log Match"
+                    >
+                      <Target className="size-4" />
+                    </button>
+                    <button 
+                      onClick={() => alert("Inline editing coming soon")}
+                      className="size-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center active:scale-90 transition-all border border-slate-200 dark:border-slate-700"
+                    >
+                      <Pencil className="size-4" />
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(session.id, session.location)}
+                      className="size-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center active:scale-90 transition-all border border-rose-500/20"
+                    >
+                      <Trash className="size-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
               

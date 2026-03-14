@@ -18,7 +18,9 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { deletePurchase } from '@/lib/actions/purchases';
+import { editPurchase, deletePurchase } from '@/lib/actions/purchases';
+import { useState } from 'react';
+import { DatePicker } from '@/components/DatePicker';
 
 interface StockStats {
   totalTubesBought: number;
@@ -53,6 +55,7 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const handleDelete = async (id: string, name: string) => {
     if (window.confirm(`Are you sure you want to delete this purchase (${name})?`)) {
@@ -167,29 +170,60 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-5 border-t border-slate-800 relative z-10">
-                    <div className="flex items-center gap-2">
-                       <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Remaining:</span>
-                       <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${item.remaining > 0 ? 'bg-[#34d399]/10 text-[#34d399]' : 'bg-rose-500/10 text-rose-500'}`}>
-                         {item.remaining} SHUTTLES
-                       </span>
+                  {editingId === item.id ? (
+                    <div className="pt-5 border-t border-slate-800 animate-in fade-in slide-in-from-top-1 duration-200">
+                      <form action={async (formData) => {
+                        await editPurchase(item.id, formData);
+                        setEditingId(null);
+                        router.refresh();
+                      }} className="space-y-4">
+                        <div className="grid grid-cols-1 gap-3">
+                          <div>
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 ml-1">Purchase Date</p>
+                            <DatePicker name="date" defaultValue={item.date} />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 ml-1">Price (RM)</p>
+                            <input 
+                              type="number" 
+                              name="price" 
+                              step="0.01"
+                              defaultValue={item.pricePerTube}
+                              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-[#34d399]/20 outline-none" 
+                            />
+                          </div>
+                        </div>
+                        <div className="flex gap-2 justify-end">
+                          <button type="button" onClick={() => setEditingId(null)} className="px-4 py-2 rounded-xl text-[10px] font-black uppercase text-slate-500 hover:bg-slate-800 transition-all">Cancel</button>
+                          <button type="submit" className="px-4 py-2 rounded-xl text-[10px] font-black uppercase bg-[#34d399] text-slate-950 shadow-lg shadow-[#34d399]/20">Save</button>
+                        </div>
+                      </form>
                     </div>
-                    
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => router.push(`${basePath}/purchases/edit/${item.id}`)}
-                        className="size-11 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-[#13ec80] active:scale-90 transition-all"
-                      >
-                        <Pencil className="size-4" />
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(item.id, `${item.name} #${item.tubeNumber}`)}
-                        className="size-11 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-rose-500 active:scale-90 transition-all"
-                      >
-                        <Trash className="size-4" />
-                      </button>
+                  ) : (
+                    <div className="flex items-center justify-between pt-5 border-t border-slate-800 relative z-10">
+                      <div className="flex items-center gap-2">
+                         <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Remaining:</span>
+                         <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${item.remaining > 0 ? 'bg-[#34d399]/10 text-[#34d399]' : 'bg-rose-500/10 text-rose-500'}`}>
+                           {item.remaining} SHUTTLES
+                         </span>
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => setEditingId(item.id)}
+                          className="size-11 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-[#13ec80] active:scale-90 transition-all"
+                        >
+                          <Pencil className="size-4" />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(item.id, `${item.name} #${item.tubeNumber}`)}
+                          className="size-11 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-rose-500 active:scale-90 transition-all"
+                        >
+                          <Trash className="size-4" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               ))}
             </div>
