@@ -90,3 +90,27 @@ create policy "Allow all operations on session_usage" on public.session_usage fo
 
 alter table public.payments enable row level security;
 create policy "Allow all operations on payments" on public.payments for all using (true) with check (true);
+
+-- 8. Matches Table
+create table public.matches (
+  id uuid primary key default uuid_generate_v4(),
+  session_id uuid references public.sessions(id) on delete cascade not null,
+  team_a_score integer not null default 0,
+  team_b_score integer not null default 0,
+  created_at timestamptz default now()
+);
+
+-- 9. Match Players Table
+create table public.match_players (
+  id uuid primary key default uuid_generate_v4(),
+  match_id uuid references public.matches(id) on delete cascade not null,
+  player_id uuid references public.players(id) on delete restrict not null,
+  team text not null check (team in ('A', 'B'))
+);
+
+-- RLS for Matches
+alter table public.matches enable row level security;
+create policy "Allow all operations on matches" on public.matches for all using (true) with check (true);
+
+alter table public.match_players enable row level security;
+create policy "Allow all operations on match_players" on public.match_players for all using (true) with check (true);
