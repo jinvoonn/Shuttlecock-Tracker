@@ -5,9 +5,10 @@ import { revalidatePath } from "next/cache";
 export async function addPurchase(formData: FormData) {
     const purchase_date = formData.get("date") as string;
     const brand_id = formData.get("brand_id") as string;
-    const new_brand_name = formData.get("new_brand_name") as string;
+    const new_brand_name = (formData.get("new_brand_name") || formData.get("brand")) as string;
     const notes = formData.get("notes") as string;
-    const price_per_tube = parseFloat(formData.get("price") as string);
+    const price_per_tube = parseFloat(formData.get("price_per_tube") as string) || parseFloat(formData.get("price") as string);
+    const quantity = parseInt(formData.get("quantity") as string) || 1;
 
     if (!purchase_date || isNaN(price_per_tube)) {
         throw new Error("Date and price are required");
@@ -62,24 +63,28 @@ export async function addPurchase(formData: FormData) {
     }
 
     const maxTubeNumber = pastPurchases && pastPurchases.length > 0 ? pastPurchases[0].tube_number : 0;
-    const tube_number = maxTubeNumber + 1;
-
-    // 3. Insert purchase (represents one tube)
-    const { error: purchaseError } = await supabase
-        .from("purchases")
-        .insert([{
+    
+    // 3. Insert purchases (multiple tubes)
+    const purchasesToInsert = [];
+    for (let i = 0; i < quantity; i++) {
+        purchasesToInsert.push({
             brand_id: finalBrandId,
             purchase_date,
-            tube_number,
+            tube_number: maxTubeNumber + i + 1,
             notes: notes ? notes.trim() : null,
             initial_quantity: 12,
             remaining_quantity: 12,
             price_per_tube,
             price_per_cock
-        }]);
+        });
+    }
+
+    const { error: purchaseError } = await supabase
+        .from("purchases")
+        .insert(purchasesToInsert);
 
     if (purchaseError) {
-        throw new Error("Failed to add purchase: " + purchaseError.message);
+        throw new Error("Failed to add purchases: " + purchaseError.message);
     }
 
     revalidatePath("/");
