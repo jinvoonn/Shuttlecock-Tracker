@@ -15,7 +15,7 @@ import {
   ChevronRight,
   TrendingUp,
   Share2,
-  History
+  History as HistoryIcon
 } from 'lucide-react';
 
 import { useRouter, usePathname } from "next/navigation";

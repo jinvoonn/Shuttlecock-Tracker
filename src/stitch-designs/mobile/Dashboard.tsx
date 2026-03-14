@@ -5,11 +5,13 @@ import {
   Activity, 
   Bell, 
   Settings, 
-  History, 
   CalendarDays, 
   Wallet, 
   FileText,
   Banknote,
+  Package,
+  Calendar,
+  LayoutGrid,
   History as HistoryIcon
 } from 'lucide-react';
 import Link from 'next/link';
@@ -82,7 +84,7 @@ export default function MobileDashboard({ stats, players, upcomingSession }: Das
             {/* Shuttle Used */}
             <div className="flex flex-col gap-2 rounded-2xl bg-white dark:bg-[#0f172a] p-6 border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:border-[#13ec80]/30 group">
               <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 group-hover:text-[#13ec80] transition-colors">
-                <History className="size-4" />
+                <HistoryIcon className="size-4" />
                 <p className="text-[10px] font-black uppercase tracking-tight">Shuttle Used</p>
               </div>
               <p className="font-mono text-4xl font-black text-[#13ec80] tracking-tighter italic">{stats.totalShuttlesUsed}</p>
