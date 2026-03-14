@@ -74,14 +74,19 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
         };
 
         try {
-            await addMatch(JSON.stringify(payload));
+            const result = await addMatch(JSON.stringify(payload));
+            if (result && !result.success) {
+                alert("Failed to save match: " + result.error);
+                return;
+            }
+            
             setIsAdding(false);
             setTeamA([]);
             setTeamB([]);
             setScoreA("");
             setScoreB("");
         } catch (err: any) {
-            alert("Failed to save match: " + err.message);
+            alert("Unexpected error: " + err.message);
         }
     };
 
