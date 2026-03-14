@@ -29,5 +29,6 @@ The project requires the following keys in `.env.local`:
 *   **RLS (Row Level Security)**: Enabled on all tables to control access, though mostly set to open for the admin routing model.
 
 ## Current Project Status
-The project is currently in a functional state with all core tracking and analytics features implemented. It has recently been migrated to a more robust schema (`schema_v2.sql`) supporting advanced match analytics and skill-based grouping.
+The project has successfully completed the UI modernization phase, with all Desktop and Mobile designs from Stitch AI converted into functional React components using Tailwind CSS and Lucide icons. The focus has now shifted to **Phase 13: Core Backend Integration**, wiring these new interfaces to the existing Supabase schema and flexible match logic, while intentionally skipping non-essential visual properties like player avatars and session hero images to maintain a lean schema.
+
 "Because Shuttlecocks Aren’t Free."
