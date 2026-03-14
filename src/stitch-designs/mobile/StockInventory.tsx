@@ -15,9 +15,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 interface StockStats {
-  totalStock: number;
-  tubes: number;
-  lowStock: number;
+  totalTubesBought: number;
+  tubesLeft: number;
   usedToday: number;
 }
 
@@ -65,18 +64,13 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
             <div className="flex overflow-x-auto gap-4 pb-4 no-scrollbar -mx-2 px-2">
               <div className="flex-none w-36 p-5 rounded-[2rem] bg-slate-900 border border-slate-800 shadow-xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 size-16 bg-white/5 rounded-full -translate-y-8 translate-x-8 blur-2xl group-hover:bg-[#34d399]/10 transition-colors"></div>
-                <p className="text-[10px] uppercase font-black tracking-[0.2em] mb-2 text-slate-500">Total Stock</p>
-                <p className="text-3xl font-black font-['JetBrains_Mono',_monospace] tracking-tighter text-[#34d399]">{stats.totalStock}</p>
+                <p className="text-[10px] uppercase font-black tracking-[0.2em] mb-2 text-slate-500">Total Bought</p>
+                <p className="text-3xl font-black font-['JetBrains_Mono',_monospace] tracking-tighter text-[#34d399]">{stats.totalTubesBought}</p>
               </div>
               <div className="flex-none w-36 p-5 rounded-[2rem] bg-slate-900 border border-slate-800 shadow-xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 size-16 bg-white/5 rounded-full -translate-y-8 translate-x-8 blur-2xl group-hover:bg-[#34d399]/10 transition-colors"></div>
-                <p className="text-[10px] uppercase font-black tracking-[0.2em] mb-2 text-slate-500">Active Tubes</p>
-                <p className="text-3xl font-black font-['JetBrains_Mono',_monospace] tracking-tighter text-slate-100">{stats.tubes}</p>
-              </div>
-              <div className="flex-none w-36 p-5 rounded-[2rem] bg-slate-900 border border-slate-800 shadow-xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 size-16 bg-white/5 rounded-full -translate-y-8 translate-x-8 blur-2xl group-hover:bg-[#34d399]/10 transition-colors"></div>
-                <p className="text-[10px] uppercase font-black tracking-[0.2em] mb-2 text-rose-400">Low Stock</p>
-                <p className="text-3xl font-black font-['JetBrains_Mono',_monospace] tracking-tighter text-rose-400">{stats.lowStock}</p>
+                <p className="text-[10px] uppercase font-black tracking-[0.2em] mb-2 text-slate-500">Tubes Left</p>
+                <p className="text-3xl font-black font-['JetBrains_Mono',_monospace] tracking-tighter text-slate-100">{stats.tubesLeft}</p>
               </div>
               <div className="flex-none w-36 p-5 rounded-[2rem] bg-slate-900 border border-slate-800 shadow-xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 size-16 bg-white/5 rounded-full -translate-y-8 translate-x-8 blur-2xl group-hover:bg-[#34d399]/10 transition-colors"></div>

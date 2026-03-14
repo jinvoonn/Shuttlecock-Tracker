@@ -2,17 +2,18 @@
 
 import React, { useState } from 'react';
 import { 
-import {
   Activity,
   LayoutDashboard,
   CalendarDays,
+  Package,
   Wallet,
   Plus,
   PlusCircle,
   TrendingUp,
   CreditCard,
   Pencil,
-  Trash2
+  Trash2,
+  Search
 } from 'lucide-react';
 import clsx from 'clsx';
 import Link from 'next/link';
