@@ -173,6 +173,26 @@ export default function MobileRecordMatch({ sessionId, players }: MobileRecordMa
             </div>
           </div>
         </main>
+
+        {/* Fixed Submit Button Area */}
+        <div className="fixed bottom-0 left-0 right-0 z-50 p-6 bg-white/80 dark:bg-[#020617]/80 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+          <button
+            onClick={handleConfirm}
+            disabled={isSubmitting}
+            className={`w-full py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-3 ${
+              isSubmitting 
+                ? 'bg-slate-800 text-slate-500 cursor-not-allowed' 
+                : 'bg-[#13ec80] text-[#020617] shadow-[#13ec80]/20 hover:brightness-105'
+            }`}
+          >
+            {isSubmitting ? (
+              <div className="size-5 border-2 border-[#020617]/20 border-t-[#020617] rounded-full animate-spin"></div>
+            ) : (
+              <PlusCircle className="size-5" />
+            )}
+            {isSubmitting ? 'PERSISTING...' : 'CONFIRM MATCH'}
+          </button>
+        </div>
       </div>
     </div>
   );
