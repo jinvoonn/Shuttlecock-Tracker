@@ -31,6 +31,7 @@ create table public.purchases (
 create table public.players (
   id uuid primary key default uuid_generate_v4(),
   name text not null unique,
+  skill_rating integer not null default 5 check (skill_rating >= 1 and skill_rating <= 10),
   created_at timestamptz default now()
 );
 

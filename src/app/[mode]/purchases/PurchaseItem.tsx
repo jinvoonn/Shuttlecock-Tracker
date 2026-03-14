@@ -129,7 +129,7 @@ export function PurchaseItem({ purchase, brands }: { purchase: Purchase, brands:
                 </div>
                 <div>
                     <h3 className="font-medium text-slate-200 flex items-center gap-2">
-                        {brandName} <span className="text-slate-500 text-sm">({purchase.tube_number})</span>
+                        {brandName} ({purchase.tube_number})
                     </h3>
                     <div className="text-[10px] font-bold uppercase text-slate-500 mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-2">
                         <span className="flex items-center gap-1.5">

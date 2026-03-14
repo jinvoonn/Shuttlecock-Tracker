@@ -4,6 +4,8 @@ import { useState } from "react";
 import { ArrowDownRight, ArrowUpRight, ArrowUpDown, SortAsc } from "lucide-react";
 import { SettleButton } from "@/components/SettleButton";
 import clsx from "clsx";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 // Deterministic distinct colors per player — cycles through a palette
 const AVATAR_COLORS = [
@@ -33,6 +35,8 @@ interface Player {
 
 export function DashboardClient({ players }: { players: Player[] }) {
     const [sortMode, setSortMode] = useState<SortMode>("debt");
+    const pathname = usePathname();
+    const mode = pathname.split('/')[1] || 'view';
 
     const sortedPlayers = [...players].sort((a, b) => {
         if (sortMode === "debt") return a.balance - b.balance;
@@ -102,36 +106,42 @@ export function DashboardClient({ players }: { players: Player[] }) {
                         return (
                             <div key={player.id} className="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-5 hover:bg-slate-800/30 transition-all gap-4 group/item">
                                 <div className="flex items-center gap-4 flex-1 min-w-0">
-                                    {/* Color-coded avatar */}
-                                    <div className={clsx(
-                                        "h-12 w-12 rounded-2xl flex items-center justify-center font-bold text-lg shrink-0 ring-2 transition-all shadow-inner",
-                                        colorClass
-                                    )}>
-                                        {player.name.charAt(0).toUpperCase()}
-                                    </div>
+                                    <Link href={`/${mode}/players/${player.id}`} className="flex items-center gap-4 flex-1 min-w-0 group/link">
+                                        {/* Color-coded avatar */}
+                                        <div className={clsx(
+                                            "h-12 w-12 rounded-2xl flex items-center justify-center font-bold text-lg shrink-0 ring-2 transition-all shadow-inner",
+                                            colorClass,
+                                            "group-hover/link:ring-4 group-hover/link:scale-105"
+                                        )}>
+                                            {player.name.charAt(0).toUpperCase()}
+                                        </div>
 
-                                    <div className="min-w-0 flex-1">
-                                        <p className="font-bold text-slate-200 truncate group-hover/item:text-slate-50 transition-colors">{player.name}</p>
-                                        <div className="flex items-center gap-2 mt-1 flex-wrap">
-                                            <span className="text-[10px] font-bold uppercase tracking-tight text-slate-600">
-                                                Paid RM {player.totalPayments.toFixed(2)}
-                                            </span>
-                                            <span className="w-1 h-1 rounded-full bg-slate-700" />
-                                            <span className="text-[10px] font-bold uppercase tracking-tight text-slate-600">
-                                                Cost RM {player.totalShares.toFixed(2)}
-                                            </span>
+                                        <div className="min-w-0 flex-1">
+                                            <p className="font-bold text-slate-200 truncate group-hover/link:text-sky-400 transition-colors flex items-center gap-2">
+                                                {player.name}
+                                                <ArrowUpRight className="w-3.5 h-3.5 opacity-0 -ml-2 group-hover/link:opacity-100 group-hover/link:ml-0 transition-all text-sky-400" />
+                                            </p>
+                                            <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                                <span className="text-[10px] font-bold uppercase tracking-tight text-slate-600">
+                                                    Paid RM {player.totalPayments.toFixed(2)}
+                                                </span>
+                                                <span className="w-1 h-1 rounded-full bg-slate-700" />
+                                                <span className="text-[10px] font-bold uppercase tracking-tight text-slate-600">
+                                                    Cost RM {player.totalShares.toFixed(2)}
+                                                </span>
+                                            </div>
+                                            {/* Progress bar */}
+                                            <div className="mt-2 h-1 w-full max-w-[160px] bg-slate-800 rounded-full overflow-hidden">
+                                                <div
+                                                    className={clsx(
+                                                        "h-full rounded-full transition-all duration-700",
+                                                        isSettled ? "bg-slate-500" : isDebt ? "bg-rose-500" : "bg-emerald-500"
+                                                    )}
+                                                    style={{ width: `${paidRatio * 100}%` }}
+                                                />
+                                            </div>
                                         </div>
-                                        {/* Progress bar */}
-                                        <div className="mt-2 h-1 w-full max-w-[160px] bg-slate-800 rounded-full overflow-hidden">
-                                            <div
-                                                className={clsx(
-                                                    "h-full rounded-full transition-all duration-700",
-                                                    isSettled ? "bg-slate-500" : isDebt ? "bg-rose-500" : "bg-emerald-500"
-                                                )}
-                                                style={{ width: `${paidRatio * 100}%` }}
-                                            />
-                                        </div>
-                                    </div>
+                                    </Link>
                                 </div>
 
                                 <div className="flex items-center justify-between sm:justify-end gap-5 sm:gap-6 w-full sm:w-auto border-t sm:border-t-0 border-slate-800/50 pt-4 sm:pt-0">

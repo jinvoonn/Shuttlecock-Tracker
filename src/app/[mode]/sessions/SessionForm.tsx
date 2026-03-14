@@ -252,10 +252,9 @@ export function SessionForm({
                                             <div className={clsx("w-2 h-2 rounded-full", colorClass)} />
                                             <div>
                                                 <p className="font-medium text-slate-300 text-sm">
-                                                    {brandName} <span className="text-slate-500 text-xs">({p.tube_number})</span>
+                                                    {brandName} ({p.tube_number}) <span className="text-slate-500 font-normal hidden sm:inline">—</span> <span className="text-sky-400 font-bold ml-1">{remaining} remaining</span>
                                                 </p>
                                                 <p className="text-[10px] text-slate-500 flex gap-2">
-                                                    <span>{remaining} left</span>
                                                     <span className="text-sky-400 font-mono font-bold">RM {Number(p.price_per_tube || 0).toFixed(2)}</span>
                                                 </p>
                                             </div>

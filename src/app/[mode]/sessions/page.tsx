@@ -15,8 +15,9 @@ export default async function SessionsPage({ params }: { params: Promise<{ mode:
             .from("sessions")
             .select(`
         *,
-        session_players ( players ( name ) ),
-        session_usage ( quantity_used, purchases ( tube_number, brands ( name ) ) )
+        session_players ( players ( id, name ) ),
+        session_usage ( quantity_used, purchases ( tube_number, brands ( name ) ) ),
+        matches ( id, team_a_score, team_b_score, created_at, match_players ( player_id, team, players ( name ) ) )
       `)
             .order("date", { ascending: false })
             .order("created_at", { ascending: false }),
@@ -31,6 +32,15 @@ export default async function SessionsPage({ params }: { params: Promise<{ mode:
             </div>
         );
     }
+
+    // Sort purchases by brand name then tube_number
+    const sortedPurchases = (purchases || []).sort((a, b) => {
+        const nameA = (a.brands as any)?.name || "";
+        const nameB = (b.brands as any)?.name || "";
+        const nameCompare = nameA.localeCompare(nameB);
+        if (nameCompare !== 0) return nameCompare;
+        return a.tube_number - b.tube_number;
+    });
 
     // Role check (Admin by default for now)
     const isAdmin = true;
@@ -48,7 +58,7 @@ export default async function SessionsPage({ params }: { params: Promise<{ mode:
                 {/* Session Form - Hidden from Viewers */}
                 {isAdmin && (
                     <div className="lg:col-span-1">
-                        <SessionForm players={players || []} purchases={purchases || []} />
+                        <SessionForm players={players || []} purchases={sortedPurchases} />
                     </div>
                 )}
 
@@ -57,7 +67,7 @@ export default async function SessionsPage({ params }: { params: Promise<{ mode:
                     <SessionsList
                         sessions={sessions || []}
                         allPlayers={players || []}
-                        allPurchases={purchases || []}
+                        allPurchases={sortedPurchases}
                     />
                 </div>
             </div>

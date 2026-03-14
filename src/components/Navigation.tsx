@@ -13,10 +13,10 @@ export function Navigation() {
     const mode = isAdmin ? ADMIN_SECRET : "view";
 
     const navLinks = [
-        { name: "Dashboard", href: `/${mode}`, icon: LayoutDashboard, badge: null },
-        { name: "Purchases", href: `/${mode}/purchases`, icon: ShoppingCart, badge: null },
-        { name: "Sessions", href: `/${mode}/sessions`, icon: CalendarDays, badge: null },
-        { name: "Payments", href: `/${mode}/payments`, icon: DollarSign, badge: "!" },
+        { name: "Dashboard", href: `/${mode}`, icon: LayoutDashboard },
+        { name: "Purchases", href: `/${mode}/purchases`, icon: ShoppingCart },
+        { name: "Sessions", href: `/${mode}/sessions`, icon: CalendarDays },
+        { name: "Payments", href: `/${mode}/payments`, icon: DollarSign },
     ];
 
     // Derive current page name for mobile topbar
@@ -73,12 +73,6 @@ export function Navigation() {
                             >
                                 <div className="relative">
                                     <Icon className={clsx("w-6 h-6 md:w-5 md:h-5 transition-transform duration-300", isActive && "scale-110")} />
-                                    {/* Notification badge (Payments only) */}
-                                    {link.badge && !isActive && (
-                                        <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-rose-500 rounded-full flex items-center justify-center text-[8px] text-white font-black">
-                                            {link.badge}
-                                        </span>
-                                    )}
                                 </div>
                                 <span className="text-[10px] font-medium md:text-sm">{link.name}</span>
                             </Link>

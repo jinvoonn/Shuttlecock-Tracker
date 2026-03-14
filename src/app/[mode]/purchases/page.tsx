@@ -22,6 +22,15 @@ export default async function PurchasesPage({ params }: { params: Promise<{ mode
         );
     }
 
+    // Sort by brand name, then tube number ascending
+    const sortedPurchases = (purchases || []).sort((a, b) => {
+        const nameA = (a.brands as any)?.name || "";
+        const nameB = (b.brands as any)?.name || "";
+        const nameCompare = nameA.localeCompare(nameB);
+        if (nameCompare !== 0) return nameCompare;
+        return a.tube_number - b.tube_number;
+    });
+
     return (
         <div className="p-4 md:p-8 max-w-6xl mx-auto animate-in fade-in duration-700">
             <header className="mb-8">
@@ -37,7 +46,7 @@ export default async function PurchasesPage({ params }: { params: Promise<{ mode
 
                 {/* Purchases List */}
                 <div className="lg:col-span-2">
-                    <PurchasesList purchases={purchases || []} brands={brands || []} />
+                    <PurchasesList purchases={sortedPurchases} brands={brands || []} />
                 </div>
             </div>
         </div>

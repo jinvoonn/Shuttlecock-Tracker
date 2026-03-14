@@ -35,6 +35,7 @@ export function PurchasesList({ purchases, brands }: { purchases: Purchase[], br
             const matchesStart = !startDate || pDate >= startDate;
             const matchesEnd = !endDate || pDate <= endDate;
             const matchesBrand = !brandId || p.brand_id === brandId;
+
             return matchesStart && matchesEnd && matchesBrand;
         });
     }, [purchases, startDate, endDate, brandId]);

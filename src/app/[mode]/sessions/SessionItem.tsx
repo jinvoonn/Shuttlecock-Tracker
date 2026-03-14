@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Trash2, Calendar, Target, MapPin, Edit3 } from "lucide-react";
 import { SessionForm } from "./SessionForm";
 import { deleteSession } from "@/lib/actions/sessions";
+import { SessionMatches } from "./SessionMatches";
 import { useRole } from "@/context/AuthContext";
 
 interface SessionItemProps {
@@ -130,7 +131,7 @@ export function SessionItem({ session, allPlayers, allPurchases }: SessionItemPr
                                 const q = su.quantity_used;
                                 return (
                                     <div key={i} className="flex items-center justify-between bg-slate-950/50 px-2.5 py-1.5 rounded-lg border border-slate-800/50">
-                                        <span className="text-xs text-slate-400">{bName} <span className="text-[10px]">({tNo})</span></span>
+                                        <span className="text-xs text-slate-400">{bName} ({tNo})</span>
                                         <span className="text-xs font-mono font-medium text-sky-400">-{q}</span>
                                     </div>
                                 );
@@ -139,6 +140,13 @@ export function SessionItem({ session, allPlayers, allPurchases }: SessionItemPr
                     </div>
                 </div>
             </div>
+
+            {/* Matches Section! */}
+            <SessionMatches 
+                sessionId={session.id} 
+                sessionPlayers={session.session_players || []} 
+                matches={session.matches || []} 
+            />
         </div>
     );
 }

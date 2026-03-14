@@ -2,7 +2,6 @@
 
 import { supabase } from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
-
 export async function addPurchase(formData: FormData) {
     const purchase_date = formData.get("date") as string;
     const brand_id = formData.get("brand_id") as string;
@@ -49,17 +48,21 @@ export async function addPurchase(formData: FormData) {
         throw new Error("A brand must be selected or created");
     }
 
-    // 2. Generate tube number (count existing tubes for this brand)
-    const { count, error: countError } = await supabase
+    // 2. Generate tube number
+    // Find highest tube number among this brand ID
+    const { data: pastPurchases, error: countError } = await supabase
         .from("purchases")
-        .select("*", { count: "exact" })
-        .eq("brand_id", finalBrandId);
+        .select("tube_number")
+        .eq("brand_id", finalBrandId)
+        .order("tube_number", { ascending: false })
+        .limit(1);
 
     if (countError) {
         throw new Error("Failed to generate tube number: " + countError.message);
     }
 
-    const tube_number = (count || 0) + 1;
+    const maxTubeNumber = pastPurchases && pastPurchases.length > 0 ? pastPurchases[0].tube_number : 0;
+    const tube_number = maxTubeNumber + 1;
 
     // 3. Insert purchase (represents one tube)
     const { error: purchaseError } = await supabase
