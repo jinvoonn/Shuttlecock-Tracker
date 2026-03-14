@@ -199,3 +199,20 @@ export async function deleteSession(id: string) {
     revalidatePath("/sessions");
     revalidatePath("/purchases");
 }
+
+export async function updateSessionMetadata(id: string, formData: FormData) {
+    const date = formData.get("date") as string;
+    const location = formData.get("location") as string;
+
+    if (!date || !location) {
+        throw new Error("Date and location are required");
+    }
+
+    const { error } = await supabase.from("sessions").update({ date, location }).eq("id", id);
+    if (error) {
+        throw new Error("Failed to update session: " + error.message);
+    }
+
+    revalidatePath("/");
+    revalidatePath("/sessions");
+}

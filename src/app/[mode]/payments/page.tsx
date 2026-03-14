@@ -24,7 +24,8 @@ export default async function PaymentsPage({ params }: { params: Promise<{ mode:
     id: p.id,
     amount: p.amount,
     date: p.date,
-    playerName: p.players?.name || "Unknown"
+    playerName: p.players?.name || "Unknown",
+    playerId: p.players?.id || ""
   }));
 
   return (
