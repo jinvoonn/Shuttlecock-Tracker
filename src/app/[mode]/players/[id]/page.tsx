@@ -32,37 +32,35 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
         
     const totalSessions = attendedSessions?.length || 0;
 
-    // Fetch matches the player participated in
+    // Fetch matches the player participated in (Flat Structure)
     const { data: matches } = await supabase
-        .from("match_players")
+        .from("matches")
         .select(`
-            team,
-            matches (
-                id,
-                created_at,
-                team_a_score,
-                team_b_score,
-                sessions ( date ),
-                match_players ( player_id, team, players ( name ) )
-            )
+            id,
+            created_at,
+            team_a_score,
+            team_b_score,
+            sessions ( date ),
+            players_a1:team_a_player1 ( id, name ),
+            players_a2:team_a_player2 ( id, name ),
+            players_b1:team_b_player1 ( id, name ),
+            players_b2:team_b_player2 ( id, name )
         `)
-        .eq("player_id", id)
+        .or(`team_a_player1.eq.${id},team_a_player2.eq.${id},team_b_player1.eq.${id},team_b_player2.eq.${id}`)
         .order("created_at", { ascending: false });
 
     // Calculate generic stats
-    let totalMatches = 0;
+    let totalMatchesCount = 0;
     let wins = 0;
     let losses = 0;
 
     const formattedMatches = (matches || []).map((m: any) => {
-        const matchData = m.matches as any;
-        if (!matchData) return null;
+        totalMatchesCount++;
         
-        totalMatches++;
+        const isTeamA = m.players_a1?.id === id || m.players_a2?.id === id;
         
-        const myTeam = m.team;
-        const myScore = myTeam === 'A' ? matchData.team_a_score : matchData.team_b_score;
-        const oppScore = myTeam === 'A' ? matchData.team_b_score : matchData.team_a_score;
+        const myScore = isTeamA ? m.team_a_score : m.team_b_score;
+        const oppScore = isTeamA ? m.team_b_score : m.team_a_score;
         
         const isWin = myScore > oppScore;
         const isDraw = myScore === oppScore;
@@ -70,24 +68,27 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
         if (isWin) wins++;
         else if (!isDraw) losses++;
         
-        // Find partners and opponents from the nested match_players array
-        const allPlayers = matchData.match_players || [];
-        const partners = allPlayers.filter((p: any) => p.team === myTeam && p.player_id !== id).map((p: any) => p.players?.name);
-        const opponents = allPlayers.filter((p: any) => p.team !== myTeam).map((p: any) => p.players?.name);
+        const myPartner = isTeamA 
+            ? (m.players_a1?.id === id ? m.players_a2?.name : m.players_a1?.name)
+            : (m.players_b1?.id === id ? m.players_b2?.name : m.players_b1?.name);
+            
+        const opponents = isTeamA
+            ? [m.players_b1?.name, m.players_b2?.name]
+            : [m.players_a1?.name, m.players_a2?.name];
 
         return {
-            id: matchData.id,
-            date: matchData.sessions?.date || new Date(matchData.created_at).toISOString().split('T')[0],
+            id: m.id,
+            date: m.sessions?.date || new Date(m.created_at).toISOString().split('T')[0],
             isWin,
             isDraw,
             myScore,
             oppScore,
-            partners,
-            opponents
+            partners: [myPartner].filter(Boolean),
+            opponents: opponents.filter(Boolean)
         };
-    }).filter(Boolean);
+    });
 
-    const winRate = totalMatches > 0 ? Math.round((wins / totalMatches) * 100) : 0;
+    const winRate = totalMatchesCount > 0 ? Math.round((wins / totalMatchesCount) * 100) : 0;
 
     // --- PHASE 11: ADVANCED ANALYTICS ---
     const h2h: Record<string, { name: string, wins: number, losses: number, total: number }> = {};
@@ -143,7 +144,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                 <div className="bg-slate-900/60 p-5 rounded-2xl border border-slate-800/80 shadow-lg relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-3 opacity-10"><Activity className="w-12 h-12" /></div>
                     <p className="text-[10px] font-bold uppercase text-slate-500 mb-1 relative z-10">Matches</p>
-                    <p className="text-2xl font-bold font-mono text-slate-200 relative z-10">{totalMatches}</p>
+                    <p className="text-2xl font-bold font-mono text-slate-200 relative z-10">{totalMatchesCount}</p>
                 </div>
                 <div className="bg-emerald-950/20 p-5 rounded-2xl border border-emerald-500/20 shadow-lg relative overflow-hidden">
                     <p className="text-[10px] font-bold uppercase text-emerald-600/80 mb-1 relative z-10">Win Rate</p>

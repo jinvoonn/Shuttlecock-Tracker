@@ -17,7 +17,16 @@ export default async function SessionsPage({ params }: { params: Promise<{ mode:
         *,
         session_players ( players ( id, name ) ),
         session_usage ( quantity_used, purchases ( tube_number, brands ( name ) ) ),
-        matches ( id, team_a_score, team_b_score, created_at, match_players ( player_id, team, players ( name ) ) )
+        matches ( 
+          id, 
+          team_a_score, 
+          team_b_score, 
+          created_at, 
+          players_a1:team_a_player1 ( name ),
+          players_a2:team_a_player2 ( name ),
+          players_b1:team_b_player1 ( name ),
+          players_b2:team_b_player2 ( name )
+        )
       `)
             .order("date", { ascending: false })
             .order("created_at", { ascending: false }),

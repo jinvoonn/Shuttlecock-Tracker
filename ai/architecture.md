@@ -13,8 +13,7 @@ shuttle-tracker/
 │   ├── context/        # React Context (AuthContext for role handling)
 │   ├── lib/            # Utility functions and shared logic
 │   │   ├── actions/    # Supabase Server Actions (Mutations)
-│   │   ├── supabase.ts # Supabase client initialization
-│   │   └── grouping.ts # Auto-match generation algorithm
+│   │   └── supabase.ts # Supabase client initialization
 │   └── styles/         # Global CSS
 └── schema_v2.sql       # Current PostgreSQL database schema
 ```
@@ -37,10 +36,9 @@ The database structure is defined in `schema_v2.sql` and includes:
 *   `session_players`: Junction table for session attendance.
 *   `purchases`: Records of shuttlecock purchases and prices.
 *   `session_usage`: Links sessions to specific shuttlecock tubes and tracking usage quantity.
-*   `matches` & `match_players`: Stores scores and team compositions for every game.
+*   `matches`: Stores scores and team compositions (4 players per row) in a flat structure.
 *   `payments`: Logs player payments against their costs.
 
 ## Key Libraries & Interactions
 *   **Supabase SSR**: Efficiently handles database queries within Next.js Server Components.
-*   **Grouping Algorithm (`src/lib/grouping.ts`)**: Uses a combinations-based approach to minimize skill gaps and rotate partners.
 *   **Tailwind CSS v4**: Provides a premium "glassmorphism" aesthetic with dark-mode focus.
