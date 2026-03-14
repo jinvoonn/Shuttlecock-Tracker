@@ -1,22 +1,20 @@
 # Project Tasks: Shuttle Tracker
 
-## Completed Features (Phases 1-23)
-*   [x] Core Dashboard with player balances.
-*   [x] Session logging with shuttlecock usage tracking.
-*   [x] Secret Admin routing (`/admin-92Kf8s`) for safe management.
-*   [x] Advanced Player Profiles: Win Rate, H2H, Best Partner.
-*   [x] Skill Rating System: Admin-editable slider for balancing games.
-*   [x] Auto-Grouping: Logic for generating balanced teams and rotating partners.
-*   [x] Database Migration: Moved from V1 to V2 schema with match tracking support.
-*   [x] **UI Modernization (Stitch AI)**: Converted 17+ desktop/mobile designs to functional React components.
-*   [x] **Gap Analysis**: Verified UI compatibility with `schema_v2.sql`.
-*   [x] **Phase 13: Core Backend Integration**: Hooked up all 18+ mobile/desktop views to Supabase services and server actions.
+## Completed Features (Phases 1-35)
+*   [x] **Mobile Responsiveness Order**: Optimized all primary tracking pages for mobile (Cards, scaling, text wrapping).
+*   [x] **Global Navigation Fix**: Standardized bottom navigation for mobile, resolving click-blocking issues.
+*   [x] **CRUD Operations Restored**:
+    *   [x] Inline Editing for Stock, Payments, and Sessions.
+    *   [x] Functional Delete buttons with confirmation prompts.
+    *   [x] Corrected Floating Action Button (FAB) and "+Log New" routing.
+*   [x] **Deployment Stability**: Resolved all Type/Lint errors; `npm run build` now passes locally and in Vercel.
+*   [x] **Log Match Restoration**: Restored the missing submit button and implemented loading states.
 
 ## Current Work in Progress
-*   [x] **Vercel Deployment Fix**: Resolved build failures related to Turbopack and missing client directives.
+*   [x] **Sprint Completion**: Today's core functional bugs have been resolved; the app is production-ready.
 
 ## Known Issues/Bugs
-*   **Asset Placeholders**: Since avatars and hero images were skipped, many components use mock visual data (placeholders).
+*   **Asset Placeholders**: Component hero images and player avatars use generic placeholders.
 *   **Environment Variables**: `.env.local` requires real Supabase keys to function.
 
 ## Roadmap & Next Recommended Steps
