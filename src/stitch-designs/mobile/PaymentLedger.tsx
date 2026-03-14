@@ -16,27 +16,24 @@ import {
 import { useState } from 'react';
 import { useRouter } from "next/navigation";
 
-interface PlayerBalance {
+interface PaymentRecord {
   id: string;
-  name: string;
-  balance: number;
-  lastActivity: string;
-  status: 'Settled' | 'Overdue' | 'Neutral';
-  avatar?: string;
+  playerName: string;
+  amount: number;
+  date: string;
 }
 
 interface MobilePaymentLedgerProps {
-  poolBalance: number;
-  owedTotal: number;
-  players: PlayerBalance[];
+  payments: PaymentRecord[];
 }
 
-export default function MobilePaymentLedger({ poolBalance, owedTotal, players }: MobilePaymentLedgerProps) {
+export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerProps) {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredPlayers = players.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredPayments = payments.filter(p => 
+    p.playerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.date.includes(searchTerm)
   );
 
   return (
@@ -75,15 +72,14 @@ export default function MobilePaymentLedger({ poolBalance, owedTotal, players }:
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2 p-6 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-lg relative overflow-hidden group hover:-translate-y-1 transition-all">
               <div className="absolute top-0 right-0 size-16 bg-[#13ec80]/5 rounded-full -translate-y-8 translate-x-8 blur-2xl"></div>
-              <p className="text-[10px] uppercase tracking-[0.2em] font-black text-slate-500 italic">Pool Balance</p>
-              <p className="text-2xl font-black italic text-[#13ec80] font-mono tracking-tighter leading-none">${poolBalance.toFixed(2)}</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] font-black text-slate-500 italic">Total Paid</p>
+              <p className="text-2xl font-black italic text-[#13ec80] font-mono tracking-tighter leading-none">RM{payments.reduce((acc, curr) => acc + curr.amount, 0).toFixed(2)}</p>
               <TrendingUp className="absolute bottom-4 right-4 size-4 text-[#13ec80]/20" />
             </div>
             <div className="flex flex-col gap-2 p-6 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-lg relative overflow-hidden group hover:-translate-y-1 transition-all">
-              <div className="absolute top-0 right-0 size-16 bg-rose-500/5 rounded-full -translate-y-8 translate-x-8 blur-2xl"></div>
-              <p className="text-[10px] uppercase tracking-[0.2em] font-black text-slate-500 italic">Owed Total</p>
-              <p className="text-2xl font-black italic text-rose-500 font-mono tracking-tighter leading-none">${owedTotal.toFixed(2)}</p>
-              <TrendingDown className="absolute bottom-4 right-4 size-4 text-rose-500/20" />
+              <div className="absolute top-0 right-0 size-16 bg-blue-500/5 rounded-full -translate-y-8 translate-x-8 blur-2xl"></div>
+              <p className="text-[10px] uppercase tracking-[0.2em] font-black text-slate-500 italic">Records</p>
+              <p className="text-2xl font-black italic text-blue-500 font-mono tracking-tighter leading-none">{payments.length}</p>
             </div>
           </div>
 
@@ -96,31 +92,22 @@ export default function MobilePaymentLedger({ poolBalance, owedTotal, players }:
 
             {/* Player List */}
             <div className="space-y-3">
-              {filteredPlayers.length === 0 && <p className="text-slate-500 text-center py-8">No players found.</p>}
-              {filteredPlayers.map((player) => (
-                <div key={player.id} className="flex items-center justify-between p-4 rounded-[1.75rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm group hover:shadow-md transition-all hover:bg-slate-50 dark:hover:bg-slate-800/50 text-left">
+              {filteredPayments.length === 0 && <p className="text-slate-500 text-center py-8">No records found.</p>}
+              {filteredPayments.map((p) => (
+                <div key={p.id} className="flex items-center justify-between p-4 rounded-[1.75rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm group hover:shadow-md transition-all hover:bg-slate-50 dark:hover:bg-slate-800/50 text-left">
                   <div className="flex items-center gap-4">
                     <div className="size-14 rounded-2xl overflow-hidden bg-slate-200 dark:bg-slate-800 border-2 border-white dark:border-slate-700 shadow-inner group-hover:scale-105 transition-transform flex items-center justify-center">
-                      {player.avatar ? (
-                        <img alt={player.name} className="size-full object-cover" src={player.avatar} />
-                      ) : (
-                        <span className="text-slate-400 font-black uppercase italic">{player.name.slice(0, 2)}</span>
-                      )}
+                      <span className="text-[#13ec80] font-black uppercase italic">{p.playerName.slice(0, 2)}</span>
                     </div>
                     <div>
-                      <p className="font-black text-slate-900 dark:text-slate-100 tracking-tight leading-none mb-1 uppercase italic">{player.name}</p>
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">{player.lastActivity}</p>
+                      <p className="font-black text-slate-900 dark:text-slate-100 tracking-tight leading-none mb-1 uppercase italic">{p.playerName}</p>
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">{p.date}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className={`text-xl font-black font-mono tracking-tighter ${player.balance >= 0 ? 'text-emerald-500' : 'text-rose-500'} leading-none mb-1 italic`}>
-                      {player.balance >= 0 ? '+' : ''}${Math.abs(player.balance).toFixed(2)}
+                    <p className="text-xl font-black font-mono tracking-tighter text-[#13ec80] leading-none mb-1 italic">
+                      +RM{p.amount.toFixed(2)}
                     </p>
-                    <div className={`inline-flex items-center px-2 py-0.5 rounded-md ${player.balance >= 0 ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-rose-500/10 border-rose-500/20'} border`}>
-                      <p className={`text-[8px] uppercase font-black tracking-[0.2em] ${player.balance >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                        {player.balance >= 0 ? 'Settled' : 'Overdue'}
-                      </p>
-                    </div>
                   </div>
                 </div>
               ))}

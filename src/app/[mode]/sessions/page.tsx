@@ -7,19 +7,15 @@ export const revalidate = 0;
 export default async function SessionsPage({ params }: { params: Promise<{ mode: string }> }) {
   await params;
   
-  const [
-    { data: sessions, error: sessionsError },
-  ] = await Promise.all([
-    supabase
-      .from("sessions")
-      .select(`
-        *,
-        session_players ( players ( id, name ) ),
-        session_usage ( quantity_used, purchases ( tube_number, brands ( name ), price_per_cock ) )
-      `)
-      .order("date", { ascending: false })
-      .order("created_at", { ascending: false }),
-  ]);
+  const { data: sessions, error: sessionsError } = await supabase
+    .from("sessions")
+    .select(`
+      *,
+      session_players ( players ( id, name ) ),
+      session_usage ( quantity_used, purchases ( tube_number, brands ( name ), price_per_cock ) )
+    `)
+    .order("date", { ascending: true })
+    .order("created_at", { ascending: true });
 
   if (sessionsError) {
     return (
@@ -29,7 +25,7 @@ export default async function SessionsPage({ params }: { params: Promise<{ mode:
     );
   }
 
-  const formattedSessions = (sessions || []).map((session: any) => {
+  const formattedSessions = (sessions || []).map((session: any, index: number) => {
     const attendees = session.session_players?.map((sp: any) => sp.players?.name || "Unknown") || [];
     
     let shuttleName = "None";
@@ -50,8 +46,10 @@ export default async function SessionsPage({ params }: { params: Promise<{ mode:
     
     return {
       id: session.id,
+      displayNumber: index + 1,
       date: session.date,
       location: session.location || "Default Court",
+      notes: session.notes || "",
       status: "Completed" as const,
       shuttleUsed: {
         name: shuttleName,
@@ -61,7 +59,7 @@ export default async function SessionsPage({ params }: { params: Promise<{ mode:
       attendees,
       totalNet: -totalCost // Defaulting to the negative expense of the session for now
     };
-  });
+  }).reverse();
 
   return (
     <>

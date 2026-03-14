@@ -33,8 +33,11 @@ interface ActiveTube {
 interface PurchaseHistory {
   id: string;
   name: string;
+  tubeNumber: number;
   date: string;
-  price: number;
+  remaining: number;
+  pricePerTube: number;
+  pricePerCock: number;
 }
 
 interface DesktopStockInventoryProps {
@@ -44,6 +47,12 @@ interface DesktopStockInventoryProps {
 }
 
 export default function DesktopStockInventory({ stats, activeTubes, history }: DesktopStockInventoryProps) {
+  const [searchTerm, setSearchTerm] = React.useState('');
+
+  const filteredHistory = history.filter(h => 
+    h.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    h.date.includes(searchTerm)
+  );
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
@@ -99,6 +108,8 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 text-sm focus:ring-1 focus:ring-[#13ec80] transition-all text-slate-200 h-10 outline-none shadow-inner" 
                 placeholder="Search stock..." 
                 type="text" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
@@ -217,10 +228,11 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
               <table className="w-full text-left bg-slate-900/60 border-collapse">
                 <thead>
                   <tr className="bg-slate-950/50 text-slate-500 uppercase text-[10px] font-black tracking-widest border-b border-slate-800">
+                    <th className="px-6 py-4">Brand/Model (#)</th>
                     <th className="px-6 py-4">Date</th>
-                    <th className="px-6 py-4">Brand/Model</th>
-                    <th className="px-6 py-4 text-center">Tubes</th>
-                    <th className="px-6 py-4 text-right">Total Price</th>
+                    <th className="px-6 py-4 text-center">Remaining</th>
+                    <th className="px-6 py-4 text-right">Price/Tube</th>
+                    <th className="px-6 py-4 text-right">Price/Cock</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/80 text-sm">
@@ -229,12 +241,13 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
                       <td colSpan={4} className="px-6 py-8 text-center text-slate-500 font-bold">No purchase history available.</td>
                     </tr>
                   )}
-                  {history.map(item => (
+                  {filteredHistory.map(item => (
                     <tr key={item.id} className="hover:bg-slate-800/50 transition-colors">
+                      <td className="px-6 py-4 font-bold text-slate-100">{item.name} ({item.tubeNumber})</td>
                       <td className="px-6 py-4 font-mono text-slate-400 italic">{item.date}</td>
-                      <td className="px-6 py-4 font-bold text-slate-100">{item.name}</td>
-                      <td className="px-6 py-4 text-center font-mono text-[#13ec80]">1 Tube</td>
-                      <td className="px-6 py-4 text-right font-mono font-bold text-slate-100">RM{item.price.toFixed(2)}</td>
+                      <td className="px-6 py-4 text-center font-mono text-[#13ec80]">{item.remaining} cocks</td>
+                      <td className="px-6 py-4 text-right font-mono font-bold text-slate-100">RM{item.pricePerTube.toFixed(2)}</td>
+                      <td className="px-6 py-4 text-right font-mono font-bold text-[#13ec80]">RM{item.pricePerCock.toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>

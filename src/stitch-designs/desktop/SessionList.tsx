@@ -18,6 +18,8 @@ interface SessionData {
   id: string;
   date: string;
   location: string;
+  notes?: string;
+  displayNumber?: number;
   status: 'Completed' | 'Outstanding' | 'Archived';
   shuttleUsed: {
     name: string;
@@ -41,7 +43,7 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
   const filteredSessions = sessions.filter(s => 
     s.date.includes(searchTerm) || 
     s.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.status.toLowerCase().includes(searchTerm.toLowerCase())
+    (s.notes || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -134,7 +136,7 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
                         {new Date(session.date).toLocaleDateString()} • {session.location}
                       </span>
                       <h3 className="text-2xl font-black italic tracking-tight mt-1 text-slate-100 uppercase group-hover:text-[#13ec80] transition-colors">
-                        Session {session.id.slice(0, 4)}
+                        Session {session.displayNumber || session.id.slice(0, 4)}
                       </h3>
                     </div>
                     <span className={clsx("px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border",

@@ -28,18 +28,18 @@ interface DashboardProps {
     totalPoolBalance: number;
     inventory: {
       totalTubes: number;
-      remainingTubes: number;
       totalShuttles: number;
     };
   };
   players: PlayerStat[];
+  isAdmin?: boolean;
   upcomingSession?: {
     location: string;
     date: string;
   };
 }
 
-export default function DesktopDashboard({ stats, players, upcomingSession }: DashboardProps) {
+export default function DesktopDashboard({ stats, players, isAdmin, upcomingSession }: DashboardProps) {
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
@@ -146,7 +146,7 @@ export default function DesktopDashboard({ stats, players, upcomingSession }: Da
               </div>
               <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Inventory</p>
               <p className="text-xl font-mono font-black text-slate-100 leading-tight tracking-tighter">
-                {stats.inventory.remainingTubes} Tubes Left<br/>
+                {stats.inventory.totalTubes} Tubes Left<br/>
                 <span className="text-sm text-slate-500 font-medium tracking-normal">// {stats.inventory.totalShuttles} Shuttles</span>
               </p>
             </div>
@@ -208,7 +208,12 @@ export default function DesktopDashboard({ stats, players, upcomingSession }: Da
                                 <div className="size-10 rounded-xl bg-slate-800 flex items-center justify-center font-black text-sm text-slate-400 border border-slate-700 group-hover/row:border-slate-500 transition-all">
                                   {initial}
                                 </div>
-                                <span className="font-black text-slate-100 text-sm">{player.name}</span>
+                                <Link 
+                                  href={`${basePath}/players/${player.id}`}
+                                  className="font-black text-slate-100 text-sm hover:text-[#13ec80] transition-colors"
+                                >
+                                  {player.name}
+                                </Link>
                               </div>
                             </td>
                             <td className="px-8 py-6">
@@ -229,6 +234,23 @@ export default function DesktopDashboard({ stats, players, upcomingSession }: Da
                             )}>
                               {isSurplus ? '+' : '-'}RM {Math.abs(player.balance).toFixed(2)}
                             </td>
+                            {isAdmin && (
+                              <td className="px-8 py-6 text-right">
+                                {!isSurplus && (
+                                  <button 
+                                    onClick={async () => {
+                                      if (confirm(`Settle up RM ${Math.abs(player.balance).toFixed(2)} for ${player.name}?`)) {
+                                        const { quickSettle } = await import("@/lib/actions/payments");
+                                        await quickSettle(player.id, Math.abs(player.balance));
+                                      }
+                                    }}
+                                    className="bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-emerald-500/20 transition-all"
+                                  >
+                                    Settle
+                                  </button>
+                                )}
+                              </td>
+                            )}
                           </tr>
                         );
                       })}

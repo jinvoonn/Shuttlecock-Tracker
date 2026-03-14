@@ -15,6 +15,7 @@ import {
 import Link from 'next/link';
 import clsx from 'clsx';
 import { usePathname } from 'next/navigation';
+import AddMatchModal from "@/components/AddMatchModal";
 
 interface SessionMeta {
   id: string;
@@ -57,6 +58,7 @@ export default function DesktopSessionDetails({ session, matches, attendees }: D
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   const isLive = new Date(session.date).toDateString() === new Date().toDateString();
 
@@ -97,15 +99,27 @@ export default function DesktopSessionDetails({ session, matches, attendees }: D
             </div>
           </div>
           <div className="flex gap-3">
-             <Link 
-               href={`${basePath}/record-match-stitch/${session.id}`}
+             <button 
+               onClick={() => setIsModalOpen(true)}
                className="bg-[#13ec80] hover:bg-[#13ec80]/90 text-[#020617] px-6 py-3 rounded font-bold text-sm uppercase transition-all flex items-center gap-2"
              >
               <Plus className="size-5" />
               Record Match
-            </Link>
+            </button>
           </div>
         </section>
+
+        {isModalOpen && (
+          <AddMatchModal 
+            sessionId={session.id}
+            players={attendees.map(a => ({ id: a.id, name: a.name }))}
+            onClose={() => setIsModalOpen(false)}
+            onSuccess={() => {
+              // The server action handles revalidation
+              console.log("Match added successfully");
+            }}
+          />
+        )}
 
         {/* Key Stats Grid */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-4">

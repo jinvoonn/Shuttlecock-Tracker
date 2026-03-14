@@ -1,12 +1,15 @@
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import DesktopDashboard from "@/stitch-designs/desktop/Dashboard";
 import MobileDashboard from "@/stitch-designs/mobile/Dashboard";
-import { AlertCircle, Terminal } from "lucide-react";
+import { AlertCircle } from "lucide-react";
+import { ADMIN_SECRET } from "@/lib/constants";
 
 export const revalidate = 0;
 
 export default async function DashboardPage({ params }: { params: Promise<{ mode: string }> }) {
-  await params;
+  const { mode } = await params;
+  const isAdmin = mode === ADMIN_SECRET;
+
   if (!isSupabaseConfigured) {
     return (
       <div className="p-8 flex flex-col items-center justify-center min-h-screen text-amber-500 bg-[#020617] text-center max-w-md mx-auto">
@@ -26,7 +29,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
     { data: sessionUsageData, error: sessionUsageError }
   ] = await Promise.all([
     supabase.from("payments").select("amount, players(id, name)"),
-    supabase.from("purchases").select("price_per_tube, initial_quantity, brands(name)"),
+    supabase.from("purchases").select("price_per_tube, initial_quantity, remaining_quantity, brands(name)"),
     supabase.from("sessions").select(`id, session_players ( players ( id, name ) )`),
     supabase.from("session_usage").select("session_id, quantity_used, purchases(price_per_cock)")
   ]);
@@ -66,22 +69,6 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
     sessionCosts[sId] = (sessionCosts[sId] || 0) + (price_per_cock * su.quantity_used);
   });
 
-  (sessionsData || []).forEach(s => {
-    const totalCost = sessionCosts[s.id] || 0;
-    const attendees = s.session_players || [];
-    if (attendees.length > 0 && totalCost > 0) {
-      const share = totalCost / attendees.length;
-      attendees.forEach((sp: any) => {
-        const id = sp.players?.id;
-        const name = sp.players?.name;
-        if (id) {
-          if (!playerBalances[id]) playerBalances[id] = { id, name, totalShares: 0, totalPayments: 0, balance: 0 };
-          playerBalances[id].totalShares += share;
-        }
-      });
-    }
-  });
-
   const players = Object.values(playerBalances).map(stats => ({
     ...stats,
     balance: stats.totalPayments - stats.totalShares,
@@ -89,10 +76,9 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
 
   const totalPoolBalance = players.reduce((acc, p) => acc + p.balance, 0);
 
-  // Calculate generic mock stock if not present
-  const totalTubes = (purchasesData || []).reduce((acc, curr) => acc + Number(curr.initial_quantity || 1), 0);
-  const remainingTubes = Math.max(0, totalTubes - Math.floor(totalShuttlesUsed / 12));
-  const totalShuttles = totalTubes * 12;
+  // Calculate inventory based on remaining values
+  const totalTubes = (purchasesData || []).filter(p => (p.remaining_quantity || 0) > 0).length;
+  const totalShuttles = (purchasesData || []).reduce((acc, curr) => acc + Number(curr.remaining_quantity || 0), 0);
 
   const statsProps = {
     totalShuttlesUsed,
@@ -100,7 +86,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
     totalPoolBalance,
     inventory: {
       totalTubes,
-      remainingTubes,
+      remainingTubes: totalTubes, // Add this for type compatibility temporarily or update the component interface
       totalShuttles,
     }
   };
@@ -111,7 +97,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
         <MobileDashboard stats={statsProps} players={players} />
       </div>
       <div className="hidden lg:block">
-        <DesktopDashboard stats={statsProps} players={players} />
+        <DesktopDashboard stats={statsProps} players={players} isAdmin={isAdmin} />
       </div>
     </>
   );

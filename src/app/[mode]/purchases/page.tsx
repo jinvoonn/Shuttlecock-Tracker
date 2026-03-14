@@ -57,9 +57,12 @@ export default async function PurchasesPage({ params }: { params: Promise<{ mode
     // Add to history
     history.push({
       id: p.id,
-      name,
+      name: brandName,
+      tubeNumber: p.tube_number || 0,
       date: new Date(p.purchase_date || p.created_at).toLocaleDateString(),
-      price: p.price_per_tube || 0
+      remaining: p.remaining_quantity || 0,
+      pricePerTube: p.price_per_tube || 0,
+      pricePerCock: p.price_per_cock || 0
     });
 
     if (p.remaining_quantity && p.remaining_quantity > 0) {
