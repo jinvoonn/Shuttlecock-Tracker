@@ -10,11 +10,14 @@ import {
   History, 
   Package, 
   Banknote,
-  ChevronRight
+  ChevronRight,
+  ArrowLeft
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface SessionData {
   id: string;
+  displayNumber: number;
   date: string;
   location: string;
   status: 'Completed' | 'Outstanding' | 'Archived';
@@ -32,6 +35,7 @@ interface MobileSessionsProps {
 }
 
 export default function MobileSessions({ sessions }: MobileSessionsProps) {
+  const router = useRouter();
   return (
     <div className="bg-[#f6f8f7] dark:bg-[#020617] font-['Lexend',_sans-serif] text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
       <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-200 dark:border-slate-800 shadow-2xl pb-24">
@@ -67,60 +71,62 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
           )}
 
           {sessions.map((session) => (
-            <div key={session.id} className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow active:scale-[0.98] transition-all">
+            <div key={session.id} className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-[2rem] p-6 flex flex-col gap-5 shadow-sm hover:shadow-md transition-all">
               <div className="flex justify-between items-start">
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 font-bold uppercase tracking-tight">
-                    {new Date(session.date).toLocaleDateString()} • {session.location}
-                  </span>
-                  <h3 className="text-xl font-black italic tracking-tight mt-1 text-slate-900 dark:text-slate-100 uppercase">
-                    Session {session.id.slice(0, 4)}
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black text-[#13ec80] uppercase tracking-widest bg-[#13ec80]/10 px-2 py-0.5 rounded">Session {session.displayNumber}</span>
+                    <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{new Date(session.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                  </div>
+                  <h3 className="text-xl font-black italic tracking-tight text-slate-900 dark:text-slate-100 uppercase mt-1">
+                    {session.location}
                   </h3>
                 </div>
-                <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${
+                <div className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${
                   session.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
                   session.status === 'Outstanding' ? 'bg-rose-500/10 text-rose-500 dark:text-rose-400' :
                   'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                 }`}>
                   {session.status}
-                </span>
+                </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-4 py-4 border-y border-slate-100 dark:border-slate-800/50">
-                <div className="flex flex-col gap-1.5">
+              <div className="grid grid-cols-2 gap-6 py-5 border-y border-slate-100 dark:border-slate-800/50">
+                <div className="flex flex-col gap-2">
                   <span className="text-[9px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-widest">Shuttle Used</span>
-                  <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200">
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
                     <Activity className="text-[#13ec80] size-4" />
-                    {session.shuttleUsed.name} ({session.shuttleUsed.quantity})
+                    <span className="truncate">{session.shuttleUsed.name} ({session.shuttleUsed.quantity})</span>
                   </div>
                 </div>
-                <div className="flex flex-col gap-1.5 items-end text-right">
+                <div className="flex flex-col gap-2 items-end text-right">
                   <span className="text-[9px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-widest">Cost / Person</span>
                   <div className="text-sm font-mono font-black text-slate-900 dark:text-slate-100">
-                    ${session.costPerPerson.toFixed(2)}
+                    RM {session.costPerPerson.toFixed(2)}
                   </div>
                 </div>
               </div>
               
-              <div className="flex items-center justify-between">
-                <div className="flex -space-x-2.5">
+              <div className="flex items-center justify-between mt-1">
+                <div className="flex -space-x-3">
                   {session.attendees.slice(0, 3).map((name, i) => (
-                    <div key={i} className="size-9 rounded-full border-2 border-white dark:border-[#0f172a] bg-slate-200 flex items-center justify-center text-[10px] font-black text-slate-600 uppercase">
+                    <div key={i} className="size-10 rounded-full border-2 border-white dark:border-[#0f172a] bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase shadow-sm">
                       {name.slice(0, 2)}
                     </div>
                   ))}
                   {session.attendees.length > 3 && (
-                    <div className="size-9 rounded-full border-2 border-white dark:border-[#0f172a] bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px] font-black text-slate-500">
+                    <div className="size-10 rounded-full border-2 border-white dark:border-[#0f172a] bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-[10px] font-black text-slate-400">
                       +{session.attendees.length - 3}
                     </div>
                   )}
                 </div>
-                <div className="flex flex-col items-end text-right">
-                  <span className="text-[9px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-widest">Total Net</span>
-                  <span className={`text-xl font-mono font-black leading-none ${session.totalNet >= 0 ? 'text-emerald-500 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>
-                    {session.totalNet >= 0 ? '+' : '-'}${Math.abs(session.totalNet).toFixed(2)}
-                  </span>
-                </div>
+                <button 
+                  onClick={() => router.push(`/view/session-details-stitch/${session.id}`)}
+                  className="bg-slate-900 dark:bg-slate-800 text-[#13ec80] px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-[#13ec80] hover:text-slate-950 transition-all active:scale-95 shadow-lg"
+                >
+                  OPEN SESSION
+                  <ChevronRight className="size-4" />
+                </button>
               </div>
             </div>
           ))}

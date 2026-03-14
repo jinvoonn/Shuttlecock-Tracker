@@ -14,6 +14,8 @@ import {
   FileText, 
   Banknote 
 } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter, usePathname } from 'next/navigation';
 
 interface PlayerStat {
   id: string;
@@ -25,9 +27,9 @@ interface PlayerStat {
 
 interface DashboardProps {
   stats: {
+    totalOwed: number;
     totalShuttlesUsed: number;
     totalSessions: number;
-    totalPoolBalance: number;
     inventory: {
       totalTubes: number;
       remainingTubes: number;
@@ -42,6 +44,8 @@ interface DashboardProps {
 }
 
 export default function MobileDashboard({ stats, players, upcomingSession }: DashboardProps) {
+  const router = useRouter();
+  const currentPath = usePathname();
   return (
     <div className="bg-[#f6f8f7] dark:bg-[#020617] font-['Lexend',_sans-serif] text-slate-900 dark:text-slate-100 min-h-screen antialiased overflow-x-hidden">
       <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-200 dark:border-slate-800 shadow-2xl pb-24">
@@ -62,43 +66,45 @@ export default function MobileDashboard({ stats, players, upcomingSession }: Das
         </header>
 
         <main className="flex flex-col gap-6 p-6 flex-1 text-left">
-          {/* Top Metrics Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2 rounded-2xl bg-white dark:bg-[#0f172a] p-5 border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:border-[#13ec80]/30 group">
+          {/* Dashboard Stats - Stacked Vertically */}
+          <div className="flex flex-col gap-4">
+            {/* Total Owed - RED */}
+            <div className="flex flex-col gap-2 rounded-2xl bg-rose-50 dark:bg-rose-950/20 p-6 border border-rose-100 dark:border-rose-900/30 shadow-sm relative overflow-hidden group">
+              <div className="absolute top-0 right-0 size-24 bg-rose-500/5 rounded-full -translate-y-8 translate-x-8 blur-3xl"></div>
+              <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
+                <Wallet className="size-4" />
+                <p className="text-[10px] font-black uppercase tracking-tight">Total Owed</p>
+              </div>
+              <p className="font-mono text-4xl font-black text-rose-600 dark:text-rose-500 tracking-tighter italic">RM {stats.totalOwed.toFixed(2)}</p>
+            </div>
+
+            {/* Shuttle Used */}
+            <div className="flex flex-col gap-2 rounded-2xl bg-white dark:bg-[#0f172a] p-6 border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:border-[#13ec80]/30 group">
               <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 group-hover:text-[#13ec80] transition-colors">
                 <History className="size-4" />
                 <p className="text-[10px] font-black uppercase tracking-tight">Shuttle Used</p>
               </div>
-              <p className="font-mono text-3xl font-bold text-[#13ec80] transition-all group-hover:scale-105 origin-left">{stats.totalShuttlesUsed}</p>
+              <p className="font-mono text-4xl font-black text-[#13ec80] tracking-tighter italic">{stats.totalShuttlesUsed}</p>
             </div>
-            <div className="flex flex-col gap-2 rounded-2xl bg-white dark:bg-[#0f172a] p-5 border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:border-[#13ec80]/30 group">
+
+            {/* Sessions */}
+            <div className="flex flex-col gap-2 rounded-2xl bg-white dark:bg-[#0f172a] p-6 border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:border-[#13ec80]/30 group">
               <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 group-hover:text-[#13ec80] transition-colors">
                 <CalendarDays className="size-4" />
                 <p className="text-[10px] font-black uppercase tracking-tight">Sessions</p>
               </div>
-              <p className="font-mono text-3xl font-bold text-[#13ec80] transition-all group-hover:scale-105 origin-left">{stats.totalSessions}</p>
+              <p className="font-mono text-4xl font-black text-[#13ec80] tracking-tighter italic">{stats.totalSessions}</p>
             </div>
-          </div>
 
-          {/* Dashboard Stats Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2 rounded-2xl bg-white dark:bg-[#0f172a] p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
-              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                <Wallet className="size-4" />
-                <p className="text-[10px] font-black uppercase tracking-tight">Pool Balance</p>
-              </div>
-              <p className={`font-mono text-3xl font-bold ${stats.totalPoolBalance >= 0 ? 'text-emerald-500 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>
-                ${stats.totalPoolBalance.toFixed(2)}
-              </p>
-            </div>
-            <div className="flex flex-col gap-2 rounded-2xl bg-white dark:bg-[#0f172a] p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+            {/* Inventory */}
+            <div className="flex flex-col gap-2 rounded-2xl bg-white dark:bg-[#0f172a] p-6 border border-slate-200 dark:border-slate-800 shadow-sm group">
               <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
                 <Package className="size-4" />
                 <p className="text-[10px] font-black uppercase tracking-tight">Inventory</p>
               </div>
-              <div className="flex flex-col">
-                <p className="text-xl font-bold leading-none text-slate-900 dark:text-slate-100 italic">{stats.inventory.totalTubes} Tubes <span className="text-slate-400 dark:text-slate-500 font-normal mx-1 tracking-tighter not-italic">//</span> {stats.inventory.totalShuttles}</p>
-                <p className="text-[10px] font-black text-rose-500 dark:text-rose-400 mt-1 uppercase tracking-wider">{stats.inventory.remainingTubes} TUBES REMAINING</p>
+              <div className="flex items-baseline gap-2">
+                <p className="font-mono text-4xl font-black text-[#13ec80] tracking-tighter italic">{stats.inventory.totalShuttles}</p>
+                <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest italic">// {stats.inventory.remainingTubes} Tubes Left</p>
               </div>
             </div>
           </div>
@@ -133,24 +139,26 @@ export default function MobileDashboard({ stats, players, upcomingSession }: Das
               <h2 className="text-lg font-extrabold italic uppercase tracking-tight">PLAYER LEDGER</h2>
               <button className="text-[10px] font-black text-[#13ec80] uppercase border-b-2 border-[#13ec80] pb-0.5 tracking-wider">EXPAND ALL</button>
             </div>
-            <div className="flex flex-col gap-2 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="flex flex-col gap-3">
               {players.map((player) => (
-                <div key={player.id} className="flex items-center justify-between bg-white dark:bg-[#0f172a] p-4 border-b border-slate-100 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-1.5 h-8 ${player.balance >= 0 ? 'bg-emerald-500' : 'bg-rose-500'} rounded-full`}></div>
-                    <div className="text-left">
-                      <p className="text-sm font-bold uppercase tracking-tight text-slate-900 dark:text-slate-100">{player.name}</p>
-                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-mono tracking-tighter">ID: CK-{player.id.slice(0, 4)}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className={`font-mono text-sm font-black ${player.balance >= 0 ? 'text-emerald-500 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>
-                      {player.balance >= 0 ? '+' : '-'}${Math.abs(player.balance).toFixed(2)}
-                    </p>
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold tracking-tight">
-                      {player.balance >= 0 ? 'Balanced' : 'Owed'}
+                <div key={player.id} className="bg-white dark:bg-[#0f172a] rounded-[2rem] p-6 border border-slate-200 dark:border-slate-800 shadow-sm group hover:border-[#13ec80]/30 transition-all flex items-center justify-between">
+                  <div className="flex flex-col gap-1">
+                    <Link href={`/players/${player.id}`} className="text-sm font-black uppercase tracking-tight text-slate-900 dark:text-slate-100 hover:text-[#13ec80] transition-colors italic">
+                      {player.name}
+                    </Link>
+                    <p className={`font-mono text-lg font-black tracking-tighter ${player.balance >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                      {player.balance >= 0 ? 'RM' : 'RM'}{Math.abs(player.balance).toFixed(2)}
+                      <span className="text-[10px] uppercase font-bold tracking-widest ml-2 italic">
+                        {player.balance >= 0 ? 'CREDIT' : 'OWED'}
+                      </span>
                     </p>
                   </div>
+                  <button 
+                    onClick={() => router.push(`/view/record-transaction-stitch?playerId=${player.id}`)}
+                    className="h-11 px-6 rounded-xl bg-slate-900 dark:bg-slate-800 text-[#13ec80] font-black text-[10px] uppercase tracking-widest hover:bg-[#13ec80] hover:text-slate-950 transition-all active:scale-95 border border-slate-800 dark:border-slate-700 shadow-lg"
+                  >
+                    SETTLE
+                  </button>
                 </div>
               ))}
             </div>

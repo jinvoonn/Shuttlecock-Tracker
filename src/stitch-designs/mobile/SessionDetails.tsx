@@ -14,7 +14,8 @@ import {
   MapPin,
   ChevronRight,
   TrendingUp,
-  Share2
+  Share2,
+  History
 } from 'lucide-react';
 
 import { useRouter } from "next/navigation";
@@ -176,20 +177,20 @@ export default function MobileSessionDetails({ session, matches, attendees }: Mo
                         {match.status}
                       </span>
                     </div>
-                    <div className="flex items-center gap-8">
-                      <div className="flex-1 flex flex-col gap-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-8">
+                      <div className="flex-1 w-full flex flex-col gap-3">
                         <div className="flex justify-between items-center group/team">
-                          <span className="text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-tight truncate max-w-[120px]">{match.teamA}</span>
+                          <span className="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-tight truncate max-w-[140px] italic">{match.teamA}</span>
                           <span className={`text-3xl font-black italic leading-none tabular-nums ${match.scoreA >= match.scoreB && match.status === 'Completed' ? 'text-[#13ec80]' : 'text-slate-300 dark:text-slate-700'}`}>{match.scoreA}</span>
                         </div>
                         <div className="flex justify-between items-center group/team">
-                          <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tight truncate max-w-[120px]">{match.teamB}</span>
+                          <span className="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tight truncate max-w-[140px] italic">{match.teamB}</span>
                           <span className={`text-3xl font-black italic leading-none tabular-nums ${match.scoreB >= match.scoreA && match.status === 'Completed' ? 'text-[#13ec80]' : 'text-slate-300 dark:text-slate-700'}`}>{match.scoreB}</span>
                         </div>
                       </div>
-                      <div className="w-[1px] h-12 bg-slate-100 dark:bg-slate-800"></div>
-                      <div className="text-center shrink-0">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Court</p>
+                      <div className="hidden sm:block w-[1px] h-12 bg-slate-100 dark:bg-slate-800"></div>
+                      <div className="sm:text-center shrink-0 flex sm:flex-col items-center gap-2 sm:gap-1 w-full sm:w-auto pt-4 sm:pt-0 border-t sm:border-t-0 border-slate-50 dark:border-slate-800">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Court</p>
                         <p className="text-xl font-black text-slate-900 dark:text-slate-100 italic leading-none">{match.court}</p>
                       </div>
                     </div>
@@ -201,23 +202,24 @@ export default function MobileSessionDetails({ session, matches, attendees }: Mo
         </main>
 
         {/* Bottom Navigation */}
-        <nav className="fixed bottom-6 left-4 right-4 z-50">
-          <div className="flex items-center justify-around gap-2 rounded-[2rem] bg-slate-900/95 border border-[#13ec80]/10 backdrop-blur-2xl px-6 py-4 shadow-[0_20px_50px_rgba(19,236,128,0.2)]">
-            <button onClick={() => router.push('/view/dashboard-stitch')} className="flex flex-col items-center gap-1 text-slate-500 hover:text-[#13ec80] transition-all active:scale-90 flex-1">
-              <LayoutGrid className="size-5" />
-              <p className="text-[8px] font-black uppercase tracking-widest italic">Home</p>
+        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-t border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+          <div className="flex h-24 items-stretch px-4 max-w-[480px] mx-auto">
+            <button onClick={() => router.push('/view/dashboard-stitch')} className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group">
+              <LayoutGrid className="size-6 group-active:scale-90" />
+              <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Dash</span>
             </button>
-            <button onClick={() => router.push('/view/sessions-stitch')} className="flex flex-col items-center gap-1 text-[#13ec80] transition-all active:scale-90 flex-1">
-              <Activity className="size-5" />
-              <p className="text-[8px] font-black uppercase tracking-widest italic">Sessions</p>
+            <button onClick={() => router.push('/view/sessions-stitch')} className="flex flex-1 flex-col items-center justify-center gap-1 text-[#13ec80] relative group">
+              <History className="size-6 group-active:scale-90" />
+              <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Sessions</span>
+              <div className="absolute bottom-3 size-1.5 rounded-full bg-[#13ec80] shadow-[0_0_10px_rgba(19,236,128,0.8)]"></div>
             </button>
-            <button onClick={() => router.push('/view/stock-inventory-stitch')} className="flex flex-col items-center gap-1 text-slate-500 hover:text-[#13ec80] transition-all active:scale-90 flex-1">
-              <Package className="size-5" />
-              <p className="text-[8px] font-black uppercase tracking-widest italic">Stock</p>
+            <button onClick={() => router.push('/view/stock-inventory-stitch')} className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group">
+              <Package className="size-6 group-active:scale-90" />
+              <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Stock</span>
             </button>
-            <button className="flex flex-col items-center gap-1 text-slate-500 hover:text-[#13ec80] transition-all active:scale-90 flex-1">
-              <Banknote className="size-5" />
-              <p className="text-[8px] font-black uppercase tracking-widest italic">Payments</p>
+            <button onClick={() => router.push('/view/payment-ledger-stitch')} className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group">
+              <Banknote className="size-6 group-active:scale-90" />
+              <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Payments</span>
             </button>
           </div>
         </nav>

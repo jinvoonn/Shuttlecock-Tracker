@@ -36,31 +36,19 @@ export default function MobileRecordMatch({ sessionId, players }: MobileRecordMa
   const [teamBIds, setTeamBIds] = useState<string[]>([]);
   const [scoreA, setScoreA] = useState(21);
   const [scoreB, setScoreB] = useState(19);
-  const [isSearching, setIsSearching] = useState<{ active: boolean; team: 'A' | 'B' | null }>({ active: false, team: null });
-  const [searchTerm, setSearchTerm] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const filteredPlayers = players.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) && 
-    !teamAIds.includes(p.id) && 
-    !teamBIds.includes(p.id)
-  );
-
-  const handleAddPlayer = (playerId: string) => {
-    if (isSearching.team === 'A') {
-      setTeamAIds([...teamAIds, playerId]);
-    } else if (isSearching.team === 'B') {
-      setTeamBIds([...teamBIds, playerId]);
-    }
-    setIsSearching({ active: false, team: null });
-    setSearchTerm('');
-  };
-
-  const handleRemovePlayer = (playerId: string, team: 'A' | 'B') => {
-    if (team === 'A') {
+  const togglePlayer = (playerId: string) => {
+    if (teamAIds.includes(playerId)) {
       setTeamAIds(teamAIds.filter(id => id !== playerId));
-    } else {
+      setTeamBIds([...teamBIds, playerId]);
+    } else if (teamBIds.includes(playerId)) {
       setTeamBIds(teamBIds.filter(id => id !== playerId));
+    } else {
+      if (teamAIds.length >= 2) {
+        setTeamBIds([...teamBIds, playerId]);
+      } else {
+        setTeamAIds([...teamAIds, playerId]);
+      }
     }
   };
 
@@ -73,6 +61,7 @@ export default function MobileRecordMatch({ sessionId, players }: MobileRecordMa
     try {
       const payload = JSON.stringify({
         sessionId,
+        teamIds: [...teamAIds, ...teamBIds], // This matches the expected backend structure for flexible teams if evolved, but let's stick to what actions expect:
         teamAIds,
         teamBIds,
         scoreA,
@@ -104,157 +93,86 @@ export default function MobileRecordMatch({ sessionId, players }: MobileRecordMa
         </header>
 
         <main className="flex-1 overflow-y-auto pb-48 text-left">
-          {/* Teams Section */}
-          <div className="px-6 space-y-6 pt-8">
-            {/* Team A */}
-            <div className="bg-slate-50 dark:bg-slate-900/50 border-2 border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
-              <div className="flex justify-between items-center mb-5">
-                <span className="text-[10px] font-black text-[#34d399] uppercase tracking-[0.2em]">Team A</span>
-                <Users className="size-4 text-slate-400" />
-              </div>
-              <div className="space-y-3">
-                {teamAIds.map(id => {
-                  const player = players.find(p => p.id === id);
-                  return (
-                    <div key={id} className="flex items-center justify-between bg-white dark:bg-[#020617] border border-slate-200 dark:border-slate-800 p-4 rounded-2xl">
-                      <span className="text-sm font-bold uppercase">{player?.name}</span>
-                      <button onClick={() => handleRemovePlayer(id, 'A')} className="text-slate-400 hover:text-red-500">
-                        <X className="size-4" />
-                      </button>
-                    </div>
-                  );
-                })}
-                <button 
-                  onClick={() => setIsSearching({ active: true, team: 'A' })}
-                  className="w-full flex items-center justify-between bg-white dark:bg-[#020617] border border-slate-200 dark:border-slate-800 p-4 rounded-2xl text-left hover:border-[#34d399]/40 transition-colors group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="size-9 rounded-xl bg-[#34d399]/10 flex items-center justify-center group-hover:bg-[#34d399]/20 transition-colors text-[#34d399]">
-                      <UserPlus className="size-5" />
-                    </div>
-                    <span className="text-sm font-bold text-slate-400 dark:text-slate-500 italic uppercase">Add Player</span>
-                  </div>
-                  <PlusCircle className="size-4 text-slate-400" />
-                </button>
-              </div>
-            </div>
+          {/* Header Legend */}
+          <div className="px-6 py-6 flex gap-4 justify-center bg-white dark:bg-[#020617] border-b border-slate-100 dark:border-slate-800">
+             <div className="flex items-center gap-2">
+                <div className="size-3 rounded-full bg-[#13ec80]"></div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Team A</span>
+             </div>
+             <div className="flex items-center gap-2">
+                <div className="size-3 rounded-full bg-blue-500"></div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Team B</span>
+             </div>
+             <div className="flex items-center gap-2">
+                <div className="size-3 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Open</span>
+             </div>
+          </div>
 
-            {/* Team B */}
-            <div className="bg-slate-50 dark:bg-slate-900/50 border-2 border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
-              <div className="flex justify-between items-center mb-5">
-                <span className="text-[10px] font-black text-[#34d399] uppercase tracking-[0.2em]">Team B</span>
-                <Users className="size-4 text-slate-400" />
-              </div>
-              <div className="space-y-3">
-                {teamBIds.map(id => {
-                  const player = players.find(p => p.id === id);
-                  return (
-                    <div key={id} className="flex items-center justify-between bg-white dark:bg-[#020617] border border-slate-200 dark:border-slate-800 p-4 rounded-2xl">
-                      <span className="text-sm font-bold uppercase">{player?.name}</span>
-                      <button onClick={() => handleRemovePlayer(id, 'B')} className="text-slate-400 hover:text-red-500">
-                        <X className="size-4" />
-                      </button>
-                    </div>
-                  );
-                })}
-                <button 
-                  onClick={() => setIsSearching({ active: true, team: 'B' })}
-                  className="w-full flex items-center justify-between bg-white dark:bg-[#020617] border border-slate-200 dark:border-slate-800 p-4 rounded-2xl text-left hover:border-[#34d399]/40 transition-colors group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="size-9 rounded-xl bg-[#34d399]/10 flex items-center justify-center group-hover:bg-[#34d399]/20 transition-colors text-[#34d399]">
-                      <UserPlus className="size-5" />
-                    </div>
-                    <span className="text-sm font-bold text-slate-400 dark:text-slate-500 italic uppercase">Add Player</span>
-                  </div>
-                  <PlusCircle className="size-4 text-slate-400" />
-                </button>
-              </div>
+          {/* Player Toggle Grid */}
+          <div className="px-6 py-8">
+            <h3 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-4 ml-1">Select Players</h3>
+            <div className="grid grid-cols-2 gap-3">
+               {players.map(player => {
+                 const isA = teamAIds.includes(player.id);
+                 const isB = teamBIds.includes(player.id);
+                 return (
+                   <button 
+                     key={player.id}
+                     onClick={() => togglePlayer(player.id)}
+                     className={`p-4 rounded-2xl border-2 transition-all active:scale-95 text-left flex items-center justify-between group h-16 ${
+                       isA ? 'bg-[#13ec80] border-[#13ec80] text-[#020617]' :
+                       isB ? 'bg-blue-500 border-blue-500 text-white' :
+                       'bg-white dark:bg-[#0f172a] border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300'
+                     }`}
+                   >
+                     <span className={`text-xs font-black uppercase italic truncate pr-2 ${isA || isB ? '' : 'group-hover:text-[#13ec80]'}`}>
+                       {player.name}
+                     </span>
+                     <div className={`size-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                       isA ? 'border-white/30 bg-white/20' :
+                       isB ? 'border-white/30 bg-white/20' :
+                       'border-slate-200 dark:border-slate-700'
+                     }`}>
+                        {isA && <span className="text-[8px] font-bold text-white uppercase">A</span>}
+                        {isB && <span className="text-[8px] font-bold text-white uppercase">B</span>}
+                     </div>
+                   </button>
+                 );
+               })}
             </div>
           </div>
 
-          {/* Score Entry */}
-          <div className="mt-10 px-6">
+          {/* Final Score Section */}
+          <div className="mt-4 px-6">
             <h3 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-4 ml-1">Final Score</h3>
-            <div className="flex items-center justify-center gap-8 bg-slate-50 dark:bg-slate-900/50 border-2 border-slate-100 dark:border-slate-800 rounded-[2.5rem] py-10 shadow-sm relative overflow-hidden">
-               <div className="absolute top-0 right-0 size-32 bg-[#34d399]/5 rounded-full -translate-y-16 translate-x-16 blur-3xl"></div>
+            <div className="flex items-center justify-center gap-6 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-[2.5rem] py-10 shadow-lg relative overflow-hidden">
+               <div className="absolute top-0 right-0 size-48 bg-[#13ec80]/5 rounded-full -translate-y-24 translate-x-24 blur-3xl"></div>
               
-              <div className="flex flex-col items-center gap-5 relative z-10">
-                <button onClick={() => setScoreA(s => s + 1)} className="size-14 rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-[#020617] flex items-center justify-center hover:border-[#34d399] transition-all active:scale-90 text-[#34d399]">
-                  <Plus className="size-7 font-black" />
-                </button>
-                <div className="text-7xl font-black text-slate-900 dark:text-white font-mono tracking-tighter tabular-nums leading-none">{scoreA}</div>
-                <button onClick={() => setScoreA(s => Math.max(0, s - 1))} className="size-14 rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-[#020617] flex items-center justify-center hover:border-red-500/50 transition-all active:scale-90 text-slate-400 hover:text-red-500/50">
-                  <Minus className="size-7 font-black" />
-                </button>
-              </div>
+               <div className="flex flex-col items-center gap-6 relative z-10 w-24">
+                 <button onClick={() => setScoreA(s => s + 1)} className="size-16 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center active:scale-90 transition-transform text-[#13ec80] shadow-xl">
+                   <Plus className="size-8 font-black" />
+                 </button>
+                 <div className="text-7xl font-black text-slate-900 dark:text-white font-mono tracking-tighter tabular-nums leading-none italic">{scoreA}</div>
+                 <button onClick={() => setScoreA(s => Math.max(0, s - 1))} className="size-16 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center active:scale-90 transition-transform text-slate-500 shadow-xl">
+                   <Minus className="size-8 font-black" />
+                 </button>
+               </div>
 
-              <div className="text-4xl font-black text-slate-200 dark:text-slate-800 italic relative z-10">VS</div>
+               <div className="text-3xl font-black text-slate-200 dark:text-slate-800 italic relative z-10 mt-2 tracking-tighter">VS</div>
 
-              <div className="flex flex-col items-center gap-5 relative z-10">
-                <button onClick={() => setScoreB(s => s + 1)} className="size-14 rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-[#020617] flex items-center justify-center hover:border-[#34d399] transition-all active:scale-90 text-[#34d399]">
-                  <Plus className="size-7 font-black" />
-                </button>
-                <div className="text-7xl font-black text-slate-900 dark:text-white font-mono tracking-tighter tabular-nums leading-none">{scoreB}</div>
-                <button onClick={() => setScoreB(s => Math.max(0, s - 1))} className="size-14 rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-[#020617] flex items-center justify-center hover:border-red-500/50 transition-all active:scale-90 text-slate-400 hover:text-red-500/50">
-                  <Minus className="size-7 font-black" />
-                </button>
-              </div>
+               <div className="flex flex-col items-center gap-6 relative z-10 w-24">
+                 <button onClick={() => setScoreB(s => s + 1)} className="size-16 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center active:scale-90 transition-transform text-[#13ec80] shadow-xl">
+                   <Plus className="size-8 font-black" />
+                 </button>
+                 <div className="text-7xl font-black text-slate-900 dark:text-white font-mono tracking-tighter tabular-nums leading-none italic">{scoreB}</div>
+                 <button onClick={() => setScoreB(s => Math.max(0, s - 1))} className="size-16 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center active:scale-90 transition-transform text-slate-500 shadow-xl">
+                   <Minus className="size-8 font-black" />
+                 </button>
+               </div>
             </div>
           </div>
         </main>
-
-        {/* Bottom Action Area */}
-        <div className="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto z-40">
-           <div className="px-6 py-10 bg-gradient-to-t from-white dark:from-[#020617] via-white/90 dark:via-[#020617]/90 to-transparent">
-              <button 
-                disabled={isSubmitting}
-                onClick={handleConfirm}
-                className="w-full bg-[#34d399] text-[#020617] font-black py-5 rounded-2xl uppercase tracking-[0.2em] text-xs shadow-xl shadow-[#34d399]/20 active:scale-95 transition-all hover:brightness-110 disabled:opacity-50"
-              >
-                {isSubmitting ? 'Submitting...' : 'Confirm Match Result'}
-              </button>
-           </div>
-        </div>
-
-        {/* Search Overlay */}
-        {isSearching.active && (
-          <div className="fixed inset-0 bg-[#020617]/98 backdrop-blur-xl z-[60] flex flex-col p-6 animate-in fade-in slide-in-from-bottom-5 duration-300">
-            <div className="flex items-center gap-4 mb-8">
-              <Search className="text-[#34d399] size-6" />
-              <input 
-                autoFocus
-                className="bg-transparent border-none text-2xl focus:ring-0 text-white w-full font-black uppercase placeholder:text-slate-700 italic" 
-                placeholder="Find Player..." 
-                type="text" 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <button onClick={() => setIsSearching({ active: false, team: null })} className="p-2 bg-slate-900 rounded-full text-slate-400">
-                <X className="size-5" />
-              </button>
-            </div>
-            <div className="flex flex-col gap-3 h-full overflow-y-auto no-scrollbar pb-10">
-              {filteredPlayers.length > 0 ? filteredPlayers.map((player) => (
-                <button 
-                  key={player.id} 
-                  onClick={() => handleAddPlayer(player.id)}
-                  className="p-5 bg-slate-900/50 border border-slate-800 rounded-2xl flex items-center justify-between group active:bg-[#34d399]/10 active:border-[#34d399]/30 transition-all text-left"
-                >
-                  <div className="flex items-center gap-4">
-                     <div className="size-10 rounded-full bg-slate-800 flex items-center justify-center text-[#34d399] font-black uppercase text-xs">
-                       {player.name.slice(0, 2)}
-                     </div>
-                     <span className="font-black text-slate-100 uppercase italic tracking-tight">{player.name}</span>
-                  </div>
-                  <PlusCircle className="text-slate-700 group-hover:text-[#34d399] size-6 transition-colors" />
-                </button>
-              )) : (
-                <p className="text-center text-slate-500 py-10">No players found.</p>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

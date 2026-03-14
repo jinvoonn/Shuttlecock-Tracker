@@ -10,8 +10,11 @@ import {
   History, 
   Package,
   TrendingUp,
-  TrendingDown
+  TrendingDown,
+  Pencil,
+  Trash
 } from 'lucide-react';
+import { deletePayment } from '@/lib/actions/payments';
 
 import { useState } from 'react';
 import { useRouter } from "next/navigation";
@@ -35,6 +38,17 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
     p.playerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.date.includes(searchTerm)
   );
+
+  const handleDelete = async (id: string, playerName: string) => {
+    if (window.confirm(`Are you sure you want to delete this payment from ${playerName}?`)) {
+      try {
+        await deletePayment(id);
+        router.refresh();
+      } catch (err) {
+        alert("Failed to delete payment");
+      }
+    }
+  };
 
   return (
     <div className="bg-[#f6f8f7] dark:bg-[#020617] font-['Lexend',_sans-serif] text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
@@ -91,24 +105,42 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
             </div>
 
             {/* Player List */}
-            <div className="space-y-3">
+            <div className="flex flex-col gap-4">
               {filteredPayments.length === 0 && <p className="text-slate-500 text-center py-8">No records found.</p>}
               {filteredPayments.map((p) => (
-                <div key={p.id} className="flex items-center justify-between p-4 rounded-[1.75rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm group hover:shadow-md transition-all hover:bg-slate-50 dark:hover:bg-slate-800/50 text-left">
-                  <div className="flex items-center gap-4">
-                    <div className="size-14 rounded-2xl overflow-hidden bg-slate-200 dark:bg-slate-800 border-2 border-white dark:border-slate-700 shadow-inner group-hover:scale-105 transition-transform flex items-center justify-center">
-                      <span className="text-[#13ec80] font-black uppercase italic">{p.playerName.slice(0, 2)}</span>
-                    </div>
-                    <div>
-                      <p className="font-black text-slate-900 dark:text-slate-100 tracking-tight leading-none mb-1 uppercase italic">{p.playerName}</p>
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">{p.date}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xl font-black font-mono tracking-tighter text-[#13ec80] leading-none mb-1 italic">
-                      +RM{p.amount.toFixed(2)}
-                    </p>
-                  </div>
+                <div key={p.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-6 shadow-sm flex flex-col gap-5 relative overflow-hidden group">
+                   <div className="absolute top-0 right-0 size-24 bg-[#13ec80]/5 rounded-full -translate-y-12 translate-x-12 blur-2xl group-hover:bg-[#13ec80]/10 transition-colors"></div>
+                   
+                   <div className="flex items-center justify-between relative z-10">
+                      <div className="flex items-center gap-4">
+                        <div className="size-14 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-[#13ec80] font-black italic shadow-inner">
+                          {p.playerName.slice(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="font-black text-slate-900 dark:text-slate-100 uppercase italic tracking-tighter text-lg leading-none mb-1">{p.playerName}</p>
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{new Date(p.date).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xl font-black font-mono tracking-tighter text-[#13ec80] leading-none mb-1 italic">+RM{p.amount.toFixed(2)}</p>
+                        <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Amount Paid</p>
+                      </div>
+                   </div>
+
+                   <div className="flex justify-end gap-2 pt-5 border-t border-slate-100 dark:border-slate-800 relative z-10">
+                      <button 
+                        onClick={() => router.push(`/view/record-transaction-stitch?paymentId=${p.id}`)}
+                        className="size-11 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-[#13ec80] active:scale-90 transition-all shadow-sm"
+                      >
+                        <Pencil className="size-4" />
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(p.id, p.playerName)}
+                        className="size-11 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-400 hover:text-rose-500 active:scale-90 transition-all shadow-sm"
+                      >
+                        <Trash className="size-4" />
+                      </button>
+                   </div>
                 </div>
               ))}
             </div>

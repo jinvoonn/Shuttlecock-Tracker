@@ -9,10 +9,13 @@ import {
   Edit2,
   ShoppingCart,
   TrendingDown,
-  ChevronRight
+  ChevronRight,
+  Pencil,
+  Trash
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { deletePurchase } from '@/lib/actions/purchases';
 
 interface StockStats {
   totalTubesBought: number;
@@ -30,7 +33,9 @@ interface ActiveTube {
 interface PurchaseHistory {
   id: string;
   name: string;
+  tubeNumber: number;
   date: string;
+  remaining: number;
   pricePerTube: number;
 }
 
@@ -41,9 +46,21 @@ interface MobileStockInventoryProps {
 }
 
 export default function MobileStockInventory({ stats, activeTubes, history }: MobileStockInventoryProps) {
+  const router = useRouter();
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
+
+  const handleDelete = async (id: string, name: string) => {
+    if (window.confirm(`Are you sure you want to delete this purchase (${name})?`)) {
+      try {
+        await deletePurchase(id);
+        router.refresh();
+      } catch (err) {
+        alert("Failed to delete purchase");
+      }
+    }
+  };
 
   return (
     <div className="bg-[#020617] font-['Inter',_sans-serif] text-slate-100 antialiased min-h-screen pb-40">
@@ -127,20 +144,49 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
               <h2 className="text-2xl font-black italic tracking-tighter uppercase font-['Lexend',_sans-serif]">History</h2>
             </div>
             
-            <div className="divide-y divide-slate-800 bg-slate-900/50 border border-slate-800 rounded-[2rem] overflow-hidden px-6 shadow-xl text-left">
+            <div className="flex flex-col gap-4">
               {history.length === 0 && <p className="text-slate-500 py-6 text-center">No history found.</p>}
               {history.map((item) => (
-                <div key={item.id} className="py-6 flex items-center justify-between group cursor-pointer hover:bg-slate-800/30 transition-colors -mx-6 px-6">
-                  <div className="flex items-center gap-4">
-                    <div className="size-12 rounded-2xl bg-[#020617] flex items-center justify-center text-slate-500 border border-slate-800 group-hover:text-[#34d399] transition-colors shadow-inner">
-                      <ShoppingCart className="size-5" />
+                <div key={item.id} className="bg-slate-900/50 border border-slate-800 rounded-[2.5rem] p-6 flex flex-col gap-5 shadow-xl relative overflow-hidden group">
+                  <div className="flex justify-between items-start relative z-10">
+                    <div className="flex items-center gap-4">
+                      <div className="size-12 rounded-2xl bg-[#020617] flex items-center justify-center text-[#34d399] border border-slate-800 shadow-inner">
+                        <ShoppingCart className="size-5" />
+                      </div>
+                      <div>
+                        <p className="font-black text-lg text-slate-100 uppercase italic tracking-tighter leading-none">{item.name} #{item.tubeNumber}</p>
+                        <p className="text-[9px] uppercase font-black tracking-[0.2em] text-slate-600 mt-1">{new Date(item.date).toLocaleDateString()}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-black text-sm text-slate-100 uppercase italic tracking-tight">{item.name}</p>
-                      <p className="text-[9px] uppercase font-black tracking-widest text-slate-600 mt-1">{new Date(item.date).toLocaleDateString()}</p>
+                    <div className="text-right">
+                      <p className="font-black font-['JetBrains_Mono',_monospace] text-lg text-[#13ec80] tracking-tighter">RM{item.pricePerTube.toFixed(2)}</p>
+                      <p className="text-[9px] uppercase font-black tracking-widest text-slate-600">Per Tube</p>
                     </div>
                   </div>
-                  <p className="font-black font-['JetBrains_Mono',_monospace] text-sm text-[#34d399] tracking-tighter">RM{(item.pricePerTube || 0).toFixed(2)}</p>
+
+                  <div className="flex items-center justify-between pt-5 border-t border-slate-800 relative z-10">
+                    <div className="flex items-center gap-2">
+                       <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Remaining:</span>
+                       <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${item.remaining > 0 ? 'bg-[#34d399]/10 text-[#34d399]' : 'bg-rose-500/10 text-rose-500'}`}>
+                         {item.remaining} SHUTTLES
+                       </span>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => router.push(`${basePath}/purchases/edit/${item.id}`)}
+                        className="size-11 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-[#13ec80] active:scale-90 transition-all"
+                      >
+                        <Pencil className="size-4" />
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(item.id, `${item.name} #${item.tubeNumber}`)}
+                        className="size-11 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-rose-500 active:scale-90 transition-all"
+                      >
+                        <Trash className="size-4" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
