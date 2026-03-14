@@ -42,9 +42,8 @@ export default async function PurchasesPage({ params }: { params: Promise<{ mode
   }
 
   // Calculate Stats
-  let totalStock = 0;
-  let tubes = 0;
-  let lowStock = 0;
+  const totalTubesBought = (purchasesData || []).length;
+  const tubesLeft = (purchasesData || []).filter(p => (p.remaining_quantity || 0) > 0).length;
   const usedToday = (sessionUsageData || []).reduce((acc, curr) => acc + (curr.quantity_used || 0), 0);
 
   const activeTubes: any[] = [];
@@ -67,10 +66,6 @@ export default async function PurchasesPage({ params }: { params: Promise<{ mode
     });
 
     if (p.remaining_quantity && p.remaining_quantity > 0) {
-      totalStock += p.remaining_quantity;
-      tubes += 1;
-      if (p.remaining_quantity <= 4) lowStock += 1;
-
       activeTubes.push({
         id: p.id,
         name,
@@ -81,9 +76,8 @@ export default async function PurchasesPage({ params }: { params: Promise<{ mode
   });
 
   const stats = {
-    totalStock,
-    tubes,
-    lowStock,
+    totalTubesBought,
+    tubesLeft,
     usedToday
   };
 

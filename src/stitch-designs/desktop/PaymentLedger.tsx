@@ -13,7 +13,9 @@ import {
   LayoutDashboard,
   CalendarDays,
   Package,
-  Wallet
+  Wallet,
+  Pencil,
+  Trash2
 } from 'lucide-react';
 import clsx from 'clsx';
 import Link from 'next/link';
@@ -174,7 +176,7 @@ export default function DesktopPaymentLedger({ payments }: DesktopPaymentLedgerP
                               onClick={() => {/* TODO: Implement Edit */}}
                               className="p-1.5 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors"
                             >
-                              <Search className="size-3.5" />
+                              <Pencil className="size-3.5" />
                             </button>
                             <button 
                               onClick={() => {
@@ -184,7 +186,7 @@ export default function DesktopPaymentLedger({ payments }: DesktopPaymentLedgerP
                               }}
                               className="p-1.5 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
                             >
-                              <Package className="size-3.5" />
+                              <Trash2 className="size-3.5" />
                             </button>
                           </div>
                         </td>

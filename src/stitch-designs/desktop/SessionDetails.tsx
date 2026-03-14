@@ -7,11 +7,10 @@ import {
   Clock, 
   Plus, 
   Users, 
-  Package, 
-  CheckCircle2,
   AlertCircle,
   ArrowLeft,
-  Search
+  Pencil,
+  Trash2
 } from 'lucide-react';
 import Link from 'next/link';
 import clsx from 'clsx';
@@ -226,22 +225,22 @@ export default function DesktopSessionDetails({ session, matches, attendees }: D
                       )}
                       
                       <div className="flex items-center gap-1 border-l border-slate-300 dark:border-[#1e293b] ml-2 pl-2">
-                        <button 
-                          onClick={() => {/* TODO: Implement Edit Match */}}
-                          className="p-1 hover:bg-slate-300 dark:hover:bg-slate-700 rounded text-slate-400 hover:text-white transition-colors"
-                        >
-                          <Search className="size-3.5" />
-                        </button>
-                        <button 
-                          onClick={() => {
-                            if (window.confirm("Are you sure you want to delete this match?")) {
-                              // TODO: call deleteMatch
-                            }
-                          }}
-                          className="p-1 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
-                        >
-                          <Package className="size-3.5" />
-                        </button>
+                          <button 
+                            onClick={() => {/* TODO: Implement Edit Match */}}
+                            className="p-1 hover:bg-slate-300 dark:hover:bg-slate-700 rounded text-slate-400 hover:text-white transition-colors"
+                          >
+                            <Pencil className="size-3.5" />
+                          </button>
+                          <button 
+                            onClick={() => {
+                              if (window.confirm("Are you sure you want to delete this match?")) {
+                                // TODO: call deleteMatch
+                              }
+                            }}
+                            className="p-1 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
                       </div>
                     </div>
                   </div>

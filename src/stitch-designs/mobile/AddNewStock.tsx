@@ -21,13 +21,21 @@ import { useState } from 'react';
 import { useRouter } from "next/navigation";
 import { addPurchase } from "@/lib/actions/purchases";
 
-export default function MobileAddNewStock() {
+interface Brand {
+  id: string;
+  name: string;
+}
+
+export default function MobileAddNewStock({ brands: serverBrands }: { brands: Brand[] }) {
   const router = useRouter();
-  const [selectedBrand, setSelectedBrand] = useState('YONEX');
+  const [selectedBrandId, setSelectedBrandId] = useState('');
+  const [newBrandName, setNewBrandName] = useState('');
+  const [showNewBrandInput, setShowNewBrandInput] = useState(false);
   const [tubeCount, setTubeCount] = useState(1);
   const [pricePerTube, setPricePerTube] = useState(28.50);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [notes, setNotes] = useState('');
 
   const estimatedTotal = tubeCount * pricePerTube;
 
@@ -36,13 +44,17 @@ export default function MobileAddNewStock() {
     try {
       const formData = new FormData();
       formData.append("date", date);
-      formData.append("brand", selectedBrand);
-      formData.append("model", "Premium"); // Placeholder model
+      if (showNewBrandInput) {
+        formData.append("new_brand_name", newBrandName);
+      } else {
+        formData.append("brand_id", selectedBrandId);
+      }
       formData.append("quantity", tubeCount.toString());
       formData.append("price_per_tube", pricePerTube.toString());
+      formData.append("notes", notes);
 
       await addPurchase(formData);
-      router.push('/view/stock-inventory-stitch');
+      router.push('/view/purchases');
     } catch (error) {
       console.error(error);
       alert("Failed to log stock");
@@ -75,17 +87,39 @@ export default function MobileAddNewStock() {
           <section className="space-y-4">
             <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#13ec80]">Brand Selection</h2>
             <div className="grid grid-cols-2 gap-3">
-              {brands.map((brand) => (
+              {serverBrands.map((brand) => (
                 <button 
-                  key={brand.name}
-                  onClick={() => setSelectedBrand(brand.name)}
-                  className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all active:scale-95 ${selectedBrand === brand.name ? 'border-[#13ec80] bg-[#13ec80]/10 text-[#13ec80] shadow-[0_10px_30px_rgba(19,236,128,0.1)]' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-400 hover:border-slate-400 dark:hover:border-slate-600'}`}
+                  key={brand.id}
+                  onClick={() => {
+                    setSelectedBrandId(brand.id);
+                    setShowNewBrandInput(false);
+                  }}
+                  className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all active:scale-95 ${selectedBrandId === brand.id && !showNewBrandInput ? 'border-[#13ec80] bg-[#13ec80]/10 text-[#13ec80] shadow-[0_10px_30px_rgba(19,236,128,0.1)]' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-400 hover:border-slate-400 dark:hover:border-slate-600'}`}
                 >
-                  <brand.icon className="size-8 mb-2" />
+                  <Package className="size-8 mb-2" />
                   <span className="text-[10px] font-black tracking-widest uppercase italic">{brand.name}</span>
                 </button>
               ))}
+              <button 
+                onClick={() => setShowNewBrandInput(true)}
+                className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-dashed transition-all active:scale-95 ${showNewBrandInput ? 'border-[#13ec80] bg-[#13ec80]/10 text-[#13ec80]' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-400'}`}
+              >
+                <Plus className="size-8 mb-2" />
+                <span className="text-[10px] font-black tracking-widest uppercase italic">New Brand</span>
+              </button>
             </div>
+
+            {showNewBrandInput && (
+              <div className="mt-4 animate-in slide-in-from-top-2 duration-300">
+                <input 
+                  className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-slate-900 dark:text-slate-100 font-mono focus:border-[#13ec80] outline-none transition-all"
+                  placeholder="Enter brand name..."
+                  value={newBrandName}
+                  onChange={(e) => setNewBrandName(e.target.value)}
+                  autoFocus
+                />
+              </div>
+            )}
           </section>
 
           {/* Tube Count Stepper */}
@@ -131,6 +165,17 @@ export default function MobileAddNewStock() {
             </div>
           </section>
 
+          {/* Notes */}
+          <section className="space-y-4 px-1">
+            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Notes</h2>
+            <textarea 
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-slate-900 dark:text-slate-100 min-h-[100px] focus:ring-1 focus:ring-[#13ec80] outline-none"
+              placeholder="Batch details, vendor, etc."
+            />
+          </section>
+
           {/* Purchase Date */}
           <section className="space-y-4 px-1">
             <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Purchase Date</h2>
@@ -161,18 +206,18 @@ export default function MobileAddNewStock() {
             <LayoutGrid className="size-6 group-active:scale-90" />
             <span className="text-[9px] font-black tracking-[0.1em] mt-2 uppercase italic leading-none">Dash</span>
           </button>
-          <button onClick={() => router.push('/view/sessions-stitch')} className="flex flex-col items-center justify-center flex-1 text-slate-500 hover:text-[#13ec80] transition-all group">
+          <button onClick={() => router.push('/view/sessions')} className="flex flex-col items-center justify-center flex-1 text-slate-500 hover:text-[#13ec80] transition-all group">
             <History className="size-6 group-active:scale-90" />
             <span className="text-[9px] font-black tracking-[0.1em] mt-2 uppercase italic leading-none">History</span>
           </button>
-          <button onClick={() => router.push('/view/stock-inventory-stitch')} className="flex flex-col items-center justify-center flex-1 text-[#13ec80] relative">
+          <button onClick={() => router.push('/view/purchases')} className="flex flex-col items-center justify-center flex-1 text-[#13ec80] relative">
             <div className="bg-[#13ec80]/10 p-3 rounded-full mb-1 border border-[#13ec80]/20 shadow-lg shadow-[#13ec80]/5">
               <Package className="size-6 font-black" />
             </div>
             <span className="text-[9px] font-black tracking-[0.1em] uppercase italic leading-none">Stock</span>
             <div className="absolute -bottom-2 size-1.5 bg-[#13ec80] rounded-full shadow-[0_0_10px_rgba(19,236,128,0.8)]"></div>
           </button>
-          <button onClick={() => router.push('/view/payment-ledger-stitch')} className="flex flex-col items-center justify-center flex-1 text-slate-500 hover:text-[#13ec80] transition-all group">
+          <button onClick={() => router.push('/view/payments')} className="flex flex-col items-center justify-center flex-1 text-slate-500 hover:text-[#13ec80] transition-all group">
             <Banknote className="size-6 group-active:scale-90" />
             <span className="text-[9px] font-black tracking-[0.1em] mt-2 uppercase italic leading-none">Pay</span>
           </button>

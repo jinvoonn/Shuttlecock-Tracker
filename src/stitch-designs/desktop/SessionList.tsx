@@ -2,13 +2,17 @@
 
 import React, { useState } from 'react';
 import { 
-  Activity, 
-  Search, 
-  LayoutDashboard, 
-  CalendarDays, 
-  Package, 
+import {
+  Activity,
+  LayoutDashboard,
+  CalendarDays,
   Wallet,
-  Plus
+  Plus,
+  PlusCircle,
+  TrendingUp,
+  CreditCard,
+  Pencil,
+  Trash2
 } from 'lucide-react';
 import clsx from 'clsx';
 import Link from 'next/link';
@@ -40,8 +44,8 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
   const basePath = `/${currentMode}`;
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredSessions = sessions.filter(s => 
-    s.date.includes(searchTerm) || 
+  const filteredSessions = sessions.filter(s =>
+    s.date.includes(searchTerm) ||
     s.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (s.notes || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -49,7 +53,7 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
   return (
     <div className="flex h-screen overflow-hidden bg-[#020617] text-slate-100 font-['Lexend',_sans-serif]">
       {/* Background Overlay */}
-      <div 
+      <div
         className="fixed inset-0 opacity-10 pointer-events-none grayscale bg-cover bg-center"
         style={{ backgroundImage: "url('/badminton-bg.png')" }}
       />
@@ -65,7 +69,7 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
             <h2 className="text-2xl font-black italic tracking-tighter text-slate-100 uppercase">COCKCOUNT</h2>
           </div>
         </div>
-        
+
         <nav className="flex-1 px-4 space-y-2 mt-4">
           <Link href={`${basePath}`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
             <LayoutDashboard className="size-5" />
@@ -93,10 +97,10 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
           <div className="flex items-center gap-6 w-1/3">
              <div className="relative w-full max-w-md group">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 size-4 group-focus-within:text-[#13ec80] transition-colors" />
-              <input 
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 text-sm focus:ring-1 focus:ring-[#13ec80] transition-all text-slate-200 h-10 outline-none shadow-inner" 
-                placeholder="Search sessions..." 
-                type="text" 
+              <input
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 text-sm focus:ring-1 focus:ring-[#13ec80] transition-all text-slate-200 h-10 outline-none shadow-inner"
+                placeholder="Search sessions..."
+                type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -147,7 +151,7 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
                       {session.status}
                     </span>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-4 py-4 border-y border-slate-800/80">
                     <div className="flex flex-col gap-1.5">
                       <span className="text-[9px] text-slate-500 uppercase font-black tracking-widest">Shuttle Used</span>
@@ -163,7 +167,7 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between mt-2">
                     <div className="flex -space-x-2.5">
                       {session.attendees.slice(0, 4).map((name, i) => (
@@ -183,26 +187,26 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
                         {session.totalNet >= 0 ? '+' : '-'}RM{Math.abs(session.totalNet).toFixed(2)}
                       </span>
                       <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                         <button 
+                         <button
                            className="p-2 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors"
                            onClick={(e) => {
                              e.preventDefault();
                              // TODO: Implement Edit
                            }}
                          >
-                            <Search className="size-4" />
-                         </button>
-                         <button 
-                           className="p-2 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
-                           onClick={(e) => {
-                             e.preventDefault();
-                             if (window.confirm("Are you sure you want to delete this session? This will also delete all matches and restore used shuttles.")) {
-                                // TODO: Link to deleteSession
-                             }
-                           }}
-                         >
-                            <Package className="size-4" />
-                         </button>
+                             <Pencil className="size-4" />
+                          </button>
+                          <button
+                            className="p-2 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              if (window.confirm("Are you sure you want to delete this session? This will also restore used shuttlecocks to inventory.")) {
+                                 // TODO: Link to deleteSession
+                              }
+                            }}
+                          >
+                             <Trash2 className="size-4" />
+                          </button>
                       </div>
                     </div>
                   </div>

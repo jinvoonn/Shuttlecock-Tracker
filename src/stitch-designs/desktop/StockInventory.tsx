@@ -10,16 +10,17 @@ import {
   LayoutDashboard,
   CalendarDays,
   Wallet, 
-  PlusCircle 
+  PlusCircle,
+  Pencil,
+  Trash2
 } from 'lucide-react';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 interface StockStats {
-  totalStock: number;
-  tubes: number;
-  lowStock: number;
+  totalTubesBought: number;
+  tubesLeft: number;
   usedToday: number;
 }
 
@@ -129,9 +130,8 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
         <div className="px-8 py-8 space-y-8 flex-1 max-w-6xl mx-auto w-full">
           {/* Hero Title & Primary Action */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div>
-              <h1 className="text-5xl font-black italic uppercase text-slate-100 tracking-tighter">Stock Inventory</h1>
-              <p className="text-slate-500 mt-2 uppercase tracking-widest text-xs font-bold">Asset management & consumption tracking</p>
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-black italic uppercase text-slate-100 tracking-tighter">Active Tubes</h2>
             </div>
             <Link 
               href={`${basePath}/purchases/add`}
@@ -145,24 +145,23 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
           {/* Stats Row */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-slate-900/60 p-6 border-l-4 border-[#13ec80] border-slate-800 rounded-lg shadow-sm">
-              <p className="text-slate-500 text-xs font-bold uppercase mb-2">Total Tubes</p>
+              <p className="text-slate-500 text-xs font-bold uppercase mb-2">Total Tubes Bought</p>
               <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-mono font-black text-slate-100">{stats.tubes}</span>
-                <span className="text-[#13ec80] text-sm font-bold uppercase">Units</span>
+                <span className="text-4xl font-mono font-black text-slate-100">{stats.totalTubesBought}</span>
               </div>
             </div>
-            <div className="bg-slate-900/60 p-6 border-l-4 border-[#13ec80]/40 border-slate-800 rounded-lg shadow-sm">
-              <p className="text-slate-500 text-xs font-bold uppercase mb-2">Total Individual Shuttles</p>
+            
+            <div className="bg-slate-900/60 p-6 border-l-4 border-[#13ec80] border-slate-800 rounded-lg shadow-sm">
+              <p className="text-slate-500 text-xs font-bold uppercase mb-2">Tubes Left</p>
               <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-mono font-black text-slate-100">{stats.totalStock}</span>
-                <span className="text-[#13ec80] text-sm font-bold uppercase">Ready</span>
+                <span className="text-4xl font-mono font-black text-slate-100">{stats.tubesLeft}</span>
               </div>
             </div>
-            <div className="bg-slate-900/60 p-6 border-l-4 border-[#13ec80]/20 border-slate-800 rounded-lg shadow-sm">
-              <p className="text-slate-500 text-xs font-bold uppercase mb-2">Used This Session</p>
+
+            <div className="bg-slate-900/60 p-6 border-l-4 border-amber-500 border-slate-800 rounded-lg shadow-sm">
+              <p className="text-slate-500 text-xs font-bold uppercase mb-2">Shuttle Used Today</p>
               <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-mono font-black text-rose-400">{stats.usedToday}</span>
-                <span className="text-rose-400 text-sm font-bold uppercase">Cocks</span>
+                <span className="text-4xl font-mono font-black text-slate-100">{stats.usedToday}</span>
               </div>
             </div>
           </div>
@@ -265,7 +264,7 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
                             onClick={() => {/* TODO: Implement Edit Modal */}}
                             title="Edit Record"
                           >
-                             <Search className="size-3.5" />
+                             <Pencil className="size-3.5" />
                           </button>
                           <button 
                             className="p-1.5 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
@@ -276,7 +275,7 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
                             }}
                             title="Delete Record"
                           >
-                             <Package className="size-3.5" />
+                             <Trash2 className="size-3.5" />
                           </button>
                         </div>
                       </td>

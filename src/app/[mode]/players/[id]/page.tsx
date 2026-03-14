@@ -83,7 +83,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
         });
     }
 
-    const currentBalance = totalPayments - totalOwed;
+    const currentBalance = totalOwed - totalPayments;
 
     // Calculate generic stats
     let totalMatchesCount = 0;
@@ -229,9 +229,9 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                     <p className="text-[10px] font-bold uppercase text-slate-500 mb-2">Balance</p>
                     <p className={clsx(
                         "text-2xl font-black font-mono tracking-tighter italic leading-none",
-                        currentBalance >= 0 ? "text-emerald-400" : "text-rose-400"
+                        currentBalance > 0 ? "text-rose-400" : "text-emerald-400"
                     )}>
-                        {currentBalance >= 0 ? "+" : "-"}RM{Math.abs(currentBalance).toFixed(2)}
+                        {currentBalance > 0 ? "RM" : "CREDIT RM"}{Math.abs(currentBalance).toFixed(2)}
                     </p>
                 </div>
                 <div className="bg-slate-900/60 p-5 rounded-2xl border border-slate-800/80 shadow-lg flex flex-col justify-center gap-2">

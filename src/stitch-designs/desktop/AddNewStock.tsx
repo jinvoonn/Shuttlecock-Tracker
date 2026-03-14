@@ -15,17 +15,25 @@ import { addPurchase } from "@/lib/actions/purchases";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-export default function DesktopAddNewStock() {
+interface Brand {
+  id: string;
+  name: string;
+}
+
+export default function DesktopAddNewStock({ brands }: { brands: Brand[] }) {
   const router = useRouter();
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
 
-  const [selectedBrand, setSelectedBrand] = useState('YONEX');
+  const [selectedBrandId, setSelectedBrandId] = useState('');
+  const [newBrandName, setNewBrandName] = useState('');
+  const [showNewBrandInput, setShowNewBrandInput] = useState(false);
   const [tubeCount, setTubeCount] = useState(1);
   const [pricePerTube, setPricePerTube] = useState(28.50);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [notes, setNotes] = useState('');
 
   const estimatedTotal = tubeCount * pricePerTube;
 
@@ -35,10 +43,14 @@ export default function DesktopAddNewStock() {
     try {
       const formData = new FormData();
       formData.append("date", date);
-      formData.append("brand", selectedBrand);
-      formData.append("model", "Premium"); // Standardized based on mobile form
+      if (showNewBrandInput) {
+        formData.append("new_brand_name", newBrandName);
+      } else {
+        formData.append("brand_id", selectedBrandId);
+      }
       formData.append("quantity", tubeCount.toString());
       formData.append("price_per_tube", pricePerTube.toString());
+      formData.append("notes", notes);
 
       await addPurchase(formData);
       router.push(`${basePath}/purchases`);
@@ -140,22 +152,51 @@ export default function DesktopAddNewStock() {
                     </div>
                   </div>
 
-                  {/* Brand/Model */}
+                  {/* Brand Selector */}
                   <div className="col-span-1">
                     <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Brand</label>
                     <div className="relative">
-                      <select 
-                        className="w-full bg-slate-950 border border-slate-800 rounded-lg p-4 text-slate-100 focus:ring-1 focus:ring-[#13ec80] outline-none appearance-none"
-                        value={selectedBrand}
-                        onChange={(e) => setSelectedBrand(e.target.value)}
-                        required
-                      >
-                        <option value="YONEX">Yonex</option>
-                        <option value="VICTOR">Victor</option>
-                        <option value="LI-NING">Li-Ning</option>
-                        <option value="RSL">RSL</option>
-                      </select>
-                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 size-5" />
+                      {!showNewBrandInput ? (
+                        <>
+                          <select 
+                            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-4 text-slate-100 focus:ring-1 focus:ring-[#13ec80] outline-none appearance-none"
+                            value={selectedBrandId}
+                            onChange={(e) => {
+                              if (e.target.value === 'NEW') {
+                                setShowNewBrandInput(true);
+                              } else {
+                                setSelectedBrandId(e.target.value);
+                              }
+                            }}
+                            required
+                          >
+                            <option value="">Select Brand</option>
+                            {brands.map(b => (
+                              <option key={b.id} value={b.id}>{b.name}</option>
+                            ))}
+                            <option value="NEW">+ Create New Brand</option>
+                          </select>
+                          <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 size-5" />
+                        </>
+                      ) : (
+                        <div className="flex gap-2">
+                          <input 
+                            className="flex-1 bg-slate-950 border border-slate-800 rounded-lg p-4 text-slate-100 focus:ring-1 focus:ring-[#13ec80] outline-none"
+                            placeholder="Type new brand name..."
+                            value={newBrandName}
+                            onChange={(e) => setNewBrandName(e.target.value)}
+                            autoFocus
+                            required
+                          />
+                          <button 
+                            type="button"
+                            onClick={() => setShowNewBrandInput(false)}
+                            className="px-4 text-[10px] font-black uppercase text-rose-500 hover:text-white"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -192,18 +233,15 @@ export default function DesktopAddNewStock() {
                     </div>
                   </div>
 
-                  {/* Total Cost (Auto-calc) */}
+                  {/* Notes */}
                   <div className="col-span-1 md:col-span-2">
-                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Total Investment</label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 font-mono text-[#13ec80] font-bold">RM</span>
-                      <input 
-                        className="w-full font-mono bg-[#13ec80]/10 border border-[#13ec80]/30 rounded-lg p-4 pl-12 text-[#13ec80] text-xl font-bold outline-none cursor-not-allowed" 
-                        readOnly 
-                        type="text" 
-                        value={estimatedTotal.toFixed(2)} 
-                      />
-                    </div>
+                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Notes</label>
+                    <textarea 
+                      className="w-full bg-slate-950 border border-slate-800 rounded-lg p-4 text-slate-100 focus:ring-1 focus:ring-[#13ec80] outline-none h-24 resize-none"
+                      placeholder="Special batch, supplier details, etc."
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                    />
                   </div>
                 </div>
                 

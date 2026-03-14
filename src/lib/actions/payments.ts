@@ -47,6 +47,29 @@ export async function addPayment(formData: FormData) {
     revalidatePath("/payments");
 }
 
+export async function editPayment(id: string, formData: FormData) {
+    const date = formData.get("date") as string;
+    const player_id = formData.get("player_id") as string;
+    const amount = parseFloat(formData.get("amount") as string);
+
+    if (!date || isNaN(amount) || amount <= 0 || !player_id) {
+        throw new Error("Invalid form data");
+    }
+
+    const { error } = await supabase.from("payments").update({
+        date,
+        player_id,
+        amount,
+    }).eq("id", id);
+
+    if (error) {
+        throw new Error("Failed to update payment: " + error.message);
+    }
+
+    revalidatePath("/");
+    revalidatePath("/payments");
+}
+
 export async function deletePayment(id: string) {
     const { error } = await supabase.from("payments").delete().eq("id", id);
 
