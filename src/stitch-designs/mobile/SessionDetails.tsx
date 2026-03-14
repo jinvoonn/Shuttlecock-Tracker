@@ -18,7 +18,7 @@ import {
   History
 } from 'lucide-react';
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 interface SessionMeta {
   id: string;
@@ -59,6 +59,9 @@ interface MobileSessionDetailsProps {
 
 export default function MobileSessionDetails({ session, matches, attendees }: MobileSessionDetailsProps) {
   const router = useRouter();
+  const pathname = usePathname() || '';
+  const currentMode = pathname.split('/')[1] || 'view';
+  const basePath = `/${currentMode}`;
 
   return (
     <div className="bg-[#f6f8f7] dark:bg-[#102219] font-['Lexend',_sans-serif] text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
@@ -157,7 +160,7 @@ export default function MobileSessionDetails({ session, matches, attendees }: Mo
               <div className="flex items-center justify-between mb-4 px-1">
                 <h3 className="text-slate-900 dark:text-slate-100 text-sm font-black uppercase tracking-[0.15em] italic">Match Results</h3>
                 <button 
-                  onClick={() => router.push(`/view/record-match-stitch/${session.id}`)}
+                  onClick={() => router.push(`${basePath}/sessions/${session.id}/record-match`)}
                   className="text-[#13ec80] flex items-center gap-1.5 active:scale-95 transition-transform bg-[#13ec80]/10 px-3 py-1.5 rounded-lg border border-[#13ec80]/20"
                 >
                   <PlusCircle className="size-4" />
@@ -204,20 +207,32 @@ export default function MobileSessionDetails({ session, matches, attendees }: Mo
         {/* Bottom Navigation */}
         <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-t border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
           <div className="flex h-24 items-stretch px-4 max-w-[480px] mx-auto">
-            <button onClick={() => router.push('/view/dashboard-stitch')} className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group">
+            <button 
+              onClick={() => router.push(basePath)}
+              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group"
+            >
               <LayoutGrid className="size-6 group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Dash</span>
             </button>
-            <button onClick={() => router.push('/view/sessions-stitch')} className="flex flex-1 flex-col items-center justify-center gap-1 text-[#13ec80] relative group">
-              <History className="size-6 group-active:scale-90" />
+            <button 
+              onClick={() => router.push(`${basePath}/sessions`)}
+              className="flex flex-1 flex-col items-center justify-center gap-1 text-[#13ec80] relative group"
+            >
+              <HistoryIcon className="size-6 group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Sessions</span>
               <div className="absolute bottom-3 size-1.5 rounded-full bg-[#13ec80] shadow-[0_0_10px_rgba(19,236,128,0.8)]"></div>
             </button>
-            <button onClick={() => router.push('/view/stock-inventory-stitch')} className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group">
+            <button 
+              onClick={() => router.push(`${basePath}/purchases`)}
+              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group"
+            >
               <Package className="size-6 group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Stock</span>
             </button>
-            <button onClick={() => router.push('/view/payment-ledger-stitch')} className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group">
+            <button 
+              onClick={() => router.push(`${basePath}/payments`)}
+              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group"
+            >
               <Banknote className="size-6 group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Payments</span>
             </button>

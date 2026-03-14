@@ -12,12 +12,13 @@ import {
   TrendingUp,
   TrendingDown,
   Pencil,
-  Trash
+  Trash,
+  History as HistoryIcon
 } from 'lucide-react';
 import { deletePayment } from '@/lib/actions/payments';
 
 import { useState } from 'react';
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 interface PaymentRecord {
   id: string;
@@ -32,6 +33,9 @@ interface MobilePaymentLedgerProps {
 
 export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerProps) {
   const router = useRouter();
+  const pathname = usePathname() || '';
+  const currentMode = pathname.split('/')[1] || 'view';
+  const basePath = `/${currentMode}`;
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredPayments = payments.filter(p => 
@@ -127,9 +131,9 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
                       </div>
                    </div>
 
-                   <div className="flex justify-end gap-2 pt-5 border-t border-slate-100 dark:border-slate-800 relative z-10">
+                    <div className="flex justify-end gap-2 pt-5 border-t border-slate-100 dark:border-slate-800 relative z-10">
                       <button 
-                        onClick={() => router.push(`/view/record-transaction-stitch?paymentId=${p.id}`)}
+                        onClick={() => router.push(`${basePath}/payments/edit/${p.id}`)}
                         className="size-11 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-[#13ec80] active:scale-90 transition-all shadow-sm"
                       >
                         <Pencil className="size-4" />
@@ -155,19 +159,29 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
         {/* Bottom Navigation */}
         <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-t border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
           <div className="flex h-24 items-stretch px-4 max-w-[480px] mx-auto">
-            <button onClick={() => router.push('/view/dashboard-stitch')} className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group">
+            <button 
+              onClick={() => router.push(basePath)}
+              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group"
+            >
               <LayoutGrid className="size-6 group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Dash</span>
             </button>
-            <button onClick={() => router.push('/view/sessions-stitch')} className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group">
-              <History className="size-6 group-active:scale-90" />
-              <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">History</span>
+            <button 
+              onClick={() => router.push(`${basePath}/sessions`)}
+              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group"
+            >
+              <HistoryIcon className="size-6 group-active:scale-90" />
+              <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Sessions</span>
             </button>
-            <button onClick={() => router.push('/view/stock-inventory-stitch')} className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group">
+            <button 
+              onClick={() => router.push(`${basePath}/purchases`)}
+              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group"
+            >
+              <Package className="size-6 group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Stock</span>
             </button>
-            <button className="flex flex-1 flex-col items-center justify-center gap-1 text-[#13ec80] relative">
-              <Banknote className="size-7 fill-current" />
+            <button className="flex flex-1 flex-col items-center justify-center gap-1 text-[#13ec80] relative group">
+              <Banknote className="size-6 group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Payments</span>
               <div className="absolute bottom-3 size-1.5 rounded-full bg-[#13ec80] shadow-[0_0_10px_rgba(19,236,128,0.8)]"></div>
             </button>

@@ -8,11 +8,9 @@ import {
   History, 
   CalendarDays, 
   Wallet, 
-  Package, 
-  Calendar, 
-  LayoutGrid, 
-  FileText, 
-  Banknote 
+  FileText,
+  Banknote,
+  History as HistoryIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
@@ -45,7 +43,10 @@ interface DashboardProps {
 
 export default function MobileDashboard({ stats, players, upcomingSession }: DashboardProps) {
   const router = useRouter();
-  const currentPath = usePathname();
+  const pathname = usePathname() || '';
+  const currentMode = pathname.split('/')[1] || 'view';
+  const basePath = `/${currentMode}`;
+
   return (
     <div className="bg-[#f6f8f7] dark:bg-[#020617] font-['Lexend',_sans-serif] text-slate-900 dark:text-slate-100 min-h-screen antialiased overflow-x-hidden">
       <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-200 dark:border-slate-800 shadow-2xl pb-24">
@@ -173,23 +174,33 @@ export default function MobileDashboard({ stats, players, upcomingSession }: Das
           </div>
         </main>
 
-        {/* Bottom Navigation content... same as before */}
+        {/* Bottom Navigation */}
         <nav className="fixed bottom-0 left-0 right-0 mx-auto max-w-[480px] bg-white/95 dark:bg-[#020617]/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 flex items-center justify-around py-4 px-2 z-50 shadow-[0_-8px_30px_rgb(0,0,0,0.12)]">
-          <button className="flex flex-col items-center gap-1 text-[#13ec80] transition-colors group">
+          <button className="flex flex-1 flex-col items-center justify-center gap-1 text-[#13ec80] transition-colors group relative">
             <LayoutGrid className="size-6 transition-transform group-active:scale-90" />
-            <span className="text-[10px] font-black uppercase tracking-[0.15em] leading-none">Dashboard</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.15em] leading-none mt-1">Dash</span>
+            <div className="absolute bottom-[-16px] size-1.5 rounded-full bg-[#13ec80] shadow-[0_0_10px_rgba(19,236,128,0.8)]"></div>
           </button>
-          <button className="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-[#13ec80] transition-colors group">
-            <FileText className="size-6 transition-transform group-active:scale-90" />
-            <span className="text-[10px] font-black uppercase tracking-[0.15em] leading-none">Sessions</span>
+          <button 
+            onClick={() => router.push(`${basePath}/sessions`)}
+            className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:text-[#13ec80] transition-colors group"
+          >
+            <HistoryIcon className="size-6 transition-transform group-active:scale-90" />
+            <span className="text-[10px] font-black uppercase tracking-[0.15em] leading-none mt-1">Sessions</span>
           </button>
-          <button className="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-[#13ec80] transition-colors group">
+          <button 
+            onClick={() => router.push(`${basePath}/purchases`)}
+            className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:text-[#13ec80] transition-colors group"
+          >
             <Package className="size-6 transition-transform group-active:scale-90" />
-            <span className="text-[10px] font-black uppercase tracking-[0.15em] leading-none">Stock</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.15em] leading-none mt-1">Stock</span>
           </button>
-          <button className="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-[#13ec80] transition-colors group">
+          <button 
+            onClick={() => router.push(`${basePath}/payments`)}
+            className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:text-[#13ec80] transition-colors group"
+          >
             <Banknote className="size-6 transition-transform group-active:scale-90" />
-            <span className="text-[10px] font-black uppercase tracking-[0.15em] leading-none">Payments</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.15em] leading-none mt-1">Payments</span>
           </button>
         </nav>
       </div>

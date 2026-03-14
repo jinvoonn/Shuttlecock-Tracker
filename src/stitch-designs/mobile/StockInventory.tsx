@@ -11,7 +11,10 @@ import {
   TrendingDown,
   ChevronRight,
   Pencil,
-  Trash
+  Trash,
+  LayoutGrid,
+  History as HistoryIcon,
+  Banknote
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -193,13 +196,37 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
           </section>
         </main>
 
-        {/* Floating Action Button */}
-        <Link 
-          href={`${basePath}/purchases/add`}
-          className="fixed bottom-32 right-8 size-16 bg-[#34d399] text-[#020617] rounded-3xl shadow-[0_20px_50px_rgba(52,211,153,0.3)] flex items-center justify-center z-50 hover:scale-110 active:scale-90 transition-all border-b-4 border-[#059669]"
-        >
-          <Plus className="size-8 font-black" />
-        </Link>
+        {/* Bottom Navigation */}
+        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#020617]/95 backdrop-blur-2xl border-t border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+          <div className="flex h-24 items-stretch px-4 max-w-[480px] mx-auto">
+            <button 
+              onClick={() => router.push(basePath)}
+              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group"
+            >
+              <LayoutGrid className="size-6 group-active:scale-90" />
+              <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Dash</span>
+            </button>
+            <button 
+              onClick={() => router.push(`${basePath}/sessions`)}
+              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group"
+            >
+              <HistoryIcon className="size-6 group-active:scale-90" />
+              <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Sessions</span>
+            </button>
+            <button className="flex flex-1 flex-col items-center justify-center gap-1 text-[#13ec80] relative group">
+              <Package className="size-6 group-active:scale-90" />
+              <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Stock</span>
+              <div className="absolute bottom-3 size-1.5 rounded-full bg-[#13ec80] shadow-[0_0_10px_rgba(19,236,128,0.8)]"></div>
+            </button>
+            <button 
+              onClick={() => router.push(`${basePath}/payments`)}
+              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group"
+            >
+              <Banknote className="size-6 group-active:scale-90" />
+              <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Payments</span>
+            </button>
+          </div>
+        </nav>
       </div>
     </div>
   );

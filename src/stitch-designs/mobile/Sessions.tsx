@@ -1,19 +1,19 @@
 "use client";
 
 import React from 'react';
-import { 
-  Plus, 
-  Search, 
-  Calendar, 
-  Activity, 
-  LayoutGrid, 
-  History, 
-  Package, 
+import {
+  Plus,
+  Search,
+  Calendar,
+  Activity,
+  LayoutGrid,
+  History as HistoryIcon,
+  Package,
   Banknote,
   ChevronRight,
   ArrowLeft
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 interface SessionData {
   id: string;
@@ -36,6 +36,9 @@ interface MobileSessionsProps {
 
 export default function MobileSessions({ sessions }: MobileSessionsProps) {
   const router = useRouter();
+  const pathname = usePathname() || '';
+  const currentMode = pathname.split('/')[1] || 'view';
+  const basePath = `/${currentMode}`;
   return (
     <div className="bg-[#f6f8f7] dark:bg-[#020617] font-['Lexend',_sans-serif] text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
       <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-200 dark:border-slate-800 shadow-2xl pb-24">
@@ -43,7 +46,9 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
         <header className="sticky top-0 z-20 bg-white/80 dark:bg-[#020617]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-black italic tracking-tighter text-[#13ec80] uppercase">Sessions</h1>
-            <button className="bg-[#13ec80] hover:bg-[#13ec80]/90 text-slate-950 px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-[#13ec80]/20 active:scale-95 transition-all">
+            <button
+              onClick={() => router.push(`${basePath}/sessions/new`)}
+              className="bg-[#13ec80] hover:bg-[#13ec80]/90 text-slate-950 px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-[#13ec80]/20 active:scale-95 transition-all">
               <Plus className="size-4" />
               LOG NEW
             </button>
@@ -121,7 +126,7 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
                   )}
                 </div>
                 <button 
-                  onClick={() => router.push(`/view/session-details-stitch/${session.id}`)}
+                  onClick={() => router.push(`${basePath}/sessions/${session.id}`)}
                   className="bg-slate-900 dark:bg-slate-800 text-[#13ec80] px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-[#13ec80] hover:text-slate-950 transition-all active:scale-95 shadow-lg"
                 >
                   OPEN SESSION
@@ -132,24 +137,36 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
           ))}
         </main>
 
-        {/* Navigation Bar content... same as before */}
-        <nav className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-[#020617]/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 flex justify-around items-center h-20 px-4 shadow-[0_-8px_30px_rgb(0,0,0,0.12)]">
-          <button className="flex flex-col items-center gap-1 group">
-            <LayoutGrid className="size-6 text-slate-400 dark:text-slate-500 group-hover:text-[#13ec80] transition-colors" />
-            <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 group-hover:text-[#13ec80] tracking-widest uppercase transition-colors">Dashboard</span>
-          </button>
-          <button className="flex flex-col items-center gap-1 group">
-            <History className="size-6 text-[#13ec80]" />
-            <span className="text-[9px] font-black text-[#13ec80] tracking-widest uppercase">Sessions</span>
-          </button>
-          <button className="flex flex-col items-center gap-1 group">
-            <Package className="size-6 text-slate-400 dark:text-slate-500 group-hover:text-[#13ec80] transition-colors" />
-            <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 group-hover:text-[#13ec80] tracking-widest uppercase transition-colors">Stock</span>
-          </button>
-          <button className="flex flex-col items-center gap-1 group">
-            <Banknote className="size-6 text-slate-400 dark:text-slate-500 group-hover:text-[#13ec80] transition-colors" />
-            <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 group-hover:text-[#13ec80] tracking-widest uppercase transition-colors">Payments</span>
-          </button>
+        {/* Bottom Navigation */}
+        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#020617]/95 backdrop-blur-2xl border-t border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+          <div className="flex h-24 items-stretch px-4 max-w-[480px] mx-auto">
+            <button 
+              onClick={() => router.push(basePath)}
+              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group"
+            >
+              <LayoutGrid className="size-6 group-active:scale-90" />
+              <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Dash</span>
+            </button>
+            <button className="flex flex-1 flex-col items-center justify-center gap-1 text-[#13ec80] relative group">
+              <HistoryIcon className="size-6 group-active:scale-90" />
+              <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Sessions</span>
+              <div className="absolute bottom-3 size-1.5 rounded-full bg-[#13ec80] shadow-[0_0_10px_rgba(19,236,128,0.8)]"></div>
+            </button>
+            <button 
+              onClick={() => router.push(`${basePath}/purchases`)}
+              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group"
+            >
+              <Package className="size-6 group-active:scale-90" />
+              <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Stock</span>
+            </button>
+            <button 
+              onClick={() => router.push(`${basePath}/payments`)}
+              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group"
+            >
+              <Banknote className="size-6 group-active:scale-90" />
+              <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Payments</span>
+            </button>
+          </div>
         </nav>
 
         {/* Floating Action Button content... same as before */}
