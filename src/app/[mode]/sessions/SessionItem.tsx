@@ -54,11 +54,11 @@ export function SessionItem({ session, allPlayers, allPurchases }: SessionItemPr
     }
 
     return (
-        <div className="glass-card rounded-2xl p-5 flex flex-col gap-4 group transition-all duration-500 glass-card-hover">
+        <div className="bg-slate-900 rounded-2xl border border-slate-800 p-5 flex flex-col gap-4 group transition-all duration-300 hover:border-slate-700">
             {/* Header */}
-            <div className="flex items-start sm:items-center justify-between border-b border-white/5 pb-4">
-                <div className="flex items-center gap-3">
-                    <div className="h-14 w-14 flex flex-col items-center justify-center bg-slate-950/40 rounded-2xl border border-white/5 shadow-2xl">
+            <div className="flex items-start justify-between border-b border-slate-800 pb-4 gap-4">
+                <div className="flex items-center gap-3 min-w-0">
+                    <div className="h-14 w-14 flex flex-col items-center justify-center bg-slate-950 rounded-2xl border border-slate-800 shadow-2xl shrink-0">
                         <span className="text-[9px] font-black uppercase text-slate-500 tracking-widest leading-none mb-1">
                             {new Date(session.date).toLocaleString('default', { month: 'short' })}
                         </span>
@@ -66,21 +66,21 @@ export function SessionItem({ session, allPlayers, allPurchases }: SessionItemPr
                             {new Date(session.date).getDate()}
                         </span>
                     </div>
-                    <div>
-                        <h3 className="font-black text-slate-100 flex items-center gap-2 flex-wrap tracking-tight italic">
+                    <div className="min-w-0">
+                        <h3 className="font-black text-slate-100 flex items-center gap-2 flex-wrap tracking-tight italic truncate">
                             {new Date(session.date).toLocaleDateString(undefined, { weekday: 'long' })}
                             {session.location && (
-                                <span className="text-[10px] text-slate-500 flex items-center gap-1 normal-case not-italic tracking-widest bg-white/5 px-2 py-0.5 rounded-full border border-white/5">
+                                <span className="text-[10px] text-slate-500 flex items-center gap-1 normal-case not-italic tracking-widest bg-slate-950 px-2.5 py-1 rounded-full border border-slate-800">
                                     <MapPin className="w-3 h-3" /> {session.location}
                                 </span>
                             )}
                         </h3>
-                        {session.notes && <p className="text-xs text-slate-500 mt-1 font-medium">{session.notes}</p>}
+                        {session.notes && <p className="text-xs text-slate-500 mt-1 font-medium truncate">{session.notes}</p>}
                     </div>
                 </div>
 
                 {isAdmin && (
-                    <div className="flex gap-1.5">
+                    <div className="flex gap-1.5 shrink-0">
                         <button
                             onClick={() => setIsEditing(true)}
                             className="p-2.5 rounded-xl text-slate-500 hover:text-violet-400 hover:bg-violet-500/10 transition-all duration-300 border border-transparent hover:border-violet-500/20"

@@ -21,7 +21,7 @@ export function MobileNav() {
 
     return (
         <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden pb-safe">
-            <div className="mx-4 mb-4 glass-card rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
+            <div className="mx-4 mb-4 bg-slate-900 rounded-2xl border border-slate-700 shadow-2xl overflow-hidden">
                 <div className="flex items-center justify-around h-16 px-2">
                     {navLinks.map((link) => {
                         const isActive = pathname === link.href;

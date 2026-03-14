@@ -53,11 +53,11 @@ export function DashboardClient({ players }: { players: Player[] }) {
     const colorMap = Object.fromEntries(players.map((p, i) => [p.id, i % AVATAR_COLORS.length]));
 
     return (
-        <div className="glass-card rounded-3xl overflow-hidden shadow-2xl relative">
-            <div className="px-6 py-5 border-b border-slate-800/50 flex items-center justify-between bg-slate-900/40 backdrop-blur-md flex-wrap gap-3">
+        <div className="glass-card rounded-3xl overflow-hidden shadow-2xl relative border-slate-800">
+            <div className="px-6 py-5 border-b border-slate-800 flex items-center justify-between bg-slate-900 flex-wrap gap-3">
                 <div className="flex items-center gap-3">
                     <h2 className="text-lg font-black uppercase tracking-tight text-slate-100 italic">Player Balances</h2>
-                    <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 bg-sky-500/10 rounded-full text-sky-400 border border-sky-500/20">
+                    <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 bg-sky-500/10 rounded-full text-sky-400 border border-sky-500/30">
                         {players.length} Active
                     </span>
                 </div>
@@ -94,7 +94,7 @@ export function DashboardClient({ players }: { players: Player[] }) {
                     <p className="text-slate-500 text-sm max-w-xs mx-auto">No data recorded yet.</p>
                 </div>
             ) : (
-                <div className="divide-y divide-slate-800/30">
+                <div className="divide-y divide-slate-800">
                     {sortedPlayers.map((player) => {
                         const isDebt = player.balance < 0;
                         const isSettled = Math.abs(player.balance) < 0.01;
@@ -104,7 +104,7 @@ export function DashboardClient({ players }: { players: Player[] }) {
                             : 1;
 
                         return (
-                            <div key={player.id} className="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-5 hover:bg-white/5 transition-all duration-300 gap-4 group/item relative overflow-hidden">
+                            <div key={player.id} className="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-5 hover:bg-slate-800/50 transition-all duration-300 gap-4 group/item relative overflow-hidden">
                                 {/* Subtle background glow for negative/positive */}
                                 {!isSettled && (
                                     <div className={clsx(

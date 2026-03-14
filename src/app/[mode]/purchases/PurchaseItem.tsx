@@ -122,9 +122,9 @@ export function PurchaseItem({ purchase, brands }: { purchase: Purchase, brands:
     }
 
     return (
-        <div className="glass-card rounded-2xl p-5 flex flex-col sm:flex-row gap-4 sm:items-center justify-between group relative overflow-hidden transition-all duration-500 glass-card-hover">
+        <div className="bg-slate-900 rounded-2xl border border-slate-800 p-5 flex flex-col sm:flex-row gap-4 sm:items-center justify-between group relative overflow-hidden transition-all duration-300 hover:border-slate-700">
             <div className="flex items-center gap-5">
-                <div className="h-14 w-14 rounded-2xl bg-slate-950/40 flex items-center justify-center border border-white/5 text-slate-500 shrink-0 shadow-2xl group-hover:bg-sky-500/10 group-hover:text-sky-400 group-hover:border-sky-500/20 transition-all duration-500">
+                <div className="h-14 w-14 rounded-2xl bg-slate-950 flex items-center justify-center border border-slate-800 text-slate-500 shrink-0 shadow-2xl group-hover:bg-sky-500/10 group-hover:text-sky-400 group-hover:border-sky-500/30 transition-all duration-300">
                     <Archive className="w-7 h-7" />
                 </div>
                 <div>
@@ -137,11 +137,11 @@ export function PurchaseItem({ purchase, brands }: { purchase: Purchase, brands:
                             {new Date(purchase.purchase_date).toLocaleDateString()}
                         </span>
                         <div className="flex items-center gap-4">
-                            <span className="text-[10px] font-black uppercase text-sky-400 font-mono tracking-tighter bg-sky-400/5 px-2 py-0.5 rounded-lg border border-sky-400/10">RM {Number(purchase.price_per_tube || 0).toFixed(2)}</span>
+                            <span className="text-[10px] font-black uppercase text-sky-400 font-mono tracking-tighter bg-sky-400/10 px-2 py-0.5 rounded-lg border border-sky-400/30">RM {Number(purchase.price_per_tube || 0).toFixed(2)}</span>
                             <span className="text-[10px] font-bold text-slate-600 font-mono tracking-tighter">RM {Number(purchase.price_per_cock || 0).toFixed(2)} /pc</span>
                         </div>
                         {purchase.notes && (
-                            <span className="text-[10px] text-slate-500 font-medium italic opacity-80 truncate max-w-[150px] sm:max-w-none">
+                            <span className="text-[10px] text-slate-400 font-medium italic opacity-80 truncate max-w-[150px] sm:max-w-none">
                                 {purchase.notes}
                             </span>
                         )}
@@ -149,7 +149,7 @@ export function PurchaseItem({ purchase, brands }: { purchase: Purchase, brands:
                 </div>
             </div>
 
-            <div className="flex items-center justify-between sm:justify-end gap-5 sm:w-auto w-full border-t sm:border-t-0 border-white/5 pt-4 sm:pt-0 mt-1 sm:mt-0">
+            <div className="flex items-center justify-between sm:justify-end gap-5 sm:w-auto w-full border-t sm:border-t-0 border-slate-800 pt-4 sm:pt-0 mt-1 sm:mt-0">
                 <div className="flex items-center gap-4">
                     <div className={clsx("w-3 h-3 rounded-full shadow-[0_0_12px_rgba(0,0,0,0.5)] transition-all duration-500 group-hover:scale-125", colorClass)} title="Remaining Indicator" />
                     <div className="text-right">

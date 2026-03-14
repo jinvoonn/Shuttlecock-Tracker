@@ -25,7 +25,7 @@ export function Navigation() {
     const pageName = activeLink?.name ?? "CockCount";
 
     return (
-        <nav className="hidden md:flex flex-col w-64 h-screen fixed left-0 top-0 border-r border-white/5 glass-card z-50 overflow-y-auto">
+        <nav className="hidden md:flex flex-col w-64 h-screen fixed left-0 top-0 border-r border-slate-800 bg-slate-900 z-50 overflow-y-auto">
             <div className="flex flex-col h-full px-6 py-8 gap-4 items-start">
                 <div className="flex flex-col gap-6 w-full mb-8">
                     <Logo />

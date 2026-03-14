@@ -16,12 +16,12 @@ export function PaymentsForm({ players }: { players: Player[] }) {
     if (!isAdmin) return null;
 
     return (
-        <div className="lg:col-span-1 border border-slate-800 bg-slate-900/40 backdrop-blur-sm p-6 lg:sticky lg:top-8 rounded-2xl animate-in slide-in-from-left-4 duration-500">
-            <div className="flex items-center gap-3 mb-6">
-                <div className="p-2.5 rounded-xl bg-sky-400/10 text-sky-400">
+        <div className="lg:col-span-1 border border-slate-800 bg-slate-900 p-6 lg:sticky lg:top-8 rounded-2xl animate-in slide-in-from-left-4 duration-500 mb-6 lg:mb-0">
+            <div className="flex items-center gap-3 mb-6 min-w-0">
+                <div className="p-2.5 rounded-xl bg-sky-400/10 text-sky-400 shrink-0">
                     <HandCoins className="w-5 h-5" />
                 </div>
-                <h2 className="text-lg font-medium text-slate-100 uppercase tracking-tight">Record Deposit</h2>
+                <h2 className="text-lg font-bold text-slate-100 uppercase tracking-tight truncate">Record Deposit</h2>
             </div>
 
             <form action={addPayment} className="space-y-4 text-sm">
