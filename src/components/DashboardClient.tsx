@@ -7,21 +7,7 @@ import clsx from "clsx";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-// Deterministic distinct colors per player — cycles through a palette
-const AVATAR_COLORS = [
-    "ring-sky-500 bg-sky-500/10 text-sky-300",
-    "ring-violet-500 bg-violet-500/10 text-violet-300",
-    "ring-emerald-500 bg-emerald-500/10 text-emerald-300",
-    "ring-amber-500 bg-amber-500/10 text-amber-300",
-    "ring-rose-500 bg-rose-500/10 text-rose-300",
-    "ring-pink-500 bg-pink-500/10 text-pink-300",
-    "ring-teal-500 bg-teal-500/10 text-teal-300",
-    "ring-orange-500 bg-orange-500/10 text-orange-300",
-    "ring-cyan-500 bg-cyan-500/10 text-cyan-300",
-    "ring-indigo-500 bg-indigo-500/10 text-indigo-300",
-    "ring-lime-500 bg-lime-500/10 text-lime-300",
-    "ring-fuchsia-500 bg-fuchsia-500/10 text-fuchsia-300",
-];
+// Deterministic distinct colors per player logic removed in favor of status pills
 
 type SortMode = "debt" | "alpha" | "settled-last";
 
@@ -49,16 +35,14 @@ export function DashboardClient({ players }: { players: Player[] }) {
         return 0;
     });
 
-    // Map player IDs to color indices (stable per player order in original list)
-    const colorMap = Object.fromEntries(players.map((p, i) => [p.id, i % AVATAR_COLORS.length]));
 
     return (
         <div className="glass-card rounded-3xl overflow-hidden shadow-2xl relative border-slate-800">
             <div className="px-6 py-5 border-b border-slate-800 flex items-center justify-between bg-slate-900 flex-wrap gap-3">
-                <div className="flex items-center gap-3">
-                    <h2 className="text-lg font-black uppercase tracking-tight text-slate-100 italic">Player Balances</h2>
-                    <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 bg-sky-500/10 rounded-full text-sky-400 border border-sky-500/30">
-                        {players.length} Active
+                <div className="flex items-center gap-4">
+                    <h2 className="text-xl italic-header text-white">Player Ledger</h2>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 opacity-60">
+                        {players.length} Registered
                     </span>
                 </div>
 
@@ -98,86 +82,56 @@ export function DashboardClient({ players }: { players: Player[] }) {
                     {sortedPlayers.map((player) => {
                         const isDebt = player.balance < 0;
                         const isSettled = Math.abs(player.balance) < 0.01;
-                        const colorClass = AVATAR_COLORS[colorMap[player.id] ?? 0];
                         const paidRatio = player.totalShares > 0
                             ? Math.min(1, player.totalPayments / player.totalShares)
                             : 1;
 
                         return (
-                            <div key={player.id} className="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-5 hover:bg-slate-800/50 transition-all duration-300 gap-4 group/item relative overflow-hidden">
-                                {/* Subtle background glow for negative/positive */}
-                                {!isSettled && (
+                            <div key={player.id} className="flex items-center justify-between px-6 py-5 hover:bg-slate-800/30 transition-all duration-300 gap-4 group/item border-b border-slate-800/50 last:border-0 relative overflow-hidden">
+                                <div className="flex items-center gap-5 flex-1 min-w-0 z-10">
+                                    {/* Vertical Status Pill */}
                                     <div className={clsx(
-                                        "absolute inset-0 opacity-0 group-hover/item:opacity-5 transition-opacity pointer-events-none",
-                                        isDebt ? "bg-rose-500" : "bg-emerald-500"
+                                        "w-2 h-10 rounded-full transition-all duration-500 shrink-0 shadow-lg",
+                                        isSettled 
+                                            ? "bg-slate-700" 
+                                            : isDebt 
+                                                ? "bg-rose-400 shadow-rose-500/20" 
+                                                : "bg-emerald-400 shadow-emerald-500/20"
                                     )} />
-                                )}
 
-                                <div className="flex items-center gap-4 flex-1 min-w-0 z-10">
-                                    <Link href={`/${mode}/players/${player.id}`} className="flex items-center gap-4 flex-1 min-w-0 group/link">
-                                        {/* Color-coded avatar */}
-                                        <div className={clsx(
-                                            "h-12 w-12 rounded-2xl flex items-center justify-center font-black text-lg shrink-0 ring-1 transition-all shadow-2xl",
-                                            colorClass,
-                                            "group-hover/link:ring-2 group-hover/link:scale-110 group-hover/link:shadow-sky-500/20"
-                                        )}>
-                                            {player.name.charAt(0).toUpperCase()}
-                                        </div>
-
-                                        <div className="min-w-0 flex-1">
-                                            <p className="font-black text-slate-100 text-base truncate group-hover/link:text-sky-400 transition-colors flex items-center gap-2 tracking-tight">
-                                                <span className="truncate">{player.name}</span>
-                                                <ArrowUpRight className="w-4 h-4 shrink-0 opacity-0 -translate-x-2 group-hover/link:opacity-100 group-hover/link:translate-x-0 transition-all text-sky-400" />
+                                    <Link href={`/${mode}/players/${player.id}`} className="min-w-0 flex-1 group/link">
+                                        <div className="flex flex-col">
+                                            <p className="font-black text-slate-100 text-sm uppercase tracking-tight truncate group-hover/link:text-sky-400 transition-colors">
+                                                {player.name}
                                             </p>
-                                            <div className="flex items-center gap-x-3 mt-1 underline-offset-4">
-                                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                                                    Paid <span className="text-slate-300">RM {player.totalPayments.toFixed(2)}</span>
-                                                </span>
-                                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                                                    Cost <span className="text-slate-300">RM {player.totalShares.toFixed(2)}</span>
-                                                </span>
-                                            </div>
-                                            {/* Progress bar */}
-                                            <div className="mt-3 h-1 w-full max-w-[140px] bg-slate-800/50 rounded-full overflow-hidden border border-white/5">
-                                                <div
-                                                    className={clsx(
-                                                        "h-full rounded-full transition-all duration-1000",
-                                                        isSettled ? "bg-slate-600" : isDebt ? "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.4)]" : "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"
-                                                    )}
-                                                    style={{ width: `${paidRatio * 100}%` }}
-                                                />
-                                            </div>
+                                            <p className="text-[9px] text-slate-500 font-mono tracking-tighter uppercase mt-0.5">
+                                                ID: {player.id.slice(0, 8)} // {isSettled ? "Settled" : isDebt ? "Owed" : "Credit"}
+                                            </p>
                                         </div>
                                     </Link>
                                 </div>
 
-                                <div className="flex items-center justify-between sm:justify-end gap-5 sm:gap-8 w-full sm:w-auto border-t sm:border-t-0 border-white/5 pt-4 sm:pt-0 z-10">
-                                    <div className="flex flex-col items-end min-w-[100px]">
-                                        <div className={clsx(
-                                            "flex items-center gap-1 font-black font-mono tracking-tighter text-2xl transition-all",
-                                            isSettled ? "text-slate-600" : isDebt ? "text-rose-400 group-hover/item:scale-105" : "text-emerald-400 group-hover/item:scale-105"
+                                <div className="flex items-center gap-6 z-10">
+                                    <div className="text-right flex flex-col items-end">
+                                        <p className={clsx(
+                                            "font-mono text-sm font-black tracking-tighter transition-all",
+                                            isSettled ? "text-slate-600" : isDebt ? "text-rose-400" : "text-emerald-400"
                                         )}>
-                                            <span className="text-xs mr-0.5 opacity-50">RM</span>
-                                            {Math.abs(player.balance).toFixed(2)}
-                                        </div>
-                                        <span className={clsx(
-                                            "text-[9px] uppercase font-black tracking-[0.2em] mt-0.5 px-2 py-0.5 rounded border transition-all",
-                                            isSettled 
-                                                ? "text-slate-600 border-slate-800" 
-                                                : isDebt 
-                                                    ? "text-rose-500 border-rose-500/20 bg-rose-500/5" 
-                                                    : "text-emerald-500 border-emerald-500/20 bg-emerald-500/5"
-                                        )}>
-                                            {isSettled ? "Settled ✓" : isDebt ? "Owed" : "Exceed"}
-                                        </span>
+                                            {isDebt ? "-" : isSettled ? "" : "+"}RM {Math.abs(player.balance).toFixed(2)}
+                                        </p>
+                                        <p className="text-[9px] text-slate-600 font-bold uppercase tracking-wider mt-0.5">
+                                            {isSettled ? "Balanced" : isDebt ? "Debt" : "Available"}
+                                        </p>
                                     </div>
                                     
                                     {isDebt && (
-                                        <SettleButton
-                                            playerId={player.id}
-                                            playerName={player.name}
-                                            amount={Math.abs(player.balance)}
-                                        />
+                                        <div className="shrink-0">
+                                            <SettleButton
+                                                playerId={player.id}
+                                                playerName={player.name}
+                                                amount={Math.abs(player.balance)}
+                                            />
+                                        </div>
                                     )}
                                 </div>
                             </div>

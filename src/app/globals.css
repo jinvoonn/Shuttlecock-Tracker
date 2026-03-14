@@ -55,6 +55,23 @@ body::before {
   transform: translateY(-2px);
 }
 
+/* Custom utilities from v2 proposal */
+.italic-header {
+  font-family: var(--font-outfit), sans-serif;
+  font-style: italic;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.05em;
+}
+
+.stat-label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #64748b;
+}
+
 /* Custom utility for safe area padding on mobile iOS */
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom);

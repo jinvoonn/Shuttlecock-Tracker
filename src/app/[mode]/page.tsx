@@ -77,78 +77,84 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
 
   return (
     <div className="p-4 md:p-8 max-w-6xl mx-auto animate-in fade-in duration-700">
-      <header className="mb-10">
-        <h1 className="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-slate-50 via-sky-100 to-sky-400 mb-2 tracking-tighter">
-          CockCount
-        </h1>
-        <p className="text-slate-400 font-bold tracking-tight text-sm">
-          "Because Shuttlecocks Aren’t Free."
-        </p>
+      <header className="sticky top-0 z-10 flex items-center justify-between py-6 bg-navy-950/80 backdrop-blur-md mb-8">
+        <div className="flex items-center gap-2">
+          <div className="w-10 h-10 bg-sky-500/10 rounded-xl flex items-center justify-center text-sky-400 border border-sky-500/20 shadow-lg shadow-sky-500/5">
+            <CalendarDays className="w-6 h-6" />
+          </div>
+          <h1 className="text-3xl italic-header text-white">COCKCOUNT</h1>
+        </div>
+        <div className="flex gap-3">
+          <button className="flex items-center justify-center rounded-xl bg-slate-900 border border-slate-800 w-11 h-11 hover:border-sky-500/50 transition-all active:scale-95 text-slate-400">
+            <ArrowDownRight className="w-5 h-5" />
+          </button>
+          <button className="flex items-center justify-center rounded-xl bg-slate-900 border border-slate-800 w-11 h-11 hover:border-sky-500/50 transition-all active:scale-95 text-sky-400">
+            <User className="w-5 h-5" />
+          </button>
+        </div>
       </header>
 
-      {/* Summary Cards - now 4 cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-        <div className="p-5 rounded-3xl glass-card relative overflow-hidden group transition-all glass-card-hover hover:border-emerald-500/30">
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="relative z-10">
-            <div className="flex justify-between items-start mb-4">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Pool Balance</p>
-              <div className="p-2.5 rounded-2xl bg-slate-950/50 text-emerald-400 border border-emerald-500/20 shadow-lg shadow-emerald-500/10">
-                <CircleDollarSign className="w-4.5 h-4.5" />
-              </div>
+      <main className="flex flex-col gap-8">
+        {/* Top Metrics Grid (2x2) */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-2 rounded-2xl bg-slate-900 p-6 border border-slate-800 transition-all hover:border-sky-500/30">
+            <div className="flex items-center gap-2">
+              <ArrowUpRight className="w-3.5 h-3.5 text-sky-400" />
+              <p className="stat-label">Shuttles Used</p>
             </div>
-            <p className={clsx("text-3xl font-black font-mono tracking-tighter", totalPoolBalance >= 0 ? "text-emerald-400" : "text-rose-400")}>
+            <p className="font-mono text-4xl font-black text-white tracking-tighter">{totalShuttlesUsed}</p>
+          </div>
+          <div className="flex flex-col gap-2 rounded-2xl bg-slate-900 p-6 border border-slate-800">
+            <div className="flex items-center gap-2">
+              <CalendarDays className="w-3.5 h-3.5 text-sky-400" />
+              <p className="stat-label">Sessions</p>
+            </div>
+            <p className="font-mono text-4xl font-black text-white tracking-tighter">{totalSessions}</p>
+          </div>
+        </div>
+
+        {/* Dashboard Stats Grid (Financials) */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-2 rounded-2xl bg-slate-900 p-6 border border-slate-800">
+            <div className="flex items-center gap-2">
+              <CircleDollarSign className={clsx("w-3.5 h-3.5", totalPoolBalance >= 0 ? "text-emerald-400" : "text-rose-400")} />
+              <p className="stat-label">Pool Balance</p>
+            </div>
+            <p className={clsx("font-mono text-2xl font-black tracking-tighter", totalPoolBalance >= 0 ? "text-emerald-400" : "text-rose-400")}>
               {totalPoolBalance >= 0 ? "+" : "-"}RM {Math.abs(totalPoolBalance).toFixed(2)}
             </p>
-            <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mt-3 opacity-60">Net Pool</p>
           </div>
-        </div>
-
-        <div className="p-5 rounded-3xl glass-card relative overflow-hidden group transition-all glass-card-hover hover:border-sky-500/30">
-          <div className="absolute inset-0 bg-gradient-to-br from-sky-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="relative z-10">
-            <div className="flex justify-between items-start mb-4">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Total Spent</p>
-              <div className="p-2.5 rounded-2xl bg-slate-950/50 text-sky-400 border border-sky-500/20 shadow-lg shadow-sky-500/10">
-                <Package className="w-4.5 h-4.5" />
-              </div>
+          <div className="flex flex-col gap-2 rounded-2xl bg-slate-900 p-6 border border-slate-800">
+            <div className="flex items-center gap-2 text-slate-400">
+              <Package className="w-3.5 h-3.5 text-rose-400" />
+              <p className="stat-label uppercase tracking-widest">Stock Tubes</p>
             </div>
-            <p className="text-3xl font-black font-mono tracking-tighter text-slate-50">RM {totalPurchasesCost.toFixed(2)}</p>
-            <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mt-3 opacity-60">Inventory</p>
-          </div>
-        </div>
-
-        <div className="p-5 rounded-3xl glass-card relative overflow-hidden group transition-all glass-card-hover hover:border-violet-500/30">
-          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="relative z-10">
-            <div className="flex justify-between items-start mb-4">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Shuttles</p>
-              <div className="p-2.5 rounded-2xl bg-slate-950/50 text-violet-400 border border-violet-500/20 shadow-lg shadow-violet-500/10">
-                <CheckCircle2 className="w-4.5 h-4.5" />
-              </div>
+            <div className="flex flex-col">
+              <p className="text-xl font-black text-white leading-none">{(purchasesData || []).length} Tubes</p>
+              <p className="text-[10px] font-black text-rose-400 mt-2 uppercase tracking-widest opacity-80">Remaining</p>
             </div>
-            <p className="text-3xl font-black font-mono tracking-tighter text-slate-50">{totalShuttlesUsed}</p>
-            <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mt-3 opacity-60">Used</p>
           </div>
         </div>
 
-        <div className="p-5 rounded-3xl glass-card relative overflow-hidden group transition-all glass-card-hover hover:border-amber-500/30">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="relative z-10">
-            <div className="flex justify-between items-start mb-4">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Sessions</p>
-              <div className="p-2.5 rounded-2xl bg-slate-950/50 text-amber-400 border border-amber-500/20 shadow-lg shadow-amber-500/10">
-                <CalendarDays className="w-4.5 h-4.5" />
-              </div>
+        {/* Next Session Banner Placeholder - Matching Proposal Structure */}
+        <div className="relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 group h-44 shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/60 to-transparent z-10"></div>
+          <div className="relative z-20 flex flex-col justify-center h-full gap-4 p-8">
+            <div>
+              <p className="text-[10px] font-black text-sky-400 uppercase tracking-[0.2em]">Next Active Session</p>
+              <h3 className="text-4xl italic-header text-white leading-none mt-2">BADMINTON AM</h3>
+              <p className="text-slate-500 text-xs font-bold mt-3 flex items-center gap-2 tracking-tight">
+                <CalendarDays className="w-4 h-4 text-sky-500" /> Active Session Records Found
+              </p>
             </div>
-            <p className="text-3xl font-black font-mono tracking-tighter text-slate-50">{totalSessions}</p>
-            <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mt-3 opacity-60">Total</p>
           </div>
+          {/* Faded Background Image */}
+          <div className="absolute top-0 right-0 w-3/5 h-full bg-cover bg-center opacity-10 grayscale-100 group-hover:opacity-20 transition-all duration-700 pointer-events-none" style={{ backgroundImage: "url('/badminton-bg.png')" }} />
         </div>
-      </div>
 
-      {/* Player Balances Table — delegated to client component for sort toggle */}
-      <DashboardClient players={players} />
+        {/* Player Balances - The Ledger */}
+        <DashboardClient players={players} />
+      </main>
     </div>
   );
 }
