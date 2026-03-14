@@ -62,11 +62,6 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
             return;
         }
 
-        if (scoreA === "" || scoreB === "") {
-            alert("Both scores are required.");
-            return;
-        }
-
         const payload = {
             sessionId,
             teamAIds,
