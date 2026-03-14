@@ -19,9 +19,7 @@ export default async function ModeLayout({
 
     return (
         <div className="min-h-screen text-slate-100">
-            <Navigation />
-            <MobileNav />
-            <main className="md:ml-64 p-4 pb-32 md:pb-8 animate-in fade-in duration-1000">
+            <main className="animate-in fade-in duration-1000">
                 {children}
             </main>
         </div>

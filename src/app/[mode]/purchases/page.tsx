@@ -1,24 +1,42 @@
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import DesktopStockInventory from "@/stitch-designs/desktop/StockInventory";
 import MobileStockInventory from "@/stitch-designs/mobile/StockInventory";
+import { AlertCircle } from "lucide-react";
 
 export const revalidate = 0;
 
 export default async function PurchasesPage({ params }: { params: Promise<{ mode: string }> }) {
   await params;
   
+  if (!isSupabaseConfigured) {
+    return (
+      <div className="p-8 flex flex-col items-center justify-center min-h-screen text-amber-500 bg-[#020617] text-center max-w-md mx-auto">
+        <AlertCircle className="size-12 mb-4" />
+        <p className="font-black italic uppercase text-2xl tracking-tighter">Configuration Required</p>
+        <p className="text-sm text-slate-400 mt-2 font-bold tracking-tight">
+          Vercel Environment Variables are missing. Please add <code className="text-[#13ec80]">NEXT_PUBLIC_SUPABASE_URL</code> and <code className="text-[#13ec80]">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> in Project Settings.
+        </p>
+      </div>
+    );
+  }
+
   const [
     { data: purchasesData, error: purchasesError },
     { data: sessionUsageData, error: sessionUsageError }
   ] = await Promise.all([
-    supabase.from("purchases").select("*, brands(name)").order("purchase_date", { ascending: false }).order("created_at", { ascending: false }),
+    supabase.from("purchases").select("*, brands(name)").order("tube_number", { ascending: false }),
     supabase.from("session_usage").select("quantity_used, created_at").gte('created_at', new Date(new Date().setHours(0,0,0,0)).toISOString())
   ]);
 
   if (purchasesError || sessionUsageError) {
+    console.error("Stock Fetch Error:", { purchasesError, sessionUsageError });
     return (
-      <div className="p-8 text-rose-500 font-black italic uppercase flex items-center justify-center min-h-screen bg-[#020617]">
-        Failed to load inventory data
+      <div className="p-8 flex flex-col items-center justify-center min-h-screen text-rose-500 bg-[#020617]">
+        <p className="font-black italic uppercase text-2xl tracking-tighter">Failed to load data</p>
+        <p className="text-sm text-slate-500 mt-2 font-bold tracking-widest uppercase">Database Connection Error</p>
+        <div className="mt-6 p-4 bg-slate-900/50 rounded-xl border border-slate-800 font-mono text-[10px] text-slate-500 max-w-lg overflow-auto">
+           {JSON.stringify({ purchasesError, sessionUsageError }, null, 2)}
+        </div>
       </div>
     );
   }

@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { User, Swords, Activity, ArrowLeft, Target } from "lucide-react";
+import { User, Swords, Activity, ArrowLeft, Target, LayoutDashboard, CalendarDays, Package, Wallet } from "lucide-react";
 import Link from "next/link";
 import { SkillRatingEditor } from "@/components/SkillRatingEditor";
 import clsx from "clsx";
@@ -8,6 +8,7 @@ export const revalidate = 0;
 
 export default async function PlayerProfilePage({ params }: { params: Promise<{ mode: string, id: string }> }) {
     const { mode, id } = await params;
+    const basePath = `/${mode}`;
 
     // Fetch the player details
     const { data: player, error: playerError } = await supabase
@@ -120,24 +121,65 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
     const recentForm = formattedMatches.slice(0, 5).map(m => m?.isWin ? "W" : m?.isDraw ? "D" : "L");
 
     return (
-        <div className="p-4 md:p-8 max-w-4xl mx-auto animate-in fade-in duration-700">
-            <Link href={`/${mode}`} className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-300 mb-6 transition-colors uppercase tracking-tight">
-                <ArrowLeft className="w-4 h-4" /> Back to Dashboard
-            </Link>
+        <div className="flex h-screen overflow-hidden bg-[#020617] text-slate-100 font-['Lexend',_sans-serif]">
+            {/* Cinematic Background Overlay */}
+            <div 
+                className="fixed inset-0 opacity-10 pointer-events-none grayscale bg-cover bg-center"
+                style={{ backgroundImage: "url('/badminton-bg.png')" }}
+            />
+            <div className="fixed inset-0 bg-gradient-to-b from-[#020617]/90 to-[#020617]/95 pointer-events-none" />
 
-            <header className="mb-8 flex items-center gap-4">
-                <div className="h-20 w-20 flex-shrink-0 bg-slate-800 rounded-2xl flex flex-col items-center justify-center border border-slate-700 shadow-xl overflow-hidden relative">
-                    <User className="w-8 h-8 text-slate-400 absolute" />
-                    <div className="absolute inset-0 bg-gradient-to-tr from-sky-500/20 to-transparent"></div>
-                </div>
-                <div>
-                    <h1 className="text-3xl font-bold text-slate-50 tracking-tight">{player.name}</h1>
-                    <div className="flex flex-col mt-2">
-                        <SkillRatingEditor playerId={player.id} initialSkill={player.skill_rating || 5} />
-                        <span className="text-[10px] text-slate-600 mt-1 uppercase font-bold tracking-widest px-1">Player Profile</span>
+            {/* Sidebar Navigation */}
+            <aside className="relative z-20 w-64 border-r border-slate-800 bg-slate-900/50 backdrop-blur-md hidden lg:flex flex-col">
+                <div className="p-6">
+                    <div className="flex items-center gap-3 text-[#13ec80]">
+                        <div className="size-8 bg-[#13ec80]/10 rounded-lg flex items-center justify-center border border-[#13ec80]/20">
+                            <Activity className="size-5 font-bold" />
+                        </div>
+                        <h2 className="text-2xl font-black italic tracking-tighter text-slate-100 uppercase">COCKCOUNT</h2>
                     </div>
                 </div>
-            </header>
+                
+                <nav className="flex-1 px-4 space-y-2 mt-4">
+                    <Link href={`${basePath}`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                        <LayoutDashboard className="size-5" />
+                        <span className="text-sm font-bold tracking-wide uppercase">DASHBOARD</span>
+                    </Link>
+                    <Link href={`${basePath}/sessions`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                        <CalendarDays className="size-5" />
+                        <span className="text-sm font-bold tracking-wide uppercase">SESSIONS</span>
+                    </Link>
+                    <Link href={`${basePath}/purchases`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                        <Package className="size-5" />
+                        <span className="text-sm font-bold tracking-wide uppercase">STOCK</span>
+                    </Link>
+                    <Link href={`${basePath}/payments`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                        <Wallet className="size-5" />
+                        <span className="text-sm font-bold tracking-wide uppercase">PAYMENTS</span>
+                    </Link>
+                </nav>
+            </aside>
+
+            {/* Main Content Area */}
+            <main className="relative z-20 flex-1 flex flex-col overflow-y-auto">
+                <div className="p-8 max-w-4xl mx-auto w-full animate-in fade-in duration-700">
+                    <Link href={`${basePath}`} className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-300 mb-6 transition-colors uppercase tracking-tight">
+                        <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+                    </Link>
+
+                    <header className="mb-8 flex items-center gap-4">
+                        <div className="h-20 w-20 flex-shrink-0 bg-slate-800 rounded-2xl flex flex-col items-center justify-center border border-slate-700 shadow-xl overflow-hidden relative">
+                            <User className="w-8 h-8 text-slate-400 absolute" />
+                            <div className="absolute inset-0 bg-gradient-to-tr from-sky-500/20 to-transparent"></div>
+                        </div>
+                        <div>
+                            <h1 className="text-3xl font-bold text-slate-50 tracking-tight">{player.name}</h1>
+                            <div className="flex flex-col mt-2">
+                                <SkillRatingEditor playerId={player.id} initialSkill={player.skill_rating || 5} />
+                                <span className="text-[10px] text-slate-600 mt-1 uppercase font-bold tracking-widest px-1">Player Profile</span>
+                            </div>
+                        </div>
+                    </header>
 
             {/* Summary Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 text-center pt-2">
@@ -284,6 +326,8 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                     </div>
                 )}
             </div>
+                </div>
+            </main>
         </div>
     );
 }
