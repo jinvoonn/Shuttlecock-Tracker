@@ -78,10 +78,12 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
   return (
     <div className="p-4 md:p-8 max-w-6xl mx-auto animate-in fade-in duration-700">
       <header className="mb-10">
-        <h1 className="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-slate-50 via-sky-100 to-sky-400 mb-2 tracking-tight">
-          Dashboard
+        <h1 className="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-slate-50 via-sky-100 to-sky-400 mb-2 tracking-tighter">
+          CockCount
         </h1>
-        <p className="text-slate-400 font-medium">Overview of group costs and balances.</p>
+        <p className="text-slate-400 font-bold tracking-tight text-sm">
+          "Because Shuttlecocks Aren’t Free."
+        </p>
       </header>
 
       {/* Summary Cards - now 4 cards */}

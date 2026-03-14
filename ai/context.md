@@ -1,7 +1,7 @@
-# Project Context: Shuttle Tracker
+# Project Context: CockCount
 
 ## Purpose
-Shuttle Tracker is a minimal but premium web application designed to track badminton group costs, specifically shuttlecock usage, session attendance, and player payments. It aims to replace complex Excel sheets with a streamlined digital interface that calculates balances in real-time.
+CockCount is a minimal but premium web application designed to track badminton group costs, specifically shuttlecock usage, session attendance, and player payments. It aims to replace complex Excel sheets with a streamlined digital interface that calculates balances in real-time.
 
 ## Main Features
 *   **Balance Dashboard**: View real-time debt/credit status for all players.
@@ -30,3 +30,4 @@ The project requires the following keys in `.env.local`:
 
 ## Current Project Status
 The project is currently in a functional state with all core tracking and analytics features implemented. It has recently been migrated to a more robust schema (`schema_v2.sql`) supporting advanced match analytics and skill-based grouping.
+"Because Shuttlecocks Aren’t Free."

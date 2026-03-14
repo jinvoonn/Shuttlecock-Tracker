@@ -6,6 +6,7 @@ import { LayoutDashboard, ShoppingCart, CalendarDays, DollarSign, Eye } from "lu
 import clsx from "clsx";
 import { useRole } from "@/context/AuthContext";
 import { ADMIN_SECRET } from "@/lib/constants";
+import { Logo } from "@/components/Logo";
 
 export function Navigation() {
     const pathname = usePathname();
@@ -21,7 +22,7 @@ export function Navigation() {
 
     // Derive current page name for mobile topbar
     const activeLink = navLinks.find(l => pathname === l.href);
-    const pageName = activeLink?.name ?? "Shuttle Tracker";
+    const pageName = activeLink?.name ?? "CockCount";
 
     return (
         <>
@@ -46,14 +47,7 @@ export function Navigation() {
             )}>
                 <div className="flex h-16 items-center justify-around px-4 md:h-full md:flex-col md:justify-start md:px-6 md:py-8 md:gap-4 md:items-start">
                     <div className="hidden md:flex flex-col gap-6 w-full mb-8">
-                        <div className="flex items-center gap-3 px-2">
-                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-400 to-sky-600 shadow-lg shadow-sky-500/30 shrink-0 flex items-center justify-center text-white text-xs font-black">
-                                ST
-                            </div>
-                            <span className="text-xl font-bold text-slate-50 tracking-tight">
-                                ShuttleTracker
-                            </span>
-                        </div>
+                        <Logo />
                     </div>
 
                     {navLinks.map((link) => {

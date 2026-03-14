@@ -8,8 +8,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
 export const metadata: Metadata = {
-  title: "Shuttle Tracker",
-  description: "Track badminton group costs, shuttles, and payments seamlessly.",
+  title: "CockCount",
+  description: "Because Shuttlecocks Aren’t Free.",
 };
 
 export const viewport: Viewport = {

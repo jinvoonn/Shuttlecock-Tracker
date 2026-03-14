@@ -1,4 +1,4 @@
-# Project Architecture: Shuttle Tracker
+# Project Architecture: CockCount
 
 ## Folder Structure
 ```text
