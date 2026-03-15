@@ -2,8 +2,13 @@
 
 import { supabase } from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
+import { ADMIN_SECRET } from "@/lib/constants";
 
-export async function addPayment(formData: FormData) {
+export async function addPayment(formData: FormData, mode?: string) {
+    const finalMode = mode || (formData.get("mode") as string);
+    if (finalMode !== ADMIN_SECRET) {
+        throw new Error("Unauthorized: Admin access required to add payments");
+    }
     const date = formData.get("date") as string;
     let player_id = formData.get("player_id") as string;
     const new_player_name = formData.get("new_player_name") as string;
@@ -49,7 +54,11 @@ export async function addPayment(formData: FormData) {
     revalidatePath("/payments");
 }
 
-export async function editPayment(id: string, formData: FormData) {
+export async function editPayment(id: string, formData: FormData, mode?: string) {
+    const finalMode = mode || (formData.get("mode") as string);
+    if (finalMode !== ADMIN_SECRET) {
+        throw new Error("Unauthorized: Admin access required to edit payments");
+    }
     const date = formData.get("date") as string;
     const player_id = formData.get("player_id") as string;
     const amount = parseFloat(formData.get("amount") as string);
@@ -74,7 +83,10 @@ export async function editPayment(id: string, formData: FormData) {
     revalidatePath("/payments");
 }
 
-export async function deletePayment(id: string) {
+export async function deletePayment(id: string, mode?: string) {
+    if (mode !== ADMIN_SECRET) {
+        throw new Error("Unauthorized: Admin access required to delete payments");
+    }
     const { error } = await supabase.from("payments").delete().eq("id", id);
 
     if (error) {
@@ -85,7 +97,10 @@ export async function deletePayment(id: string) {
     revalidatePath("/payments");
 }
 
-export async function quickSettle(playerId: string, amount: number) {
+export async function quickSettle(playerId: string, amount: number, mode?: string) {
+    if (mode !== ADMIN_SECRET) {
+        throw new Error("Unauthorized: Admin access required for quick settle");
+    }
     if (!playerId || isNaN(amount) || amount <= 0) {
         throw new Error("Invalid settle up parameters");
     }

@@ -10,6 +10,7 @@ interface AuthContextType {
     role: Role;
     isAdmin: boolean;
     loading: boolean;
+    canEdit: (feature: 'sessions' | 'purchases' | 'payments' | 'players') => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,8 +22,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const isAdmin = role === "admin";
 
+    const canEdit = (feature: 'sessions' | 'purchases' | 'payments' | 'players') => {
+        if (isAdmin) return true;
+        if (feature === 'sessions') return true;
+        return false;
+    };
+
     return (
-        <AuthContext.Provider value={{ role, isAdmin, loading }}>
+        <AuthContext.Provider value={{ role, isAdmin, loading, canEdit }}>
             {children}
         </AuthContext.Provider>
     );

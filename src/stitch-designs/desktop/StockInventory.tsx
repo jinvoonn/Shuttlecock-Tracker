@@ -17,6 +17,7 @@ import {
 import clsx from 'clsx';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useRole } from '@/context/AuthContext';
 
 interface StockStats {
   totalTubesBought: number;
@@ -54,6 +55,7 @@ import { editPurchase, deletePurchase } from '@/lib/actions/purchases';
 import { DatePicker } from '@/components/DatePicker';
 
 export default function DesktopStockInventory({ stats, activeTubes, history }: DesktopStockInventoryProps) {
+  const { canEdit } = useRole();
   const [searchTerm, setSearchTerm] = React.useState('');
   const [activeEditingId, setActiveEditingId] = React.useState<string | null>(null);
   const [historyEditingId, setHistoryEditingId] = React.useState<string | null>(null);
@@ -69,7 +71,7 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
   const handleDelete = async (id: string, name: string) => {
     if (window.confirm(`Are you sure you want to delete this purchase (${name})?`)) {
       try {
-        await deletePurchase(id);
+        await deletePurchase(id, currentMode);
       } catch (err) {
         alert("Failed to delete purchase");
       }
@@ -133,9 +135,11 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
             </div>
           </div>
           <div className="flex items-center gap-6">
-            <Link href={`${basePath}/purchases/add`} className="bg-[#13ec80] text-[#020617] px-6 py-2 rounded font-black text-xs tracking-tighter hover:brightness-110 transition-all uppercase shadow-lg shadow-[#13ec80]/20 border border-[#13ec80]">
-              Add New Stock
-            </Link>
+            {canEdit('purchases') && (
+              <Link href={`${basePath}/purchases/add`} className="bg-[#13ec80] text-[#020617] px-6 py-2 rounded font-black text-xs tracking-tighter hover:brightness-110 transition-all uppercase shadow-lg shadow-[#13ec80]/20 border border-[#13ec80]">
+                Add New Stock
+              </Link>
+            )}
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
                 <p className="text-xs font-black text-slate-100 uppercase">Shuttle Tracker</p>
@@ -151,13 +155,15 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-black italic uppercase text-slate-100 tracking-tighter">Active Tubes</h2>
             </div>
-            <Link 
-              href={`${basePath}/purchases/add`}
-              className="bg-[#13ec80] text-slate-950 font-black px-6 py-3 rounded uppercase tracking-tighter flex items-center gap-2 hover:brightness-110 transition-all shadow-lg shadow-[#13ec80]/20"
-            >
-              <PlusSquare className="size-5" />
-              Add New Stock
-            </Link>
+            {canEdit('purchases') && (
+              <Link 
+                href={`${basePath}/purchases/add`}
+                className="bg-[#13ec80] text-slate-950 font-black px-6 py-3 rounded uppercase tracking-tighter flex items-center gap-2 hover:brightness-110 transition-all shadow-lg shadow-[#13ec80]/20"
+              >
+                <PlusSquare className="size-5" />
+                Add New Stock
+              </Link>
+            )}
           </div>
 
           {/* Stats Row */}
@@ -230,22 +236,24 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
                           </form>
                         </div>
                       ) : (
-                        <>
-                          <div className="absolute top-3 left-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                            <button 
-                              onClick={() => setActiveEditingId(tube.id)}
-                              className="p-1.5 bg-slate-800/80 hover:bg-slate-700/80 rounded-md text-slate-400 hover:text-white transition-colors backdrop-blur-sm"
-                            >
-                              <Pencil className="size-3" />
-                            </button>
-                            <button 
-                              onClick={() => handleDelete(tube.id, tube.name)}
-                              className="p-1.5 bg-slate-800/80 hover:bg-rose-500/20 rounded-md text-slate-400 hover:text-rose-400 transition-colors backdrop-blur-sm"
-                            >
-                              <Trash2 className="size-3" />
-                            </button>
-                          </div>
-                          <div className="pl-16">
+                         <>
+                          {canEdit('purchases') && (
+                            <div className="absolute top-3 left-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                              <button 
+                                onClick={() => setActiveEditingId(tube.id)}
+                                className="p-1.5 bg-slate-800/80 hover:bg-slate-700/80 rounded-md text-slate-400 hover:text-white transition-colors backdrop-blur-sm"
+                              >
+                                <Pencil className="size-3" />
+                              </button>
+                              <button 
+                                onClick={() => handleDelete(tube.id, tube.name)}
+                                className="p-1.5 bg-slate-800/80 hover:bg-rose-500/20 rounded-md text-slate-400 hover:text-rose-400 transition-colors backdrop-blur-sm"
+                              >
+                                <Trash2 className="size-3" />
+                              </button>
+                            </div>
+                          )}
+                          <div className={canEdit('purchases') ? "pl-16" : "pl-0"}>
                             <h3 className="text-slate-100 font-bold text-lg uppercase leading-tight">{tube.name}</h3>
                             <div className="flex items-center gap-2 mt-1">
                               <p className="text-[#13ec80] text-xs font-mono font-bold tracking-tight">RM{tube.pricePerTube.toFixed(2)}</p>
@@ -359,24 +367,26 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
                         </td>
                         <td className="px-6 py-4 text-right font-mono font-bold text-slate-300">RM{item.pricePerTube.toFixed(2)}</td>
                         <td className="px-6 py-4 text-right font-mono font-bold text-[#13ec80]">RM{item.pricePerCock.toFixed(2)}</td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button 
-                              className="p-1.5 hover:bg-slate-700/50 rounded text-slate-400 hover:text-white transition-colors"
-                              onClick={() => setHistoryEditingId(item.id)}
-                              title="Edit Record"
-                            >
-                               <Pencil className="size-3.5" />
-                            </button>
-                            <button 
-                              className="p-1.5 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
-                              onClick={() => handleDelete(item.id, `${item.name} #${item.tubeNumber}`)}
-                              title="Delete Record"
-                            >
-                               <Trash2 className="size-3.5" />
-                            </button>
-                          </div>
-                        </td>
+                        {canEdit('purchases') && (
+                          <td className="px-6 py-4 text-right">
+                            <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button 
+                                className="p-1.5 hover:bg-slate-700/50 rounded text-slate-400 hover:text-white transition-colors"
+                                onClick={() => setHistoryEditingId(item.id)}
+                                title="Edit Record"
+                              >
+                                 <Pencil className="size-3.5" />
+                              </button>
+                              <button 
+                                className="p-1.5 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
+                                onClick={() => handleDelete(item.id, `${item.name} #${item.tubeNumber}`)}
+                                title="Delete Record"
+                              >
+                                 <Trash2 className="size-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        )}
                       </tr>
                     );
                   })}

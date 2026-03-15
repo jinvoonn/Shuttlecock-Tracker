@@ -21,6 +21,7 @@ import clsx from 'clsx';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { editPayment, deletePayment } from '@/lib/actions/payments';
+import { useRole } from '@/context/AuthContext';
 import { DatePicker } from '@/components/DatePicker';
 
 interface PaymentRecord {
@@ -40,6 +41,7 @@ export default function DesktopPaymentLedger({ payments }: DesktopPaymentLedgerP
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
+  const { canEdit } = useRole();
   const [searchTerm, setSearchTerm] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -105,9 +107,11 @@ export default function DesktopPaymentLedger({ payments }: DesktopPaymentLedgerP
             </div>
           </div>
           <div className="flex items-center gap-6">
-            <Link href={`${basePath}/payments/record-transaction`} className="bg-[#13ec80] text-[#020617] px-6 py-2 rounded font-black text-xs tracking-tighter hover:brightness-110 transition-all uppercase shadow-lg shadow-[#13ec80]/20 border border-[#13ec80]">
-              Record Payment
-            </Link>
+            {canEdit('payments') && (
+              <Link href={`${basePath}/payments/record-transaction`} className="bg-[#13ec80] text-[#020617] px-6 py-2 rounded font-black text-xs tracking-tighter hover:brightness-110 transition-all uppercase shadow-lg shadow-[#13ec80]/20 border border-[#13ec80]">
+                Record Payment
+              </Link>
+            )}
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
                 <p className="text-xs font-black text-slate-100 uppercase">Shuttle Tracker</p>
@@ -154,8 +158,8 @@ export default function DesktopPaymentLedger({ payments }: DesktopPaymentLedgerP
                     <tr>
                       <th className="px-6 py-4">Player Name</th>
                       <th className="px-6 py-4">Payment Date</th>
-                      <th className="px-6 py-4 text-right">Amount</th>
-                      <th className="px-6 py-4 text-right">Actions</th>
+                      <th className="px-6 py-4 text-right whitespace-nowrap">Amount</th>
+                      {canEdit('payments') && <th className="px-6 py-4 text-right">Actions</th>}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/50">
@@ -219,31 +223,33 @@ export default function DesktopPaymentLedger({ payments }: DesktopPaymentLedgerP
                             {p.note && <p className="text-xs text-slate-500 truncate max-w-[200px]">{p.note}</p>}
                           </td>
                           <td className="px-6 py-4 font-mono text-sm text-slate-400">{p.date}</td>
-                          <td className="px-6 py-4 text-right whitespace-nowrap">
+                           <td className="px-6 py-4 text-right whitespace-nowrap">
                             <span className="font-mono text-sm font-bold text-[#13ec80]">
                               +RM{p.amount.toFixed(2)}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-right">
-                            <div className="flex justify-end gap-2">
-                              <button 
-                                onClick={() => setEditingId(p.id)}
-                                className="p-1.5 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors"
-                              >
-                                <Pencil className="size-3.5" />
-                              </button>
-                              <button 
-                                onClick={async () => {
-                                  if (window.confirm("Are you sure you want to delete this payment record?")) {
-                                    await deletePayment(p.id);
-                                  }
-                                }}
-                                className="p-1.5 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
-                              >
-                                <Trash2 className="size-3.5" />
-                              </button>
-                            </div>
-                          </td>
+                          {canEdit('payments') && (
+                            <td className="px-6 py-4 text-right">
+                              <div className="flex justify-end gap-2">
+                                <button 
+                                  onClick={() => setEditingId(p.id)}
+                                  className="p-1.5 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors"
+                                >
+                                  <Pencil className="size-3.5" />
+                                </button>
+                                <button 
+                                  onClick={async () => {
+                                    if (window.confirm("Are you sure you want to delete this payment record?")) {
+                                      await deletePayment(p.id, currentMode);
+                                    }
+                                  }}
+                                  className="p-1.5 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
+                                >
+                                  <Trash2 className="size-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          )}
                         </tr>
                       );
                     })}

@@ -2,7 +2,14 @@
 
 import { supabase } from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
-export async function addPurchase(formData: FormData) {
+import { ADMIN_SECRET } from "@/lib/constants";
+
+export async function addPurchase(formData: FormData, mode?: string) {
+    const finalMode = mode || (formData.get("mode") as string);
+    if (finalMode !== ADMIN_SECRET) {
+        throw new Error("Unauthorized: Admin access required to add stock");
+    }
+
     const purchase_date = formData.get("date") as string;
     const brand_id = formData.get("brand_id") as string;
     const new_brand_name = (formData.get("new_brand_name") || formData.get("brand")) as string;
@@ -91,7 +98,12 @@ export async function addPurchase(formData: FormData) {
     revalidatePath("/purchases");
 }
 
-export async function editPurchase(id: string, formData: FormData) {
+export async function editPurchase(id: string, formData: FormData, mode?: string) {
+    const finalMode = mode || (formData.get("mode") as string);
+    if (finalMode !== ADMIN_SECRET) {
+        throw new Error("Unauthorized: Admin access required to edit stock");
+    }
+
     const purchase_date = formData.get("date") as string;
     const brand_id = formData.get("brand_id") as string;
     const notes = formData.get("notes") as string;
@@ -146,7 +158,10 @@ export async function editPurchase(id: string, formData: FormData) {
     revalidatePath("/purchases");
 }
 
-export async function deletePurchase(id: string) {
+export async function deletePurchase(id: string, mode?: string) {
+    if (mode !== ADMIN_SECRET) {
+        throw new Error("Unauthorized: Admin access required to delete stock");
+    }
     const { error } = await supabase.from("purchases").delete().eq("id", id);
 
     if (error) {

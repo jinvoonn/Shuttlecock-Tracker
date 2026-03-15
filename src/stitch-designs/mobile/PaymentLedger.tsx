@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { usePathname, useRouter } from "next/navigation";
 import { editPayment, deletePayment } from '@/lib/actions/payments';
+import { useRole } from '@/context/AuthContext';
 
 import { useState } from 'react';
 import { DatePicker } from '@/components/DatePicker';
@@ -39,6 +40,7 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
+  const { canEdit } = useRole();
   const [searchTerm, setSearchTerm] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -50,7 +52,7 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
   const handleDelete = async (id: string, playerName: string) => {
     if (window.confirm(`Are you sure you want to delete this payment from ${playerName}?`)) {
       try {
-        await deletePayment(id);
+        await deletePayment(id, currentMode);
         router.refresh();
       } catch (err) {
         alert("Failed to delete payment");
@@ -172,7 +174,7 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
                           </div>
                         </form>
                       </div>
-                    ) : (
+                    ) : canEdit('payments') ? (
                       <div className="flex justify-end gap-2 pt-5 border-t border-slate-700 relative z-10">
                         <button 
                           onClick={() => setEditingId(p.id)}
@@ -187,7 +189,7 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
                           <Trash className="size-4" />
                         </button>
                       </div>
-                    )}
+                    ) : null}
                 </div>
               ))}
             </div>
@@ -195,11 +197,13 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
         </main>
 
         {/* Floating Action Button */}
-        <button 
-          onClick={() => router.push(`${basePath}/payments/record-transaction`)}
-          className="fixed bottom-32 right-8 size-16 bg-emerald-400 text-slate-950 rounded-3xl shadow-[0_20px_50px_rgba(16,185,129,0.3)] flex items-center justify-center z-40 hover:scale-110 active:scale-90 transition-all border-b-4 border-emerald-600">
-          <Plus className="size-8 font-black" />
-        </button>
+        {canEdit('payments') && (
+          <button 
+            onClick={() => router.push(`${basePath}/payments/record-transaction`)}
+            className="fixed bottom-32 right-8 size-16 bg-emerald-400 text-slate-950 rounded-3xl shadow-[0_20px_50px_rgba(16,185,129,0.3)] flex items-center justify-center z-40 hover:scale-110 active:scale-90 transition-all border-b-4 border-emerald-600">
+            <Plus className="size-8 font-black" />
+          </button>
+        )}
 
         {/* Bottom Navigation */}
         <nav className="fixed bottom-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-2xl border-t border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">

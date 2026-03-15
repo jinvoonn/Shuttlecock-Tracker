@@ -14,6 +14,7 @@ import {
 import clsx from 'clsx';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useRole } from '@/context/AuthContext';
 
 interface PlayerStat {
   id: string;
@@ -38,10 +39,11 @@ interface DashboardProps {
   };
 }
 
-export default function DesktopDashboard({ stats, players, isAdmin, upcomingSession }: DashboardProps) {
+export default function DesktopDashboard({ stats, players, upcomingSession }: DashboardProps) {
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
+  const { canEdit } = useRole();
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#020617] text-slate-100 font-['Lexend',_sans-serif]">
@@ -234,12 +236,12 @@ export default function DesktopDashboard({ stats, players, isAdmin, upcomingSess
                             </p>
                           </td>
                           <td className="px-8 py-6 text-center">
-                            {isAdmin && (
+                            {canEdit('payments') && (
                               <button 
                                 onClick={async () => {
                                   if (confirm(`Quick Settle RM ${Math.abs(player.balance).toFixed(2)} for ${player.name}?`)) {
                                     const { quickSettle } = await import("@/lib/actions/payments");
-                                    await quickSettle(player.id, Math.abs(player.balance));
+                                    await quickSettle(player.id, Math.abs(player.balance), currentMode);
                                   }
                                 }}
                                 className="bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-emerald-500/20 transition-all active:scale-95"

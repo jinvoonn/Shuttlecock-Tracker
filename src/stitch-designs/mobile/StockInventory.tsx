@@ -19,6 +19,7 @@ import {
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { editPurchase, deletePurchase } from '@/lib/actions/purchases';
+import { useRole } from '@/context/AuthContext';
 import { useState } from 'react';
 import { DatePicker } from '@/components/DatePicker';
 
@@ -58,13 +59,14 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
+  const { canEdit } = useRole();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [activeEditingId, setActiveEditingId] = useState<string | null>(null);
 
   const handleDelete = async (id: string, name: string) => {
     if (window.confirm(`Are you sure you want to delete this purchase (${name})?`)) {
       try {
-        await deletePurchase(id);
+        await deletePurchase(id, currentMode);
         router.refresh();
       } catch (err) {
         alert("Failed to delete purchase");
@@ -130,7 +132,7 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
                       <div className="relative z-10 w-full animate-in fade-in slide-in-from-top-1 duration-200">
                         <h3 className="font-black italic tracking-tighter text-xl leading-none mb-4 font-['Lexend',_sans-serif] uppercase">{tube.name}</h3>
                         <form action={async (formData) => {
-                          await editPurchase(tube.id, formData);
+                          await editPurchase(tube.id, formData, currentMode);
                           setActiveEditingId(null);
                           router.refresh();
                         }} className="space-y-4">
@@ -171,20 +173,22 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
                       </div>
                     ) : (
                       <div className="relative z-10">
-                        <div className="absolute top-0 left-0 flex gap-2">
-                          <button 
-                            onClick={() => setActiveEditingId(tube.id)}
-                            className="size-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-emerald-400 active:scale-90 transition-all shadow-inner"
-                          >
-                            <Pencil className="size-4" />
-                          </button>
-                          <button 
-                            onClick={() => handleDelete(tube.id, tube.name)}
-                            className="size-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-rose-500 active:scale-90 transition-all shadow-inner"
-                          >
-                            <Trash className="size-4" />
-                          </button>
-                        </div>
+                        {canEdit('purchases') && (
+                          <div className="absolute top-0 left-0 flex gap-2">
+                            <button 
+                              onClick={() => setActiveEditingId(tube.id)}
+                              className="size-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-emerald-400 active:scale-90 transition-all shadow-inner"
+                            >
+                              <Pencil className="size-4" />
+                            </button>
+                            <button 
+                              onClick={() => handleDelete(tube.id, tube.name)}
+                              className="size-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-rose-500 active:scale-90 transition-all shadow-inner"
+                            >
+                              <Trash className="size-4" />
+                            </button>
+                          </div>
+                        )}
 
                         <div className="flex items-center gap-5 mb-6 pt-14">
                           <div className="flex-1">
@@ -245,7 +249,7 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
                   {editingId === item.id ? (
                     <div className="pt-5 border-t border-slate-800 animate-in fade-in slide-in-from-top-1 duration-200">
                       <form action={async (formData) => {
-                        await editPurchase(item.id, formData);
+                        await editPurchase(item.id, formData, currentMode);
                         setEditingId(null);
                         router.refresh();
                       }} className="space-y-4">
@@ -280,20 +284,22 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
                          </span>
                       </div>
                       
-                      <div className="flex gap-2 text-left">
-                        <button 
-                          onClick={() => setEditingId(item.id)}
-                          className="size-11 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-emerald-400 active:scale-90 transition-all"
-                        >
-                          <Pencil className="size-4" />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(item.id, `${item.name} #${item.tubeNumber}`)}
-                          className="size-11 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-rose-500 active:scale-90 transition-all"
-                        >
-                          <Trash className="size-4" />
-                        </button>
-                      </div>
+                      {canEdit('purchases') && (
+                        <div className="flex gap-2 text-left">
+                          <button 
+                            onClick={() => setEditingId(item.id)}
+                            className="size-11 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-emerald-400 active:scale-90 transition-all"
+                          >
+                            <Pencil className="size-4" />
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(item.id, `${item.name} #${item.tubeNumber}`)}
+                            className="size-11 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-rose-500 active:scale-90 transition-all"
+                          >
+                            <Trash className="size-4" />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
+import { useRole } from '@/context/AuthContext';
 
 interface PlayerStat {
   id: string;
@@ -48,6 +49,7 @@ export default function MobileDashboard({ stats, players, upcomingSession }: Das
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
+  const { canEdit } = useRole();
 
   return (
     <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-100 min-h-screen antialiased overflow-x-hidden">
@@ -148,12 +150,14 @@ export default function MobileDashboard({ stats, players, upcomingSession }: Das
                       </span>
                     </p>
                   </Link>
-                  <button 
-                    onClick={() => router.push(`${basePath}/payments/record-transaction?playerId=${player.id}`)}
-                    className="h-11 px-6 rounded-xl bg-slate-900 text-emerald-400 font-black text-[10px] uppercase tracking-widest hover:bg-emerald-400 hover:text-slate-950 transition-all active:scale-95 border border-slate-700 shadow-lg relative z-10"
-                  >
-                    SETTLE
-                  </button>
+                  {canEdit('payments') && (
+                    <button 
+                      onClick={() => router.push(`${basePath}/payments/record-transaction?playerId=${player.id}`)}
+                      className="h-11 px-6 rounded-xl bg-slate-900 text-emerald-400 font-black text-[10px] uppercase tracking-widest hover:bg-emerald-400 hover:text-slate-950 transition-all active:scale-95 border border-slate-700 shadow-lg relative z-10"
+                    >
+                      SETTLE
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
