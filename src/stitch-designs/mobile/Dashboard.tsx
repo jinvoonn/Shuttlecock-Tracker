@@ -43,9 +43,15 @@ interface DashboardProps {
     location: string;
     date: string;
   };
+  insights?: {
+    title: string;
+    icon: string;
+    value: string;
+    subValue: string;
+  }[];
 }
 
-export default function MobileDashboard({ stats, players, upcomingSession }: DashboardProps) {
+export default function MobileDashboard({ stats, players, upcomingSession, insights }: DashboardProps) {
   const router = useRouter();
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
@@ -71,6 +77,28 @@ export default function MobileDashboard({ stats, players, upcomingSession }: Das
         </header>
 
         <main className="flex flex-col gap-6 p-6 flex-1 text-left">
+          {/* Dashboard Stats Row - Horizontal Scrollable */}
+          {insights && insights.length > 0 && (
+            <div className="overflow-x-auto scrollbar-hide pb-2 -mx-6 px-6">
+              <div className="flex gap-4 w-max">
+                {insights.map((insight, i) => (
+                  <div key={i} className="bg-slate-800 rounded-2xl p-4 min-w-[180px] shadow-md border border-slate-700/50 group active:border-emerald-400/30 transition-all">
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xl">{insight.icon}</span>
+                        <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest italic">{insight.title}</div>
+                    </div>
+                    <div className="text-lg font-black text-emerald-400 leading-tight mb-0.5 truncate max-w-[140px]">
+                      {insight.value}
+                    </div>
+                    <div className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">
+                      {insight.subValue}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Dashboard Stats - Stacked Vertically */}
           <div className="flex flex-col gap-4">
             {/* Total Owed - RED */}

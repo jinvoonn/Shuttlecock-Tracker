@@ -38,9 +38,15 @@ interface DashboardProps {
     location: string;
     date: string;
   };
+  insights?: {
+    title: string;
+    icon: string;
+    value: string;
+    subValue: string;
+  }[];
 }
 
-export default function DesktopDashboard({ stats, players, upcomingSession }: DashboardProps) {
+export default function DesktopDashboard({ stats, players, upcomingSession, insights }: DashboardProps) {
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
@@ -121,6 +127,28 @@ export default function DesktopDashboard({ stats, players, upcomingSession }: Da
         </header>
 
         <div className="p-8 space-y-8 max-w-6xl mx-auto w-full">
+          {/* Insights Row */}
+          {insights && insights.length > 0 && (
+            <div className="overflow-x-auto pb-4 scrollbar-hide">
+              <div className="flex gap-4 w-max">
+                {insights.map((insight, i) => (
+                  <div key={i} className="bg-slate-800/50 backdrop-blur-md border border-slate-700/50 rounded-2xl p-4 min-w-[200px] shadow-lg group hover:border-emerald-400/30 transition-all">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">{insight.icon}</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover:text-slate-400 transition-colors uppercase italic">{insight.title}</span>
+                    </div>
+                    <div className="text-lg font-black text-emerald-400 leading-tight mb-1 truncate max-w-[160px]">
+                      {insight.value}
+                    </div>
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">
+                      {insight.subValue}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Metric Grid - Exactly 4 Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Total Owed */}

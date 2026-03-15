@@ -27,27 +27,157 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
     { data: paymentsData, error: paymentsError },
     { data: purchasesData, error: purchasesError },
     { data: sessionsData, error: sessionsError },
-    { data: sessionUsageData, error: sessionUsageError }
+    { data: sessionUsageData, error: sessionUsageError },
+    { data: matchesData, error: matchesError }
   ] = await Promise.all([
     supabase.from("players").select("id, name"),
     supabase.from("payments").select("amount, player_id"),
     supabase.from("purchases").select("price_per_tube, initial_quantity, remaining_quantity, brands(name)"),
     supabase.from("sessions").select(`id, session_players ( player_id )`),
-    supabase.from("session_usage").select("session_id, quantity_used, purchases(price_per_cock)")
+    supabase.from("session_usage").select("session_id, quantity_used, purchases(price_per_cock)"),
+    supabase.from("matches").select("*").order("created_at", { ascending: true })
   ]);
 
-  if (playersError || paymentsError || purchasesError || sessionsError || sessionUsageError) {
-    console.error("Dashboard Fetch Error:", { playersError, paymentsError, purchasesError, sessionsError, sessionUsageError });
+  if (playersError || paymentsError || purchasesError || sessionsError || sessionUsageError || matchesError) {
+    console.error("Dashboard Fetch Error:", { playersError, paymentsError, purchasesError, sessionsError, sessionUsageError, matchesError });
     return (
       <div className="p-8 flex flex-col items-center justify-center min-h-screen text-rose-500 bg-[#020617]">
         <p className="font-black italic uppercase text-2xl tracking-tighter">Failed to fetch data</p>
         <p className="text-sm text-slate-500 mt-2 font-bold tracking-widest uppercase">Database Connection Error</p>
         <div className="mt-6 p-4 bg-slate-900/50 rounded-xl border border-slate-800 font-mono text-[10px] text-slate-500 max-w-lg overflow-auto">
-           {JSON.stringify({ paymentsError, purchasesError, sessionsError, sessionUsageError }, null, 2)}
+           {JSON.stringify({ paymentsError, purchasesError, sessionsError, sessionUsageError, matchesError }, null, 2)}
         </div>
       </div>
     );
   }
+
+  const matches = matchesData || [];
+  const playerMap = Object.fromEntries((playersData || []).map(p => [p.id, p.name]));
+
+  // Stats Calculation
+  interface PlayerStats {
+    wins: number;
+    total: number;
+    sessions: number;
+    streak: number;
+    maxStreak: number;
+    matchResults: boolean[]; // true for win, false for loss
+  }
+
+  const pStats: Record<string, PlayerStats> = {};
+  (playersData || []).forEach(p => {
+    pStats[p.id] = { wins: 0, total: 0, sessions: 0, streak: 0, maxStreak: 0, matchResults: [] };
+  });
+
+  // Duo stats
+  const duoStats: Record<string, { wins: number, total: number }> = {};
+
+  matches.forEach(m => {
+    const teamA = [m.team_a_player1, m.team_a_player2].filter(Boolean) as string[];
+    const teamB = [m.team_b_player1, m.team_b_player2].filter(Boolean) as string[];
+    const winA = m.team_a_score > m.team_b_score;
+    const winB = m.team_b_score > m.team_a_score;
+
+    teamA.forEach(pid => {
+      if (pStats[pid]) {
+        pStats[pid].total++;
+        if (winA) pStats[pid].wins++;
+        pStats[pid].matchResults.push(winA);
+      }
+    });
+    teamB.forEach(pid => {
+      if (pStats[pid]) {
+        pStats[pid].total++;
+        if (winB) pStats[pid].wins++;
+        pStats[pid].matchResults.push(winB);
+      }
+    });
+
+    // Duos
+    if (teamA.length === 2) {
+      const duoKey = teamA.sort().join(":");
+      if (!duoStats[duoKey]) duoStats[duoKey] = { wins: 0, total: 0 };
+      duoStats[duoKey].total++;
+      if (winA) duoStats[duoKey].wins++;
+    }
+    if (teamB.length === 2) {
+      const duoKey = teamB.sort().join(":");
+      if (!duoStats[duoKey]) duoStats[duoKey] = { wins: 0, total: 0 };
+      duoStats[duoKey].total++;
+      if (winB) duoStats[duoKey].wins++;
+    }
+  });
+
+  // Calculate session participation
+  (sessionsData || []).forEach(s => {
+    (s.session_players || []).forEach((sp: { player_id: string }) => {
+      if (pStats[sp.player_id]) pStats[sp.player_id].sessions++;
+    });
+  });
+
+  // Calculate streaks
+  Object.values(pStats).forEach(s => {
+    let currentStreak = 0;
+    s.matchResults.forEach(win => {
+      if (win) {
+        currentStreak++;
+        s.maxStreak = Math.max(s.maxStreak, currentStreak);
+      } else {
+        currentStreak = 0;
+      }
+    });
+  });
+
+  // Insights
+  const mostWinsP = Object.entries(pStats).sort((a, b) => b[1].wins - a[1].wins)[0];
+  const bestWinRateP = Object.entries(pStats)
+    .filter(([, s]) => s.total >= 10)
+    .sort((a, b) => (b[1].wins / b[1].total) - (a[1].wins / a[1].total))[0];
+  const mostActiveP = Object.entries(pStats).sort((a, b) => b[1].sessions - a[1].sessions)[0];
+  const longestStreakP = Object.entries(pStats).sort((a, b) => b[1].maxStreak - a[1].maxStreak)[0];
+  
+  const duoArray = Object.entries(duoStats).filter(([, s]) => s.total >= 5);
+  const bestDuo = duoArray.sort((a, b) => (b[1].wins / b[1].total) - (a[1].wins / a[1].total))[0];
+  const cursedDuo = duoArray.sort((a, b) => (a[1].wins / a[1].total) - (b[1].wins / b[1].total))[0];
+
+  const insights = [
+    {
+      title: "Most Wins",
+      icon: "🏆",
+      value: mostWinsP ? playerMap[mostWinsP[0]] : "None",
+      subValue: mostWinsP ? `${mostWinsP[1].wins} Wins` : "0 Wins"
+    },
+    {
+      title: "Best Win Rate",
+      icon: "🎯",
+      value: bestWinRateP ? playerMap[bestWinRateP[0]] : "None",
+      subValue: bestWinRateP ? `${((bestWinRateP[1].wins / bestWinRateP[1].total) * 100).toFixed(1)}%` : "0%"
+    },
+    {
+      title: "Most Active Player",
+      icon: "📅",
+      value: mostActiveP ? playerMap[mostActiveP[0]] : "None",
+      subValue: mostActiveP ? `${mostActiveP[1].sessions} Sessions` : "0 Sessions"
+    },
+    {
+      title: "Longest Win Streak",
+      icon: "🔥",
+      value: longestStreakP ? playerMap[longestStreakP[0]] : "None",
+      subValue: longestStreakP ? `${longestStreakP[1].maxStreak} Wins Streak` : "0 Wins"
+    },
+    {
+      title: "Best Duo",
+      icon: "🤝",
+      value: bestDuo ? bestDuo[0].split(":").map(id => playerMap[id]).join(" & ") : "None",
+      subValue: bestDuo ? `${((bestDuo[1].wins / bestDuo[1].total) * 100).toFixed(1)}%` : "0%"
+    },
+    {
+      title: "Most Cursed Duo",
+      icon: "💀",
+      value: cursedDuo ? cursedDuo[0].split(":").map(id => playerMap[id]).join(" & ") : "None",
+      subValue: cursedDuo ? `${((cursedDuo[1].wins / cursedDuo[1].total) * 100).toFixed(1)}%` : "0%"
+    }
+  ];
 
   const totalShuttlesUsed = (sessionUsageData || []).reduce((acc, curr) => acc + Number(curr.quantity_used || 0), 0);
   const totalSessions = (sessionsData || []).length;
@@ -115,10 +245,10 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
   return (
     <>
       <div className="block lg:hidden">
-        <MobileDashboard stats={mobileStatsProps} players={players} />
+        <MobileDashboard stats={mobileStatsProps} players={players} insights={insights} />
       </div>
       <div className="hidden lg:block">
-        <DesktopDashboard stats={statsProps} players={players} isAdmin={isAdmin} />
+        <DesktopDashboard stats={statsProps} players={players} isAdmin={isAdmin} insights={insights} />
       </div>
     </>
   );
