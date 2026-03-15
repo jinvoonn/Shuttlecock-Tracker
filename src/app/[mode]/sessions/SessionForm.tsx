@@ -239,40 +239,75 @@ export function SessionForm({
                     {purchases.length === 0 ? (
                         <p className="text-xs text-slate-500 italic ml-1">No available shuttlecock tubes.</p>
                     ) : (
-                        <div className="space-y-2 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
+                        <div className="space-y-3 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
                             {purchases.map(p => {
                                 const brandName = p.brands?.name || 'Unknown';
                                 const remaining = p.remaining_quantity;
-                                const colorClass = getStatusColor(remaining);
                                 const val = usage[p.id] || 0;
+                                const isSelected = val > 0;
+                                const pricePerTube = Number(p.price_per_tube || 0);
+                                const pricePerCock = Number(p.price_per_cock || 0);
 
                                 return (
-                                    <div key={p.id} className="flex items-center justify-between bg-slate-950/50 p-3 rounded-xl border border-slate-800/50">
-                                        <div className="flex items-center gap-3">
-                                            <div className={clsx("w-2 h-2 rounded-full", colorClass)} />
-                                            <div>
-                                                <p className="font-medium text-slate-300 text-sm">
-                                                    {brandName} ({p.tube_number}) <span className="text-slate-500 font-normal hidden sm:inline">—</span> <span className="text-sky-400 font-bold ml-1">{remaining} remaining</span>
-                                                </p>
-                                                <p className="text-[10px] text-slate-500 flex gap-2">
-                                                    <span className="text-sky-400 font-mono font-bold">RM {Number(p.price_per_tube || 0).toFixed(2)}</span>
-                                                </p>
+                                    <div 
+                                        key={p.id} 
+                                        className={clsx(
+                                            "flex items-center justify-between p-4 rounded-xl border transition-all duration-200 shadow-sm relative overflow-hidden group",
+                                            isSelected 
+                                                ? "bg-emerald-900/10 border-emerald-400/50 shadow-emerald-500/5" 
+                                                : "bg-slate-900 border-slate-800 hover:border-slate-700 hover:bg-slate-800/80"
+                                        )}
+                                    >
+                                        {isSelected && (
+                                            <div className="absolute top-0 right-0 size-24 bg-emerald-400/5 rounded-full -translate-y-12 translate-x-12 blur-2xl pointer-events-none"></div>
+                                        )}
+                                        {/* Left Side: Info */}
+                                        <div className="flex flex-col gap-1.5 z-10">
+                                            <div className="flex items-center gap-2">
+                                                <h4 className="font-bold text-slate-100 text-sm tracking-tight">{brandName}</h4>
+                                                <span className="text-[10px] text-slate-500 font-mono uppercase tracking-widest bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">Batch #{p.tube_number}</span>
+                                            </div>
+                                            
+                                            <div className="flex flex-col gap-0.5 mt-0.5">
+                                                <div className="flex items-center gap-2">
+                                                    <span className={clsx(
+                                                        "text-sky-400 font-bold text-sm tracking-tight leading-none",
+                                                        isSelected && "text-emerald-400"
+                                                    )}>RM{pricePerTube.toFixed(2)}</span>
+                                                    <span className="text-slate-500 text-[10px] uppercase font-bold tracking-widest leading-none">/ tube</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-slate-400 font-mono text-xs tracking-tight leading-none">RM{pricePerCock.toFixed(2)}</span>
+                                                    <span className="text-slate-500 text-[9px] uppercase font-bold tracking-widest leading-none">/ shuttle</span>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-2">
+                                        {/* Right Side: Interaction */}
+                                        <div className="flex flex-col items-end gap-2 z-10 shrink-0">
+                                            <div className={clsx(
+                                                "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest",
+                                                remaining <= 3 ? "bg-rose-500/10 text-rose-400 border border-rose-500/20" : "bg-slate-800 text-slate-400 border border-slate-700",
+                                                isSelected && remaining > 3 && "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                            )}>
+                                                {remaining} Left
+                                            </div>
                                             <input
                                                 type="number"
                                                 min="0"
+                                                max={remaining}
                                                 value={val || ""}
                                                 onChange={(e) => {
                                                     const v = parseInt(e.target.value, 10);
                                                     setUsage({
                                                         ...usage,
-                                                        [p.id]: isNaN(v) ? 0 : Math.max(0, v)
+                                                        [p.id]: isNaN(v) ? 0 : Math.max(0, Math.min(v, remaining))
                                                     });
                                                 }}
-                                                className="w-16 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1.5 text-center font-mono text-slate-200 focus:outline-none focus:ring-1 focus:ring-sky-500/50"
+                                                className={clsx(
+                                                    "w-16 bg-slate-950 border rounded-lg px-2 py-1.5 text-center font-mono text-slate-200 focus:outline-none focus:ring-1 transition-colors",
+                                                    isSelected ? "border-emerald-500/50 focus:ring-emerald-500/50" : "border-slate-800 focus:ring-sky-500/50"
+                                                )}
                                                 placeholder="0"
                                             />
                                         </div>
