@@ -21,6 +21,7 @@ interface Tube {
   id: string;
   brand: string;
   model: string;
+  price_per_tube: number;
   price_per_cock: number;
 }
 
@@ -173,9 +174,17 @@ export default function DesktopSessions({ tubes, players, initialData }: Desktop
                         )}
                       </div>
                       <h3 className={clsx("font-bold text-base", isSelected ? "text-slate-900 dark:text-white" : "text-slate-700 dark:text-slate-300")}>
-                        {tube.brand} {tube.model}
+                        {tube.brand}
                       </h3>
-                      <p className="text-slate-500 text-xs">RM{tube.price_per_cock.toFixed(2)}/cock</p>
+                      <p className="text-slate-400 dark:text-slate-500 text-xs font-mono mb-2">{tube.model}</p>
+                      <div className="flex flex-col gap-1 border-t border-slate-100 dark:border-slate-800 pt-3">
+                        <p className={clsx("text-sm font-bold flex items-center gap-1", isSelected ? "text-[#13ec80]" : "text-slate-700 dark:text-slate-300")}>
+                          RM{tube.price_per_tube?.toFixed(2) || '0.00'} <span className="text-[10px] text-slate-400 uppercase tracking-widest font-normal">/ tube</span>
+                        </p>
+                        <p className={clsx("text-xs flex items-center gap-1", isSelected ? "text-[#13ec80]/70" : "text-slate-500 dark:text-slate-400")}>
+                          RM{tube.price_per_cock.toFixed(2)} <span className="text-[9px] uppercase tracking-widest opacity-80">/ cock</span>
+                        </p>
+                      </div>
                     </div>
                   );
                 })}

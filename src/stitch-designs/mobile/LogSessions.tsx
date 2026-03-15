@@ -23,6 +23,7 @@ interface Tube {
   id: string;
   brand: string;
   model: string;
+  price_per_tube: number;
   price_per_cock: number;
 }
 
@@ -114,19 +115,33 @@ export default function MobileLogSessions({ tubes, players }: MobileLogSessionsP
             <h2 className="text-[10px] font-black text-[#13ec80] uppercase tracking-[0.2em] mb-3 px-1">Select Shuttle Tube</h2>
             <div className="flex gap-3 overflow-x-auto no-scrollbar pb-4 snap-x snap-mandatory">
               {tubes.length === 0 && <p className="text-slate-500 text-xs px-1">No tubes available. Please buy stock first.</p>}
-              {tubes.map((tube) => (
-                <button 
-                  key={tube.id}
-                  onClick={() => setSelectedTubeId(tube.id)}
-                  className={`flex-none w-[75vw] p-5 rounded-2xl flex flex-col gap-3 snap-center shadow-xl transition-all text-left h-36 ${selectedTubeId === tube.id ? 'bg-[#13ec80] text-[#0a130e] ring-8 ring-[#13ec80]/10' : 'bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100'}`}
-                >
-                  {selectedTubeId === tube.id ? <CheckCircle2 className="self-end size-8" /> : <Circle className="self-end size-8 opacity-20 text-slate-400" />}
-                  <div className="mt-auto">
-                    <span className="block text-lg font-black leading-tight uppercase line-clamp-1">{tube.brand} {tube.model}</span>
-                    <span className={`text-xs font-mono font-bold tracking-tight mt-1 block ${selectedTubeId === tube.id ? 'opacity-90' : 'text-slate-500 dark:text-slate-400'}`}>${tube.price_per_cock.toFixed(2)} / cock</span>
-                  </div>
-                </button>
-              ))}
+              {tubes.map((tube) => {
+                const isSelected = selectedTubeId === tube.id;
+                return (
+                  <button 
+                    key={tube.id}
+                    onClick={() => setSelectedTubeId(tube.id)}
+                    className={`flex-none w-[75vw] p-5 rounded-2xl flex flex-col gap-3 snap-center shadow-xl transition-all text-left h-auto min-h-[144px] ${isSelected ? 'bg-[#13ec80] text-[#0a130e] ring-8 ring-[#13ec80]/10' : 'bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100'}`}
+                  >
+                    <div className="flex items-start justify-between">
+                        <div className="flex flex-col">
+                            <span className="block text-lg font-black leading-tight uppercase line-clamp-1">{tube.brand}</span>
+                            <span className={`text-[10px] font-bold text-slate-500 uppercase tracking-widest ${isSelected ? 'opacity-80 text-[#0a130e]/60' : ''}`}>{tube.model}</span>
+                        </div>
+                        {isSelected ? <CheckCircle2 className="size-8 shrink-0" /> : <Circle className="size-8 opacity-20 text-slate-400 shrink-0" />}
+                    </div>
+                    
+                    <div className={`mt-auto pt-3 border-t ${isSelected ? 'border-[#0a130e]/10' : 'border-slate-100 dark:border-slate-800'} flex flex-col gap-0.5`}>
+                      <span className={`text-base font-black tracking-tight ${isSelected ? 'text-[#0a130e]' : 'text-[#13ec80]'}`}>
+                          RM{tube.price_per_tube?.toFixed(2) || '0.00'} <span className="text-[10px] uppercase font-bold tracking-widest opacity-80">/ tube</span>
+                      </span>
+                      <span className={`text-xs font-mono font-bold tracking-tight ${isSelected ? 'opacity-70' : 'text-slate-500 dark:text-slate-400'}`}>
+                          RM{tube.price_per_cock.toFixed(2)} <span className="text-[8px] uppercase font-bold tracking-widest opacity-80">/ cock</span>
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </section>
 

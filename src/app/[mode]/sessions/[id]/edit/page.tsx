@@ -22,7 +22,7 @@ export default async function EditSessionPage({ params }: { params: Promise<{ mo
       .eq("id", id)
       .single(),
     supabase.from("players").select("id, name").order("name"),
-    supabase.from("purchases").select("id, tube_number, brands(name), price_per_cock, remaining_quantity").gt("remaining_quantity", 0).order("created_at", { ascending: true })
+    supabase.from("purchases").select("id, tube_number, brands(name), price_per_tube, price_per_cock, remaining_quantity").gt("remaining_quantity", 0).order("created_at", { ascending: true })
   ]);
 
   if (sessionError || !session || playersError || purchasesError) {
@@ -42,7 +42,8 @@ export default async function EditSessionPage({ params }: { params: Promise<{ mo
       brand: (Array.isArray(p.brands) 
         ? (p.brands as unknown as {name: string}[])[0]?.name 
         : (p.brands as unknown as {name: string} | null)?.name) || "Unknown Brand",
-      model: `Tube #${p.tube_number}`,
+      model: `Batch #${p.tube_number}`,
+      price_per_tube: p.price_per_tube || 0,
       price_per_cock: p.price_per_cock || 0,
       remaining_quantity: p.remaining_quantity + usedInThisSession
     };

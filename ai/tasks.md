@@ -32,6 +32,11 @@
 *   [x] **SessionForm.tsx Data**: Add prominent Cost per Tube and Cost per Shuttle metrics.
 *   [x] **SessionForm.tsx UX**: Add `border-emerald-400 bg-emerald-900/10` dynamic highlighting when tube is selected.
 
+## Phase 43 — Session Tube Cost Displays
+*   [x] **Server Actions**: Update Supabase queries in `log/page.tsx` and `edit/page.tsx` to select & map `price_per_tube`.
+*   [x] **Desktop UI**: Update `DesktopSessions.tsx` to handle `price_per_tube` prop and show Cost per Tube + Cost per Shuttle prominently.
+*   [x] **Mobile UI**: Update `MobileLogSessions.tsx` to handle `price_per_tube` prop and show Cost per Tube + Cost per Shuttle prominently.
+
 ## Current State
 
 The app is stable. All match CRUD operations (add, edit, delete) work on both desktop and mobile. Zero lint errors.

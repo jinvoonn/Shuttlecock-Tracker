@@ -12,7 +12,7 @@ export default async function LogSessionPage({ params }: { params: Promise<{ mod
     { data: purchasesData, error: purchasesError }
   ] = await Promise.all([
     supabase.from("players").select("id, name").order("name"),
-    supabase.from("purchases").select("id, tube_number, brands(name), price_per_cock").gt("remaining_quantity", 0).order("created_at", { ascending: true })
+    supabase.from("purchases").select("id, tube_number, brands(name), price_per_tube, price_per_cock").gt("remaining_quantity", 0).order("created_at", { ascending: true })
   ]);
 
   if (playersError || purchasesError) {
@@ -28,7 +28,8 @@ export default async function LogSessionPage({ params }: { params: Promise<{ mod
     brand: (Array.isArray(p.brands) 
       ? (p.brands as unknown as {name: string}[])[0]?.name 
       : (p.brands as unknown as {name: string} | null)?.name) || "Unknown Brand",
-    model: `Tube #${p.tube_number}`,
+    model: `Batch #${p.tube_number}`,
+    price_per_tube: p.price_per_tube || 0,
     price_per_cock: p.price_per_cock || 0
   }));
 
