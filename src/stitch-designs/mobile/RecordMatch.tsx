@@ -32,25 +32,23 @@ import { useRouter } from "next/navigation";
 
 export default function MobileRecordMatch({ sessionId, players }: MobileRecordMatchProps) {
   const router = useRouter();
-  const [teamAIds, setTeamAIds] = useState<string[]>([]);
-  const [teamBIds, setTeamBIds] = useState<string[]>([]);
+  const [playerTeams, setPlayerTeams] = useState<Record<string, number>>({});
+  // 0 = unselected, 1 = Team A, 2 = Team B
   const [scoreA, setScoreA] = useState(21);
   const [scoreB, setScoreB] = useState(19);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const togglePlayer = (playerId: string) => {
-    if (teamAIds.includes(playerId)) {
-      setTeamAIds(teamAIds.filter(id => id !== playerId));
-      setTeamBIds([...teamBIds, playerId]);
-    } else if (teamBIds.includes(playerId)) {
-      setTeamBIds(teamBIds.filter(id => id !== playerId));
-    } else {
-      if (teamAIds.length >= 2) {
-        setTeamBIds([...teamBIds, playerId]);
-      } else {
-        setTeamAIds([...teamAIds, playerId]);
-      }
-    }
+
+  // Cycle: None (0) → Team A (1) → Team B (2) → None (0)
+  const cyclePlayer = (id: string) => {
+    setPlayerTeams(prev => {
+      const current = prev[id] ?? 0;
+      const next = (current + 1) % 3;
+      return { ...prev, [id]: next };
+    });
   };
+
+  const teamAIds = Object.entries(playerTeams).filter(([, v]) => v === 1).map(([k]) => k);
+  const teamBIds = Object.entries(playerTeams).filter(([, v]) => v === 2).map(([k]) => k);
 
   const handleConfirm = async () => {
     if (teamAIds.length === 0 || teamBIds.length === 0) {
@@ -114,25 +112,26 @@ export default function MobileRecordMatch({ sessionId, players }: MobileRecordMa
             <h3 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-4 ml-1">Select Players</h3>
             <div className="grid grid-cols-2 gap-3">
                {players.map(player => {
-                 const isA = teamAIds.includes(player.id);
-                 const isB = teamBIds.includes(player.id);
+                 const state = playerTeams[player.id] ?? 0;
+                 const isA = state === 1;
+                 const isB = state === 2;
                  return (
                    <button 
                      key={player.id}
-                     onClick={() => togglePlayer(player.id)}
+                     onClick={() => cyclePlayer(player.id)}
                      className={`p-4 rounded-2xl border-2 transition-all active:scale-95 text-left flex items-center justify-between group h-16 ${
-                       isA ? 'bg-[#13ec80] border-[#13ec80] text-[#020617]' :
-                       isB ? 'bg-blue-500 border-blue-500 text-white' :
-                       'bg-white dark:bg-[#0f172a] border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300'
+                       isA ? 'bg-sky-500 border-sky-500 text-white' :
+                       isB ? 'bg-emerald-500 border-emerald-500 text-white' :
+                       'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-300'
                      }`}
                    >
-                     <span className={`text-xs font-black uppercase italic truncate pr-2 ${isA || isB ? '' : 'group-hover:text-[#13ec80]'}`}>
+                     <span className={`text-xs font-black uppercase italic truncate pr-2 ${isA || isB ? '' : 'group-hover:text-sky-500'}`}>
                        {player.name}
                      </span>
                      <div className={`size-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
                        isA ? 'border-white/30 bg-white/20' :
                        isB ? 'border-white/30 bg-white/20' :
-                       'border-slate-200 dark:border-slate-700'
+                       'border-slate-200 dark:border-slate-600'
                      }`}>
                         {isA && <span className="text-[8px] font-bold text-white uppercase">A</span>}
                         {isB && <span className="text-[8px] font-bold text-white uppercase">B</span>}
