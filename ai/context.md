@@ -8,8 +8,9 @@ CockCount is a premium web app to track badminton group costs — shuttlecock us
 *   **Session Management**: Log sessions, track shuttlecock usage per purchase.
 *   **Match Logging**: Record match results (Team A vs Team B) within sessions with player cycle selection.
 *   **Auto-Grouping System**: (Planned) Smart balanced team generation.
-*   **Player Profiles**: (Planned) Win rates, H2H records, best partner analytics.
-*   **Admin Access**: Secret path (`/admin-92Kf8s`) for data modification; `/view` is read-only.
+*   **Player Profiles**: Win rates, H2H records, best partner analytics, and win streaks.
+*   **Dashboard Stats Row**: Horizontal scrollable insights (Most Wins, Win Streaks, Best/Cursed Duos).
+*   **Admin Access**: Secret path (`/admin-92Kf8s`) required for ALL mutations except Match logging/editing. Sessions are Admin-only for edit/delete.
 
 ## Tech Stack
 *   **Framework**: Next.js 16+ (App Router)
@@ -77,6 +78,6 @@ All match actions in `src/lib/actions/matches.ts` expect:
 The action maps `teamAIds[0]` → `team_a_player1`, `teamAIds[1]` → `team_a_player2`, etc.
 
 ## Current Project Status
-**Phase 40 complete (15 Mar 2026).** App is fully functional with working CRUD for matches on both desktop and mobile. Zero lint errors. Vercel deployment-ready.
+**Phase 52 complete (15 Mar 2026).** App features RBAC, unified branding, advanced player analytics, and a dynamic dashboard stats row. Zero lint errors. Vercel deployment-ready.
 
 *"Because Shuttlecocks Aren't Free."*

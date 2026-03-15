@@ -57,6 +57,27 @@
 *   [x] Replace `sky` accents with `emerald` in Player Profile
 *   [x] Verify backgrounds use `bg-slate-900` and cards use `bg-slate-800` on all mobile pages
 
+## Phase 48 — Player Profile Stats & Partner Analytics
+*   [x] **Logic**: Implement "Best Partner" and "Sadge Partner" (lowest win rate) calculation in `players/[id]/page.tsx`.
+*   [x] **UI**: Add win-streak display card and partner stats section to the profile summary.
+
+## Phase 49 — Unified Branding & Global Logo
+*   [x] **Design**: Standardize gradient `Feather` icon (indigo-500 to sky-600) and "CockCount" branding.
+*   [x] **Implementation**: Update logo and tagline ("Because Shuttlecocks Aren’t Free") across all 19+ pages and forms.
+
+## Phase 50 — mobile layout cleanup
+*   [x] **UI**: Remove unused Search and Add icons from Sessions and Stock headers on mobile.
+
+## Phase 51 — Session Permissions Refinement (RBAC)
+*   [x] **Logic**: Restrict session Create/Edit/Delete to Admins only.
+*   [x] **Security**: Implement server-side role validation in session actions.
+*   [x] **Consistency**: Ensure match management remains open to all users.
+
+## Phase 52 — Dashboard Statistics Row
+*   [x] **Logic**: Implement complex server-side calculation for Most Wins, Best Win Rate, Longest Win Streak, Best Duo, and Most Cursed Duo.
+*   [x] **UI**: Add horizontal scrollable stats row at the top of the Dashboard (Mobile & Desktop).
+*   [x] **UX**: Add `scrollbar-hide` utility for a clean mobile swipe experience.
+
 ## Current State
 
 The app is stable. All match CRUD operations (add, edit, delete) work on both desktop and mobile. Zero lint errors.

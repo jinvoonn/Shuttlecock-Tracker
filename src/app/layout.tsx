@@ -4,25 +4,31 @@ import "./globals.css";
 import { Navigation } from "@/components/Navigation";
 import { AuthProvider } from "@/context/AuthContext";
 
+import { seo } from "@/lib/seo";
+
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
 export const metadata: Metadata = {
-  title: "CockCount",
-  description: "Because Shuttlecocks Aren’t Free. Track shuttlecock usage, sessions, matches, and shared costs for your badminton group.",
-  keywords: ["badminton tracker", "shuttlecock tracker", "badminton sessions", "shuttlecock inventory", "badminton score tracker"],
+  title: {
+    default: seo.title,
+    template: `%s | ${seo.title}`,
+  },
+  description: seo.description,
+  keywords: seo.keywords,
   authors: [{ name: "CockCount Team" }],
+  metadataBase: new URL(seo.url),
   openGraph: {
-    title: "CockCount",
-    description: "Because Shuttlecocks Aren’t Free. Track shuttlecock usage, sessions and match stats for your badminton group.",
-    url: "https://cockcount.vercel.app",
-    siteName: "CockCount",
+    title: seo.title,
+    description: seo.tagline,
+    url: seo.url,
+    siteName: seo.title,
     images: [
       {
-        url: "/og-image.png",
+        url: seo.ogImage,
         width: 1200,
         height: 630,
-        alt: "CockCount - Badminton Tracker",
+        alt: `${seo.title} - ${seo.tagline}`,
       },
     ],
     locale: "en_US",
@@ -30,12 +36,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "CockCount",
-    description: "Because Shuttlecocks Aren’t Free. Track shuttlecock usage, sessions, and matches.",
-    images: ["/og-image.png"],
-  },
-  other: {
-    "app-stats": "CockCount 12 Players 86 Shuttlecocks Used",
+    title: seo.title,
+    description: seo.tagline,
+    images: [seo.ogImage],
   },
   icons: {
     icon: "/favicon.ico",
