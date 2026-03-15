@@ -40,14 +40,20 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Cycle: Unselected → Team A → Team B → Unselected
+  // Reads current state once and updates both arrays in one consistent pass
   const togglePlayer = (id: string) => {
-    if (teamAIds.includes(id)) {
-      setTeamAIds(teamAIds.filter(pid => pid !== id));
-      setTeamBIds([...teamBIds, id]);
-    } else if (teamBIds.includes(id)) {
-      setTeamBIds(teamBIds.filter(pid => pid !== id));
+    const inA = teamAIds.includes(id);
+    const inB = teamBIds.includes(id);
+    if (inA) {
+      // A → B
+      setTeamAIds(prev => prev.filter(pid => pid !== id));
+      setTeamBIds(prev => [...prev, id]);
+    } else if (inB) {
+      // B → Out
+      setTeamBIds(prev => prev.filter(pid => pid !== id));
     } else {
-      setTeamAIds([...teamAIds, id]);
+      // Out → A
+      setTeamAIds(prev => [...prev, id]);
     }
   };
 
@@ -346,21 +352,7 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
         </div>
       </main>
 
-      <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #1e293b;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #13ec80;
-        }
-      `}</style>
+
     </div>
   );
 }
