@@ -159,9 +159,16 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
     });
 
     const rivals = Object.values(h2h).sort((a, b) => b.total - a.total).slice(0, 3);
-    const bestPartner = Object.values(partnersMap)
-        .filter(p => p.total >= 3)
-        .sort((a, b) => (b.wins / b.total) - (a.wins / a.total) || b.total - a.total)[0];
+    
+    const partnerCandidates = Object.values(partnersMap).filter(p => p.total >= 3);
+    const bestPartner = [...partnerCandidates].sort((a, b) => (b.wins / b.total) - (a.wins / a.total) || b.total - a.total)[0];
+    const sadgePartner = [...partnerCandidates].sort((a, b) => (a.wins / a.total) - (b.wins / b.total) || a.total - b.total)[0];
+
+    let winStreak = 0;
+    for (const m of formattedMatches) {
+        if (m.isWin) winStreak++;
+        else break;
+    }
 
     const recentForm = formattedMatches.slice(0, 5).map(m => m?.isWin ? "W" : m?.isDraw ? "D" : "L");
 
@@ -234,7 +241,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                     </header>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 text-center pt-2">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8 text-center pt-2">
                 <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-lg relative overflow-hidden text-left">
                     <div className="absolute top-0 right-0 p-3 opacity-10"><Activity className="w-12 h-12" /></div>
                     <p className="text-[10px] font-bold uppercase text-slate-500 mb-1 relative z-10">Matches</p>
@@ -243,6 +250,10 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                 <div className="bg-emerald-500/5 p-5 rounded-2xl border border-emerald-500/20 shadow-lg relative overflow-hidden text-left">
                     <p className="text-[10px] font-bold uppercase text-emerald-400/80 mb-1 relative z-10 font-black tracking-widest leading-none">Win Rate</p>
                     <p className="text-2xl font-bold font-mono text-emerald-400 relative z-10 leading-none mt-1">{winRate}%</p>
+                </div>
+                <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-md flex flex-col items-center justify-center text-center">
+                    <div className="text-[10px] font-bold uppercase text-slate-500 mb-1 tracking-widest">Win-Streak</div>
+                    <div className="text-2xl font-black text-emerald-400 font-mono italic">{winStreak} Wins</div>
                 </div>
                 <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-lg relative overflow-hidden flex flex-col justify-center text-left">
                     <p className="text-[10px] font-bold uppercase text-slate-500 mb-2">Balance</p>
@@ -272,19 +283,39 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                     <h3 className="text-[10px] font-bold uppercase text-slate-500 mb-4 tracking-widest flex items-center gap-2">
                         <Target className="w-4 h-4 text-emerald-400" /> Partner Stats
                     </h3>
-                    {bestPartner ? (
-                        <div>
-                            <p className="text-xl font-bold text-slate-200">{bestPartner.name}</p>
-                            <p className="text-xs text-slate-500 mt-1">
-                                {bestPartner.wins} wins in {bestPartner.total} sessions together
-                                <span className="ml-2 px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-bold">
-                                    {Math.round((bestPartner.wins / bestPartner.total) * 100)}% Win Rate
-                                </span>
-                            </p>
-                        </div>
-                    ) : (
-                        <p className="text-sm text-slate-500 italic mt-2 text-center font-bold font-mono tracking-widest uppercase">No Partner Data</p>
-                    )}
+                    <div className="space-y-4">
+                        {bestPartner ? (
+                            <div className="p-3 bg-emerald-500/5 rounded-xl border border-emerald-500/10">
+                                <p className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest mb-1">Best Partner</p>
+                                <p className="text-lg font-bold text-slate-200">{bestPartner.name}</p>
+                                <p className="text-xs text-slate-500 mt-0.5">
+                                    {bestPartner.wins} wins / {bestPartner.total} total
+                                    <span className="ml-2 font-mono text-emerald-400 font-bold">
+                                        {Math.round((bestPartner.wins / bestPartner.total) * 100)}%
+                                    </span>
+                                </p>
+                            </div>
+                        ) : (
+                            <p className="text-[10px] text-slate-500 italic uppercase font-bold tracking-tighter">No Best Partner Data</p>
+                        )}
+
+                        {sadgePartner && sadgePartner !== bestPartner ? (
+                            <div className="p-3 bg-rose-500/5 rounded-xl border border-rose-500/10">
+                                <p className="text-[9px] font-bold text-rose-400 uppercase tracking-widest mb-1">Sadge Partner</p>
+                                <p className="text-lg font-bold text-slate-200">{sadgePartner.name}</p>
+                                <p className="text-xs text-slate-500 mt-0.5">
+                                    {sadgePartner.wins} wins / {sadgePartner.total} total
+                                    <span className="ml-2 font-mono text-rose-400 font-bold">
+                                        {Math.round((sadgePartner.wins / sadgePartner.total) * 100)}%
+                                    </span>
+                                </p>
+                            </div>
+                        ) : sadgePartner && sadgePartner === bestPartner ? (
+                            <p className="text-[10px] text-slate-600 italic uppercase font-bold tracking-tighter">Only one consistent partner found</p>
+                        ) : (
+                            <p className="text-[10px] text-slate-500 italic uppercase font-bold tracking-tighter">No Sadge Partner Data</p>
+                        )}
+                    </div>
                 </div>
 
                 <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 relative overflow-hidden group text-left">
