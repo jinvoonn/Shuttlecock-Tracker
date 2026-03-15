@@ -45,6 +45,7 @@ export default async function PurchasesPage({ params }: { params: Promise<{ mode
   const totalTubesBought = (purchasesData || []).length;
   const tubesLeft = (purchasesData || []).filter(p => (p.remaining_quantity || 0) > 0).length;
   const usedToday = (sessionUsageData || []).reduce((acc, curr) => acc + (curr.quantity_used || 0), 0);
+  const totalSpend = (purchasesData || []).reduce((acc, curr) => acc + (curr.price_per_tube || 0), 0);
 
   const activeTubes: { id: string, name: string, quantity: number, total: number, pricePerTube: number, pricePerCock: number, date: string }[] = [];
   const history: { id: string, name: string, brandName: string, tubeNumber: number, date: string, remaining: number, pricePerTube: number, pricePerCock: number }[] = [];
@@ -81,7 +82,8 @@ export default async function PurchasesPage({ params }: { params: Promise<{ mode
   const stats = {
     totalTubesBought,
     tubesLeft,
-    usedToday
+    usedToday,
+    totalSpend
   };
 
   return (

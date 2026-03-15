@@ -23,6 +23,7 @@ interface StockStats {
   totalTubesBought: number;
   tubesLeft: number;
   usedToday: number;
+  totalSpend: number;
 }
 
 interface ActiveTube {
@@ -167,11 +168,19 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
           </div>
 
           {/* Stats Row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="bg-slate-900/60 p-6 border-l-4 border-[#13ec80] border-slate-800 rounded-lg shadow-sm">
               <p className="text-slate-500 text-xs font-bold uppercase mb-2">Total Tubes Bought</p>
               <div className="flex items-baseline gap-2">
                 <span className="text-4xl font-mono font-black text-slate-100">{stats.totalTubesBought}</span>
+              </div>
+            </div>
+
+            <div className="bg-slate-900/60 p-6 border-l-4 border-[#13ec80] border-slate-800 rounded-lg shadow-sm font-mono">
+              <p className="text-slate-500 text-[10px] font-bold uppercase mb-2 font-['Lexend'] tracking-widest">Total Spend</p>
+              <div className="flex items-baseline gap-1">
+                <span className="text-xs font-black text-[#13ec80] uppercase">RM</span>
+                <span className="text-4xl font-black text-slate-100 tracking-tighter">{stats.totalSpend.toFixed(2)}</span>
               </div>
             </div>
             
