@@ -281,11 +281,7 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
                 );
               })}
 
-              {/* Empty State / Add New */}
-              <Link href={`${basePath}/add-new-stock-stitch`} className="bg-[#0f172a]/30 border-2 border-dashed border-slate-800 p-5 rounded-xl flex flex-col items-center justify-center min-h-[180px] hover:border-[#13ec80]/50 cursor-pointer transition-all group shadow-sm">
-                <PlusCircle className="text-slate-700 group-hover:text-[#13ec80] size-10 mb-2 transition-colors" />
-                <p className="text-slate-500 font-bold uppercase text-xs group-hover:text-slate-300">Register New Tube</p>
-              </Link>
+
             </div>
           </section>
 
