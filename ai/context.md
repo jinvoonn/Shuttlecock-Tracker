@@ -1,34 +1,82 @@
 # Project Context: CockCount
 
 ## Purpose
-CockCount is a minimal but premium web application designed to track badminton group costs, specifically shuttlecock usage, session attendance, and player payments. It aims to replace complex Excel sheets with a streamlined digital interface that calculates balances in real-time.
+CockCount is a premium web app to track badminton group costs — shuttlecock usage, session attendance, player payments, and match results. It replaces Excel sheets with a streamlined real-time interface.
 
 ## Main Features
-*   **Balance Dashboard**: View real-time debt/credit status for all players.
-*   **Session Management**: Log badminton sessions, specifically which shuttlecocks were used from which purchase.
-*   **Match Logging**: Record match results (Team A vs Team B) within sessions.
-*   **Auto-Grouping System**: Smartly generate balanced teams based on player skill ratings and partner history to avoid repetitive pairings.
-*   **Player Profiles**: Detailed statistics including win rates, Head-to-Head (H2H) records, "Best Partner" analytics, and recent form.
-*   **Admin Access**: Role management via a secret path (`/admin-92Kf8s`) allowing data modification, while the public route (`/view`) is read-only.
+*   **Balance Dashboard**: Real-time debt/credit status for all players.
+*   **Session Management**: Log sessions, track shuttlecock usage per purchase.
+*   **Match Logging**: Record match results (Team A vs Team B) within sessions with player cycle selection.
+*   **Auto-Grouping System**: (Planned) Smart balanced team generation.
+*   **Player Profiles**: (Planned) Win rates, H2H records, best partner analytics.
+*   **Admin Access**: Secret path (`/admin-92Kf8s`) for data modification; `/view` is read-only.
 
 ## Tech Stack
-*   **Framework**: [Next.js](https://nextjs.org/) (App Router, Version 16+)
+*   **Framework**: Next.js 16+ (App Router)
 *   **Language**: TypeScript
-*   **Backend & Database**: [Supabase](https://supabase.com/) (PostgreSQL + Auth + Storage)
-*   **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
-*   **Icons**: [Lucide React](https://lucide.dev/)
-*   **Data Handling**: `xlsx` (for Excel data integration), `date-fns` (for time manipulation), `clsx` (for dynamic class naming).
+*   **Backend**: Supabase (PostgreSQL)
+*   **Styling**: Tailwind CSS v4
+*   **Icons**: Lucide React
+*   **Utilities**: `clsx`, `date-fns`
+
+## Architecture Rules
+*   Server Components fetch data (no `useState`/`useEffect` for data)
+*   Client Components handle UI interactions
+*   Server Actions handle all mutations (in `src/lib/actions/`)
+*   Do NOT modify the database schema
+*   Do NOT introduce new libraries
+*   Always call `revalidatePath` after mutations
+
+## Database Schema (Key Tables)
+*   **`matches`**: `id`, `session_id`, `team_a_player1`, `team_a_player2`, `team_b_player1`, `team_b_player2`, `team_a_score`, `team_b_score`, `created_at`
+*   **`sessions`**: `id`, `date`, `location`, `created_at`
+*   **`players`**: `id`, `name`
+*   **`session_players`**: `session_id`, `player_id`, joins with `players(id, name)`
+*   **`purchases`**, **`session_usage`**, **`brands`** for shuttlecock cost tracking
 
 ## Environment Variables
-The project requires the following keys in `.env.local`:
-*   `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL.
-*   `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anonymous key.
+```
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+```
 
-## Database & Services
-*   **Supabase**: Used for all persistent data.
-*   **RLS (Row Level Security)**: Enabled on all tables to control access, though mostly set to open for the admin routing model.
+## Player Selection System (as of 15 Mar 2026)
+All match forms (desktop + mobile) use a unified cycle system:
+
+```ts
+const [playerTeams, setPlayerTeams] = useState<Record<string, number>>({});
+// 0 = unselected, 1 = Team A, 2 = Team B
+
+const cyclePlayer = (id: string) => {
+  setPlayerTeams(prev => {
+    const current = prev[id] ?? 0;
+    const next = (current + 1) % 3;
+    return { ...prev, [id]: next };
+  });
+};
+
+const teamAIds = Object.entries(playerTeams).filter(([, v]) => v === 1).map(([k]) => k);
+const teamBIds = Object.entries(playerTeams).filter(([, v]) => v === 2).map(([k]) => k);
+```
+
+No team size restrictions. Supports 1v1, 2v2, 3v3, any combo.
+
+## Match Server Actions Payload Format
+All match actions in `src/lib/actions/matches.ts` expect:
+
+```ts
+{
+  sessionId: string;
+  teamAIds: string[];
+  teamBIds: string[];
+  scoreA: number;
+  scoreB: number;
+}
+```
+
+The action maps `teamAIds[0]` → `team_a_player1`, `teamAIds[1]` → `team_a_player2`, etc.
 
 ## Current Project Status
-The project has successfully transitioned from UI modernization to a fully functional mobile-first application. **Phase 35: Log Match Restoration** is complete. Key recent improvements include a standardized mobile navigation system, inline editing for all tracking types (Stock, Payments, Sessions), and a verified production build status. The application is now stable, with functional CRUD operations and refined responsive layouts across all core modules.
+**Phase 40 complete (15 Mar 2026).** App is fully functional with working CRUD for matches on both desktop and mobile. Zero lint errors. Vercel deployment-ready.
 
-"Because Shuttlecocks Aren’t Free."
+*"Because Shuttlecocks Aren't Free."*

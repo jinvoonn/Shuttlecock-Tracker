@@ -1,27 +1,47 @@
 # Project Tasks: Shuttle Tracker
 
-## Completed Features (Phases 1-35)
-*   [x] **Mobile Responsiveness Order**: Optimized all primary tracking pages for mobile (Cards, scaling, text wrapping).
-*   [x] **Global Navigation Fix**: Standardized bottom navigation for mobile, resolving click-blocking issues.
-*   [x] **CRUD Operations Restored**:
-    *   [x] Inline Editing for Stock, Payments, and Sessions.
-    *   [x] Functional Delete buttons with confirmation prompts.
-    *   [x] Corrected Floating Action Button (FAB) and "+Log New" routing.
-*   [x] **Deployment Stability**: Resolved all Type/Lint errors; `npm run build` now passes locally and in Vercel.
-*   [x] **Log Match Restoration**: Restored the missing submit button and implemented loading states.
+## Completed Features (Phases 1–40)
 
-## Current Work in Progress
-*   [x] **Sprint Completion**: Today's core functional bugs have been resolved; the app is production-ready.
+*   [x] **Mobile Responsiveness Order**: Optimized all primary tracking pages for mobile.
+*   [x] **Global Navigation Fix**: Standardized bottom navigation for mobile.
+*   [x] **CRUD Operations Restored**: Inline editing for Stock, Payments, Sessions; functional Delete with confirmation.
+*   [x] **Deployment Stability**: Resolved all Type/Lint errors; `npm run build` passes locally and on Vercel.
+*   [x] **Log Match Restoration**: Restored submit button and implemented loading states.
+*   [x] **Session Click-through Fixed**: `/[mode]/sessions/[id]` now loads correctly; Supabase query and page params corrected.
+*   [x] **Match Column Fix**: Corrected all references from `player1_id/player2_id` → `team_a_player1` etc. to match actual schema.
+*   [x] **TypeScript Build Stability**: Resolved all `any` type issues; zero lint errors across codebase.
 
-## Known Issues/Bugs
-*   **Asset Placeholders**: Component hero images and player avatars use generic placeholders.
-*   **Environment Variables**: `.env.local` requires real Supabase keys to function.
+## Phase 40 — Match Player Selection Overhaul (Today, 15 Mar 2026)
 
-## Roadmap & Next Recommended Steps
-1.  **Backend Wiring**: Implementation of API services to fetch real data for the new Stitch-based views.
-2.  **Performance Optimization**: Move analytics calculations to SQL Views if the match history grows substantially.
-3.  **Visual Analytics**: Add charts (e.g., monthly spending, usage trends) using Recharts.
-4.  **Automatic Settle Tracking**: Automatically suggest who should pay what based on current debt.
+*   [x] **Unified Cycle-based Player Selection**: Both desktop and mobile Log Match now use a single `playerTeams: Record<string, number>` state with `cyclePlayer()` — `(current + 1) % 3` — instead of fragile two-array system.
+    *   Affected: `desktop/RecordMatch.tsx`, `mobile/RecordMatch.tsx`, `SessionMatches.tsx`
+*   [x] **No Team Size Cap**: Removed the `teamAIds.length >= 2` restriction. Supports 1v1, 2v2, 3v2, 3v3, any combo.
+*   [x] **Correct Color System**: Team A = `sky-500`, Team B = `emerald-500`, Unselected = `slate-800`.
+*   [x] **SessionMatches.tsx & AddMatchModal Fixed**: Rewrote both desktop entry points (inline card and modal) with the new cycle pattern to eliminate bugs on desktop.
+*   [x] **Mobile Match Edit & Delete**: `mobile/SessionDetails.tsx` now has Pencil + Trash2 action buttons per match card, with an inline edit panel.
+*   [x] **Server Action Payload Synchronization**: Rewrote `addMatch` and `updateMatch` in `lib/actions/matches.ts` to accept `teamAIds[]`/`teamBIds[]` arrays from all 5 match entry points.
 
-## Future Agents Tip
-Verify the `.env.local` keys and ensure the `matches` table data aligns with the 4-player slot assumptions in the new UI components.
+## Current State
+
+The app is stable. All match CRUD operations (add, edit, delete) work on both desktop and mobile. Zero lint errors.
+
+## Known Issues / Backlog
+
+*   **Asset Placeholders**: Hero images use hardcoded Google URLs.
+*   **Environment Variables**: `.env.local` requires real Supabase keys.
+*   **Session revalidation**: `revalidatePath` covers `/` and `/sessions`; dynamic session detail paths (`/sessions/[id]`) may need explicit revalidation if changes don't propagate.
+
+## Roadmap & Next Steps
+
+1.  **Analytics**: Charts for monthly spending and usage trends.
+2.  **Auto-Grouping**: Smart team generation based on skill ratings and partner history.
+3.  **Player Profiles**: Win rates, H2H records, best partner analytics.
+4.  **Settle Tracking**: Auto-suggest who pays what based on debt.
+5.  **Performance**: Move heavy analytics to Supabase SQL Views.
+
+## Agent Tips
+
+- `lib/actions/matches.ts` is the single source of truth for match mutations. It now expects `{ teamAIds: string[], teamBIds: string[], scoreA: number, scoreB: number, sessionId: string }`.
+- The 4 player columns in the matches table are: `team_a_player1`, `team_a_player2`, `team_b_player1`, `team_b_player2`.
+- `stitch-designs/` contains the presentational components. `app/[mode]/` contains the routing and data-fetching pages.
+- Do NOT modify the database schema.
