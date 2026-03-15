@@ -133,7 +133,6 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
   const bestWinRateP = Object.entries(pStats)
     .filter(([, s]) => s.total >= 10)
     .sort((a, b) => (b[1].wins / b[1].total) - (a[1].wins / a[1].total))[0];
-  const mostActiveP = Object.entries(pStats).sort((a, b) => b[1].sessions - a[1].sessions)[0];
   const longestStreakP = Object.entries(pStats).sort((a, b) => b[1].maxStreak - a[1].maxStreak)[0];
   
   const duoArray = Object.entries(duoStats).filter(([, s]) => s.total >= 5);
@@ -152,12 +151,6 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
       icon: "🎯",
       value: bestWinRateP ? playerMap[bestWinRateP[0]] : "None",
       subValue: bestWinRateP ? `${((bestWinRateP[1].wins / bestWinRateP[1].total) * 100).toFixed(1)}%` : "0%"
-    },
-    {
-      title: "Most Active Player",
-      icon: "📅",
-      value: mostActiveP ? playerMap[mostActiveP[0]] : "None",
-      subValue: mostActiveP ? `${mostActiveP[1].sessions} Sessions` : "0 Sessions"
     },
     {
       title: "Longest Win Streak",
