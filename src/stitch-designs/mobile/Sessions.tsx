@@ -75,12 +75,6 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
           <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">
              Because Shuttlecocks Aren't Free
           </p>
-          <button
-            onClick={() => router.push(`${basePath}/sessions/log-session`)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-sky-400/10 hover:bg-sky-400/20 text-sky-400 p-2 rounded-xl transition-all active:scale-95"
-          >
-            <Plus className="size-5" />
-          </button>
         </header>
 
         {/* Search and Filter */}
@@ -249,14 +243,6 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
             </button>
           </div>
         </nav>
-
-        {/* Floating Action Button */}
-        <button 
-          onClick={() => router.push(`${basePath}/sessions/log-session`)}
-          className="fixed right-6 bottom-32 size-16 bg-emerald-400 text-slate-950 rounded-2xl shadow-2xl flex items-center justify-center z-40 active:scale-90 transition-transform shadow-emerald-400/20"
-        >
-          <Plus className="size-8 font-black" />
-        </button>
       </div>
     </div>
   );

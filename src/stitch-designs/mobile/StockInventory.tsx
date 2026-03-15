@@ -92,11 +92,6 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
           <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">
              Because Shuttlecocks Aren't Free
           </p>
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 flex gap-3">
-            <button className="flex items-center justify-center size-10 rounded-xl bg-slate-800 border border-slate-700 text-sky-400 active:scale-95 transition-transform">
-              <Search className="size-5" />
-            </button>
-          </div>
         </header>
 
         <main className="px-6 mt-10 space-y-10 text-left">
