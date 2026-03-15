@@ -42,6 +42,7 @@ interface DesktopSessionsListProps {
 
 export default function DesktopSessionList({ sessions }: DesktopSessionsListProps) {
   const pathname = usePathname() || '';
+  const router = useRouter();
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
   const [searchTerm, setSearchTerm] = useState('');
@@ -134,7 +135,11 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
             {filteredSessions.map((session) => (
-              <Link href={`${basePath}/sessions/${session.id}`} key={session.id} className="block group">
+              <div 
+                onClick={() => router.push(`${basePath}/sessions/${session.id}`)}
+                key={session.id} 
+                className="block group cursor-pointer"
+              >
                 <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 flex flex-col gap-4 shadow-sm hover:border-[#13ec80]/50 transition-all">
                   <div className="flex justify-between items-start">
                     <div className="flex flex-col">
@@ -193,8 +198,9 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
                            className="p-2 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors"
                            onClick={(e) => {
                              e.preventDefault();
+                             e.stopPropagation();
                              const currentMode = pathname.split('/')[1] || 'view';
-                             window.location.href = `/${currentMode}/sessions/${session.id}/edit`;
+                             router.push(`/${currentMode}/sessions/${session.id}/edit`);
                            }}
                          >
                              <Pencil className="size-4" />
@@ -203,6 +209,7 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
                             className="p-2 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
                             onClick={async (e) => {
                               e.preventDefault();
+                              e.stopPropagation();
                               if (window.confirm("Are you sure you want to delete this session? This will also restore used shuttlecocks to inventory.")) {
                                  await deleteSession(session.id);
                                  window.location.reload();
@@ -215,7 +222,7 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
                     </div>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </div>
