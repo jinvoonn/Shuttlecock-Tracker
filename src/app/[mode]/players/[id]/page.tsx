@@ -33,7 +33,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
         
     const totalSessions = attendedSessions?.length || 0;
 
-    // Fetch matches the player participated in (Flexible Structure)
+    // Fetch matches the player participated in
     const { data: matches } = await supabase
         .from("matches")
         .select(`
@@ -41,13 +41,13 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
             created_at,
             team_a_score,
             team_b_score,
-            team_a_player1,
-            team_a_player2,
-            team_b_player1,
-            team_b_player2,
+            player1_id,
+            player2_id,
+            player3_id,
+            player4_id,
             sessions ( date )
         `)
-        .or(`team_a_player1.eq.${id},team_a_player2.eq.${id},team_b_player1.eq.${id},team_b_player2.eq.${id}`)
+        .or(`player1_id.eq.${id},player2_id.eq.${id},player3_id.eq.${id},player4_id.eq.${id}`)
         .order("created_at", { ascending: false });
 
     // Fetch all players to map IDs to names for match history
@@ -99,7 +99,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
     const formattedMatches = (matches || []).map((m: any) => {
         totalMatchesCount++;
         
-        const isTeamA = m.team_a_player1 === id || m.team_a_player2 === id;
+        const isTeamA = m.player1_id === id || m.player2_id === id;
         
         const myScore = isTeamA ? m.team_a_score : m.team_b_score;
         const oppScore = isTeamA ? m.team_b_score : m.team_a_score;
@@ -111,12 +111,12 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
         else if (!isDraw) losses++;
         
         const myPartnerId = isTeamA 
-            ? (m.team_a_player1 === id ? m.team_a_player2 : m.team_a_player1)
-            : (m.team_b_player1 === id ? m.team_b_player2 : m.team_b_player1);
+            ? (m.player1_id === id ? m.player2_id : m.player1_id)
+            : (m.player3_id === id ? m.player4_id : m.player3_id);
         
         const opponentsIds = isTeamA 
-            ? [m.team_b_player1, m.team_b_player2]
-            : [m.team_a_player1, m.team_a_player2];
+            ? [m.player3_id, m.player4_id]
+            : [m.player1_id, m.player2_id];
 
         const myPartners = myPartnerId && myPartnerId !== id ? [myPartnerId] : [];
         const opponents = opponentsIds.filter(Boolean);

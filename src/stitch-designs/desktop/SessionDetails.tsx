@@ -38,10 +38,10 @@ interface Match {
   teamB: string;
   scoreA: number;
   scoreB: number;
-  team_a_player1: string;
-  team_a_player2: string;
-  team_b_player1: string;
-  team_b_player2: string;
+  player1_id: string;
+  player2_id: string;
+  player3_id: string;
+  player4_id: string;
   type: string;
   court: string;
   status: 'Completed' | 'Live';
@@ -131,10 +131,10 @@ export default function DesktopSessionDetails({ session, matches, attendees }: D
             }}
             initialMatch={editingMatch ? {
                 id: editingMatch.id,
-                team_a_player1: editingMatch.team_a_player1,
-                team_a_player2: editingMatch.team_a_player2,
-                team_b_player1: editingMatch.team_b_player1,
-                team_b_player2: editingMatch.team_b_player2,
+                player1_id: editingMatch.player1_id,
+                player2_id: editingMatch.player2_id,
+                player3_id: editingMatch.player3_id,
+                player4_id: editingMatch.player4_id,
                 team_a_score: editingMatch.scoreA,
                 team_b_score: editingMatch.scoreB
             } : undefined}

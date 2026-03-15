@@ -34,10 +34,10 @@ export async function addMatch(payloadJson: string) {
             .from("matches")
             .insert([{
                 session_id: payload.sessionId,
-                team_a_player1: payload.playerA1,
-                team_a_player2: payload.playerA2 || payload.playerA1, // Fallback to same player if singles, or handle null if DB allows
-                team_b_player1: payload.playerB1,
-                team_b_player2: payload.playerB2 || payload.playerB1,
+                player1_id: payload.playerA1,
+                player2_id: payload.playerA2 || payload.playerA1,
+                player3_id: payload.playerB1,
+                player4_id: payload.playerB2 || payload.playerB1,
                 team_a_score: payload.scoreA,
                 team_b_score: payload.scoreB
             }])
@@ -63,10 +63,10 @@ export async function updateMatch(id: string, payloadJson: string) {
         const payload: Partial<AddMatchPayload> = JSON.parse(payloadJson);
 
         const updateData: any = {};
-        if (payload.playerA1) updateData.team_a_player1 = payload.playerA1;
-        if (payload.playerA2) updateData.team_a_player2 = payload.playerA2;
-        if (payload.playerB1) updateData.team_b_player1 = payload.playerB1;
-        if (payload.playerB2) updateData.team_b_player2 = payload.playerB2;
+        if (payload.playerA1) updateData.player1_id = payload.playerA1;
+        if (payload.playerA2) updateData.player2_id = payload.playerA2;
+        if (payload.playerB1) updateData.player3_id = payload.playerB1;
+        if (payload.playerB2) updateData.player4_id = payload.playerB2;
         if (payload.scoreA !== undefined) updateData.team_a_score = payload.scoreA;
         if (payload.scoreB !== undefined) updateData.team_b_score = payload.scoreB;
 
