@@ -20,6 +20,7 @@ import {
 import { deleteSession, updateSessionMetadata } from '@/lib/actions/sessions';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState } from 'react';
+import { useRole } from '@/context/AuthContext';
 import { DatePicker } from '@/components/DatePicker';
 
 interface SessionData {
@@ -46,6 +47,7 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
+  const { isAdmin } = useRole();
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const handleDelete = async (id: string, label: string) => {
@@ -154,18 +156,22 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
                       >
                         <Target className="size-4" />
                       </button>
-                      <button 
-                        onClick={() => setEditingId(session.id)}
-                        className="size-8 rounded-lg bg-slate-900 text-slate-400 flex items-center justify-center active:scale-90 transition-all border border-slate-800"
-                      >
-                        <Pencil className="size-4" />
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(session.id, session.location)}
-                        className="size-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center active:scale-90 transition-all border border-rose-500/10"
-                      >
-                        <Trash className="size-4" />
-                      </button>
+                      {isAdmin && (
+                        <>
+                          <button 
+                            onClick={() => setEditingId(session.id)}
+                            className="size-8 rounded-lg bg-slate-900 text-slate-400 flex items-center justify-center active:scale-90 transition-all border border-slate-800"
+                          >
+                            <Pencil className="size-4" />
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(session.id, session.location)}
+                            className="size-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center active:scale-90 transition-all border border-rose-500/10"
+                          >
+                            <Trash className="size-4" />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}

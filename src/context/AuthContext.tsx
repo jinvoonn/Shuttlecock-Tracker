@@ -24,7 +24,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const canEdit = (feature: 'sessions' | 'purchases' | 'payments' | 'players') => {
         if (isAdmin) return true;
-        if (feature === 'sessions') return true;
         return false;
     };
 

@@ -2,8 +2,12 @@
 
 import { supabase } from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
+import { getUserRole } from "../auth";
 
 export async function addSession(payloadStr: string) {
+    const role = await getUserRole();
+    if (role !== "admin") throw new Error("Only admins can add sessions");
+
     const payload = JSON.parse(payloadStr);
     const { date, location, notes, playerIds, newPlayerNames, usage } = payload;
 
@@ -107,6 +111,9 @@ export async function addSession(payloadStr: string) {
 }
 
 export async function editSession(id: string, payloadStr: string) {
+    const role = await getUserRole();
+    if (role !== "admin") throw new Error("Only admins can edit sessions");
+
     const payload = JSON.parse(payloadStr);
     const { date, location, notes, playerIds, newPlayerNames, usage } = payload;
 
@@ -175,6 +182,9 @@ export async function editSession(id: string, payloadStr: string) {
 }
 
 export async function deleteSession(id: string) {
+    const role = await getUserRole();
+    if (role !== "admin") throw new Error("Only admins can delete sessions");
+
     // To restore remaining_quantity, we first need to fetch usages
     const { data: usages } = await supabase.from("session_usage").select("purchase_id, quantity_used").eq("session_id", id);
 
@@ -201,6 +211,9 @@ export async function deleteSession(id: string) {
 }
 
 export async function updateSessionMetadata(id: string, formData: FormData) {
+    const role = await getUserRole();
+    if (role !== "admin") throw new Error("Only admins can update session metadata");
+
     const date = formData.get("date") as string;
     const location = formData.get("location") as string;
 

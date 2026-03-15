@@ -20,6 +20,7 @@ import clsx from 'clsx';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { deleteSession } from "@/lib/actions/sessions";
+import { useRole } from '@/context/AuthContext';
 
 interface SessionData {
   id: string;
@@ -44,6 +45,8 @@ interface DesktopSessionsListProps {
 export default function DesktopSessionList({ sessions }: DesktopSessionsListProps) {
   const pathname = usePathname() || '';
   const router = useRouter();
+  const { isAdmin } = useRole();
+
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
   const [searchTerm, setSearchTerm] = useState('');
@@ -118,9 +121,11 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
             </div>
           </div>
           <div className="flex items-center gap-6">
-            <Link href={`${basePath}/sessions/log`} className="bg-[#13ec80] text-[#020617] px-6 py-2 rounded font-black text-xs tracking-tighter hover:brightness-110 transition-all uppercase shadow-lg shadow-[#13ec80]/20 border border-[#13ec80] flex items-center gap-2">
-              <Plus className="size-4" /> Log New
-            </Link>
+            {isAdmin && (
+              <Link href={`${basePath}/sessions/log`} className="bg-[#13ec80] text-[#020617] px-6 py-2 rounded font-black text-xs tracking-tighter hover:brightness-110 transition-all uppercase shadow-lg shadow-[#13ec80]/20 border border-[#13ec80] flex items-center gap-2">
+                <Plus className="size-4" /> Log New
+              </Link>
+            )}
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
                 <p className="text-xs font-black text-slate-100 uppercase">Shuttle Tracker</p>
@@ -201,32 +206,34 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
                       <span className={clsx("text-2xl font-mono font-black leading-none", session.totalNet >= 0 ? 'text-emerald-400' : 'text-rose-400')}>
                         {session.totalNet >= 0 ? '+' : '-'}RM{Math.abs(session.totalNet).toFixed(2)}
                       </span>
-                      <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                         <button
-                           className="p-2 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors"
-                           onClick={(e) => {
-                             e.preventDefault();
-                             e.stopPropagation();
-                             const currentMode = pathname.split('/')[1] || 'view';
-                             router.push(`/${currentMode}/sessions/${session.id}/edit`);
-                           }}
-                         >
-                             <Pencil className="size-4" />
-                          </button>
-                          <button
-                            className="p-2 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
-                            onClick={async (e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              if (window.confirm("Are you sure you want to delete this session? This will also restore used shuttlecocks to inventory.")) {
-                                 await deleteSession(session.id);
-                                 window.location.reload();
-                              }
-                            }}
-                          >
-                             <Trash2 className="size-4" />
-                          </button>
-                      </div>
+                      {isAdmin && (
+                        <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                           <button
+                             className="p-2 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors"
+                             onClick={(e) => {
+                               e.preventDefault();
+                               e.stopPropagation();
+                               const currentMode = pathname.split('/')[1] || 'view';
+                               router.push(`/${currentMode}/sessions/${session.id}/edit`);
+                             }}
+                           >
+                               <Pencil className="size-4" />
+                            </button>
+                            <button
+                              className="p-2 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
+                              onClick={async (e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (window.confirm("Are you sure you want to delete this session? This will also restore used shuttlecocks to inventory.")) {
+                                   await deleteSession(session.id);
+                                   window.location.reload();
+                                }
+                              }}
+                            >
+                               <Trash2 className="size-4" />
+                            </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
