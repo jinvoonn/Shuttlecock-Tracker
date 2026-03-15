@@ -27,12 +27,12 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
     const [isAdding, setIsAdding] = useState(false);
     const [editingMatchId, setEditingMatchId] = useState<string | null>(null);
 
-    const [teamAIds, setTeamAIds] = useState<string[]>([]);
-    const [teamBIds, setTeamBIds] = useState<string[]>([]);
+    const [playerTeams, setPlayerTeams] = useState<Record<string, number>>({});
+    // 0 = unselected, 1 = Team A, 2 = Team B
     const [scoreA, setScoreA] = useState<string>("");
     const [scoreB, setScoreB] = useState<string>("");
 
-    const availablePlayers = sessionPlayers.map(sp => ({
+    const availablePlayers = sessionPlayers.map((sp: SessionPlayer) => ({
         id: sp.players?.id || sp.player_id,
         name: sp.players?.name || "Unknown"
     })).filter(p => p.id);
@@ -40,24 +40,26 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
     // Map all player IDs to names for quick lookup in match history
     const playerMap = Object.fromEntries(availablePlayers.map(p => [p.id, p.name]));
 
-    const togglePlayer = (id: string) => {
-        if (teamAIds.includes(id)) {
-            // Move from A to B
-            setTeamAIds(teamAIds.filter(pid => pid !== id));
-            setTeamBIds([...teamBIds, id]);
-        } else if (teamBIds.includes(id)) {
-            // Deselect
-            setTeamBIds(teamBIds.filter(pid => pid !== id));
-        } else {
-            // Add to A
-            setTeamAIds([...teamAIds, id]);
-        }
+    // Cycle: None (0) → Team A (1) → Team B (2) → None (0)
+    const cyclePlayer = (id: string) => {
+        setPlayerTeams(prev => {
+            const current = prev[id] ?? 0;
+            const next = (current + 1) % 3;
+            return { ...prev, [id]: next };
+        });
     };
+
+    const teamAIds = Object.entries(playerTeams).filter(([, v]) => v === 1).map(([k]) => k);
+    const teamBIds = Object.entries(playerTeams).filter(([, v]) => v === 2).map(([k]) => k);
 
     const startEdit = (match: { id: string, team_a_ids?: string[], team_b_ids?: string[], team_a_player1?: string, team_a_player2?: string, team_b_player1?: string, team_b_player2?: string, team_a_score: number, team_b_score: number }) => {
         setEditingMatchId(match.id);
-        setTeamAIds(match.team_a_ids || [match.team_a_player1, match.team_a_player2].filter((p): p is string => !!p));
-        setTeamBIds(match.team_b_ids || [match.team_b_player1, match.team_b_player2].filter((p): p is string => !!p));
+        const aIds = match.team_a_ids || [match.team_a_player1, match.team_a_player2].filter((p): p is string => !!p);
+        const bIds = match.team_b_ids || [match.team_b_player1, match.team_b_player2].filter((p): p is string => !!p);
+        const teams: Record<string, number> = {};
+        aIds.forEach(id => { teams[id] = 1; });
+        bIds.forEach(id => { teams[id] = 2; });
+        setPlayerTeams(teams);
         setScoreA(match.team_a_score.toString());
         setScoreB(match.team_b_score.toString());
         setIsAdding(true);
@@ -66,8 +68,7 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
     const resetForm = () => {
         setIsAdding(false);
         setEditingMatchId(null);
-        setTeamAIds([]);
-        setTeamBIds([]);
+        setPlayerTeams({});
         setScoreA("");
         setScoreB("");
     };
@@ -138,19 +139,20 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
                         {/* Player Selection Area */}
                         <div className="flex flex-wrap gap-2 min-h-[80px] p-1">
                             {availablePlayers.map(p => {
-                                const isTeamA = teamAIds.includes(p.id!);
-                                const isTeamB = teamBIds.includes(p.id!);
+                                const state = playerTeams[p.id!] ?? 0;
+                                const isTeamA = state === 1;
+                                const isTeamB = state === 2;
                                 return (
                                     <button
                                         key={p.id}
-                                        onClick={() => togglePlayer(p.id!)}
+                                        onClick={() => cyclePlayer(p.id!)}
                                         className={clsx(
                                             "px-4 py-2.5 rounded-xl text-xs font-bold transition-all border active:scale-95 flex items-center gap-2",
                                             isTeamA 
-                                                ? "bg-indigo-500 text-white border-indigo-400 shadow-lg shadow-indigo-500/20" 
+                                                ? "bg-sky-500 text-white border-sky-400 shadow-lg shadow-sky-500/20" 
                                                 : isTeamB
                                                     ? "bg-emerald-500 text-white border-emerald-400 shadow-lg shadow-emerald-500/20"
-                                                    : "bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-600 hover:text-slate-200"
+                                                    : "bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-500 hover:text-slate-100"
                                         )}
                                     >
                                         {p.name}
@@ -163,12 +165,12 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
 
                         {/* Preview / Scores */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                            <div className="bg-indigo-500/5 p-4 rounded-2xl border border-indigo-500/10 space-y-3">
+                            <div className="bg-sky-500/5 p-4 rounded-2xl border border-sky-500/10 space-y-3">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Team A Score</span>
+                                    <span className="text-[10px] font-bold text-sky-400 uppercase tracking-widest">Team A Score</span>
                                     <input
                                         type="number"
-                                        className="w-16 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-center font-mono text-lg text-slate-100 focus:ring-2 focus:ring-indigo-500/50 outline-none"
+                                        className="w-16 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-center font-mono text-lg text-slate-100 focus:ring-2 focus:ring-sky-500/50 outline-none"
                                         placeholder="0"
                                         value={scoreA}
                                         onChange={e => setScoreA(e.target.value)}
