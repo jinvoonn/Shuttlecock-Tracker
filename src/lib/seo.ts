@@ -4,5 +4,6 @@ export const seo = {
   description: "Track badminton sessions, shuttlecock costs, player statistics, and payments in one place.",
   url: "https://cockcount.vercel.app", // Placeholder or from env
   ogImage: "/og-image.png",
+  ogAlt: "CockCount Dashboard Preview",
   keywords: ["badminton tracker", "shuttlecock tracker", "badminton sessions", "shuttlecock inventory", "badminton score tracker"],
 }

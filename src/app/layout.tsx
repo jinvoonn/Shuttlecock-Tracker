@@ -28,7 +28,7 @@ export const metadata: Metadata = {
         url: seo.ogImage,
         width: 1200,
         height: 630,
-        alt: `${seo.title} - ${seo.tagline}`,
+        alt: seo.ogAlt,
       },
     ],
     locale: "en_US",
