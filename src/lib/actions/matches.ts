@@ -3,43 +3,42 @@
 import { supabase } from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
 
-interface AddMatchPayload {
+interface MatchPayload {
     sessionId: string;
-    playerA1: string;
-    playerA2: string;
-    playerB1: string;
-    playerB2: string;
+    teamAIds: string[];
+    teamBIds: string[];
     scoreA: number;
     scoreB: number;
 }
 
 export async function addMatch(payloadJson: string) {
     try {
-        const payload: AddMatchPayload = JSON.parse(payloadJson);
+        const payload: MatchPayload = JSON.parse(payloadJson);
 
-        // 1. Validation
-        if (!payload.playerA1 || !payload.playerB1) {
+        const { teamAIds, teamBIds, scoreA, scoreB, sessionId } = payload;
+
+        // Validation
+        if (!teamAIds?.length || !teamBIds?.length) {
             return { success: false, error: "Validation error: At least one player per team is required." };
         }
 
-        const allPlayerIds = [payload.playerA1, payload.playerA2, payload.playerB1, payload.playerB2].filter(Boolean);
+        const allPlayerIds = [...teamAIds, ...teamBIds];
         const uniquePlayers = new Set(allPlayerIds);
-        
         if (uniquePlayers.size !== allPlayerIds.length) {
-             return { success: false, error: "Validation error: Players cannot appear twice in the same match." };
+            return { success: false, error: "Validation error: A player cannot be on both teams." };
         }
 
-        // 2. Insert Match
+        // Map arrays → fixed columns (schema has team_a_player1, team_a_player2, team_b_player1, team_b_player2)
         const { data: match, error: matchError } = await supabase
             .from("matches")
             .insert([{
-                session_id: payload.sessionId,
-                team_a_player1: payload.playerA1,
-                team_a_player2: payload.playerA2 || payload.playerA1,
-                team_b_player1: payload.playerB1,
-                team_b_player2: payload.playerB2 || payload.playerB1,
-                team_a_score: payload.scoreA,
-                team_b_score: payload.scoreB
+                session_id: sessionId,
+                team_a_player1: teamAIds[0] ?? null,
+                team_a_player2: teamAIds[1] ?? null,
+                team_b_player1: teamBIds[0] ?? null,
+                team_b_player2: teamBIds[1] ?? null,
+                team_a_score: scoreA,
+                team_b_score: scoreB
             }])
             .select()
             .single();
@@ -61,15 +60,23 @@ export async function addMatch(payloadJson: string) {
 
 export async function updateMatch(id: string, payloadJson: string) {
     try {
-        const payload: Partial<AddMatchPayload> = JSON.parse(payloadJson);
+        const payload: Partial<MatchPayload> = JSON.parse(payloadJson);
 
+        const { teamAIds, teamBIds, scoreA, scoreB } = payload;
+
+        // Build update object — always overwrite all 4 player columns so old data doesn't linger
         const updateData: Record<string, string | number | null> = {};
-        if (payload.playerA1) updateData.team_a_player1 = payload.playerA1;
-        if (payload.playerA2) updateData.team_a_player2 = payload.playerA2;
-        if (payload.playerB1) updateData.team_b_player1 = payload.playerB1;
-        if (payload.playerB2) updateData.team_b_player2 = payload.playerB2;
-        if (payload.scoreA !== undefined) updateData.team_a_score = payload.scoreA;
-        if (payload.scoreB !== undefined) updateData.team_b_score = payload.scoreB;
+
+        if (teamAIds !== undefined) {
+            updateData.team_a_player1 = teamAIds[0] ?? null;
+            updateData.team_a_player2 = teamAIds[1] ?? null;
+        }
+        if (teamBIds !== undefined) {
+            updateData.team_b_player1 = teamBIds[0] ?? null;
+            updateData.team_b_player2 = teamBIds[1] ?? null;
+        }
+        if (scoreA !== undefined) updateData.team_a_score = scoreA;
+        if (scoreB !== undefined) updateData.team_b_score = scoreB;
 
         const { error } = await supabase
             .from("matches")
