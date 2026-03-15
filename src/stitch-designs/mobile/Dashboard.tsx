@@ -50,13 +50,13 @@ export default function MobileDashboard({ stats, players, upcomingSession }: Das
   const basePath = `/${currentMode}`;
 
   return (
-    <div className="bg-[#f6f8f7] dark:bg-[#020617] font-['Lexend',_sans-serif] text-slate-900 dark:text-slate-100 min-h-screen antialiased overflow-x-hidden">
-      <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-200 dark:border-slate-800 shadow-2xl pb-24">
-        {/* Header content... same as before */}
-        <header className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-white/80 dark:bg-[#020617]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+    <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-100 min-h-screen antialiased overflow-x-hidden">
+      <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-800 shadow-2xl pb-24">
+        {/* Header Section */}
+        <header className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-slate-900/80 backdrop-blur-md border-b border-emerald-400/10">
           <div className="flex items-center gap-2">
-            <Activity className="text-[#13ec80] size-6" />
-            <h1 className="text-xl font-extrabold italic tracking-tighter uppercase">COCKCOUNT</h1>
+            <Activity className="text-emerald-400 size-6" />
+            <h1 className="text-xl font-extrabold italic tracking-tighter uppercase text-emerald-400">COCKCOUNT</h1>
           </div>
         </header>
 
@@ -74,50 +74,50 @@ export default function MobileDashboard({ stats, players, upcomingSession }: Das
             </div>
 
             {/* Shuttle Used */}
-            <div className="flex flex-col gap-2 rounded-2xl bg-white dark:bg-[#0f172a] p-6 border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:border-[#13ec80]/30 group">
-              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 group-hover:text-[#13ec80] transition-colors">
+            <div className="flex flex-col gap-2 rounded-2xl bg-slate-800 p-6 border border-slate-700 shadow-sm transition-all hover:border-emerald-400/30 group">
+              <div className="flex items-center gap-2 text-slate-400 group-hover:text-emerald-400 transition-colors">
                 <HistoryIcon className="size-4" />
                 <p className="text-[10px] font-black uppercase tracking-tight">Shuttle Used</p>
               </div>
-              <p className="font-mono text-4xl font-black text-[#13ec80] tracking-tighter italic">{stats.totalShuttlesUsed}</p>
+              <p className="font-mono text-4xl font-black text-emerald-400 tracking-tighter italic">{stats.totalShuttlesUsed}</p>
             </div>
 
             {/* Sessions */}
-            <div className="flex flex-col gap-2 rounded-2xl bg-white dark:bg-[#0f172a] p-6 border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:border-[#13ec80]/30 group">
-              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 group-hover:text-[#13ec80] transition-colors">
+            <div className="flex flex-col gap-2 rounded-2xl bg-slate-800 p-6 border border-slate-700 shadow-sm transition-all hover:border-emerald-400/30 group">
+              <div className="flex items-center gap-2 text-slate-400 group-hover:text-emerald-400 transition-colors">
                 <CalendarDays className="size-4" />
                 <p className="text-[10px] font-black uppercase tracking-tight">Sessions</p>
               </div>
-              <p className="font-mono text-4xl font-black text-[#13ec80] tracking-tighter italic">{stats.totalSessions}</p>
+              <p className="font-mono text-4xl font-black text-emerald-400 tracking-tighter italic">{stats.totalSessions}</p>
             </div>
 
             {/* Inventory */}
-            <div className="flex flex-col gap-2 rounded-2xl bg-white dark:bg-[#0f172a] p-6 border border-slate-200 dark:border-slate-800 shadow-sm group">
-              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+            <div className="flex flex-col gap-2 rounded-2xl bg-slate-800 p-6 border border-slate-700 shadow-sm group">
+              <div className="flex items-center gap-2 text-slate-400">
                 <Package className="size-4" />
                 <p className="text-[10px] font-black uppercase tracking-tight">Inventory</p>
               </div>
               <div className="flex items-baseline gap-2">
-                <p className="font-mono text-4xl font-black text-[#13ec80] tracking-tighter italic">{stats.inventory.totalShuttles}</p>
-                <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest italic">{"// "}{stats.inventory.remainingTubes} Tubes Left</p>
+                <p className="font-mono text-4xl font-black text-emerald-400 tracking-tighter italic">{stats.inventory.totalShuttles}</p>
+                <p className="text-xs font-black text-slate-500 uppercase tracking-widest italic">{"// "}{stats.inventory.remainingTubes} Tubes Left</p>
               </div>
             </div>
           </div>
 
           {/* Next Session Card */}
           {upcomingSession && (
-            <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 group shadow-lg">
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/40 to-transparent z-10 dark:from-slate-950 dark:via-slate-950/40 opacity-90 dark:opacity-100"></div>
+            <div className="relative overflow-hidden rounded-2xl bg-slate-800 border border-slate-700 group shadow-lg">
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/40 to-transparent z-10 opacity-90"></div>
               <div className="relative z-20 flex flex-col gap-4 p-6">
                 <div className="flex flex-col">
-                  <p className="text-[10px] font-black text-[#13ec80] uppercase tracking-[0.2em]">Upcoming Session</p>
+                  <p className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em]">Upcoming Session</p>
                   <h3 className="text-4xl font-extrabold italic uppercase tracking-tighter mt-1 text-white leading-none">{upcomingSession.location.toUpperCase()}</h3>
-                  <div className="flex items-center gap-2 text-slate-300 text-sm mt-3">
+                  <div className="flex items-center gap-2 text-slate-400 text-sm mt-3">
                     <Calendar className="size-4" />
                     <span className="font-medium">{new Date(upcomingSession.date).toLocaleDateString()}</span>
                   </div>
                 </div>
-                <button className="flex w-fit items-center justify-center rounded bg-[#13ec80] px-6 py-2.5 text-[#020617] font-black uppercase text-[10px] tracking-[0.1em] hover:brightness-110 transition-all shadow-lg shadow-[#13ec80]/20 active:scale-95">
+                <button className="flex w-fit items-center justify-center rounded bg-emerald-400 px-6 py-2.5 text-slate-950 font-black uppercase text-[10px] tracking-[0.1em] hover:brightness-110 transition-all shadow-lg shadow-emerald-400/20 active:scale-95">
                   VIEW DETAILS
                 </button>
               </div>
@@ -132,16 +132,16 @@ export default function MobileDashboard({ stats, players, upcomingSession }: Das
           <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-extrabold italic uppercase tracking-tight">PLAYER LEDGER</h2>
-              <button className="text-[10px] font-black text-[#13ec80] uppercase border-b-2 border-[#13ec80] pb-0.5 tracking-wider">EXPAND ALL</button>
+              <button className="text-[10px] font-black text-emerald-400 uppercase border-b-2 border-emerald-400 pb-0.5 tracking-wider">EXPAND ALL</button>
             </div>
             <div className="flex flex-col gap-3">
               {players.map((player) => (
-                <div key={player.id} className="bg-white dark:bg-[#0f172a] rounded-[2rem] p-6 border border-slate-200 dark:border-slate-800 shadow-sm group hover:border-[#13ec80]/30 transition-all flex items-center justify-between">
+                <div key={player.id} className="bg-slate-800 rounded-[2rem] p-6 border border-slate-700 shadow-sm group hover:border-emerald-400/30 transition-all flex items-center justify-between">
                   <Link href={`${basePath}/players/${player.id}`} className="flex flex-col gap-1 flex-1">
-                    <span className="text-sm font-black uppercase tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-[#13ec80] transition-colors italic">
+                    <span className="text-sm font-black uppercase tracking-tight text-slate-100 group-hover:text-emerald-400 transition-colors italic">
                       {player.name}
                     </span>
-                    <p className={`font-mono text-lg font-black tracking-tighter ${player.balance >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                    <p className={`font-mono text-lg font-black tracking-tighter ${player.balance >= 0 ? 'text-emerald-400' : 'text-rose-500'}`}>
                       {player.balance >= 0 ? 'RM' : '-RM'}{Math.abs(player.balance).toFixed(2)}
                       <span className="text-[10px] uppercase font-bold tracking-widest ml-2 italic">
                         {player.balance >= 0 ? 'CREDIT' : 'OWED'}
@@ -150,7 +150,7 @@ export default function MobileDashboard({ stats, players, upcomingSession }: Das
                   </Link>
                   <button 
                     onClick={() => router.push(`${basePath}/payments/record-transaction?playerId=${player.id}`)}
-                    className="h-11 px-6 rounded-xl bg-slate-900 dark:bg-slate-800 text-[#13ec80] font-black text-[10px] uppercase tracking-widest hover:bg-[#13ec80] hover:text-slate-950 transition-all active:scale-95 border border-slate-800 dark:border-slate-700 shadow-lg relative z-10"
+                    className="h-11 px-6 rounded-xl bg-slate-900 text-emerald-400 font-black text-[10px] uppercase tracking-widest hover:bg-emerald-400 hover:text-slate-950 transition-all active:scale-95 border border-slate-700 shadow-lg relative z-10"
                   >
                     SETTLE
                   </button>
@@ -162,30 +162,30 @@ export default function MobileDashboard({ stats, players, upcomingSession }: Das
         </main>
 
         {/* Bottom Navigation */}
-        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#020617]/95 backdrop-blur-2xl border-t border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-2xl border-t border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
           <div className="flex h-24 items-stretch px-4 max-w-[480px] mx-auto">
-            <button className="flex flex-1 flex-col items-center justify-center gap-1 text-[#13ec80] transition-colors group relative">
+            <button className="flex flex-1 flex-col items-center justify-center gap-1 text-emerald-400 transition-colors group relative">
               <LayoutGrid className="size-6 transition-transform group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.15em] leading-none mt-1">Dash</span>
-              <div className="absolute bottom-3 size-1.5 rounded-full bg-[#13ec80] shadow-[0_0_10px_rgba(19,236,128,0.8)]"></div>
+              <div className="absolute bottom-3 size-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(19,236,128,0.8)]"></div>
             </button>
             <button 
               onClick={() => router.push(`${basePath}/sessions`)}
-              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:text-[#13ec80] transition-colors group"
+              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-emerald-400 transition-colors group"
             >
               <HistoryIcon className="size-6 transition-transform group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.15em] leading-none mt-1">Sessions</span>
             </button>
             <button 
               onClick={() => router.push(`${basePath}/purchases`)}
-              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:text-[#13ec80] transition-colors group"
+              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-emerald-400 transition-colors group"
             >
               <Package className="size-6 transition-transform group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.15em] leading-none mt-1">Stock</span>
             </button>
             <button 
               onClick={() => router.push(`${basePath}/payments`)}
-              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:text-[#13ec80] transition-colors group"
+              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-emerald-400 transition-colors group"
             >
               <Banknote className="size-6 transition-transform group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.15em] leading-none mt-1">Payments</span>

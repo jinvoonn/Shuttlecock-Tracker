@@ -59,15 +59,15 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
   };
 
   return (
-    <div className="bg-[#f6f8f7] dark:bg-[#020617] font-['Lexend',_sans-serif] text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
-      <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-200 dark:border-slate-800 shadow-2xl pb-24">
+    <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-100 min-h-screen flex flex-col antialiased">
+      <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-800 shadow-2xl pb-24">
         {/* Header Section */}
-        <header className="sticky top-0 z-20 bg-white/80 dark:bg-[#020617]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-4">
+        <header className="sticky top-0 z-20 bg-slate-900/80 backdrop-blur-md border-b border-emerald-400/10 px-4 py-4">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-black italic tracking-tighter text-[#13ec80] uppercase">Sessions</h1>
+            <h1 className="text-2xl font-black italic tracking-tighter text-emerald-400 uppercase">Sessions</h1>
             <button
-              onClick={() => router.push(`${basePath}/sessions/log`)}
-              className="bg-[#13ec80] hover:bg-[#13ec80]/90 text-slate-950 px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-[#13ec80]/20 active:scale-95 transition-all">
+              onClick={() => router.push(`${basePath}/sessions/log-session`)}
+              className="bg-emerald-400 hover:bg-emerald-500 text-slate-950 px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-400/20 active:scale-95 transition-all">
               <Plus className="size-4" />
               LOG NEW
             </button>
@@ -76,9 +76,9 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
           {/* Search and Filter */}
           <div className="flex flex-col gap-3">
             <div className="relative group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-500 group-focus-within:text-[#13ec80] transition-colors" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-500 group-focus-within:text-emerald-400 transition-colors" />
               <input 
-                className="w-full bg-slate-50 dark:bg-[#0f172a] border-slate-200 dark:border-slate-800 rounded-2xl pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-[#13ec80]/20 focus:border-[#13ec80] placeholder:text-slate-500 transition-all outline-none" 
+                className="w-full bg-slate-800 border-slate-700 rounded-2xl pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-400/20 focus:border-emerald-400 placeholder:text-slate-500 transition-all outline-none" 
                 placeholder="Search sessions..." 
                 type="text" 
               />
@@ -88,21 +88,21 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
 
         {/* Main Content: Session List */}
         <main className="flex-1 px-4 py-6 space-y-6 text-left">
-          <h2 className="text-[10px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-[0.2em] mb-2 px-1">History</h2>
+          <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 px-1">History</h2>
           
           {sessions.length === 0 && (
             <div className="text-center py-10 text-slate-500">No sessions found.</div>
           )}
 
           {sessions.map((session) => (
-            <div key={session.id} className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-[2rem] p-6 flex flex-col gap-5 shadow-sm hover:shadow-md transition-all">
+            <div key={session.id} className="bg-slate-800 border border-slate-700 rounded-[2rem] p-6 flex flex-col gap-5 shadow-sm hover:shadow-md transition-all">
               <div className="flex justify-between items-start">
                 <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black text-[#13ec80] uppercase tracking-widest bg-[#13ec80]/10 px-2 py-0.5 rounded">Session {session.displayNumber}</span>
-                    <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{new Date(session.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                  <div className="flex items-center gap-2 text-left">
+                    <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest bg-emerald-400/10 px-2 py-0.5 rounded">Session {session.displayNumber}</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{new Date(session.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                   </div>
-                  <h3 className="text-xl font-black italic tracking-tight text-slate-900 dark:text-slate-100 uppercase mt-1">
+                  <h3 className="text-xl font-black italic tracking-tight text-slate-100 uppercase mt-1">
                     {session.location}
                   </h3>
                 </div>
@@ -124,22 +124,22 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
                           <input 
                             name="location"
                             defaultValue={session.location}
-                            className="w-full bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-[#13ec80]/20 outline-none text-left"
+                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-emerald-400/20 outline-none text-left"
                           />
                         </div>
                       </div>
                       <div className="flex gap-2 justify-end">
-                        <button type="button" onClick={() => setEditingId(null)} className="px-4 py-2 rounded-xl text-[10px] font-black uppercase text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">Cancel</button>
-                        <button type="submit" className="px-4 py-2 rounded-xl text-[10px] font-black uppercase bg-[#13ec80] text-slate-950 shadow-lg shadow-[#13ec80]/20">Save</button>
+                        <button type="button" onClick={() => setEditingId(null)} className="px-4 py-2 rounded-xl text-[10px] font-black uppercase text-slate-500 hover:bg-slate-700 transition-all">Cancel</button>
+                        <button type="submit" className="px-4 py-2 rounded-xl text-[10px] font-black uppercase bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-400/20">Save</button>
                       </div>
                     </form>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-2 items-end">
                     <div className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${
-                      session.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
-                      session.status === 'Outstanding' ? 'bg-rose-500/10 text-rose-500 dark:text-rose-400' :
-                      'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                      session.status === 'Completed' ? 'bg-emerald-400/10 text-emerald-400' :
+                      session.status === 'Outstanding' ? 'bg-rose-500/10 text-rose-500' :
+                      'bg-slate-700 text-slate-400'
                     }`}>
                       {session.status}
                     </div>
@@ -153,13 +153,13 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
                       </button>
                       <button 
                         onClick={() => setEditingId(session.id)}
-                        className="size-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center active:scale-90 transition-all border border-slate-200 dark:border-slate-700"
+                        className="size-8 rounded-lg bg-slate-900 text-slate-400 flex items-center justify-center active:scale-90 transition-all border border-slate-800"
                       >
                         <Pencil className="size-4" />
                       </button>
                       <button 
                         onClick={() => handleDelete(session.id, session.location)}
-                        className="size-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center active:scale-90 transition-all border border-rose-500/20"
+                        className="size-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center active:scale-90 transition-all border border-rose-500/10"
                       >
                         <Trash className="size-4" />
                       </button>
@@ -168,17 +168,17 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
                 )}
               </div>
               
-              <div className="grid grid-cols-2 gap-6 py-5 border-y border-slate-100 dark:border-slate-800/50">
-                <div className="flex flex-col gap-2">
-                  <span className="text-[9px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-widest">Shuttle Used</span>
-                  <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
-                    <Activity className="text-[#13ec80] size-4" />
+              <div className="grid grid-cols-2 gap-6 py-5 border-y border-slate-700">
+                <div className="flex flex-col gap-2 text-left">
+                  <span className="text-[9px] text-slate-500 uppercase font-black tracking-widest">Shuttle Used</span>
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
+                    <Activity className="text-emerald-400 size-4" />
                     <span className="truncate">{session.shuttleUsed.name} ({session.shuttleUsed.quantity})</span>
                   </div>
                 </div>
                 <div className="flex flex-col gap-2 items-end text-right">
-                  <span className="text-[9px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-widest">Cost / Person</span>
-                  <div className="text-sm font-mono font-black text-slate-900 dark:text-slate-100">
+                  <span className="text-[9px] text-slate-500 uppercase font-black tracking-widest">Cost / Person</span>
+                  <div className="text-sm font-mono font-black text-slate-100">
                     RM {session.costPerPerson.toFixed(2)}
                   </div>
                 </div>
@@ -187,19 +187,19 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
               <div className="flex items-center justify-between mt-1">
                 <div className="flex -space-x-3">
                   {session.attendees.slice(0, 3).map((name, i) => (
-                    <div key={i} className="size-10 rounded-full border-2 border-white dark:border-[#0f172a] bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase shadow-sm">
+                    <div key={i} className="size-10 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center text-[10px] font-black text-slate-400 uppercase shadow-sm">
                       {name.slice(0, 2)}
                     </div>
                   ))}
                   {session.attendees.length > 3 && (
-                    <div className="size-10 rounded-full border-2 border-white dark:border-[#0f172a] bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-[10px] font-black text-slate-400">
+                    <div className="size-10 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center text-[10px] font-black text-slate-500">
                       +{session.attendees.length - 3}
                     </div>
                   )}
                 </div>
                 <button 
                   onClick={() => router.push(`${basePath}/sessions/${session.id}`)}
-                  className="bg-slate-900 dark:bg-slate-800 text-[#13ec80] px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-[#13ec80] hover:text-slate-950 transition-all active:scale-95 shadow-lg"
+                  className="bg-slate-900 text-emerald-400 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-emerald-400 hover:text-slate-950 transition-all active:scale-95 shadow-lg"
                 >
                   OPEN SESSION
                   <ChevronRight className="size-4" />
@@ -210,30 +210,30 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
         </main>
 
         {/* Bottom Navigation */}
-        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#020617]/95 backdrop-blur-2xl border-t border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-2xl border-t border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
           <div className="flex h-24 items-stretch px-4 max-w-[480px] mx-auto">
             <button 
               onClick={() => router.push(basePath)}
-              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group"
+              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-emerald-400 transition-colors group"
             >
               <LayoutGrid className="size-6 group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Dash</span>
             </button>
-            <button className="flex flex-1 flex-col items-center justify-center gap-1 text-[#13ec80] relative group">
+            <button className="flex flex-1 flex-col items-center justify-center gap-1 text-emerald-400 relative group">
               <HistoryIcon className="size-6 group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Sessions</span>
-              <div className="absolute bottom-3 size-1.5 rounded-full bg-[#13ec80] shadow-[0_0_10px_rgba(19,236,128,0.8)]"></div>
+              <div className="absolute bottom-3 size-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(19,236,128,0.8)]"></div>
             </button>
             <button 
               onClick={() => router.push(`${basePath}/purchases`)}
-              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group"
+              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-emerald-400 transition-colors group"
             >
               <Package className="size-6 group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Stock</span>
             </button>
             <button 
               onClick={() => router.push(`${basePath}/payments`)}
-              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group"
+              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-emerald-400 transition-colors group"
             >
               <Banknote className="size-6 group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Payments</span>
@@ -241,8 +241,11 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
           </div>
         </nav>
 
-        {/* Floating Action Button content... same as before */}
-        <button className="fixed right-6 bottom-24 size-16 bg-[#13ec80] text-slate-950 rounded-2xl shadow-2xl flex items-center justify-center z-40 active:scale-90 transition-transform shadow-[#13ec80]/30">
+        {/* Floating Action Button */}
+        <button 
+          onClick={() => router.push(`${basePath}/sessions/log-session`)}
+          className="fixed right-6 bottom-32 size-16 bg-emerald-400 text-slate-950 rounded-2xl shadow-2xl flex items-center justify-center z-40 active:scale-90 transition-transform shadow-emerald-400/20"
+        >
           <Plus className="size-8 font-black" />
         </button>
       </div>

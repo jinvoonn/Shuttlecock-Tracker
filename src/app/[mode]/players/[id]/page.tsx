@@ -165,13 +165,13 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
     const recentForm = formattedMatches.slice(0, 5).map(m => m?.isWin ? "W" : m?.isDraw ? "D" : "L");
 
     return (
-        <div className="flex h-screen overflow-hidden bg-[#020617] text-slate-100 font-['Lexend',_sans-serif]">
+        <div className="flex h-screen overflow-hidden bg-slate-900 text-slate-100 font-['Lexend',_sans-serif]">
             {/* Cinematic Background Overlay */}
             <div 
                 className="fixed inset-0 opacity-10 pointer-events-none grayscale bg-cover bg-center"
                 style={{ backgroundImage: "url('/badminton-bg.png')" }}
             />
-            <div className="fixed inset-0 bg-gradient-to-b from-[#020617]/90 to-[#020617]/95 pointer-events-none" />
+            <div className="fixed inset-0 bg-gradient-to-b from-slate-900/90 to-slate-900/95 pointer-events-none" />
 
             {/* Sidebar Navigation */}
             <aside className="relative z-20 w-64 border-r border-slate-800 bg-slate-900/50 backdrop-blur-md hidden lg:flex flex-col">
@@ -214,7 +214,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                     <header className="mb-8 flex items-center gap-4">
                         <div className="h-20 w-20 flex-shrink-0 bg-slate-800 rounded-2xl flex flex-col items-center justify-center border border-slate-700 shadow-xl overflow-hidden relative">
                             <User className="w-8 h-8 text-slate-400 absolute" />
-                            <div className="absolute inset-0 bg-gradient-to-tr from-sky-500/20 to-transparent"></div>
+                            <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/20 to-transparent"></div>
                         </div>
                         <div>
                             <h1 className="text-3xl font-bold text-slate-50 tracking-tight">{player.name}</h1>
@@ -227,16 +227,16 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
 
             {/* Summary Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 text-center pt-2">
-                <div className="bg-slate-900/60 p-5 rounded-2xl border border-slate-800/80 shadow-lg relative overflow-hidden">
+                <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-lg relative overflow-hidden text-left">
                     <div className="absolute top-0 right-0 p-3 opacity-10"><Activity className="w-12 h-12" /></div>
                     <p className="text-[10px] font-bold uppercase text-slate-500 mb-1 relative z-10">Matches</p>
                     <p className="text-2xl font-bold font-mono text-slate-200 relative z-10">{totalMatchesCount}</p>
                 </div>
-                <div className="bg-emerald-950/20 p-5 rounded-2xl border border-emerald-500/20 shadow-lg relative overflow-hidden">
-                    <p className="text-[10px] font-bold uppercase text-emerald-600/80 mb-1 relative z-10">Win Rate</p>
-                    <p className="text-2xl font-bold font-mono text-emerald-400 relative z-10">{winRate}%</p>
+                <div className="bg-emerald-500/5 p-5 rounded-2xl border border-emerald-500/20 shadow-lg relative overflow-hidden text-left">
+                    <p className="text-[10px] font-bold uppercase text-emerald-400/80 mb-1 relative z-10 font-black tracking-widest leading-none">Win Rate</p>
+                    <p className="text-2xl font-bold font-mono text-emerald-400 relative z-10 leading-none mt-1">{winRate}%</p>
                 </div>
-                <div className="bg-slate-900/60 p-5 rounded-2xl border border-slate-800/80 shadow-lg relative overflow-hidden flex flex-col justify-center">
+                <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-lg relative overflow-hidden flex flex-col justify-center text-left">
                     <p className="text-[10px] font-bold uppercase text-slate-500 mb-2">Balance</p>
                     <p className={clsx(
                         "text-2xl font-black font-mono tracking-tighter italic leading-none",
@@ -245,7 +245,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                         {currentBalance > 0 ? "RM" : "CREDIT RM"}{Math.abs(currentBalance).toFixed(2)}
                     </p>
                 </div>
-                <div className="bg-slate-900/60 p-5 rounded-2xl border border-slate-800/80 shadow-lg flex flex-col justify-center gap-2">
+                <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-lg flex flex-col justify-center gap-2 text-left">
                     <div className="flex items-center justify-between text-xs px-2">
                         <span className="text-slate-500 font-bold uppercase">Paid</span>
                         <span className="font-mono text-emerald-400 font-bold whitespace-nowrap">RM{totalPayments.toFixed(2)}</span>
@@ -258,11 +258,11 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
             </div>
 
             {/* Advanced Analytics Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 relative overflow-hidden group">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 text-left">
+                <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><User className="w-16 h-16" /></div>
                     <h3 className="text-[10px] font-bold uppercase text-slate-500 mb-4 tracking-widest flex items-center gap-2">
-                        <Target className="w-4 h-4 text-sky-500" /> Best Partner
+                        <Target className="w-4 h-4 text-emerald-400" /> Best Partner
                     </h3>
                     {bestPartner ? (
                         <div>
@@ -279,7 +279,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                     )}
                 </div>
 
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 relative overflow-hidden group">
+                <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 relative overflow-hidden group text-left">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><Swords className="w-16 h-16" /></div>
                     <h3 className="text-[10px] font-bold uppercase text-slate-500 mb-4 tracking-widest flex items-center gap-2">
                         <Swords className="w-4 h-4 text-rose-500" /> Rivalries (H2H)
@@ -289,7 +289,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                             <div key={r.name} className="flex items-center justify-between gap-4">
                                 <span className="text-sm font-medium text-slate-300">{r.name}</span>
                                 <div className="flex items-center gap-3">
-                                    <div className="flex h-1.5 w-24 bg-slate-800 rounded-full overflow-hidden">
+                                    <div className="flex h-1.5 w-24 bg-slate-900 rounded-full overflow-hidden">
                                         <div 
                                             className="bg-emerald-500 h-full shadow-[0_0_8px_rgba(16,185,129,0.3)]" 
                                             style={{ width: `${(r.wins / r.total) * 100}%` }} 
@@ -311,8 +311,8 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20">
-                <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20 text-left">
+                <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6">
                     <h2 className="text-sm font-bold uppercase tracking-tight text-slate-500 mb-4 flex items-center gap-2 italic">
                         <Swords className="w-5 h-5 text-slate-400" /> Match History
                     </h2>
@@ -324,10 +324,10 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                     ) : (
                         <div className="space-y-3">
                             {formattedMatches.map((m: { id: string, date: string, isWin: boolean, isDraw: boolean, myScore: number, oppScore: number, partners: string[], opponents: string[] }) => (
-                                <div key={m.id} className="flex flex-col bg-slate-950/50 p-4 rounded-xl border border-slate-800/80 gap-4">
+                                <div key={m.id} className="flex flex-col bg-slate-900 p-4 rounded-xl border border-slate-700/80 gap-4">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-4">
-                                            <div className="flex flex-col items-center justify-center w-10 h-10 rounded-lg bg-slate-900 border border-slate-800 shrink-0">
+                                            <div className="flex flex-col items-center justify-center w-10 h-10 rounded-lg bg-slate-800 border border-slate-700 shrink-0">
                                                 <span className="text-[11px] font-black text-slate-300 font-mono">{new Date(m.date).getDate()}</span>
                                                 <span className="text-[8px] font-bold uppercase text-slate-600 leading-none">{new Date(m.date).toLocaleString('default', { month: 'short' })}</span>
                                             </div>
@@ -357,7 +357,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                     )}
                 </div>
 
-                <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-6">
+                <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6">
                     <h2 className="text-sm font-bold uppercase tracking-tight text-slate-500 mb-4 flex items-center gap-2 italic">
                         <Wallet className="w-5 h-5 text-emerald-400" /> Payment History
                     </h2>
@@ -369,7 +369,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                     ) : (
                         <div className="space-y-3">
                             {(paymentsData || []).map((pay: { id: string, date: string, amount: number }) => (
-                                <div key={pay.id} className="flex items-center justify-between bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                                <div key={pay.id} className="flex items-center justify-between bg-slate-900 p-4 rounded-xl border border-slate-700/80">
                                     <div className="flex items-center gap-4">
                                         <div className="p-2 bg-emerald-500/5 rounded-lg border border-emerald-500/10">
                                             <Wallet className="w-4 h-4 text-emerald-400" />

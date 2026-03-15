@@ -159,12 +159,12 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
   const playerMap = Object.fromEntries(sessionPlayers.map(p => [p.id, p.name]));
 
   return (
-    <div className="bg-[#f6f8f7] dark:bg-[#102219] font-['Lexend',_sans-serif] text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
+    <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
       <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-200 dark:border-slate-800 shadow-2xl pb-32">
         {/* Header */}
-        <header className="sticky top-0 z-30 bg-white/80 dark:bg-[#102219]/80 backdrop-blur-md border-b border-[#13ec80]/10">
+        <header className="sticky top-0 z-30 bg-slate-900/80 backdrop-blur-md border-b border-emerald-400/10">
           <div className="flex items-center p-4 justify-between">
-            <button onClick={() => router.back()} className="text-[#13ec80] flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#13ec80]/10 active:scale-95 transition-transform">
+            <button onClick={() => router.back()} className="text-emerald-400 flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-400/10 active:scale-95 transition-transform">
               <ArrowLeft className="size-5" />
             </button>
             <div className="flex-1 px-4 text-center">
@@ -177,8 +177,8 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
         <main className="flex-1 overflow-y-auto">
           {/* Hero Section */}
           <div className="p-4">
-            <div className="relative overflow-hidden rounded-[2rem] bg-slate-800 dark:bg-slate-900 aspect-[16/10] mb-6 shadow-2xl">
-              <div className="absolute inset-0 bg-gradient-to-t from-[#102219] via-[#102219]/20 to-transparent z-10"></div>
+            <div className="relative overflow-hidden rounded-[2rem] bg-slate-800 aspect-[16/10] mb-6 shadow-2xl text-left">
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent z-10"></div>
               <img 
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAl91YTHAMekTqLihKMJ5IYSfEdcIo0J6a8vUPUm5Kb-ldnERhYcMbv9a8yspM10OCYm2T4jUrAgIgCEq9XCTAfZ24Fl5NmdrOeGG10_LP2LYiMlf5Ju3f4Vl9zOEhjj_oxH0HsVcoBcoaGHwvsnvqmkV2meaGc95a-S3U5yIBqWJZl0qOm3vOuvO-yCEFJ1N-ruyGjL9zlTCUFa23ejlZdoUVDoD3JNKFd1xf5_0_YSMFFxMIgPahv4ePfTguXPJxTPFSvsCwGcd4"
                 alt="Badminton Court"
@@ -186,8 +186,8 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
               />
               <div className="absolute bottom-6 left-6 right-6 z-20 text-left">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-[#13ec80] text-[10px] font-black tracking-[0.2em] uppercase bg-[#13ec80]/10 backdrop-blur-md px-2 py-1 rounded">{session.division}</span>
-                  <div className="size-1.5 rounded-full bg-[#13ec80] animate-pulse"></div>
+                  <span className="text-emerald-400 text-[10px] font-black tracking-[0.2em] uppercase bg-emerald-400/10 backdrop-blur-md px-2 py-1 rounded">{session.division}</span>
+                  <div className="size-1.5 rounded-full bg-emerald-400 animate-pulse"></div>
                 </div>
                 <h2 className="text-white text-3xl font-black italic uppercase leading-tight tracking-tighter">{session.name}</h2>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-slate-300 text-xs mt-3 font-medium">
@@ -200,23 +200,23 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
 
             {/* Quick Summary */}
             <div className="grid grid-cols-3 gap-3 mb-8">
-              <div className="flex flex-col gap-1 rounded-2xl p-4 bg-white dark:bg-slate-900 border-l-4 border-[#13ec80] shadow-sm text-left">
-                <p className="text-slate-400 dark:text-slate-500 text-[9px] font-black uppercase tracking-widest">Shuttles</p>
-                <p className="text-slate-900 dark:text-slate-100 text-xl font-black italic leading-none mt-1">
+              <div className="flex flex-col gap-1 rounded-2xl p-4 bg-slate-800 border-l-4 border-emerald-400 shadow-sm text-left">
+                <p className="text-slate-500 text-[9px] font-black uppercase tracking-widest">Shuttles</p>
+                <p className="text-slate-100 text-xl font-black italic leading-none mt-1">
                   {session.shuttlesUsed} 
                   <span className="text-[10px] not-italic font-bold text-slate-400 ml-1 uppercase">Units</span>
                 </p>
               </div>
-              <div className="flex flex-col gap-1 rounded-2xl p-4 bg-white dark:bg-slate-900 border-l-4 border-blue-500 shadow-sm text-left">
-                <p className="text-slate-400 dark:text-slate-500 text-[9px] font-black uppercase tracking-widest">Cost/Head</p>
-                <p className="text-slate-900 dark:text-slate-100 text-xl font-black italic leading-none mt-1">
-                  ${session.costPerHead.toFixed(2)}
+              <div className="flex flex-col gap-1 rounded-2xl p-4 bg-slate-800 border-l-4 border-emerald-400 shadow-sm text-left">
+                <p className="text-slate-500 text-[9px] font-black uppercase tracking-widest">Cost/Head</p>
+                <p className="text-slate-100 text-xl font-black italic leading-none mt-1">
+                  RM{session.costPerHead.toFixed(2)}
                 </p>
               </div>
-              <div className="flex flex-col gap-1 rounded-2xl p-4 bg-white dark:bg-slate-900 border-l-4 border-purple-500 shadow-sm text-left">
-                <p className="text-slate-400 dark:text-slate-500 text-[9px] font-black uppercase tracking-widest">Total</p>
-                <p className="text-slate-900 dark:text-slate-100 text-xl font-black italic leading-none mt-1">
-                  ${session.totalCost.toFixed(2)}
+              <div className="flex flex-col gap-1 rounded-2xl p-4 bg-slate-800 border-l-4 border-emerald-400 shadow-sm text-left">
+                <p className="text-slate-500 text-[9px] font-black uppercase tracking-widest">Total</p>
+                <p className="text-slate-100 text-xl font-black italic leading-none mt-1">
+                  RM{session.totalCost.toFixed(2)}
                 </p>
               </div>
             </div>
@@ -229,9 +229,9 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
               <div className="flex flex-col gap-2">
                 {attendees.length === 0 && <p className="text-slate-500 text-sm text-center py-4">No attendees listed.</p>}
                 {attendees.map((person) => (
-                  <div key={person.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                  <div key={person.id} className="flex items-center justify-between p-4 bg-slate-800 rounded-2xl border border-slate-700 shadow-sm text-left">
                     <div className="flex items-center gap-3">
-                      <div className="size-10 rounded-full bg-[#13ec80]/10 flex items-center justify-center border border-[#13ec80]/20 text-[#13ec80] font-black text-xs uppercase">
+                      <div className="size-10 rounded-full bg-emerald-400/10 flex items-center justify-center border border-emerald-400/20 text-emerald-400 font-black text-xs uppercase">
                         {person.name.split(' ').map(n => n[0]).join('')}
                       </div>
                       <div className="text-left">
@@ -240,7 +240,7 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-black text-[#13ec80]">${person.fee.toFixed(2)}</p>
+                      <p className="text-sm font-black text-emerald-400">RM{person.fee.toFixed(2)}</p>
                       <p className={`text-[10px] font-black uppercase italic tracking-widest ${person.paid ? 'text-emerald-500' : 'text-amber-500'}`}>
                         {person.paid ? 'Paid' : 'Pending'}
                       </p>
@@ -256,7 +256,7 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                 <h3 className="text-slate-900 dark:text-slate-100 text-sm font-black uppercase tracking-[0.15em] italic">Match Results</h3>
                 <button 
                   onClick={() => router.push(`${basePath}/sessions/${session.id}/record-match`)}
-                  className="text-[#13ec80] flex items-center gap-1.5 active:scale-95 transition-transform bg-[#13ec80]/10 px-3 py-1.5 rounded-lg border border-[#13ec80]/20"
+                  className="text-emerald-400 flex items-center gap-1.5 active:scale-95 transition-transform bg-emerald-400/10 px-3 py-1.5 rounded-lg border border-emerald-400/20"
                 >
                   <PlusCircle className="size-4" />
                   <span className="text-[10px] font-black uppercase tracking-widest">Log Result</span>
@@ -266,20 +266,20 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
               <div className="flex flex-col gap-4">
                 {matches.length === 0 && <p className="text-slate-500 text-sm text-center py-8">No matches recorded yet.</p>}
                 {matches.map((match) => (
-                  <div key={match.id} className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-lg overflow-hidden">
+                  <div key={match.id} className="bg-slate-800 rounded-[2rem] border border-slate-700 shadow-lg overflow-hidden">
                     
                     {/* Match Card Content */}
-                    <div className="p-6">
+                    <div className="p-6 text-left">
                       <div className="flex justify-between items-start mb-4">
                         <div className="flex items-center gap-2">
-                          {match.status === 'Completed' ? <TrendingUp className="size-3 text-[#13ec80]" /> : <Activity className="size-3 text-amber-500" />}
-                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">{match.type}</span>
+                          {match.status === 'Completed' ? <TrendingUp className="size-3 text-emerald-400" /> : <Activity className="size-3 text-amber-500" />}
+                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">{match.type}</span>
                         </div>
                         {/* Action Buttons */}
                         <div className="flex items-center gap-1">
                           <button
                             onClick={() => startEdit(match)}
-                            className="flex items-center justify-center size-8 rounded-xl bg-sky-500/10 text-sky-400 hover:bg-sky-500/20 active:scale-95 transition-all"
+                            className="flex items-center justify-center size-8 rounded-xl bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 active:scale-95 transition-all"
                           >
                             <Pencil className="size-3.5" />
                           </button>
@@ -294,19 +294,19 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
 
                       <div className="flex flex-col gap-3">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-tight truncate max-w-[160px] italic">{match.teamA}</span>
-                          <span className={`text-3xl font-black italic leading-none tabular-nums ${match.scoreA >= match.scoreB && match.status === 'Completed' ? 'text-[#13ec80]' : 'text-slate-300 dark:text-slate-700'}`}>{match.scoreA}</span>
+                          <span className="text-sm font-black text-slate-300 uppercase tracking-tight truncate max-w-[160px] italic">{match.teamA}</span>
+                          <span className={`text-3xl font-black italic leading-none tabular-nums ${match.scoreA >= match.scoreB && match.status === 'Completed' ? 'text-emerald-400' : 'text-slate-700'}`}>{match.scoreA}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tight truncate max-w-[160px] italic">{match.teamB}</span>
-                          <span className={`text-3xl font-black italic leading-none tabular-nums ${match.scoreB >= match.scoreA && match.status === 'Completed' ? 'text-[#13ec80]' : 'text-slate-300 dark:text-slate-700'}`}>{match.scoreB}</span>
+                          <span className="text-sm font-bold text-slate-500 uppercase tracking-tight truncate max-w-[160px] italic">{match.teamB}</span>
+                          <span className={`text-3xl font-black italic leading-none tabular-nums ${match.scoreB >= match.scoreA && match.status === 'Completed' ? 'text-emerald-400' : 'text-slate-700'}`}>{match.scoreB}</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Inline Edit Panel */}
                     {editingMatchId === match.id && (
-                      <div className="border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-5 space-y-4 animate-in slide-in-from-top-2 duration-200">
+                      <div className="border-t border-slate-700 bg-slate-900/60 p-5 space-y-4 animate-in slide-in-from-top-2 duration-200">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tap to cycle: A → B → Out</p>
 
                         {/* Player Cycle Grid */}
@@ -322,9 +322,9 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                                   onClick={() => cyclePlayer(p.id)}
                                   className={clsx(
                                     "px-3 py-2 rounded-xl text-xs font-bold transition-all border active:scale-95 flex items-center gap-1.5",
-                                    isA ? "bg-sky-500 text-white border-sky-400" :
-                                    isB ? "bg-emerald-500 text-white border-emerald-400" :
-                                    "bg-white dark:bg-slate-700 text-slate-400 border-slate-200 dark:border-slate-600"
+                                    isA ? "bg-emerald-400 text-slate-950 border-emerald-300" :
+                                    isB ? "bg-emerald-600 text-white border-emerald-500" :
+                                    "bg-slate-700 text-slate-400 border-slate-600"
                                   )}
                                 >
                                   {p.name}
@@ -340,8 +340,8 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
 
                         {/* Score Inputs */}
                         <div className="grid grid-cols-2 gap-3">
-                          <div className="bg-sky-500/5 border border-sky-500/15 rounded-xl p-3 space-y-1">
-                            <p className="text-[9px] font-black text-sky-400 uppercase tracking-widest">
+                          <div className="bg-emerald-400/5 border border-emerald-400/15 rounded-xl p-3 space-y-1 text-left">
+                            <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">
                               Team A — {teamAIds.map(id => playerMap[id] || id).join(", ") || "none"}
                             </p>
                             <input
@@ -371,14 +371,14 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                           <button
                             onClick={handleSave}
                             disabled={isSaving}
-                            className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#13ec80] text-[#020617] rounded-xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all disabled:opacity-50"
+                            className="flex-1 flex items-center justify-center gap-2 py-3 bg-emerald-400 text-slate-950 rounded-xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all disabled:opacity-50 shadow-lg shadow-emerald-400/20"
                           >
                             <Check className="size-4" />
                             {isSaving ? "Saving..." : "Save"}
                           </button>
                           <button
                             onClick={cancelEdit}
-                            className="flex items-center justify-center size-12 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl active:scale-95 transition-all"
+                            className="flex items-center justify-center size-12 bg-slate-700 text-slate-300 rounded-xl active:scale-95 transition-all outline-none border border-slate-600"
                           >
                             <X className="size-4" />
                           </button>
@@ -393,22 +393,22 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
         </main>
 
         {/* Bottom Navigation */}
-        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-t border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-2xl border-t border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
           <div className="flex h-24 items-stretch px-4 max-w-[480px] mx-auto">
-            <button onClick={() => router.push(basePath)} className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group">
+            <button onClick={() => router.push(basePath)} className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-emerald-400 transition-colors group">
               <LayoutGrid className="size-6 group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Dash</span>
             </button>
-            <button onClick={() => router.push(`${basePath}/sessions`)} className="flex flex-1 flex-col items-center justify-center gap-1 text-[#13ec80] relative group">
+            <button onClick={() => router.push(`${basePath}/sessions`)} className="flex flex-1 flex-col items-center justify-center gap-1 text-emerald-400 relative group">
               <HistoryIcon className="size-6 group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Sessions</span>
-              <div className="absolute bottom-3 size-1.5 rounded-full bg-[#13ec80] shadow-[0_0_10px_rgba(19,236,128,0.8)]"></div>
+              <div className="absolute bottom-3 size-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(19,236,128,0.8)]"></div>
             </button>
-            <button onClick={() => router.push(`${basePath}/purchases`)} className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group">
+            <button onClick={() => router.push(`${basePath}/purchases`)} className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-emerald-400 transition-colors group">
               <Package className="size-6 group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Stock</span>
             </button>
-            <button onClick={() => router.push(`${basePath}/payments`)} className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group">
+            <button onClick={() => router.push(`${basePath}/payments`)} className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-emerald-400 transition-colors group">
               <Banknote className="size-6 group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Payments</span>
             </button>

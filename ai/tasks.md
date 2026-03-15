@@ -52,6 +52,11 @@
 ## Phase 46 — Mobile Dashboard Player Click Issue
 *   [x] Fix 404 error when clicking player card by using `/players/[id]` instead of `/player/[id]`
 
+## Phase 47 — Mobile App Theme Unification
+*   [x] Replace `sky` accents with `emerald` in Stock page
+*   [x] Replace `sky` accents with `emerald` in Player Profile
+*   [x] Verify backgrounds use `bg-slate-900` and cards use `bg-slate-800` on all mobile pages
+
 ## Current State
 
 The app is stable. All match CRUD operations (add, edit, delete) work on both desktop and mobile. Zero lint errors.
