@@ -7,40 +7,15 @@ export const revalidate = 0;
 export default async function SessionDetailsPage({ params }: { params: Promise<{ mode: string, id: string }> }) {
   const { mode, id } = await params;
 
-  const [
-    { data: session, error: sessionError },
-    { data: matchesData, error: matchesError },
-    { data: allSessions, error: allSessionsError }
-  ] = await Promise.all([
-    supabase
-      .from("sessions")
-      .select(`
-        *,
-        session_players ( players ( id, name ) ),
-        session_usage ( quantity_used, purchases ( price_per_cock ) )
-      `)
-      .eq("id", id)
-      .single(),
-    supabase
-      .from("matches")
-      .select(`
-        id, 
-        team_a_score, 
-        team_b_score, 
-        player1_id, 
-        player2_id, 
-        player3_id, 
-        player4_id,
-        players_a1:player1_id ( name ),
-        players_a2:player2_id ( name ),
-        players_b1:player3_id ( name ),
-        players_b2:player4_id ( name )
-      `)
-      .eq("session_id", id),
-    supabase.from("sessions").select("id").order("date", { ascending: true }).order("created_at", { ascending: true })
-  ]);
+  // 1. Fetch the main session
+  const { data: session, error: sessionError } = await supabase
+    .from("sessions")
+    .select("*")
+    .eq("id", id)
+    .single();
 
-  if (sessionError || matchesError || allSessionsError || !session) {
+  if (sessionError || !session) {
+    console.error("Session fetch error:", sessionError);
     return (
       <div className="p-8 text-rose-500 font-black italic uppercase flex items-center justify-center min-h-screen bg-[#020617]">
         Session not found or error loading data
@@ -48,30 +23,61 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
     );
   }
 
-  const sessionIndex = (allSessions || []).findIndex(s => s.id === id);
-  const sessionNum = sessionIndex !== -1 ? sessionIndex + 1 : "??";
+  // 2. Fetch all related data in parallel for speed
+  const [
+    { data: sessionPlayers, error: playersError },
+    { data: sessionUsage, error: usageError },
+    { data: matchesData, error: matchesError },
+    { data: allPlayers, error: allPlayersError },
+    { data: allSessions, error: allSessionsListError }
+  ] = await Promise.all([
+    supabase.from("session_players").select("*, players(id, name)").eq("session_id", id),
+    supabase.from("session_usage").select("*, purchases(*, brands(*))").eq("session_id", id),
+    supabase.from("matches").select("*").eq("session_id", id),
+    supabase.from("players").select("id, name"),
+    supabase.from("sessions").select("id").order("date", { ascending: true }).order("created_at", { ascending: true })
+  ]);
 
-  const sessionDate = new Date(session.date);
-
-  // Calculate Costs
-  let totalCost = 0;
-  let shuttlesUsed = 0;
-  if (session.session_usage && session.session_usage.length > 0) {
-    session.session_usage.forEach((su: any) => {
-      const qty = su.quantity_used || 0;
-      const price = su.purchases?.price_per_cock || 0;
-      shuttlesUsed += qty;
-      totalCost += (qty * price);
-    });
+  if (playersError || usageError || matchesError || allPlayersError || allSessionsListError) {
+    console.error("Error fetching related data:", { playersError, usageError, matchesError, allPlayersError, allSessionsListError });
+    return (
+      <div className="p-8 text-rose-500 font-black italic uppercase flex items-center justify-center min-h-screen bg-[#020617]">
+        Error loading session details
+      </div>
+    );
   }
 
-  const attendeesList = session.session_players?.map((sp: any) => ({
+  // 3. Build lookup maps
+  const playerMap = Object.fromEntries((allPlayers || []).map(p => [p.id, p.name]));
+  const sessionIndex = (allSessions || []).findIndex(s => s.id === id);
+  const sessionNum = sessionIndex !== -1 ? sessionIndex + 1 : "??";
+  const sessionDate = new Date(session.date);
+
+  // 4. Transform attendee data
+  let totalCost = 0;
+  let shuttlesUsedCount = 0;
+
+  const usage = (sessionUsage || []).map(su => {
+    const purchase = Array.isArray(su.purchases) ? su.purchases[0] : su.purchases;
+    const qty = su.quantity_used || 0;
+    const price = purchase?.price_per_cock || 0;
+    
+    shuttlesUsedCount += qty;
+    totalCost += (qty * price);
+    
+    return {
+        ...su,
+        cost: qty * price
+    };
+  });
+
+  const attendeesList = (sessionPlayers || []).map((sp: any) => ({
     id: sp.players?.id,
     name: sp.players?.name || "Unknown",
     role: "Player",
-    fee: totalCost / (session.session_players.length || 1),
-    paid: false // Without per-session payment tracking, default to false or handle properly
-  })) || [];
+    fee: totalCost / (sessionPlayers?.length || 1),
+    paid: false 
+  }));
 
   const costPerHead = attendeesList.length > 0 ? totalCost / attendeesList.length : 0;
 
@@ -82,20 +88,21 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
     time: sessionDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     location: session.location || "Default Court",
     division: "Social Play",
-    shuttlesUsed,
+    shuttlesUsed: shuttlesUsedCount,
     costPerHead,
     totalCost
   };
 
-  const getPlayerName = (p: any) => {
-      if (!p) return null;
-      if (Array.isArray(p)) return p[0]?.name;
-      return p.name;
-  };
-
+  // 5. Transform match data using lookup map
   const matches = (matchesData || []).map(m => {
-      const teamAStr = [getPlayerName(m.players_a1), getPlayerName(m.players_a2)].filter(Boolean).join(" & ");
-      const teamBStr = [getPlayerName(m.players_b1), getPlayerName(m.players_b2)].filter(Boolean).join(" & ");
+      // Handle both possible naming conventions just in case
+      const p1 = m.player1_id || m.team_a_player1;
+      const p2 = m.player2_id || m.team_a_player2;
+      const p3 = m.player3_id || m.team_b_player1;
+      const p4 = m.player4_id || m.team_b_player2;
+
+      const teamAStr = [playerMap[p1], playerMap[p2]].filter(Boolean).join(" & ");
+      const teamBStr = [playerMap[p3], playerMap[p4]].filter(Boolean).join(" & ");
 
       return {
         id: m.id,
@@ -103,10 +110,10 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
         teamB: teamBStr || "Team B",
         scoreA: m.team_a_score || 0,
         scoreB: m.team_b_score || 0,
-        player1_id: m.player1_id,
-        player2_id: m.player2_id,
-        player3_id: m.player3_id,
-        player4_id: m.player4_id,
+        player1_id: p1,
+        player2_id: p2,
+        player3_id: p3,
+        player4_id: p4,
         type: "Doubles",
         court: "Any",
         status: (m.team_a_score > 0 || m.team_b_score > 0) ? "Completed" as const : "Live" as const
