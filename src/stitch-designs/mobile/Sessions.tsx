@@ -14,7 +14,8 @@ import {
   ArrowLeft,
   Pencil,
   Trash,
-  Target
+  Target,
+  Feather
 } from 'lucide-react';
 import { deleteSession, updateSessionMetadata } from '@/lib/actions/sessions';
 import { useRouter, usePathname } from 'next/navigation';
@@ -62,29 +63,37 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
     <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-100 min-h-screen flex flex-col antialiased">
       <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-800 shadow-2xl pb-24">
         {/* Header Section */}
-        <header className="sticky top-0 z-20 bg-slate-900/80 backdrop-blur-md border-b border-emerald-400/10 px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-black italic tracking-tighter text-emerald-400 uppercase">Sessions</h1>
-            <button
-              onClick={() => router.push(`${basePath}/sessions/log-session`)}
-              className="bg-emerald-400 hover:bg-emerald-500 text-slate-950 px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-400/20 active:scale-95 transition-all">
-              <Plus className="size-4" />
-              LOG NEW
-            </button>
-          </div>
-          
-          {/* Search and Filter */}
-          <div className="flex flex-col gap-3">
-            <div className="relative group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-500 group-focus-within:text-emerald-400 transition-colors" />
-              <input 
-                className="w-full bg-slate-800 border-slate-700 rounded-2xl pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-400/20 focus:border-emerald-400 placeholder:text-slate-500 transition-all outline-none" 
-                placeholder="Search sessions..." 
-                type="text" 
-              />
+        <header className="sticky top-0 z-20 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-sky-400/10">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="size-8 rounded-lg bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-md shadow-sky-500/20">
+              <Feather className="size-5 text-white transform rotate-45" />
             </div>
+            <h1 className="text-2xl font-black text-slate-50 tracking-tighter">
+              Cock<span className="text-sky-400">Count</span>
+            </h1>
           </div>
+          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">
+             Because Shuttlecocks Aren't Free
+          </p>
+          <button
+            onClick={() => router.push(`${basePath}/sessions/log-session`)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 bg-sky-400/10 hover:bg-sky-400/20 text-sky-400 p-2 rounded-xl transition-all active:scale-95"
+          >
+            <Plus className="size-5" />
+          </button>
         </header>
+
+        {/* Search and Filter */}
+        <div className="flex flex-col gap-3 p-4">
+          <div className="relative group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-500 group-focus-within:text-emerald-400 transition-colors" />
+            <input 
+              className="w-full bg-slate-800 border-slate-700 rounded-2xl pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-400/20 focus:border-emerald-400 placeholder:text-slate-500 transition-all outline-none text-left" 
+              placeholder="Search sessions..." 
+              type="text" 
+            />
+          </div>
+        </div>
 
         {/* Main Content: Session List */}
         <main className="flex-1 px-4 py-6 space-y-6 text-left">

@@ -12,7 +12,8 @@ import {
   History, 
   Package, 
   Banknote,
-  Clock
+  Clock,
+  Feather
 } from 'lucide-react';
 
 import { useState } from 'react';
@@ -102,14 +103,21 @@ export default function MobileLogSessions({ tubes, players }: MobileLogSessionsP
     <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-100 min-h-screen flex flex-col antialiased pb-48">
       <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-800 shadow-2xl bg-slate-900">
         {/* Header */}
-        <header className="sticky top-0 z-30 bg-slate-900/80 backdrop-blur-md border-b border-emerald-400/20 px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button onClick={() => router.back()} className="p-1 hover:bg-slate-800 rounded-lg transition-colors">
-              <ArrowLeft className="text-emerald-400 size-6" />
-            </button>
-            <h1 className="text-2xl font-black italic tracking-tighter uppercase">Log Session</h1>
+        <header className="sticky top-0 z-20 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-sky-400/10">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="size-8 rounded-lg bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-md shadow-sky-500/20">
+              <Feather className="size-5 text-white transform rotate-45" />
+            </div>
+            <h1 className="text-2xl font-black text-slate-50 tracking-tighter">
+              Cock<span className="text-sky-400">Count</span>
+            </h1>
           </div>
-          <div className="bg-emerald-400/10 text-emerald-400 border border-emerald-400/20 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest leading-none">Live</div>
+          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">
+             Because Shuttlecocks Aren't Free
+          </p>
+          <button onClick={() => router.back()} className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center size-10 rounded-xl bg-slate-800 border border-slate-700 transition-all active:scale-95 shadow-sm">
+            <ArrowLeft className="size-5 text-slate-100" />
+          </button>
         </header>
 
         <main className="p-4 space-y-8 flex-1 text-left">

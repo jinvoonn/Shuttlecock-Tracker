@@ -12,7 +12,8 @@ import {
   Pencil,
   Trash2,
   Package,
-  CheckCircle2
+  CheckCircle2,
+  Feather
 } from 'lucide-react';
 import Link from 'next/link';
 import clsx from 'clsx';
@@ -79,8 +80,19 @@ export default function DesktopSessionDetails({ session, matches, attendees }: D
             <Link href={`${basePath}/sessions`} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors">
               <ArrowLeft className="size-5" />
             </Link>
-            <Trophy className="text-[#13ec80] size-8" />
-            <h1 className="text-xl font-black tracking-tighter italic uppercase">CockCount</h1>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <div className="size-8 rounded-lg bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-md shadow-sky-500/20">
+                  <Feather className="size-4 text-white transform rotate-45" />
+                </div>
+                <h1 className="text-xl font-black tracking-tighter italic uppercase text-slate-900 dark:text-slate-50">
+                  Cock<span className="text-sky-400">Count</span>
+                </h1>
+              </div>
+              <p className="text-[8px] text-slate-500 font-bold uppercase tracking-[0.2em] pl-1">
+                Because Shuttlecocks Aren't Free
+              </p>
+            </div>
           </div>
         </div>
       </header>

@@ -13,7 +13,8 @@ import {
   TrendingDown,
   Pencil,
   Trash,
-  History as HistoryIcon
+  History as HistoryIcon,
+  Feather
 } from 'lucide-react';
 import { usePathname, useRouter } from "next/navigation";
 import { editPayment, deletePayment } from '@/lib/actions/payments';
@@ -64,13 +65,18 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
     <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-100 min-h-screen flex flex-col antialiased">
       <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-800 shadow-2xl bg-slate-900">
         {/* Header Section */}
-        <header className="sticky top-0 z-30 bg-slate-900/80 backdrop-blur-md border-b border-emerald-400/10 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Banknote className="text-emerald-400 size-8" />
-              <h1 className="text-2xl font-black italic tracking-tighter uppercase leading-none text-emerald-400">PAYMENTS</h1>
+        <header className="sticky top-0 z-20 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-sky-400/10">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="size-8 rounded-lg bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-md shadow-sky-500/20">
+              <Feather className="size-5 text-white transform rotate-45" />
             </div>
+            <h1 className="text-2xl font-black text-slate-50 tracking-tighter">
+              Cock<span className="text-sky-400">Count</span>
+            </h1>
           </div>
+          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">
+             Because Shuttlecocks Aren't Free
+          </p>
         </header>
 
         <main className="flex-1 p-6 space-y-10 pb-40 text-left">

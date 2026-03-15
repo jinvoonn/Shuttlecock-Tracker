@@ -14,7 +14,8 @@ import {
   History, 
   Package, 
   Banknote,
-  DollarSign
+  DollarSign,
+  Feather
 } from 'lucide-react';
 
 import { useState } from 'react';
@@ -77,12 +78,21 @@ export default function MobileAddNewStock({ brands: serverBrands }: { brands: Br
     <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-100 min-h-screen flex flex-col antialiased">
       <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-800 shadow-2xl bg-slate-900">
         {/* Header */}
-        <header className="flex items-center justify-between p-6 border-b border-emerald-400/10 bg-slate-900 sticky top-0 z-30 text-left">
-          <button onClick={() => router.back()} className="flex items-center justify-center size-10 rounded-xl bg-slate-800 border border-slate-700 transition-all active:scale-95 shadow-sm">
+        <header className="sticky top-0 z-20 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-sky-400/10">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="size-8 rounded-lg bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-md shadow-sky-500/20">
+              <Feather className="size-5 text-white transform rotate-45" />
+            </div>
+            <h1 className="text-2xl font-black text-slate-50 tracking-tighter">
+              Cock<span className="text-sky-400">Count</span>
+            </h1>
+          </div>
+          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">
+             Because Shuttlecocks Aren't Free
+          </p>
+          <button onClick={() => router.back()} className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center size-10 rounded-xl bg-slate-800 border border-slate-700 transition-all active:scale-95 shadow-sm">
             <ArrowLeft className="size-5 text-slate-100" />
           </button>
-          <h1 className="text-xl font-black italic uppercase tracking-tighter text-emerald-400">Add New Stock</h1>
-          <div className="size-10"></div>
         </header>
 
         <main className="flex-1 p-6 space-y-10 pb-40 text-left">

@@ -9,7 +9,8 @@ import {
   Plus, 
   Search, 
   Zap,
-  ArrowLeft
+  ArrowLeft,
+  Feather
 } from 'lucide-react';
 import { useRouter } from "next/navigation";
 import { addSession, editSession } from "@/lib/actions/sessions";
@@ -126,17 +127,23 @@ export default function DesktopSessions({ tubes, players, initialData }: Desktop
   return (
     <div className="bg-[#f6f8f7] dark:bg-[#020617] font-['Lexend',_sans-serif] text-slate-900 dark:text-slate-100 min-h-screen">
       <div className="max-w-6xl mx-auto px-4 pb-32 pt-8">
-        {/* Header Section */}
-        <header className="flex items-center justify-between py-4 border-b border-slate-200 dark:border-[#1e293b] mb-8">
-          <div className="flex items-center gap-4">
+        <header className="flex flex-col items-center justify-center py-6 border-b border-slate-200 dark:border-sky-400/10 mb-8">
+          <div className="flex items-center gap-4 mb-2">
             <Link href={`${basePath}/sessions`} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors hidden lg:block">
               <ArrowLeft className="size-6 text-slate-400" />
             </Link>
-            <PlusCircle className="text-[#13ec80] size-8" />
-            <h1 className="text-3xl font-black italic tracking-tighter uppercase dark:text-slate-100">
-              {isEdit ? "EDIT SESSION" : "LOG NEW SESSION"}
-            </h1>
+            <div className="flex items-center gap-3">
+              <div className="size-9 rounded-xl bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
+                <Feather className="size-5 text-white transform rotate-45" />
+              </div>
+              <h1 className="text-3xl font-black italic tracking-tighter uppercase dark:text-slate-100">
+                {isEdit ? "Edit Session" : "Log New Session"}
+              </h1>
+            </div>
           </div>
+          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">
+            Because Shuttlecocks Aren't Free
+          </p>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">

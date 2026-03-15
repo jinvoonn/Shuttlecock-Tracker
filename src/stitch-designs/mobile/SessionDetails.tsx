@@ -16,7 +16,8 @@ import {
   Pencil,
   Trash2,
   Check,
-  X
+  X,
+  Feather
 } from 'lucide-react';
 
 import { useRouter, usePathname } from "next/navigation";
@@ -161,17 +162,21 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
   return (
     <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
       <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-200 dark:border-slate-800 shadow-2xl pb-32">
-        {/* Header */}
-        <header className="sticky top-0 z-30 bg-slate-900/80 backdrop-blur-md border-b border-emerald-400/10">
-          <div className="flex items-center p-4 justify-between">
-            <button onClick={() => router.back()} className="text-emerald-400 flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-400/10 active:scale-95 transition-transform">
-              <ArrowLeft className="size-5" />
-            </button>
-            <div className="flex-1 px-4 text-center">
-              <h1 className="text-slate-900 dark:text-slate-100 text-lg font-black tracking-tight uppercase italic truncate">{session.name}</h1>
+        <header className="sticky top-0 z-20 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-sky-400/10">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="size-8 rounded-lg bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-md shadow-sky-500/20">
+              <Feather className="size-5 text-white transform rotate-45" />
             </div>
-            <div className="size-10"></div>
+            <h1 className="text-2xl font-black text-slate-50 tracking-tighter">
+              Cock<span className="text-sky-400">Count</span>
+            </h1>
           </div>
+          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">
+             Because Shuttlecocks Aren't Free
+          </p>
+          <button onClick={() => router.back()} className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center size-10 rounded-xl bg-slate-800 border border-slate-700 transition-all active:scale-95 shadow-sm">
+            <ArrowLeft className="size-5 text-slate-100" />
+          </button>
         </header>
 
         <main className="flex-1 overflow-y-auto">

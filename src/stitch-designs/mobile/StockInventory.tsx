@@ -14,7 +14,8 @@ import {
   Trash,
   LayoutGrid,
   History as HistoryIcon,
-  Banknote
+  Banknote,
+  Feather
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -79,10 +80,20 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
     <div className="bg-slate-900 font-['Inter',_sans-serif] text-slate-100 antialiased min-h-screen pb-40">
       <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-800 shadow-2xl">
         {/* Header Section */}
-        <header className="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-xl px-6 py-8 flex items-center justify-between border-b border-slate-800">
-          <h1 className="text-4xl font-black italic tracking-tighter text-emerald-400 uppercase font-['Lexend',_sans-serif]">STOCK</h1>
-          <div className="flex gap-3">
-            <button className="flex items-center justify-center size-10 rounded-2xl bg-slate-800 border border-slate-700 text-emerald-400 active:scale-95 transition-transform shadow-lg">
+        <header className="sticky top-0 z-20 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-sky-400/10">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="size-8 rounded-lg bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-md shadow-sky-500/20">
+              <Feather className="size-5 text-white transform rotate-45" />
+            </div>
+            <h1 className="text-2xl font-black text-slate-50 tracking-tighter">
+              Cock<span className="text-sky-400">Count</span>
+            </h1>
+          </div>
+          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">
+             Because Shuttlecocks Aren't Free
+          </p>
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 flex gap-3">
+            <button className="flex items-center justify-center size-10 rounded-xl bg-slate-800 border border-slate-700 text-sky-400 active:scale-95 transition-transform">
               <Search className="size-5" />
             </button>
           </div>
