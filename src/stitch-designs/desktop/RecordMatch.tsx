@@ -7,10 +7,7 @@ import {
   CalendarDays, 
   Package, 
   Wallet, 
-  Search, 
-  PlusCircle, 
-  CheckCircle2,
-  X,
+  Search,
   Users
 } from 'lucide-react';
 import { useRouter, usePathname } from "next/navigation";
@@ -40,31 +37,17 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
   const [scoreB, setScoreB] = useState(19);
   const [matchType, setMatchType] = useState("Men's Doubles");
   const [court, setCourt] = useState("1");
-  const [isSearching, setIsSearching] = useState<{ active: boolean; team: 'A' | 'B' | null }>({ active: false, team: null });
-  const [searchTerm, setSearchTerm] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const filteredPlayers = players.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) && 
-    !teamAIds.includes(p.id) && 
-    !teamBIds.includes(p.id)
-  );
-
-  const handleAddPlayer = (playerId: string) => {
-    if (isSearching.team === 'A') {
-      setTeamAIds([...teamAIds, playerId]);
-    } else if (isSearching.team === 'B') {
-      setTeamBIds([...teamBIds, playerId]);
-    }
-    setIsSearching({ active: false, team: null });
-    setSearchTerm('');
-  };
-
-  const handleRemovePlayer = (playerId: string, team: 'A' | 'B') => {
-    if (team === 'A') {
-      setTeamAIds(teamAIds.filter(id => id !== playerId));
+  // Cycle: Unselected → Team A → Team B → Unselected
+  const togglePlayer = (id: string) => {
+    if (teamAIds.includes(id)) {
+      setTeamAIds(teamAIds.filter(pid => pid !== id));
+      setTeamBIds([...teamBIds, id]);
+    } else if (teamBIds.includes(id)) {
+      setTeamBIds(teamBIds.filter(pid => pid !== id));
     } else {
-      setTeamBIds(teamBIds.filter(id => id !== playerId));
+      setTeamAIds([...teamAIds, id]);
     }
   };
 
@@ -280,114 +263,81 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
                 </div>
               </section>
 
-              {/* Team Selection */}
+              {/* Team Selection - Cycle Based */}
               <section className="bg-slate-900/60 p-8 rounded-xl border border-slate-800 shadow-sm grow relative">
-                <div className="flex justify-between items-center mb-8">
-                  <h3 className="text-xs font-black uppercase text-slate-500 tracking-widest">Team Rosters</h3>
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-xs font-black uppercase text-slate-500 tracking-widest">Player Assignment</h3>
+                  <span className="text-[10px] text-slate-600 italic font-medium">Click to cycle: Team A → Team B → Out</span>
                 </div>
 
-                {isSearching.active && (
-                  <div className="absolute inset-0 z-20 bg-slate-900/95 backdrop-blur-md rounded-xl border border-slate-800 p-8 shadow-2xl flex flex-col">
-                    <div className="flex justify-between items-center mb-6">
-                      <h4 className="text-sm font-bold text-[#13ec80] uppercase tracking-widest">
-                        Adding to Team {isSearching.team}
-                      </h4>
-                      <button onClick={() => { setIsSearching({ active: false, team: null }); setSearchTerm(''); }} className="p-2 text-slate-400 hover:text-white rounded-full bg-slate-800 transition-colors">
-                        <X className="size-5" />
-                      </button>
-                    </div>
-                    <div className="relative mb-6">
-                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 size-5" />
-                      <input 
-                        className="w-full bg-slate-950 border border-slate-700 rounded-lg text-lg pl-12 pr-4 py-4 focus:ring-2 focus:ring-[#13ec80] outline-none text-slate-100 placeholder:text-slate-600 transition-all font-bold" 
-                        placeholder="Search by name..." 
-                        type="text" 
-                        autoFocus
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                      />
-                    </div>
-                    <div className="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
-                      {filteredPlayers.length === 0 && (
-                        <div className="text-center py-10 text-slate-500 font-bold">No players found.</div>
-                      )}
-                      {filteredPlayers.map(p => (
-                        <div 
-                          key={p.id}
-                          onClick={() => handleAddPlayer(p.id)}
-                          className="flex items-center justify-between p-4 bg-slate-950 border border-slate-800 rounded-lg hover:border-[#13ec80]/50 cursor-pointer transition-all hover:bg-[#13ec80]/5 group"
-                        >
-                          <span className="text-lg font-bold uppercase tracking-tight text-slate-300 group-hover:text-white">{p.name}</span>
-                          <PlusCircle className="text-slate-600 group-hover:text-[#13ec80] size-6" />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-2 gap-8">
-                  {/* Alpha Players Selection */}
-                  <div className="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex flex-col">
-                    <div className="bg-slate-900/80 p-4 border-b border-slate-800 flex justify-between items-center">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Team Alpha</span>
-                      <span className="text-[10px] font-bold text-slate-500 font-mono">{teamAIds.length} Players</span>
-                    </div>
-                    <div className="p-4 space-y-2 flex-1 min-h-[200px]">
-                      {teamAIds.map(id => {
-                        const player = players.find(p => p.id === id);
-                        return player ? (
-                          <div key={id} className="flex items-center justify-between p-3 bg-slate-900 rounded-lg border border-slate-800 relative group overflow-hidden">
-                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#13ec80]" />
-                            <span className="text-sm font-bold uppercase ml-2">{player.name}</span>
-                            <button 
-                              onClick={() => handleRemovePlayer(id, 'A')}
-                              className="text-slate-600 hover:text-rose-500 p-1 rounded-md transition-colors"
-                            >
-                              <X className="size-4" />
-                            </button>
-                          </div>
-                        ) : null;
-                      })}
-                      <button 
-                        onClick={() => setIsSearching({ active: true, team: 'A' })}
-                        className="w-full py-4 border-2 border-dashed border-slate-800 rounded-lg text-slate-500 hover:text-[#13ec80] hover:border-[#13ec80]/50 transition-all flex flex-col items-center justify-center gap-2"
+                {/* Player Grid */}
+                <div className="flex flex-wrap gap-2 mb-6 min-h-[80px] p-1">
+                  {players.map(p => {
+                    const isTeamA = teamAIds.includes(p.id);
+                    const isTeamB = teamBIds.includes(p.id);
+                    return (
+                      <button
+                        key={p.id}
+                        onClick={() => togglePlayer(p.id)}
+                        className={clsx(
+                          "px-4 py-2.5 rounded-xl text-sm font-bold transition-all border active:scale-95 flex items-center gap-2",
+                          isTeamA
+                            ? "bg-indigo-500 text-white border-indigo-400 shadow-lg shadow-indigo-500/20"
+                            : isTeamB
+                              ? "bg-emerald-500 text-white border-emerald-400 shadow-lg shadow-emerald-500/20"
+                              : "bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-600 hover:text-slate-200"
+                        )}
                       >
-                        <Users className="size-6" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest">Add Player</span>
+                        {p.name}
+                        {isTeamA && <span className="bg-white/20 px-1.5 py-0.5 rounded text-[9px] font-black">A</span>}
+                        {isTeamB && <span className="bg-white/20 px-1.5 py-0.5 rounded text-[9px] font-black">B</span>}
                       </button>
+                    );
+                  })}
+                  {players.length === 0 && (
+                    <div className="text-slate-600 text-sm font-medium flex items-center gap-2">
+                      <Users className="size-4" /> No players in this session.
                     </div>
-                  </div>
+                  )}
+                </div>
 
-                  {/* Bravo Players Selection */}
-                  <div className="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex flex-col">
-                    <div className="bg-slate-900/80 p-4 border-b border-slate-800 flex justify-between items-center">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Team Bravo</span>
-                      <span className="text-[10px] font-bold text-slate-500 font-mono">{teamBIds.length} Players</span>
-                    </div>
-                    <div className="p-4 space-y-2 flex-1 min-h-[200px]">
-                      {teamBIds.map(id => {
-                        const player = players.find(p => p.id === id);
-                        return player ? (
-                          <div key={id} className="flex items-center justify-between p-3 bg-slate-900 rounded-lg border border-slate-800 relative group overflow-hidden">
-                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-slate-500" />
-                            <span className="text-sm font-bold uppercase ml-2">{player.name}</span>
-                            <button 
-                              onClick={() => handleRemovePlayer(id, 'B')}
-                              className="text-slate-600 hover:text-rose-500 p-1 rounded-md transition-colors"
-                            >
-                              <X className="size-4" />
-                            </button>
-                          </div>
-                        ) : null;
-                      })}
-                      <button 
-                        onClick={() => setIsSearching({ active: true, team: 'B' })}
-                        className="w-full py-4 border-2 border-dashed border-slate-800 rounded-lg text-slate-500 hover:text-slate-300 hover:border-slate-500/50 transition-all flex flex-col items-center justify-center gap-2"
-                      >
-                        <Users className="size-6" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest">Add Player</span>
-                      </button>
-                    </div>
+                {/* Team Preview */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-indigo-500/5 border border-indigo-500/15 rounded-xl p-4">
+                    <div className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">Team Alpha</div>
+                    {teamAIds.length === 0 ? (
+                      <p className="text-xs text-slate-600 italic">No players selected</p>
+                    ) : (
+                      <div className="space-y-1">
+                        {teamAIds.map(id => {
+                          const p = players.find(pl => pl.id === id);
+                          return p ? (
+                            <div key={id} className="text-sm font-bold text-indigo-200 flex items-center gap-1.5">
+                              <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full" />
+                              {p.name}
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
+                  </div>
+                  <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-xl p-4">
+                    <div className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-2">Team Bravo</div>
+                    {teamBIds.length === 0 ? (
+                      <p className="text-xs text-slate-600 italic">No players selected</p>
+                    ) : (
+                      <div className="space-y-1">
+                        {teamBIds.map(id => {
+                          const p = players.find(pl => pl.id === id);
+                          return p ? (
+                            <div key={id} className="text-sm font-bold text-emerald-200 flex items-center gap-1.5">
+                              <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />
+                              {p.name}
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
               </section>
