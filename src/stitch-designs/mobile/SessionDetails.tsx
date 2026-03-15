@@ -1,9 +1,8 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   ArrowLeft, 
-  MoreVertical, 
   Package, 
   PlusCircle, 
   LayoutGrid, 
@@ -12,13 +11,17 @@ import {
   Calendar,
   Clock,
   MapPin,
-  ChevronRight,
   TrendingUp,
-  Share2,
-  History as HistoryIcon
+  History as HistoryIcon,
+  Pencil,
+  Trash2,
+  Check,
+  X
 } from 'lucide-react';
 
 import { useRouter, usePathname } from "next/navigation";
+import { deleteMatch, updateMatch } from "@/lib/actions/matches";
+import clsx from "clsx";
 
 interface SessionMeta {
   id: string;
@@ -41,6 +44,10 @@ interface Match {
   type: string;
   court: string;
   status: 'Completed' | 'Live';
+  team_a_player1?: string;
+  team_a_player2?: string;
+  team_b_player1?: string;
+  team_b_player2?: string;
 }
 
 interface Attendee {
@@ -51,17 +58,105 @@ interface Attendee {
   paid: boolean;
 }
 
+interface SessionPlayer {
+  id: string;
+  name: string;
+}
+
 interface MobileSessionDetailsProps {
   session: SessionMeta;
   matches: Match[];
   attendees: Attendee[];
+  sessionPlayers?: SessionPlayer[];
 }
 
-export default function MobileSessionDetails({ session, matches, attendees }: MobileSessionDetailsProps) {
+export default function MobileSessionDetails({ session, matches, attendees, sessionPlayers = [] }: MobileSessionDetailsProps) {
   const router = useRouter();
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
+
+  const [editingMatchId, setEditingMatchId] = useState<string | null>(null);
+  const [playerTeams, setPlayerTeams] = useState<Record<string, number>>({});
+  const [editScoreA, setEditScoreA] = useState("");
+  const [editScoreB, setEditScoreB] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Cycle: None (0) → Team A (1) → Team B (2) → None (0)
+  const cyclePlayer = (id: string) => {
+    setPlayerTeams(prev => {
+      const current = prev[id] ?? 0;
+      const next = (current + 1) % 3;
+      return { ...prev, [id]: next };
+    });
+  };
+
+  const teamAIds = Object.entries(playerTeams).filter(([, v]) => v === 1).map(([k]) => k);
+  const teamBIds = Object.entries(playerTeams).filter(([, v]) => v === 2).map(([k]) => k);
+
+  const startEdit = (match: Match) => {
+    const teams: Record<string, number> = {};
+    if (match.team_a_player1) teams[match.team_a_player1] = 1;
+    if (match.team_a_player2 && match.team_a_player2 !== match.team_a_player1) teams[match.team_a_player2] = 1;
+    if (match.team_b_player1) teams[match.team_b_player1] = 2;
+    if (match.team_b_player2 && match.team_b_player2 !== match.team_b_player1) teams[match.team_b_player2] = 2;
+    setPlayerTeams(teams);
+    setEditScoreA(match.scoreA.toString());
+    setEditScoreB(match.scoreB.toString());
+    setEditingMatchId(match.id);
+  };
+
+  const cancelEdit = () => {
+    setEditingMatchId(null);
+    setPlayerTeams({});
+    setEditScoreA("");
+    setEditScoreB("");
+  };
+
+  const handleSave = async () => {
+    if (!editingMatchId) return;
+    if (!teamAIds.length || !teamBIds.length) {
+      alert("Each team must have at least 1 player.");
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const payload = JSON.stringify({
+        sessionId: session.id,
+        teamAIds,
+        teamBIds,
+        scoreA: parseInt(editScoreA) || 0,
+        scoreB: parseInt(editScoreB) || 0,
+      });
+      const result = await updateMatch(editingMatchId, payload);
+      if (result && !result.success) {
+        alert("Failed to save: " + result.error);
+        return;
+      }
+      cancelEdit();
+      router.refresh();
+    } catch (err: unknown) {
+      alert("Error: " + (err instanceof Error ? err.message : "Unknown error"));
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async (matchId: string) => {
+    if (!confirm("Are you sure you want to delete this match?")) return;
+    try {
+      const result = await deleteMatch(matchId);
+      if (result && !result.success) {
+        alert("Failed to delete: " + result.error);
+        return;
+      }
+      router.refresh();
+    } catch (err: unknown) {
+      alert("Error: " + (err instanceof Error ? err.message : "Unknown error"));
+    }
+  };
+
+  const playerMap = Object.fromEntries(sessionPlayers.map(p => [p.id, p.name]));
 
   return (
     <div className="bg-[#f6f8f7] dark:bg-[#102219] font-['Lexend',_sans-serif] text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
@@ -105,20 +200,20 @@ export default function MobileSessionDetails({ session, matches, attendees }: Mo
 
             {/* Quick Summary */}
             <div className="grid grid-cols-3 gap-3 mb-8">
-              <div className={`flex flex-col gap-1 rounded-2xl p-4 bg-white dark:bg-slate-900 border-l-4 border-[#13ec80] shadow-sm text-left`}>
+              <div className="flex flex-col gap-1 rounded-2xl p-4 bg-white dark:bg-slate-900 border-l-4 border-[#13ec80] shadow-sm text-left">
                 <p className="text-slate-400 dark:text-slate-500 text-[9px] font-black uppercase tracking-widest">Shuttles</p>
                 <p className="text-slate-900 dark:text-slate-100 text-xl font-black italic leading-none mt-1">
                   {session.shuttlesUsed} 
                   <span className="text-[10px] not-italic font-bold text-slate-400 ml-1 uppercase">Units</span>
                 </p>
               </div>
-              <div className={`flex flex-col gap-1 rounded-2xl p-4 bg-white dark:bg-slate-900 border-l-4 border-blue-500 shadow-sm text-left`}>
+              <div className="flex flex-col gap-1 rounded-2xl p-4 bg-white dark:bg-slate-900 border-l-4 border-blue-500 shadow-sm text-left">
                 <p className="text-slate-400 dark:text-slate-500 text-[9px] font-black uppercase tracking-widest">Cost/Head</p>
                 <p className="text-slate-900 dark:text-slate-100 text-xl font-black italic leading-none mt-1">
                   ${session.costPerHead.toFixed(2)}
                 </p>
               </div>
-              <div className={`flex flex-col gap-1 rounded-2xl p-4 bg-white dark:bg-slate-900 border-l-4 border-purple-500 shadow-sm text-left`}>
+              <div className="flex flex-col gap-1 rounded-2xl p-4 bg-white dark:bg-slate-900 border-l-4 border-purple-500 shadow-sm text-left">
                 <p className="text-slate-400 dark:text-slate-500 text-[9px] font-black uppercase tracking-widest">Total</p>
                 <p className="text-slate-900 dark:text-slate-100 text-xl font-black italic leading-none mt-1">
                   ${session.totalCost.toFixed(2)}
@@ -134,7 +229,7 @@ export default function MobileSessionDetails({ session, matches, attendees }: Mo
               <div className="flex flex-col gap-2">
                 {attendees.length === 0 && <p className="text-slate-500 text-sm text-center py-4">No attendees listed.</p>}
                 {attendees.map((person) => (
-                  <div key={person.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm transition-all hover:bg-slate-50 dark:hover:bg-slate-800/80 group">
+                  <div key={person.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
                     <div className="flex items-center gap-3">
                       <div className="size-10 rounded-full bg-[#13ec80]/10 flex items-center justify-center border border-[#13ec80]/20 text-[#13ec80] font-black text-xs uppercase">
                         {person.name.split(' ').map(n => n[0]).join('')}
@@ -167,36 +262,129 @@ export default function MobileSessionDetails({ session, matches, attendees }: Mo
                   <span className="text-[10px] font-black uppercase tracking-widest">Log Result</span>
                 </button>
               </div>
+
               <div className="flex flex-col gap-4">
                 {matches.length === 0 && <p className="text-slate-500 text-sm text-center py-8">No matches recorded yet.</p>}
                 {matches.map((match) => (
-                  <div key={match.id} className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-100 dark:border-slate-800 shadow-lg group hover:border-[#13ec80]/30 transition-all text-left">
-                    <div className="flex justify-between items-center mb-6">
-                      <div className="flex items-center gap-2">
-                         {match.status === 'Completed' ? <TrendingUp className="size-3 text-[#13ec80]" /> : <Activity className="size-3 text-amber-500" />}
-                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic leading-none">{match.type}</span>
+                  <div key={match.id} className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-lg overflow-hidden">
+                    
+                    {/* Match Card Content */}
+                    <div className="p-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex items-center gap-2">
+                          {match.status === 'Completed' ? <TrendingUp className="size-3 text-[#13ec80]" /> : <Activity className="size-3 text-amber-500" />}
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">{match.type}</span>
+                        </div>
+                        {/* Action Buttons */}
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => startEdit(match)}
+                            className="flex items-center justify-center size-8 rounded-xl bg-sky-500/10 text-sky-400 hover:bg-sky-500/20 active:scale-95 transition-all"
+                          >
+                            <Pencil className="size-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(match.id)}
+                            className="flex items-center justify-center size-8 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 active:scale-95 transition-all"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </div>
                       </div>
-                      <span className={`text-[9px] font-black px-2 py-1 rounded uppercase tracking-tighter italic ${match.status === 'Completed' ? 'text-[#13ec80] bg-[#13ec80]/10' : 'text-amber-500 bg-amber-500/10'}`}>
-                        {match.status}
-                      </span>
-                    </div>
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-8">
-                      <div className="flex-1 w-full flex flex-col gap-3">
-                        <div className="flex justify-between items-center group/team">
-                          <span className="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-tight truncate max-w-[140px] italic">{match.teamA}</span>
+
+                      <div className="flex flex-col gap-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-tight truncate max-w-[160px] italic">{match.teamA}</span>
                           <span className={`text-3xl font-black italic leading-none tabular-nums ${match.scoreA >= match.scoreB && match.status === 'Completed' ? 'text-[#13ec80]' : 'text-slate-300 dark:text-slate-700'}`}>{match.scoreA}</span>
                         </div>
-                        <div className="flex justify-between items-center group/team">
-                          <span className="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tight truncate max-w-[140px] italic">{match.teamB}</span>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tight truncate max-w-[160px] italic">{match.teamB}</span>
                           <span className={`text-3xl font-black italic leading-none tabular-nums ${match.scoreB >= match.scoreA && match.status === 'Completed' ? 'text-[#13ec80]' : 'text-slate-300 dark:text-slate-700'}`}>{match.scoreB}</span>
                         </div>
                       </div>
-                      <div className="hidden sm:block w-[1px] h-12 bg-slate-100 dark:bg-slate-800"></div>
-                      <div className="sm:text-center shrink-0 flex sm:flex-col items-center gap-2 sm:gap-1 w-full sm:w-auto pt-4 sm:pt-0 border-t sm:border-t-0 border-slate-50 dark:border-slate-800">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Court</p>
-                        <p className="text-xl font-black text-slate-900 dark:text-slate-100 italic leading-none">{match.court}</p>
-                      </div>
                     </div>
+
+                    {/* Inline Edit Panel */}
+                    {editingMatchId === match.id && (
+                      <div className="border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-5 space-y-4 animate-in slide-in-from-top-2 duration-200">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tap to cycle: A → B → Out</p>
+
+                        {/* Player Cycle Grid */}
+                        {sessionPlayers.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {sessionPlayers.map(p => {
+                              const state = playerTeams[p.id] ?? 0;
+                              const isA = state === 1;
+                              const isB = state === 2;
+                              return (
+                                <button
+                                  key={p.id}
+                                  onClick={() => cyclePlayer(p.id)}
+                                  className={clsx(
+                                    "px-3 py-2 rounded-xl text-xs font-bold transition-all border active:scale-95 flex items-center gap-1.5",
+                                    isA ? "bg-sky-500 text-white border-sky-400" :
+                                    isB ? "bg-emerald-500 text-white border-emerald-400" :
+                                    "bg-white dark:bg-slate-700 text-slate-400 border-slate-200 dark:border-slate-600"
+                                  )}
+                                >
+                                  {p.name}
+                                  {isA && <span className="bg-white/20 px-1 rounded text-[8px] font-black">A</span>}
+                                  {isB && <span className="bg-white/20 px-1 rounded text-[8px] font-black">B</span>}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-slate-500 italic">No player data available for editing.</p>
+                        )}
+
+                        {/* Score Inputs */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="bg-sky-500/5 border border-sky-500/15 rounded-xl p-3 space-y-1">
+                            <p className="text-[9px] font-black text-sky-400 uppercase tracking-widest">
+                              Team A — {teamAIds.map(id => playerMap[id] || id).join(", ") || "none"}
+                            </p>
+                            <input
+                              type="number"
+                              className="w-full bg-transparent text-slate-100 text-lg font-black outline-none"
+                              value={editScoreA}
+                              onChange={e => setEditScoreA(e.target.value)}
+                              placeholder="0"
+                            />
+                          </div>
+                          <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-xl p-3 space-y-1">
+                            <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">
+                              Team B — {teamBIds.map(id => playerMap[id] || id).join(", ") || "none"}
+                            </p>
+                            <input
+                              type="number"
+                              className="w-full bg-transparent text-slate-100 text-lg font-black outline-none"
+                              value={editScoreB}
+                              onChange={e => setEditScoreB(e.target.value)}
+                              placeholder="0"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Save / Cancel */}
+                        <div className="flex gap-2">
+                          <button
+                            onClick={handleSave}
+                            disabled={isSaving}
+                            className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#13ec80] text-[#020617] rounded-xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all disabled:opacity-50"
+                          >
+                            <Check className="size-4" />
+                            {isSaving ? "Saving..." : "Save"}
+                          </button>
+                          <button
+                            onClick={cancelEdit}
+                            className="flex items-center justify-center size-12 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl active:scale-95 transition-all"
+                          >
+                            <X className="size-4" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -207,32 +395,20 @@ export default function MobileSessionDetails({ session, matches, attendees }: Mo
         {/* Bottom Navigation */}
         <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-t border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
           <div className="flex h-24 items-stretch px-4 max-w-[480px] mx-auto">
-            <button 
-              onClick={() => router.push(basePath)}
-              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group"
-            >
+            <button onClick={() => router.push(basePath)} className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group">
               <LayoutGrid className="size-6 group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Dash</span>
             </button>
-            <button 
-              onClick={() => router.push(`${basePath}/sessions`)}
-              className="flex flex-1 flex-col items-center justify-center gap-1 text-[#13ec80] relative group"
-            >
+            <button onClick={() => router.push(`${basePath}/sessions`)} className="flex flex-1 flex-col items-center justify-center gap-1 text-[#13ec80] relative group">
               <HistoryIcon className="size-6 group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Sessions</span>
               <div className="absolute bottom-3 size-1.5 rounded-full bg-[#13ec80] shadow-[0_0_10px_rgba(19,236,128,0.8)]"></div>
             </button>
-            <button 
-              onClick={() => router.push(`${basePath}/purchases`)}
-              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group"
-            >
+            <button onClick={() => router.push(`${basePath}/purchases`)} className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group">
               <Package className="size-6 group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Stock</span>
             </button>
-            <button 
-              onClick={() => router.push(`${basePath}/payments`)}
-              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group"
-            >
+            <button onClick={() => router.push(`${basePath}/payments`)} className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-[#13ec80] transition-colors group">
               <Banknote className="size-6 group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.1em] italic leading-none mt-1">Payments</span>
             </button>

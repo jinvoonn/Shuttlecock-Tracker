@@ -122,7 +122,15 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
   return (
     <>
       <div className="block lg:hidden">
-        <MobileSessionDetails session={sessionMeta} attendees={attendeesList} matches={matches} />
+        <MobileSessionDetails
+          session={sessionMeta}
+          attendees={attendeesList}
+          matches={matches}
+          sessionPlayers={(sessionPlayers || []).map((sp: { players: { id: string, name: string } | null }) => ({
+            id: sp.players?.id || "",
+            name: sp.players?.name || "Unknown"
+          })).filter((p: { id: string; name: string }) => !!p.id)}
+        />
       </div>
       <div className="hidden lg:block">
         <DesktopSessionDetails session={sessionMeta} attendees={attendeesList} matches={matches} />
