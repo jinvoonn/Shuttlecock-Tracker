@@ -18,6 +18,7 @@ import Link from 'next/link';
 import clsx from 'clsx';
 import { usePathname } from 'next/navigation';
 import AddMatchModal from "@/components/AddMatchModal";
+import { deleteMatch } from "@/lib/actions/matches";
 
 interface SessionMeta {
   id: string;
@@ -37,6 +38,10 @@ interface Match {
   teamB: string;
   scoreA: number;
   scoreB: number;
+  team_a_player1: string;
+  team_a_player2: string;
+  team_b_player1: string;
+  team_b_player2: string;
   type: string;
   court: string;
   status: 'Completed' | 'Live';
@@ -61,6 +66,7 @@ export default function DesktopSessionDetails({ session, matches, attendees }: D
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [editingMatch, setEditingMatch] = React.useState<Match | null>(null);
 
   const isLive = new Date(session.date).toDateString() === new Date().toDateString();
 
@@ -111,15 +117,27 @@ export default function DesktopSessionDetails({ session, matches, attendees }: D
           </div>
         </section>
 
-        {isModalOpen && (
+        {(isModalOpen || editingMatch) && (
           <AddMatchModal 
             sessionId={session.id}
             players={attendees.map(a => ({ id: a.id, name: a.name }))}
-            onClose={() => setIsModalOpen(false)}
+            onClose={() => {
+                setIsModalOpen(false);
+                setEditingMatch(null);
+            }}
             onSuccess={() => {
               // The server action handles revalidation
-              console.log("Match added successfully");
+              console.log("Match saved successfully");
             }}
+            initialMatch={editingMatch ? {
+                id: editingMatch.id,
+                team_a_player1: editingMatch.team_a_player1,
+                team_a_player2: editingMatch.team_a_player2,
+                team_b_player1: editingMatch.team_b_player1,
+                team_b_player2: editingMatch.team_b_player2,
+                team_a_score: editingMatch.scoreA,
+                team_b_score: editingMatch.scoreB
+            } : undefined}
           />
         )}
 
@@ -228,15 +246,16 @@ export default function DesktopSessionDetails({ session, matches, attendees }: D
                       
                       <div className="flex items-center gap-1 border-l border-slate-300 dark:border-[#1e293b] ml-2 pl-2">
                           <button 
-                            onClick={() => {/* TODO: Implement Edit Match */}}
+                            onClick={() => setEditingMatch(match)}
                             className="p-1 hover:bg-slate-300 dark:hover:bg-slate-700 rounded text-slate-400 hover:text-white transition-colors"
                           >
                             <Pencil className="size-3.5" />
                           </button>
                           <button 
-                            onClick={() => {
+                            onClick={async () => {
                               if (window.confirm("Are you sure you want to delete this match?")) {
-                                // TODO: call deleteMatch
+                                await deleteMatch(match.id);
+                                window.location.reload();
                               }
                             }}
                             className="p-1 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"

@@ -41,11 +41,13 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
             created_at,
             team_a_score,
             team_b_score,
-            team_a_ids,
-            team_b_ids,
+            team_a_player1,
+            team_a_player2,
+            team_b_player1,
+            team_b_player2,
             sessions ( date )
         `)
-        .or(`team_a_ids.cs.{${id}},team_b_ids.cs.{${id}}`)
+        .or(`team_a_player1.eq.${id},team_a_player2.eq.${id},team_b_player1.eq.${id},team_b_player2.eq.${id}`)
         .order("created_at", { ascending: false });
 
     // Fetch all players to map IDs to names for match history
@@ -57,26 +59,30 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
     const totalPayments = (paymentsData || []).reduce((acc, p) => acc + Number(p.amount || 0), 0);
 
     // Fetch session costs to calculate owed amount
-    const { data: sessionParticipation } = await supabase.from("session_players").select("session_id");
-    const sessionIds = (sessionParticipation || []).map(sp => sp.session_id);
+    const playerSessionIds = (attendedSessions || []).map(sp => sp.session_id);
     
     let totalOwed = 0;
-    if (sessionIds.length > 0) {
-        const { data: sesUsage } = await supabase.from("session_usage").select("session_id, quantity_used, purchases(price_per_cock)").in("session_id", sessionIds);
-        const { data: sesPlayers } = await supabase.from("session_players").select("session_id").in("session_id", sessionIds);
+    if (playerSessionIds.length > 0) {
+        const [
+            { data: allUsageForSessions },
+            { data: allPlayersForSessions }
+        ] = await Promise.all([
+            supabase.from("session_usage").select("session_id, quantity_used, purchases(price_per_cock)").in("session_id", playerSessionIds),
+            supabase.from("session_players").select("session_id").in("session_id", playerSessionIds)
+        ]);
         
         const costs: Record<string, number> = {};
-        (sesUsage || []).forEach(su => {
+        (allUsageForSessions || []).forEach(su => {
             const purchase = Array.isArray(su.purchases) ? su.purchases[0] : su.purchases;
             costs[su.session_id] = (costs[su.session_id] || 0) + (Number(purchase?.price_per_cock || 0) * Number(su.quantity_used || 0));
         });
         
         const counts: Record<string, number> = {};
-        (sesPlayers || []).forEach(sp => {
+        (allPlayersForSessions || []).forEach(sp => {
             counts[sp.session_id] = (counts[sp.session_id] || 0) + 1;
         });
         
-        sessionIds.forEach(sid => {
+        playerSessionIds.forEach(sid => {
             const sessionCost = costs[sid] || 0;
             const playerAmount = sessionCost / (counts[sid] || 1);
             totalOwed += playerAmount;
@@ -93,7 +99,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
     const formattedMatches = (matches || []).map((m: any) => {
         totalMatchesCount++;
         
-        const isTeamA = (m.team_a_ids || []).includes(id);
+        const isTeamA = m.team_a_player1 === id || m.team_a_player2 === id;
         
         const myScore = isTeamA ? m.team_a_score : m.team_b_score;
         const oppScore = isTeamA ? m.team_b_score : m.team_a_score;
@@ -104,11 +110,16 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
         if (isWin) wins++;
         else if (!isDraw) losses++;
         
-        const myTeam = isTeamA ? m.team_a_ids : m.team_b_ids;
-        const oppTeam = isTeamA ? m.team_b_ids : m.team_a_ids;
+        const myPartnerId = isTeamA 
+            ? (m.team_a_player1 === id ? m.team_a_player2 : m.team_a_player1)
+            : (m.team_b_player1 === id ? m.team_b_player2 : m.team_b_player1);
+        
+        const opponentsIds = isTeamA 
+            ? [m.team_b_player1, m.team_b_player2]
+            : [m.team_a_player1, m.team_a_player2];
 
-        const myPartners = (myTeam || []).filter((pid: string) => pid !== id);
-        const opponents = (oppTeam || []);
+        const myPartners = myPartnerId && myPartnerId !== id ? [myPartnerId] : [];
+        const opponents = opponentsIds.filter(Boolean);
 
         return {
             id: m.id,

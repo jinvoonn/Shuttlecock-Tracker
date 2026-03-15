@@ -17,7 +17,8 @@ import {
 } from 'lucide-react';
 import clsx from 'clsx';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { deleteSession } from "@/lib/actions/sessions";
 
 interface SessionData {
   id: string;
@@ -192,17 +193,19 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
                            className="p-2 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors"
                            onClick={(e) => {
                              e.preventDefault();
-                             // TODO: Implement Edit
+                             const currentMode = pathname.split('/')[1] || 'view';
+                             window.location.href = `/${currentMode}/sessions/${session.id}/edit`;
                            }}
                          >
                              <Pencil className="size-4" />
                           </button>
                           <button
                             className="p-2 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
-                            onClick={(e) => {
+                            onClick={async (e) => {
                               e.preventDefault();
                               if (window.confirm("Are you sure you want to delete this session? This will also restore used shuttlecocks to inventory.")) {
-                                 // TODO: Link to deleteSession
+                                 await deleteSession(session.id);
+                                 window.location.reload();
                               }
                             }}
                           >

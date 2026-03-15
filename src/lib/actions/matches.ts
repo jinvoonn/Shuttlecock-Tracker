@@ -5,8 +5,10 @@ import { revalidatePath } from "next/cache";
 
 interface AddMatchPayload {
     sessionId: string;
-    teamAIds: string[];
-    teamBIds: string[];
+    playerA1: string;
+    playerA2: string;
+    playerB1: string;
+    playerB2: string;
     scoreA: number;
     scoreB: number;
 }
@@ -16,28 +18,26 @@ export async function addMatch(payloadJson: string) {
         const payload: AddMatchPayload = JSON.parse(payloadJson);
 
         // 1. Validation
-        if (!payload.teamAIds.length || !payload.teamBIds.length) {
-            return { success: false, error: "Validation error: Each team must have at least 1 player." };
+        if (!payload.playerA1 || !payload.playerB1) {
+            return { success: false, error: "Validation error: At least one player per team is required." };
         }
 
-        const allPlayerIds = [...payload.teamAIds, ...payload.teamBIds];
+        const allPlayerIds = [payload.playerA1, payload.playerA2, payload.playerB1, payload.playerB2].filter(Boolean);
         const uniquePlayers = new Set(allPlayerIds);
         
         if (uniquePlayers.size !== allPlayerIds.length) {
              return { success: false, error: "Validation error: Players cannot appear twice in the same match." };
         }
 
-        if (isNaN(payload.scoreA) || isNaN(payload.scoreB)) {
-            return { success: false, error: "Validation error: Both scores must be valid numbers." };
-        }
-
-        // 2. Insert Match (Flexible Structure)
+        // 2. Insert Match
         const { data: match, error: matchError } = await supabase
             .from("matches")
             .insert([{
                 session_id: payload.sessionId,
-                team_a_ids: payload.teamAIds,
-                team_b_ids: payload.teamBIds,
+                team_a_player1: payload.playerA1,
+                team_a_player2: payload.playerA2 || payload.playerA1, // Fallback to same player if singles, or handle null if DB allows
+                team_b_player1: payload.playerB1,
+                team_b_player2: payload.playerB2 || payload.playerB1,
                 team_a_score: payload.scoreA,
                 team_b_score: payload.scoreB
             }])
@@ -63,8 +63,10 @@ export async function updateMatch(id: string, payloadJson: string) {
         const payload: Partial<AddMatchPayload> = JSON.parse(payloadJson);
 
         const updateData: any = {};
-        if (payload.teamAIds) updateData.team_a_ids = payload.teamAIds;
-        if (payload.teamBIds) updateData.team_b_ids = payload.teamBIds;
+        if (payload.playerA1) updateData.team_a_player1 = payload.playerA1;
+        if (payload.playerA2) updateData.team_a_player2 = payload.playerA2;
+        if (payload.playerB1) updateData.team_b_player1 = payload.playerB1;
+        if (payload.playerB2) updateData.team_b_player2 = payload.playerB2;
         if (payload.scoreA !== undefined) updateData.team_a_score = payload.scoreA;
         if (payload.scoreB !== undefined) updateData.team_b_score = payload.scoreB;
 

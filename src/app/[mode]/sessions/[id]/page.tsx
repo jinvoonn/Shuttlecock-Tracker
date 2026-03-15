@@ -27,8 +27,10 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
         id, 
         team_a_score, 
         team_b_score, 
-        team_a_ids, 
-        team_b_ids,
+        team_a_player1, 
+        team_a_player2, 
+        team_b_player1, 
+        team_b_player2,
         players_a1:team_a_player1 ( name ),
         players_a2:team_a_player2 ( name ),
         players_b1:team_b_player1 ( name ),
@@ -92,26 +94,19 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
   };
 
   const matches = (matchesData || []).map(m => {
-      let teamAStr = "";
-      if (m.team_a_ids && m.team_a_ids.length > 0) {
-          teamAStr = [getPlayerName(m.players_a1), getPlayerName(m.players_a2)].filter(Boolean).join(" & ") || `Team A (${m.team_a_ids.length})`;
-      } else {
-          teamAStr = [getPlayerName(m.players_a1), getPlayerName(m.players_a2)].filter(Boolean).join(" & ") || "Team A";
-      }
-
-      let teamBStr = "";
-      if (m.team_b_ids && m.team_b_ids.length > 0) {
-          teamBStr = [getPlayerName(m.players_b1), getPlayerName(m.players_b2)].filter(Boolean).join(" & ") || `Team B (${m.team_b_ids.length})`;
-      } else {
-          teamBStr = [getPlayerName(m.players_b1), getPlayerName(m.players_b2)].filter(Boolean).join(" & ") || "Team B";
-      }
+      const teamAStr = [getPlayerName(m.players_a1), getPlayerName(m.players_a2)].filter(Boolean).join(" & ");
+      const teamBStr = [getPlayerName(m.players_b1), getPlayerName(m.players_b2)].filter(Boolean).join(" & ");
 
       return {
         id: m.id,
-        teamA: teamAStr,
-        teamB: teamBStr,
+        teamA: teamAStr || "Team A",
+        teamB: teamBStr || "Team B",
         scoreA: m.team_a_score || 0,
         scoreB: m.team_b_score || 0,
+        team_a_player1: m.team_a_player1,
+        team_a_player2: m.team_a_player2,
+        team_b_player1: m.team_b_player1,
+        team_b_player2: m.team_b_player2,
         type: "Doubles",
         court: "Any",
         status: (m.team_a_score > 0 || m.team_b_score > 0) ? "Completed" as const : "Live" as const

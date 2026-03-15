@@ -12,7 +12,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { useRouter } from "next/navigation";
-import { addSession } from "@/lib/actions/sessions";
+import { addSession, editSession } from "@/lib/actions/sessions";
 import clsx from 'clsx';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -33,17 +33,29 @@ interface Player {
 interface DesktopLogSessionsProps {
   tubes: Tube[];
   players: Player[];
+  initialData?: {
+    id: string;
+    date: string;
+    location: string;
+    notes: string;
+    playerIds: string[];
+    usage: { purchaseId: string; quantityUsed: number }[];
+  };
 }
 
-export default function DesktopSessions({ tubes, players }: DesktopLogSessionsProps) {
+export default function DesktopSessions({ tubes, players, initialData }: DesktopLogSessionsProps) {
   const router = useRouter();
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
 
-  const [selectedTubeId, setSelectedTubeId] = useState<string | null>(tubes[0]?.id || null);
-  const [shuttlesUsed, setShuttlesUsed] = useState(0);
-  const [attendeeIds, setAttendeeIds] = useState<Set<string>>(new Set());
+  const isEdit = !!initialData;
+
+  const [selectedTubeId, setSelectedTubeId] = useState<string | null>(
+    initialData?.usage[0]?.purchaseId || tubes[0]?.id || null
+  );
+  const [shuttlesUsed, setShuttlesUsed] = useState(initialData?.usage[0]?.quantityUsed || 0);
+  const [attendeeIds, setAttendeeIds] = useState<Set<string>>(new Set(initialData?.playerIds || []));
   const [search, setSearch] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -81,9 +93,9 @@ export default function DesktopSessions({ tubes, players }: DesktopLogSessionsPr
     setIsSubmitting(true);
     try {
       const payload = JSON.stringify({
-        date: new Date().toISOString().split('T')[0],
-        location: "Main Court",
-        notes: "Stitch UI Session",
+        date: initialData?.date || new Date().toISOString().split('T')[0],
+        location: initialData?.location || "Main Court",
+        notes: initialData?.notes || "Stitch UI Session",
         playerIds: Array.from(attendeeIds),
         newPlayerNames: [],
         usage: [
@@ -94,7 +106,12 @@ export default function DesktopSessions({ tubes, players }: DesktopLogSessionsPr
         ]
       });
       
-      await addSession(payload);
+      if (isEdit) {
+        await editSession(initialData.id, payload);
+      } else {
+        await addSession(payload);
+      }
+      
       router.push(`${basePath}/sessions`);
       router.refresh();
     } catch (e: any) {
@@ -114,7 +131,9 @@ export default function DesktopSessions({ tubes, players }: DesktopLogSessionsPr
               <ArrowLeft className="size-6 text-slate-400" />
             </Link>
             <PlusCircle className="text-[#13ec80] size-8" />
-            <h1 className="text-3xl font-black italic tracking-tighter uppercase dark:text-slate-100">LOG NEW SESSION</h1>
+            <h1 className="text-3xl font-black italic tracking-tighter uppercase dark:text-slate-100">
+              {isEdit ? "EDIT SESSION" : "LOG NEW SESSION"}
+            </h1>
           </div>
         </header>
 
@@ -274,7 +293,7 @@ export default function DesktopSessions({ tubes, players }: DesktopLogSessionsPr
                   disabled={isSubmitting || shuttlesUsed === 0 || attendeeIds.size === 0}
                   className="w-full mt-8 bg-[#13ec80] disabled:bg-slate-300 dark:disabled:bg-slate-800 hover:bg-[#13ec80]/90 text-slate-950 font-black py-4 rounded uppercase tracking-tighter transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#13ec80]/20 disabled:shadow-none"
                 >
-                  <span>{isSubmitting ? 'Finalizing...' : 'Finalize Session'}</span>
+                  <span>{isSubmitting ? 'Finalizing...' : isEdit ? 'Update Session' : 'Finalize Session'}</span>
                   <Zap className="size-5 fill-current" />
                 </button>
               </div>

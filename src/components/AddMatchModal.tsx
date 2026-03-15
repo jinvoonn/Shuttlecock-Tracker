@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { X, Trophy, AlertCircle } from 'lucide-react';
-import { addMatch } from "@/lib/actions/matches";
+import { addMatch, updateMatch } from "@/lib/actions/matches";
 import clsx from 'clsx';
 
 interface Player {
@@ -15,14 +15,30 @@ interface MatchModalProps {
   players: Player[];
   onClose: () => void;
   onSuccess: () => void;
+  initialMatch?: {
+    id: string;
+    team_a_player1: string;
+    team_a_player2: string;
+    team_b_player1: string;
+    team_b_player2: string;
+    team_a_score: number;
+    team_b_score: number;
+  };
 }
 
-export default function AddMatchModal({ sessionId, players, onClose, onSuccess }: MatchModalProps) {
-  const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
-  const [teamA, setTeamA] = useState<string[]>([]);
-  const [teamB, setTeamB] = useState<string[]>([]);
-  const [scoreA, setScoreA] = useState<number>(0);
-  const [scoreB, setScoreB] = useState<number>(0);
+export default function AddMatchModal({ sessionId, players, onClose, onSuccess, initialMatch }: MatchModalProps) {
+  const isEdit = !!initialMatch;
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>(
+    isEdit ? [initialMatch.team_a_player1, initialMatch.team_a_player2, initialMatch.team_b_player1, initialMatch.team_b_player2].filter(Boolean) : []
+  );
+  const [teamA, setTeamA] = useState<string[]>(
+    isEdit ? [initialMatch.team_a_player1, initialMatch.team_a_player2].filter(Boolean) : []
+  );
+  const [teamB, setTeamB] = useState<string[]>(
+    isEdit ? [initialMatch.team_b_player1, initialMatch.team_b_player2].filter(Boolean) : []
+  );
+  const [scoreA, setScoreA] = useState<number>(isEdit ? initialMatch.team_a_score : 0);
+  const [scoreB, setScoreB] = useState<number>(isEdit ? initialMatch.team_b_score : 0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -65,13 +81,18 @@ export default function AddMatchModal({ sessionId, players, onClose, onSuccess }
     try {
       const payload = {
         sessionId,
-        teamAIds: teamA,
-        teamBIds: teamB,
+        playerA1: teamA[0],
+        playerA2: teamA[1] || "",
+        playerB1: teamB[0],
+        playerB2: teamB[1] || "",
         scoreA,
         scoreB
       };
       
-      const result = await addMatch(JSON.stringify(payload));
+      const result = isEdit 
+        ? await updateMatch(initialMatch.id, JSON.stringify(payload))
+        : await addMatch(JSON.stringify(payload));
+
       if (result.success) {
         onSuccess();
         onClose();
@@ -92,7 +113,7 @@ export default function AddMatchModal({ sessionId, players, onClose, onSuccess }
         <div className="p-8 border-b border-slate-800 flex justify-between items-center bg-slate-950/30">
           <div className="flex items-center gap-3">
              <Trophy className="text-[#13ec80] size-6" />
-             <h3 className="text-2xl font-black italic uppercase tracking-tighter text-slate-100">Record New Match</h3>
+             <h3 className="text-2xl font-black italic uppercase tracking-tighter text-slate-100">{isEdit ? 'Edit Match' : 'Record New Match'}</h3>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-500 hover:text-white">
             <X className="size-6" />
