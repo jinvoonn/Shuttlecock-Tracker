@@ -9,7 +9,8 @@ import {
   Search, 
   Activity,
   TrendingUp,
-  TrendingDown
+  TrendingDown,
+  Feather
 } from 'lucide-react';
 import clsx from 'clsx';
 import Link from 'next/link';
@@ -59,11 +60,18 @@ export default function DesktopDashboard({ stats, players, upcomingSession }: Da
       {/* Sidebar Navigation */}
       <aside className="relative z-20 w-64 border-r border-slate-800 bg-slate-900/50 backdrop-blur-md hidden lg:flex flex-col">
         <div className="p-6">
-          <div className="flex items-center gap-3 text-[#13ec80]">
-            <div className="size-8 bg-[#13ec80]/10 rounded-lg flex items-center justify-center border border-[#13ec80]/20">
-              <Activity className="size-5 font-bold" />
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-3">
+              <div className="size-9 rounded-xl bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
+                <Feather className="size-5 text-white transform rotate-45" />
+              </div>
+              <h2 className="text-2xl font-black text-slate-100 tracking-tighter">
+                Cock<span className="text-sky-400">Count</span>
+              </h2>
             </div>
-            <h2 className="text-2xl font-black italic tracking-tighter text-slate-100 uppercase">COCKCOUNT</h2>
+            <p className="text-slate-500 font-bold text-[9px] uppercase tracking-widest pl-1 leading-tight">
+              Because Shuttlecocks Aren't Free
+            </p>
           </div>
         </div>
         

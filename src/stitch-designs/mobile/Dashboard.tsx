@@ -12,7 +12,8 @@ import {
   Package,
   Calendar,
   LayoutGrid,
-  History as HistoryIcon
+  History as HistoryIcon,
+  Feather
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
@@ -55,11 +56,18 @@ export default function MobileDashboard({ stats, players, upcomingSession }: Das
     <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-100 min-h-screen antialiased overflow-x-hidden">
       <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-800 shadow-2xl pb-24">
         {/* Header Section */}
-        <header className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-slate-900/80 backdrop-blur-md border-b border-emerald-400/10">
-          <div className="flex items-center gap-2">
-            <Activity className="text-emerald-400 size-6" />
-            <h1 className="text-xl font-extrabold italic tracking-tighter uppercase text-emerald-400">COCKCOUNT</h1>
+        <header className="sticky top-0 z-10 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-sky-400/10">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="size-8 rounded-lg bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-md shadow-sky-500/20">
+              <Feather className="size-5 text-white transform rotate-45" />
+            </div>
+            <h1 className="text-2xl font-black text-slate-50 tracking-tighter">
+              Cock<span className="text-sky-400">Count</span>
+            </h1>
           </div>
+          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">
+             Because Shuttlecocks Aren't Free
+          </p>
         </header>
 
         <main className="flex flex-col gap-6 p-6 flex-1 text-left">
