@@ -58,14 +58,6 @@ export default function MobileDashboard({ stats, players, upcomingSession }: Das
             <Activity className="text-[#13ec80] size-6" />
             <h1 className="text-xl font-extrabold italic tracking-tighter uppercase">COCKCOUNT</h1>
           </div>
-          <div className="flex gap-3">
-            <button className="flex items-center justify-center rounded-xl bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 size-10 hover:border-[#13ec80] transition-colors shadow-sm">
-              <Bell className="size-5 text-slate-600 dark:text-slate-400" />
-            </button>
-            <button className="flex items-center justify-center rounded-xl bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 size-10 hover:border-[#13ec80] transition-colors shadow-sm">
-              <Settings className="size-5 text-slate-600 dark:text-slate-400" />
-            </button>
-          </div>
         </header>
 
         <main className="flex flex-col gap-6 p-6 flex-1 text-left">
@@ -145,20 +137,20 @@ export default function MobileDashboard({ stats, players, upcomingSession }: Das
             <div className="flex flex-col gap-3">
               {players.map((player) => (
                 <div key={player.id} className="bg-white dark:bg-[#0f172a] rounded-[2rem] p-6 border border-slate-200 dark:border-slate-800 shadow-sm group hover:border-[#13ec80]/30 transition-all flex items-center justify-between">
-                  <div className="flex flex-col gap-1">
-                    <Link href={`/players/${player.id}`} className="text-sm font-black uppercase tracking-tight text-slate-900 dark:text-slate-100 hover:text-[#13ec80] transition-colors italic">
+                  <Link href={`${basePath}/player/${player.id}`} className="flex flex-col gap-1 flex-1">
+                    <span className="text-sm font-black uppercase tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-[#13ec80] transition-colors italic">
                       {player.name}
-                    </Link>
+                    </span>
                     <p className={`font-mono text-lg font-black tracking-tighter ${player.balance >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                      {player.balance >= 0 ? 'RM' : 'RM'}{Math.abs(player.balance).toFixed(2)}
+                      {player.balance >= 0 ? 'RM' : '-RM'}{Math.abs(player.balance).toFixed(2)}
                       <span className="text-[10px] uppercase font-bold tracking-widest ml-2 italic">
                         {player.balance >= 0 ? 'CREDIT' : 'OWED'}
                       </span>
                     </p>
-                  </div>
+                  </Link>
                   <button 
-                    onClick={() => router.push(`/view/record-transaction-stitch?playerId=${player.id}`)}
-                    className="h-11 px-6 rounded-xl bg-slate-900 dark:bg-slate-800 text-[#13ec80] font-black text-[10px] uppercase tracking-widest hover:bg-[#13ec80] hover:text-slate-950 transition-all active:scale-95 border border-slate-800 dark:border-slate-700 shadow-lg"
+                    onClick={() => router.push(`${basePath}/payments/record-transaction?playerId=${player.id}`)}
+                    className="h-11 px-6 rounded-xl bg-slate-900 dark:bg-slate-800 text-[#13ec80] font-black text-[10px] uppercase tracking-widest hover:bg-[#13ec80] hover:text-slate-950 transition-all active:scale-95 border border-slate-800 dark:border-slate-700 shadow-lg relative z-10"
                   >
                     SETTLE
                   </button>
@@ -167,43 +159,38 @@ export default function MobileDashboard({ stats, players, upcomingSession }: Das
             </div>
           </div>
 
-          {/* Context Hint */}
-          <div className="p-5 rounded-2xl border-l-4 border-[#13ec80] bg-[#13ec80]/5 dark:bg-[#13ec80]/10 shadow-sm text-left">
-            <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400 font-medium">
-              <span className="font-black text-[#13ec80] uppercase tracking-wider mr-1">Elite Status:</span> 
-              Active tracking enabled for all premium courts. Equipment maintenance scheduled for next Monday.
-            </p>
-          </div>
         </main>
 
         {/* Bottom Navigation */}
-        <nav className="fixed bottom-0 left-0 right-0 mx-auto max-w-[480px] bg-white/95 dark:bg-[#020617]/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 flex items-center justify-around py-4 px-2 z-50 shadow-[0_-8px_30px_rgb(0,0,0,0.12)]">
-          <button className="flex flex-1 flex-col items-center justify-center gap-1 text-[#13ec80] transition-colors group relative">
-            <LayoutGrid className="size-6 transition-transform group-active:scale-90" />
-            <span className="text-[10px] font-black uppercase tracking-[0.15em] leading-none mt-1">Dash</span>
-            <div className="absolute bottom-[-16px] size-1.5 rounded-full bg-[#13ec80] shadow-[0_0_10px_rgba(19,236,128,0.8)]"></div>
-          </button>
-          <button 
-            onClick={() => router.push(`${basePath}/sessions`)}
-            className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:text-[#13ec80] transition-colors group"
-          >
-            <HistoryIcon className="size-6 transition-transform group-active:scale-90" />
-            <span className="text-[10px] font-black uppercase tracking-[0.15em] leading-none mt-1">Sessions</span>
-          </button>
-          <button 
-            onClick={() => router.push(`${basePath}/purchases`)}
-            className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:text-[#13ec80] transition-colors group"
-          >
-            <Package className="size-6 transition-transform group-active:scale-90" />
-            <span className="text-[10px] font-black uppercase tracking-[0.15em] leading-none mt-1">Stock</span>
-          </button>
-          <button 
-            onClick={() => router.push(`${basePath}/payments`)}
-            className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:text-[#13ec80] transition-colors group"
-          >
-            <Banknote className="size-6 transition-transform group-active:scale-90" />
-            <span className="text-[10px] font-black uppercase tracking-[0.15em] leading-none mt-1">Payments</span>
-          </button>
+        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#020617]/95 backdrop-blur-2xl border-t border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+          <div className="flex h-24 items-stretch px-4 max-w-[480px] mx-auto">
+            <button className="flex flex-1 flex-col items-center justify-center gap-1 text-[#13ec80] transition-colors group relative">
+              <LayoutGrid className="size-6 transition-transform group-active:scale-90" />
+              <span className="text-[9px] font-black uppercase tracking-[0.15em] leading-none mt-1">Dash</span>
+              <div className="absolute bottom-3 size-1.5 rounded-full bg-[#13ec80] shadow-[0_0_10px_rgba(19,236,128,0.8)]"></div>
+            </button>
+            <button 
+              onClick={() => router.push(`${basePath}/sessions`)}
+              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:text-[#13ec80] transition-colors group"
+            >
+              <HistoryIcon className="size-6 transition-transform group-active:scale-90" />
+              <span className="text-[9px] font-black uppercase tracking-[0.15em] leading-none mt-1">Sessions</span>
+            </button>
+            <button 
+              onClick={() => router.push(`${basePath}/purchases`)}
+              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:text-[#13ec80] transition-colors group"
+            >
+              <Package className="size-6 transition-transform group-active:scale-90" />
+              <span className="text-[9px] font-black uppercase tracking-[0.15em] leading-none mt-1">Stock</span>
+            </button>
+            <button 
+              onClick={() => router.push(`${basePath}/payments`)}
+              className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:text-[#13ec80] transition-colors group"
+            >
+              <Banknote className="size-6 transition-transform group-active:scale-90" />
+              <span className="text-[9px] font-black uppercase tracking-[0.15em] leading-none mt-1">Payments</span>
+            </button>
+          </div>
         </nav>
       </div>
     </div>

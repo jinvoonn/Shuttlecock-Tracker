@@ -43,6 +43,12 @@
 *   [x] **Desktop UI**: Wire up inline Edit/Delete functions in `DesktopPaymentLedger.tsx`. Ensure "Record Payment" link points to `/payments/record-transaction`. Add `note` support.
 *   [x] **Mobile UI**: Update inline Edit form in `MobilePaymentLedger.tsx` to support the new `note` field.
 
+## Phase 45 — Mobile Dashboard Fixes
+*   [x] Remove unused buttons (bell and settings)
+*   [x] Wire up player cards to navigate to their profiles
+*   [x] Remove Elite Status badge/text
+*   [x] Adjust bottom navigation tab thickness to match other mobile pages (h-24)
+
 ## Current State
 
 The app is stable. All match CRUD operations (add, edit, delete) work on both desktop and mobile. Zero lint errors.
