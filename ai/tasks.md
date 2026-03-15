@@ -49,6 +49,9 @@
 *   [x] Remove Elite Status badge/text
 *   [x] Adjust bottom navigation tab thickness to match other mobile pages (h-24)
 
+## Phase 46 — Mobile Dashboard Player Click Issue
+*   [x] Fix 404 error when clicking player card by using `/players/[id]` instead of `/player/[id]`
+
 ## Current State
 
 The app is stable. All match CRUD operations (add, edit, delete) work on both desktop and mobile. Zero lint errors.

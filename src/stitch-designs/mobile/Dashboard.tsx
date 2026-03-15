@@ -137,7 +137,7 @@ export default function MobileDashboard({ stats, players, upcomingSession }: Das
             <div className="flex flex-col gap-3">
               {players.map((player) => (
                 <div key={player.id} className="bg-white dark:bg-[#0f172a] rounded-[2rem] p-6 border border-slate-200 dark:border-slate-800 shadow-sm group hover:border-[#13ec80]/30 transition-all flex items-center justify-between">
-                  <Link href={`${basePath}/player/${player.id}`} className="flex flex-col gap-1 flex-1">
+                  <Link href={`${basePath}/players/${player.id}`} className="flex flex-col gap-1 flex-1">
                     <span className="text-sm font-black uppercase tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-[#13ec80] transition-colors italic">
                       {player.name}
                     </span>
