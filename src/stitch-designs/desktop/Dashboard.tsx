@@ -236,19 +236,27 @@ export default function DesktopDashboard({ stats, players, upcomingSession }: Da
                             </p>
                           </td>
                           <td className="px-8 py-6 text-center">
-                            {canEdit('payments') && (
-                              <button 
-                                onClick={async () => {
-                                  if (confirm(`Quick Settle RM ${Math.abs(player.balance).toFixed(2)} for ${player.name}?`)) {
-                                    const { quickSettle } = await import("@/lib/actions/payments");
-                                    await quickSettle(player.id, Math.abs(player.balance), currentMode);
-                                  }
-                                }}
-                                className="bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-emerald-500/20 transition-all active:scale-95"
+                            <div className="flex items-center justify-center gap-3">
+                              {canEdit('payments') && (
+                                <button 
+                                  onClick={async () => {
+                                    if (confirm(`Quick Settle RM ${Math.abs(player.balance).toFixed(2)} for ${player.name}?`)) {
+                                      const { quickSettle } = await import("@/lib/actions/payments");
+                                      await quickSettle(player.id, Math.abs(player.balance), currentMode);
+                                    }
+                                  }}
+                                  className="bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-emerald-500/20 transition-all active:scale-95"
+                                >
+                                  Quick Settle
+                                </button>
+                              )}
+                              <Link 
+                                href={`${basePath}/players/${player.id}`}
+                                className="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-slate-700 transition-all active:scale-95"
                               >
-                                Quick Settle
-                              </button>
-                            )}
+                                View More
+                              </Link>
+                            </div>
                           </td>
                         </tr>
                       ))}

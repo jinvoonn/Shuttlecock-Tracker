@@ -134,30 +134,39 @@ export default function MobileDashboard({ stats, players, upcomingSession }: Das
           <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-extrabold italic uppercase tracking-tight">PLAYER LEDGER</h2>
-              <button className="text-[10px] font-black text-emerald-400 uppercase border-b-2 border-emerald-400 pb-0.5 tracking-wider">EXPAND ALL</button>
             </div>
             <div className="flex flex-col gap-3">
               {players.map((player) => (
-                <div key={player.id} className="bg-slate-800 rounded-[2rem] p-6 border border-slate-700 shadow-sm group hover:border-emerald-400/30 transition-all flex items-center justify-between">
-                  <Link href={`${basePath}/players/${player.id}`} className="flex flex-col gap-1 flex-1">
-                    <span className="text-sm font-black uppercase tracking-tight text-slate-100 group-hover:text-emerald-400 transition-colors italic">
-                      {player.name}
-                    </span>
-                    <p className={`font-mono text-lg font-black tracking-tighter ${player.balance >= 0 ? 'text-emerald-400' : 'text-rose-500'}`}>
-                      {player.balance >= 0 ? 'RM' : '-RM'}{Math.abs(player.balance).toFixed(2)}
-                      <span className="text-[10px] uppercase font-bold tracking-widest ml-2 italic">
-                        {player.balance >= 0 ? 'CREDIT' : 'OWED'}
+                <div key={player.id} className="bg-slate-800 rounded-[2rem] p-6 border border-slate-700 shadow-sm group hover:border-emerald-400/30 transition-all flex flex-col gap-4">
+                  <div className="flex items-center justify-between">
+                    <Link href={`${basePath}/players/${player.id}`} className="flex flex-col gap-1 flex-1">
+                      <span className="text-sm font-black uppercase tracking-tight text-slate-100 group-hover:text-emerald-400 transition-colors italic">
+                        {player.name}
                       </span>
-                    </p>
-                  </Link>
-                  {canEdit('payments') && (
-                    <button 
-                      onClick={() => router.push(`${basePath}/payments/record-transaction?playerId=${player.id}`)}
-                      className="h-11 px-6 rounded-xl bg-slate-900 text-emerald-400 font-black text-[10px] uppercase tracking-widest hover:bg-emerald-400 hover:text-slate-950 transition-all active:scale-95 border border-slate-700 shadow-lg relative z-10"
+                      <p className={`font-mono text-lg font-black tracking-tighter ${player.balance >= 0 ? 'text-emerald-400' : 'text-rose-500'}`}>
+                        {player.balance >= 0 ? 'RM' : '-RM'}{Math.abs(player.balance).toFixed(2)}
+                        <span className="text-[10px] uppercase font-bold tracking-widest ml-2 italic">
+                          {player.balance >= 0 ? 'CREDIT' : 'OWED'}
+                        </span>
+                      </p>
+                    </Link>
+                  </div>
+                  <div className="flex gap-2">
+                    <Link 
+                      href={`${basePath}/players/${player.id}`}
+                      className="flex-1 h-11 rounded-xl bg-slate-900 text-slate-400 font-black text-[10px] uppercase tracking-widest flex items-center justify-center border border-slate-700 active:scale-95 transition-all"
                     >
-                      SETTLE
-                    </button>
-                  )}
+                      VIEW MORE
+                    </Link>
+                    {canEdit('payments') && (
+                      <button 
+                        onClick={() => router.push(`${basePath}/payments/record-transaction?playerId=${player.id}`)}
+                        className="flex-1 h-11 rounded-xl bg-emerald-400/10 text-emerald-400 font-black text-[10px] uppercase tracking-widest hover:bg-emerald-400 hover:text-slate-950 transition-all active:scale-95 border border-emerald-400/20 shadow-lg"
+                      >
+                        SETTLE
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

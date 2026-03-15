@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { User, Swords, Activity, ArrowLeft, Target, LayoutDashboard, CalendarDays, Package, Wallet } from "lucide-react";
 import Link from "next/link";
 import { SkillRatingEditor } from "@/components/SkillRatingEditor";
+import { MatchHistory } from "./MatchHistory";
 import clsx from "clsx";
 
 export const revalidate = 0;
@@ -219,8 +220,15 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                         <div>
                             <h1 className="text-3xl font-bold text-slate-50 tracking-tight">{player.name}</h1>
                             <div className="flex flex-col mt-2">
-                                <SkillRatingEditor playerId={player.id} initialSkill={player.skill_rating || 5} />
-                                <span className="text-[10px] text-slate-600 mt-1 uppercase font-bold tracking-widest px-1">Player Profile</span>
+                                {bestPartner && (
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <Target className="w-3.5 h-3.5 text-emerald-400" />
+                                        <p className="text-xs font-bold text-slate-300">
+                                            Best Partner: <span className="text-emerald-400">{bestPartner.name}</span>
+                                        </p>
+                                    </div>
+                                )}
+                                <span className="text-[10px] text-slate-600 uppercase font-bold tracking-widest px-1">Player Profile</span>
                             </div>
                         </div>
                     </header>
@@ -262,7 +270,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                 <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><User className="w-16 h-16" /></div>
                     <h3 className="text-[10px] font-bold uppercase text-slate-500 mb-4 tracking-widest flex items-center gap-2">
-                        <Target className="w-4 h-4 text-emerald-400" /> Best Partner
+                        <Target className="w-4 h-4 text-emerald-400" /> Partner Stats
                     </h3>
                     {bestPartner ? (
                         <div>
@@ -275,7 +283,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                             </p>
                         </div>
                     ) : (
-                        <p className="text-sm text-slate-500 italic mt-2 text-center">Not enough data (min. 3 sessions)</p>
+                        <p className="text-sm text-slate-500 italic mt-2 text-center font-bold font-mono tracking-widest uppercase">No Partner Data</p>
                     )}
                 </div>
 
@@ -305,7 +313,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                                 </div>
                             </div>
                         )) : (
-                            <p className="text-sm text-slate-500 italic mt-2 text-center">No match history found</p>
+                            <p className="text-sm text-slate-500 italic mt-2 text-center font-bold font-mono tracking-widest uppercase">No Match History</p>
                         )}
                     </div>
                 </div>
@@ -317,44 +325,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                         <Swords className="w-5 h-5 text-slate-400" /> Match History
                     </h2>
 
-                    {formattedMatches.length === 0 ? (
-                        <div className="text-center py-12 text-slate-500 text-sm italic">
-                            No matches recorded yet.
-                        </div>
-                    ) : (
-                        <div className="space-y-3">
-                            {formattedMatches.map((m: { id: string, date: string, isWin: boolean, isDraw: boolean, myScore: number, oppScore: number, partners: string[], opponents: string[] }) => (
-                                <div key={m.id} className="flex flex-col bg-slate-900 p-4 rounded-xl border border-slate-700/80 gap-4">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex flex-col items-center justify-center w-10 h-10 rounded-lg bg-slate-800 border border-slate-700 shrink-0">
-                                                <span className="text-[11px] font-black text-slate-300 font-mono">{new Date(m.date).getDate()}</span>
-                                                <span className="text-[8px] font-bold uppercase text-slate-600 leading-none">{new Date(m.date).toLocaleString('default', { month: 'short' })}</span>
-                                            </div>
-                                            <div>
-                                                {m.isWin ? (
-                                                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 uppercase italic">Win</span>
-                                                ) : m.isDraw ? (
-                                                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-400 uppercase italic">Draw</span>
-                                                ) : (
-                                                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 uppercase italic">Loss</span>
-                                                )}
-                                                <div className="flex items-center gap-1.5 mt-1 font-mono text-[10px] tracking-tight">
-                                                    <span className={m.isWin ? "text-emerald-400 font-bold" : "text-slate-300"}>{m.myScore}</span>
-                                                    <span className="text-slate-600">-</span>
-                                                    <span className={!m.isWin && !m.isDraw ? "text-emerald-400 font-bold" : "text-slate-300"}>{m.oppScore}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="text-[10px] text-slate-500 leading-tight">
-                                        <p className="mb-1 uppercase tracking-tighter">Partner: <span className="text-slate-300">{m.partners.length > 0 ? m.partners.join(" + ") : "None"}</span></p>
-                                        <p className="uppercase tracking-tighter">Opponents: <span className="text-slate-300">{m.opponents.join(" + ")}</span></p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                    <MatchHistory matches={formattedMatches} />
                 </div>
 
                 <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6">
