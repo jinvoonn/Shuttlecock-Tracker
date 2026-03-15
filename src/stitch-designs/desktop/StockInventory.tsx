@@ -29,6 +29,9 @@ interface ActiveTube {
   name: string;
   quantity: number;
   total: number;
+  pricePerTube: number;
+  pricePerCock: number;
+  date: string;
 }
 
 interface PurchaseHistory {
@@ -47,8 +50,13 @@ interface DesktopStockInventoryProps {
   history: PurchaseHistory[];
 }
 
+import { editPurchase, deletePurchase } from '@/lib/actions/purchases';
+import { DatePicker } from '@/components/DatePicker';
+
 export default function DesktopStockInventory({ stats, activeTubes, history }: DesktopStockInventoryProps) {
   const [searchTerm, setSearchTerm] = React.useState('');
+  const [activeEditingId, setActiveEditingId] = React.useState<string | null>(null);
+  const [historyEditingId, setHistoryEditingId] = React.useState<string | null>(null);
 
   const filteredHistory = history.filter(h => 
     h.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -57,6 +65,16 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
+
+  const handleDelete = async (id: string, name: string) => {
+    if (window.confirm(`Are you sure you want to delete this purchase (${name})?`)) {
+      try {
+        await deletePurchase(id);
+      } catch (err) {
+        alert("Failed to delete purchase");
+      }
+    }
+  };
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#020617] text-slate-100 font-['Lexend',_sans-serif]">
@@ -176,33 +194,89 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
               {activeTubes.map(tube => {
                 const percentage = (tube.quantity / tube.total) * 100;
                 const isLow = percentage <= 25;
+                const isEditing = activeEditingId === tube.id;
 
                 return (
-                  <div key={tube.id} className="bg-slate-900/60 border border-slate-800 p-5 rounded-xl group hover:border-[#13ec80]/50 transition-colors shadow-sm">
+                  <div key={tube.id} className="bg-slate-900/60 border border-slate-800 p-5 rounded-xl group hover:border-[#13ec80]/50 transition-colors shadow-sm relative">
                     <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-slate-100 font-bold text-lg uppercase">{tube.name}</h3>
-                        <p className="text-slate-500 text-xs uppercase font-mono">ID: {tube.id.slice(0, 8)}</p>
-                      </div>
-                      <span className={clsx(
-                        "text-[10px] font-bold px-2 py-1 rounded uppercase",
-                        isLow ? "bg-rose-500/10 text-rose-500" : "bg-[#13ec80]/10 text-[#13ec80]"
-                      )}>
-                        {isLow ? 'Low' : 'Stocked'}
-                      </span>
+                      {isEditing ? (
+                        <div className="w-full">
+                          <h3 className="text-slate-100 font-bold text-lg uppercase mb-3">{tube.name}</h3>
+                          <form 
+                            action={async (formData) => {
+                              await editPurchase(tube.id, formData);
+                              setActiveEditingId(null);
+                            }}
+                            className="space-y-3"
+                          >
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <label className="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Date</label>
+                                <input type="date" name="date" defaultValue={tube.date} required className="w-full bg-slate-950 border border-slate-800 rounded p-1.5 text-xs text-slate-200 outline-none" />
+                              </div>
+                              <div>
+                                <label className="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Price</label>
+                                <input type="number" step="0.01" name="price" defaultValue={tube.pricePerTube} required className="w-full bg-slate-950 border border-slate-800 rounded p-1.5 text-xs text-slate-200 outline-none" />
+                              </div>
+                            </div>
+                            <div>
+                                <label className="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Remaining Shuttles</label>
+                                <input type="number" name="quantity" defaultValue={tube.quantity} max={tube.total} min={0} required className="w-full bg-slate-950 border border-slate-800 rounded p-1.5 text-xs text-slate-200 outline-none" />
+                            </div>
+                            <div className="flex gap-2 justify-end mt-2">
+                               <button type="button" onClick={() => setActiveEditingId(null)} className="px-3 py-1.5 rounded text-[10px] font-bold uppercase text-slate-500 hover:bg-slate-800">Cancel</button>
+                               <button type="submit" className="px-3 py-1.5 rounded text-[10px] font-bold uppercase bg-[#13ec80] text-slate-950">Save</button>
+                            </div>
+                          </form>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="absolute top-3 left-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                            <button 
+                              onClick={() => setActiveEditingId(tube.id)}
+                              className="p-1.5 bg-slate-800/80 hover:bg-slate-700/80 rounded-md text-slate-400 hover:text-white transition-colors backdrop-blur-sm"
+                            >
+                              <Pencil className="size-3" />
+                            </button>
+                            <button 
+                              onClick={() => handleDelete(tube.id, tube.name)}
+                              className="p-1.5 bg-slate-800/80 hover:bg-rose-500/20 rounded-md text-slate-400 hover:text-rose-400 transition-colors backdrop-blur-sm"
+                            >
+                              <Trash2 className="size-3" />
+                            </button>
+                          </div>
+                          <div className="pl-16">
+                            <h3 className="text-slate-100 font-bold text-lg uppercase leading-tight">{tube.name}</h3>
+                            <div className="flex items-center gap-2 mt-1">
+                              <p className="text-[#13ec80] text-xs font-mono font-bold tracking-tight">RM{tube.pricePerTube.toFixed(2)}</p>
+                              <span className="text-slate-600 text-[10px] px-1">•</span>
+                              <p className="text-slate-400 text-[10px] font-mono tracking-tight">RM{tube.pricePerCock.toFixed(2)}/cock</p>
+                            </div>
+                          </div>
+                          <span className={clsx(
+                            "text-[10px] font-bold px-2 py-1 rounded-md uppercase ml-2 h-fit whitespace-nowrap",
+                            isLow ? "bg-rose-500/10 text-rose-500" : "bg-[#13ec80]/10 text-[#13ec80]"
+                          )}>
+                            {isLow ? 'Low' : 'Stocked'}
+                          </span>
+                        </>
+                      )}
                     </div>
-                    <div className="mb-6">
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="text-slate-500 uppercase">Remaining Shuttles</span>
-                        <span className="text-slate-100 font-mono">{tube.quantity}/{tube.total}</span>
+                    
+                    {!isEditing && (
+                      <div className="mb-2 mt-4">
+                        <div className="flex justify-between text-[10px] mb-1.5 uppercase font-bold font-mono tracking-wider">
+                          <span className="text-slate-500">Remaining</span>
+                          <span className="text-slate-100">{tube.quantity}/{tube.total}</span>
+                        </div>
+                        <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                          <div 
+                            className={clsx("h-full rounded-full", isLow ? "bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]" : "bg-[#13ec80] shadow-[0_0_10px_rgba(19,236,128,0.5)]")} 
+                            style={{ width: `${percentage}%` }}
+                          ></div>
+                        </div>
                       </div>
-                      <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                        <div 
-                          className={clsx("h-full", isLow ? "bg-rose-500" : "bg-[#13ec80]")} 
-                          style={{ width: `${percentage}%` }}
-                        ></div>
-                      </div>
-                    </div>
+                    )}
                   </div>
                 );
               })}
@@ -241,46 +315,75 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
                       <td colSpan={6} className="px-6 py-8 text-center text-slate-500 font-bold">No purchase history available.</td>
                     </tr>
                   )}
-                  {filteredHistory.map(item => (
-                    <tr key={item.id} className="hover:bg-slate-800/50 transition-colors group">
-                      <td className="px-6 py-4 font-bold text-slate-100 italic uppercase tracking-tight">
-                        {item.name} <span className="text-[#13ec80]">#{item.tubeNumber}</span>
-                      </td>
-                      <td className="px-6 py-4 font-mono text-slate-400 text-xs italic">{item.date}</td>
-                      <td className="px-6 py-4 text-center">
-                        <span className={clsx(
-                          "font-mono text-xs px-2 py-0.5 rounded",
-                          item.remaining <= 4 ? "bg-rose-500/10 text-rose-400" : "bg-emerald-500/10 text-emerald-400"
-                        )}>
-                          {item.remaining} / 12
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right font-mono font-bold text-slate-300">RM{item.pricePerTube.toFixed(2)}</td>
-                      <td className="px-6 py-4 text-right font-mono font-bold text-[#13ec80]">RM{item.pricePerCock.toFixed(2)}</td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button 
-                            className="p-1.5 hover:bg-slate-700/50 rounded text-slate-400 hover:text-white transition-colors"
-                            onClick={() => {/* TODO: Implement Edit Modal */}}
-                            title="Edit Record"
-                          >
-                             <Pencil className="size-3.5" />
-                          </button>
-                          <button 
-                            className="p-1.5 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
-                            onClick={() => {
-                              if (window.confirm("Are you sure you want to delete this purchase record?")) {
-                                // TODO: call deletePurchase server action
-                              }
-                            }}
-                            title="Delete Record"
-                          >
-                             <Trash2 className="size-3.5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {filteredHistory.map(item => {
+                    const isEditing = historyEditingId === item.id;
+                    
+                    if (isEditing) {
+                      return (
+                        <tr key={item.id} className="bg-slate-800/30">
+                          <td colSpan={6} className="p-4">
+                            <form 
+                              action={async (formData) => {
+                                await editPurchase(item.id, formData);
+                                setHistoryEditingId(null);
+                              }}
+                              className="flex items-center gap-4 w-full"
+                            >
+                              <div className="flex-1">
+                                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Date</p>
+                                 <input type="date" name="date" defaultValue={item.date} required className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-200 outline-none" />
+                              </div>
+                              <div className="flex-1">
+                                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Price (RM)</p>
+                                 <input type="number" step="0.01" name="price" defaultValue={item.pricePerTube} required className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-200 outline-none" />
+                              </div>
+                              <div className="flex items-end gap-2 pt-4">
+                                <button type="button" onClick={() => setHistoryEditingId(null)} className="px-4 py-2 rounded text-[10px] font-bold uppercase text-slate-500 hover:bg-slate-800">Cancel</button>
+                                <button type="submit" className="px-4 py-2 rounded text-[10px] font-bold uppercase bg-[#13ec80] text-slate-950">Save</button>
+                              </div>
+                            </form>
+                          </td>
+                        </tr>
+                      );
+                    }
+
+                    return (
+                      <tr key={item.id} className="hover:bg-slate-800/50 transition-colors group">
+                        <td className="px-6 py-4 font-bold text-slate-100 italic uppercase tracking-tight">
+                          {item.name} <span className="text-[#13ec80]">#{item.tubeNumber}</span>
+                        </td>
+                        <td className="px-6 py-4 font-mono text-slate-400 text-xs italic">{item.date}</td>
+                        <td className="px-6 py-4 text-center">
+                          <span className={clsx(
+                            "font-mono text-xs px-2 py-0.5 rounded",
+                            item.remaining <= 4 ? "bg-rose-500/10 text-rose-400" : "bg-emerald-500/10 text-emerald-400"
+                          )}>
+                            {item.remaining} / 12
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-right font-mono font-bold text-slate-300">RM{item.pricePerTube.toFixed(2)}</td>
+                        <td className="px-6 py-4 text-right font-mono font-bold text-[#13ec80]">RM{item.pricePerCock.toFixed(2)}</td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button 
+                              className="p-1.5 hover:bg-slate-700/50 rounded text-slate-400 hover:text-white transition-colors"
+                              onClick={() => setHistoryEditingId(item.id)}
+                              title="Edit Record"
+                            >
+                               <Pencil className="size-3.5" />
+                            </button>
+                            <button 
+                              className="p-1.5 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
+                              onClick={() => handleDelete(item.id, `${item.name} #${item.tubeNumber}`)}
+                              title="Delete Record"
+                            >
+                               <Trash2 className="size-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

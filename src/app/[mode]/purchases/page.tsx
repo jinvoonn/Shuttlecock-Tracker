@@ -46,7 +46,7 @@ export default async function PurchasesPage({ params }: { params: Promise<{ mode
   const tubesLeft = (purchasesData || []).filter(p => (p.remaining_quantity || 0) > 0).length;
   const usedToday = (sessionUsageData || []).reduce((acc, curr) => acc + (curr.quantity_used || 0), 0);
 
-  const activeTubes: { id: string, name: string, quantity: number, total: number }[] = [];
+  const activeTubes: { id: string, name: string, quantity: number, total: number, pricePerTube: number, pricePerCock: number, date: string }[] = [];
   const history: { id: string, name: string, brandName: string, tubeNumber: number, date: string, remaining: number, pricePerTube: number, pricePerCock: number }[] = [];
 
   (purchasesData || []).forEach(p => {
@@ -70,7 +70,10 @@ export default async function PurchasesPage({ params }: { params: Promise<{ mode
         id: p.id,
         name,
         quantity: p.remaining_quantity,
-        total: p.initial_quantity || 12
+        total: p.initial_quantity || 12,
+        pricePerTube: p.price_per_tube || 0,
+        pricePerCock: p.price_per_cock || 0,
+        date: new Date(p.purchase_date || p.created_at).toISOString().split('T')[0]
       });
     }
   });

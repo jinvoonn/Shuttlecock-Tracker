@@ -33,6 +33,9 @@ interface ActiveTube {
   name: string;
   quantity: number;
   total: number;
+  pricePerTube: number;
+  pricePerCock: number;
+  date: string;
 }
 
 interface PurchaseHistory {
@@ -56,6 +59,7 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [activeEditingId, setActiveEditingId] = useState<string | null>(null);
 
   const handleDelete = async (id: string, name: string) => {
     if (window.confirm(`Are you sure you want to delete this purchase (${name})?`)) {
@@ -115,32 +119,100 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
             
             <div className="space-y-4">
               {activeTubes.length === 0 && <p className="text-slate-500 text-center py-4">No active tubes.</p>}
-              {activeTubes.map((tube) => (
-                <div key={tube.id} className="bg-slate-900 p-6 rounded-[2.5rem] border border-slate-800 shadow-2xl relative overflow-hidden group text-left">
-                  <div className="absolute top-0 right-0 size-32 bg-[#34d399]/5 rounded-full -translate-y-16 translate-x-16 blur-3xl group-hover:bg-[#34d399]/10 transition-colors"></div>
-                  <div className="flex items-center gap-5 mb-6 relative z-10">
-                    <div className="size-14 rounded-2xl bg-[#020617] border border-slate-800 flex items-center justify-center text-[#34d399] shadow-inner">
-                      {tube.quantity <= 3 ? <TrendingDown className="size-6 text-rose-400" /> : <Package className="size-6" />}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-black italic tracking-tighter text-xl leading-none mb-1 font-['Lexend',_sans-serif] uppercase">{tube.name}</h3>
-                      <p className="text-[10px] uppercase font-black tracking-widest text-slate-500">Tube #{tube.id.slice(0, 4)}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className={`text-xl font-black font-['JetBrains_Mono',_monospace] leading-none mb-1 ${tube.quantity <= 3 ? 'text-rose-400' : 'text-[#34d399]'}`}>
-                        {tube.quantity}<span className="text-xs text-slate-600">/{tube.total}</span>
-                      </p>
-                      <p className="text-[9px] uppercase font-black tracking-widest text-slate-600">Shuttles</p>
-                    </div>
+              {activeTubes.map((tube) => {
+                const isEditing = activeEditingId === tube.id;
+
+                return (
+                  <div key={tube.id} className="bg-slate-900 p-6 rounded-[2.5rem] border border-slate-800 shadow-2xl relative overflow-hidden group text-left">
+                    <div className="absolute top-0 right-0 size-32 bg-[#34d399]/5 rounded-full -translate-y-16 translate-x-16 blur-3xl group-hover:bg-[#34d399]/10 transition-colors"></div>
+                    
+                    {isEditing ? (
+                      <div className="relative z-10 w-full animate-in fade-in slide-in-from-top-1 duration-200">
+                        <h3 className="font-black italic tracking-tighter text-xl leading-none mb-4 font-['Lexend',_sans-serif] uppercase">{tube.name}</h3>
+                        <form action={async (formData) => {
+                          await editPurchase(tube.id, formData);
+                          setActiveEditingId(null);
+                          router.refresh();
+                        }} className="space-y-4">
+                          <div className="grid grid-cols-1 gap-3">
+                            <div>
+                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 ml-1">Date</p>
+                              <DatePicker name="date" defaultValue={tube.date} />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 ml-1">Price</p>
+                                <input 
+                                  type="number" 
+                                  name="price" 
+                                  step="0.01"
+                                  defaultValue={tube.pricePerTube}
+                                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-[#34d399]/20 outline-none" 
+                                />
+                              </div>
+                              <div>
+                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 ml-1">Remaining</p>
+                                <input 
+                                  type="number" 
+                                  name="quantity" 
+                                  defaultValue={tube.quantity}
+                                  max={tube.total}
+                                  min={0}
+                                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-[#34d399]/20 outline-none" 
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex gap-2 justify-end pt-2">
+                            <button type="button" onClick={() => setActiveEditingId(null)} className="px-4 py-2 rounded-xl text-[10px] font-black uppercase text-slate-500 hover:bg-slate-800 transition-all">Cancel</button>
+                            <button type="submit" className="px-4 py-2 rounded-xl text-[10px] font-black uppercase bg-[#34d399] text-slate-950 shadow-lg shadow-[#34d399]/20">Save</button>
+                          </div>
+                        </form>
+                      </div>
+                    ) : (
+                      <div className="relative z-10">
+                        <div className="absolute top-0 left-0 flex gap-2">
+                          <button 
+                            onClick={() => setActiveEditingId(tube.id)}
+                            className="size-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-[#13ec80] active:scale-90 transition-all shadow-inner"
+                          >
+                            <Pencil className="size-4" />
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(tube.id, tube.name)}
+                            className="size-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-rose-500 active:scale-90 transition-all shadow-inner"
+                          >
+                            <Trash className="size-4" />
+                          </button>
+                        </div>
+
+                        <div className="flex items-center gap-5 mb-6 pt-14">
+                          <div className="flex-1">
+                            <h3 className="font-black italic tracking-tighter text-xl leading-none mb-1 font-['Lexend',_sans-serif] uppercase">{tube.name}</h3>
+                            <div className="flex items-center gap-2 mt-1">
+                              <p className="text-[#34d399] text-xs font-mono font-black tracking-tight">RM{tube.pricePerTube.toFixed(2)}</p>
+                              <span className="text-slate-600 text-[10px] px-1">•</span>
+                              <p className="text-slate-400 text-[10px] font-mono tracking-tight">RM{tube.pricePerCock.toFixed(2)}/cock</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className={`text-xl font-black font-['JetBrains_Mono',_monospace] leading-none mb-1 ${tube.quantity <= 3 ? 'text-rose-400' : 'text-[#34d399]'}`}>
+                              {tube.quantity}<span className="text-xs text-slate-600">/{tube.total}</span>
+                            </p>
+                            <p className="text-[9px] uppercase font-black tracking-widest text-slate-600">Shuttles</p>
+                          </div>
+                        </div>
+                        <div className="w-full h-2 bg-[#020617] rounded-full overflow-hidden shadow-inner">
+                          <div 
+                            className={`h-full rounded-full transition-all duration-1000 ${tube.quantity <= 3 ? 'bg-rose-400 shadow-[0_0_15px_rgba(251,113,133,0.5)]' : 'bg-[#34d399] shadow-[0_0_15px_rgba(52,211,153,0.5)]'}`} 
+                            style={{ width: `${(tube.quantity / tube.total) * 100}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div className="w-full h-2 bg-[#020617] rounded-full overflow-hidden shadow-inner">
-                    <div 
-                      className={`h-full rounded-full transition-all duration-1000 ${tube.quantity <= 3 ? 'bg-rose-400 shadow-[0_0_15px_rgba(251,113,133,0.5)]' : 'bg-[#34d399] shadow-[0_0_15px_rgba(52,211,153,0.5)]'}`} 
-                      style={{ width: `${(tube.quantity / tube.total) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
 

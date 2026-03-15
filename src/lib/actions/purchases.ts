@@ -96,22 +96,46 @@ export async function editPurchase(id: string, formData: FormData) {
     const brand_id = formData.get("brand_id") as string;
     const notes = formData.get("notes") as string;
     const price_per_tube = parseFloat(formData.get("price") as string);
-
-    if (!purchase_date || isNaN(price_per_tube) || !brand_id) {
-        throw new Error("Date, brand, and price are required");
+    const remaining_quantity_str = formData.get("quantity") as string;
+    
+    // We make brand_id optional here so Active Tubes can be edited in-place
+    // without having to re-select or pass the brand down the component tree.
+    if (!purchase_date || isNaN(price_per_tube)) {
+        throw new Error("Date and price are required");
     }
 
     const price_per_cock = Number((price_per_tube / 12).toFixed(2));
 
+    interface PurchaseUpdatePayload {
+        purchase_date: string;
+        notes: string | null;
+        price_per_tube: number;
+        price_per_cock: number;
+        brand_id?: string;
+        remaining_quantity?: number;
+    }
+
+    const updatePayload: PurchaseUpdatePayload = {
+        purchase_date,
+        notes: notes ? notes.trim() : null,
+        price_per_tube,
+        price_per_cock
+    };
+
+    if (brand_id) {
+        updatePayload.brand_id = brand_id;
+    }
+
+    if (remaining_quantity_str) {
+        const remaining_quantity = parseInt(remaining_quantity_str);
+        if (!isNaN(remaining_quantity)) {
+            updatePayload.remaining_quantity = remaining_quantity;
+        }
+    }
+
     const { error } = await supabase
         .from("purchases")
-        .update({
-            purchase_date,
-            brand_id,
-            notes: notes ? notes.trim() : null,
-            price_per_tube,
-            price_per_cock
-        })
+        .update(updatePayload)
         .eq("id", id);
 
     if (error) {
