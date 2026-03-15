@@ -52,9 +52,10 @@ export async function addMatch(payloadJson: string) {
         revalidatePath("/");
         revalidatePath("/sessions");
         return { success: true };
-    } catch (err: any) {
-        console.error("addMatch unexpected error:", err);
-        return { success: false, error: err.message || "An unexpected error occurred" };
+    } catch (err: unknown) {
+        const e = err as Error;
+        console.error("addMatch unexpected error:", e);
+        return { success: false, error: e.message || "An unexpected error occurred" };
     }
 }
 
@@ -62,11 +63,11 @@ export async function updateMatch(id: string, payloadJson: string) {
     try {
         const payload: Partial<AddMatchPayload> = JSON.parse(payloadJson);
 
-        const updateData: any = {};
-        if (payload.playerA1) updateData.player1_id = payload.playerA1;
-        if (payload.playerA2) updateData.player2_id = payload.playerA2;
-        if (payload.playerB1) updateData.player3_id = payload.playerB1;
-        if (payload.playerB2) updateData.player4_id = payload.playerB2;
+        const updateData: Record<string, string | number | null> = {};
+        if (payload.playerA1) updateData.team_a_player1 = payload.playerA1;
+        if (payload.playerA2) updateData.team_a_player2 = payload.playerA2;
+        if (payload.playerB1) updateData.team_b_player1 = payload.playerB1;
+        if (payload.playerB2) updateData.team_b_player2 = payload.playerB2;
         if (payload.scoreA !== undefined) updateData.team_a_score = payload.scoreA;
         if (payload.scoreB !== undefined) updateData.team_b_score = payload.scoreB;
 
@@ -82,8 +83,9 @@ export async function updateMatch(id: string, payloadJson: string) {
         revalidatePath("/");
         revalidatePath("/sessions");
         return { success: true };
-    } catch (err: any) {
-        return { success: false, error: err.message || "An unexpected error occurred" };
+    } catch (err: unknown) {
+        const e = err as Error;
+        return { success: false, error: e.message || "An unexpected error occurred" };
     }
 }
 
@@ -101,7 +103,8 @@ export async function deleteMatch(id: string) {
         revalidatePath("/");
         revalidatePath("/sessions");
         return { success: true };
-    } catch (err: any) {
-        return { success: false, error: err.message || "An unexpected error occurred" };
+    } catch (err: unknown) {
+        const e = err as Error;
+        return { success: false, error: e.message || "An unexpected error occurred" };
     }
 }

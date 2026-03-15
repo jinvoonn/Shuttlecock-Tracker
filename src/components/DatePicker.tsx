@@ -16,12 +16,12 @@ interface DatePickerProps {
 export function DatePicker({ name, defaultValue, className, onChange, required, id }: DatePickerProps) {
     const inputRef = useRef<HTMLInputElement>(null);
     const [date, setDate] = useState(defaultValue || new Date().toISOString().split('T')[0]);
+    const [prevDefaultValue, setPrevDefaultValue] = useState(defaultValue);
 
-    useEffect(() => {
-        if (defaultValue) {
-            setDate(defaultValue);
-        }
-    }, [defaultValue]);
+    if (defaultValue !== prevDefaultValue) {
+        setDate(defaultValue || new Date().toISOString().split('T')[0]);
+        setPrevDefaultValue(defaultValue);
+    }
 
     const handleButtonClick = () => {
         // Use showPicker if available (modern browsers)

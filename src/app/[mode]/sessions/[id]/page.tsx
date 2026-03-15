@@ -71,8 +71,8 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
     };
   });
 
-  const attendeesList = (sessionPlayers || []).map((sp: any) => ({
-    id: sp.players?.id,
+  const attendeesList = (sessionPlayers || []).map((sp: { players: { id: string, name: string } | null }) => ({
+    id: sp.players?.id || "",
     name: sp.players?.name || "Unknown",
     role: "Player",
     fee: totalCost / (sessionPlayers?.length || 1),

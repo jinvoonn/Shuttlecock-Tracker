@@ -46,11 +46,11 @@ export default async function PurchasesPage({ params }: { params: Promise<{ mode
   const tubesLeft = (purchasesData || []).filter(p => (p.remaining_quantity || 0) > 0).length;
   const usedToday = (sessionUsageData || []).reduce((acc, curr) => acc + (curr.quantity_used || 0), 0);
 
-  const activeTubes: any[] = [];
-  const history: any[] = [];
+  const activeTubes: { id: string, name: string, quantity: number, total: number }[] = [];
+  const history: { id: string, name: string, brandName: string, tubeNumber: number, date: string, remaining: number, pricePerTube: number, pricePerCock: number }[] = [];
 
   (purchasesData || []).forEach(p => {
-    const brandName = (p.brands as any)?.name || "Unknown Brand";
+    const brandName = (p.brands as { name: string } | null)?.name || "Unknown Brand";
     const name = `${brandName} Tube #${p.tube_number}`;
     
     // Add to history

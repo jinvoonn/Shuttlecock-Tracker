@@ -3,32 +3,27 @@
 import { useState, useMemo } from "react";
 import { Folder } from "@/components/Folder";
 import { FilterBar } from "@/components/FilterBar";
-import { SessionItem } from "./SessionItem";
+import { SessionItem, Session } from "./SessionItem";
 import { Calendar, ChevronDown, ChevronRight } from "lucide-react";
 import { useRole } from "@/context/AuthContext";
 
-interface Session {
-    id: string;
-    date: string;
-    location: string | null;
-    notes: string | null;
-    session_players: { players: { name: string } }[];
-    session_usage: { quantity_used: number, purchases: { tube_number: number, brands: { name: string } } }[];
+interface Player { id: string; name: string; }
+interface Purchase { id: string; remaining_quantity: number; tube_number: number; brands: { name: string } | null; price_per_tube: number; price_per_cock: number; }
+
+interface SessionsListProps {
+    sessions: Session[];
+    allPlayers: Player[];
+    allPurchases: Purchase[];
 }
 
-interface Player { id: string; name: string; }
-interface Purchase { id: string; remaining_quantity: number; tube_number: number; brands: any; price_per_tube: number; price_per_cock: number; }
-
-export function SessionsList({ sessions, allPlayers, allPurchases }: {
-    sessions: any[], allPlayers: Player[], allPurchases: Purchase[]
-}) {
+export function SessionsList({ sessions, allPlayers, allPurchases }: SessionsListProps) {
     const { isAdmin } = useRole();
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [collapsedMonths, setCollapsedMonths] = useState<Set<string>>(new Set());
 
     const filteredSessions = useMemo(() => {
-        return sessions.filter(s => {
+        return sessions.filter((s) => {
             const sDate = s.date;
             return (!startDate || sDate >= startDate) && (!endDate || sDate <= endDate);
         });
@@ -36,7 +31,7 @@ export function SessionsList({ sessions, allPlayers, allPurchases }: {
 
     // Group by YYYY-MM
     const groupedByMonth = useMemo(() => {
-        const groups: Record<string, any[]> = {};
+        const groups: Record<string, Session[]> = {};
         for (const s of filteredSessions) {
             const key = s.date.slice(0, 7); // "YYYY-MM"
             if (!groups[key]) groups[key] = [];
@@ -101,7 +96,7 @@ export function SessionsList({ sessions, allPlayers, allPurchases }: {
 
                                 {!isCollapsed && (
                                     <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
-                                        {monthSessions.map(session => (
+                                        {monthSessions.map((session) => (
                                             <SessionItem
                                                 key={session.id}
                                                 session={session}

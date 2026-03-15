@@ -25,7 +25,9 @@ export default async function LogSessionPage({ params }: { params: Promise<{ mod
 
   const sortedPurchases = (purchasesData || []).map(p => ({
     id: p.id,
-    brand: (p.brands as any)?.name || "Unknown Brand",
+    brand: (Array.isArray(p.brands) 
+      ? (p.brands as unknown as {name: string}[])[0]?.name 
+      : (p.brands as unknown as {name: string} | null)?.name) || "Unknown Brand",
     model: `Tube #${p.tube_number}`,
     price_per_cock: p.price_per_cock || 0
   }));

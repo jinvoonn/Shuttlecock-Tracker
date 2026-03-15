@@ -107,7 +107,7 @@ export default function MobileDashboard({ stats, players, upcomingSession }: Das
               </div>
               <div className="flex items-baseline gap-2">
                 <p className="font-mono text-4xl font-black text-[#13ec80] tracking-tighter italic">{stats.inventory.totalShuttles}</p>
-                <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest italic">// {stats.inventory.remainingTubes} Tubes Left</p>
+                <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest italic">{"// "}{stats.inventory.remainingTubes} Tubes Left</p>
               </div>
             </div>
           </div>

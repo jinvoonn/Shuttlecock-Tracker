@@ -24,8 +24,9 @@ export function SkillRatingEditor({ playerId, initialSkill }: SkillRatingEditorP
             await updatePlayerSkill(playerId, tempSkill);
             setSkill(tempSkill);
             setIsEditing(false);
-        } catch (err: any) {
-            alert("Failed to update skill: " + err.message);
+        } catch (err: unknown) {
+            const e = err as Error;
+            alert("Failed to update skill: " + (e.message || "Unknown error"));
         } finally {
             setIsSaving(false);
         }

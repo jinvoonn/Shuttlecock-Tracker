@@ -105,7 +105,7 @@ export function DashboardClient({ players }: { players: Player[] }) {
                                                 {player.name}
                                             </p>
                                             <p className="text-[9px] text-slate-500 font-mono tracking-tighter uppercase mt-0.5">
-                                                ID: {player.id.slice(0, 8)} // {isSettled ? "Settled" : isDebt ? "Owed" : "Credit"}
+                                                ID: {player.id.slice(0, 8)} {" // "} {isSettled ? "Settled" : isDebt ? "Owed" : "Credit"}
                                             </p>
                                         </div>
                                     </Link>

@@ -16,17 +16,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const pathname = usePathname();
-    const [role, setRole] = useState<Role>("viewer");
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        if (pathname.includes(`/${ADMIN_SECRET}`)) {
-            setRole("admin");
-        } else {
-            setRole("viewer");
-        }
-        setLoading(false);
-    }, [pathname]);
+    const role: Role = pathname.includes(`/${ADMIN_SECRET}`) ? "admin" : "viewer";
+    const loading = false; // Derived synchronously now
 
     const isAdmin = role === "admin";
 

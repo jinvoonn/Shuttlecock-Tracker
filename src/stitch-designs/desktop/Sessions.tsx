@@ -114,8 +114,9 @@ export default function DesktopSessions({ tubes, players, initialData }: Desktop
       
       router.push(`${basePath}/sessions`);
       router.refresh();
-    } catch (e: any) {
-      alert("An unexpected error occurred: " + e.message);
+    } catch (e: unknown) {
+      const err = e as Error;
+      alert("An unexpected error occurred: " + err.message);
     } finally {
       setIsSubmitting(false);
     }

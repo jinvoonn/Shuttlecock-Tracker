@@ -79,7 +79,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
     const attendees = s.session_players || [];
     if (attendees.length > 0) {
       const share = cost / attendees.length;
-      attendees.forEach((ap: any) => {
+      attendees.forEach((ap: { player_id: string }) => {
         if (playerBalances[ap.player_id]) {
           playerBalances[ap.player_id].totalShares += share;
         }
@@ -115,7 +115,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
   return (
     <>
       <div className="block lg:hidden">
-        <MobileDashboard stats={mobileStatsProps as any} players={players} />
+        <MobileDashboard stats={mobileStatsProps} players={players} />
       </div>
       <div className="hidden lg:block">
         <DesktopDashboard stats={statsProps} players={players} isAdmin={isAdmin} />

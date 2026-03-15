@@ -20,7 +20,7 @@ export default function Loading() {
           Cock<span className="text-sky-400">Count</span>
         </h1>
         <p className="text-slate-500 font-bold text-xs uppercase tracking-[0.2em]">
-          "Because Shuttlecocks Aren’t Free."
+          {"Because Shuttlecocks Aren't Free."}
         </p>
       </div>
 

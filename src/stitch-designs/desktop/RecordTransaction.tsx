@@ -137,7 +137,7 @@ export default function DesktopRecordTransaction({ players, sessionId }: Desktop
           {/* Header */}
           <div className="mb-8">
             <h3 className="font-black italic uppercase text-3xl mb-2 text-slate-100 tracking-tighter">Record Transaction</h3>
-            <p className="text-slate-500 font-medium">Log a payment or deposit to a player's balance.</p>
+            <p className="text-slate-500 font-medium">Log a payment or deposit to a player&apos;s balance.</p>
           </div>
             
           <form className="bg-slate-900/60 border border-slate-800 p-8 rounded-xl shadow-sm" onSubmit={handleConfirm}>

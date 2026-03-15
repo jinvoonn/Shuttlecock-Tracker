@@ -16,7 +16,7 @@ interface Purchase {
     id: string;
     remaining_quantity: number;
     tube_number: number;
-    brands: any;
+    brands: { name: string } | null;
     price_per_tube: number;
     price_per_cock: number;
 }
@@ -44,7 +44,7 @@ export function SessionForm({
     onCancel?: () => void
 }) {
     const { isAdmin } = useRole();
-    const [date, setDate] = useState(initialData?.date || new Date().toISOString().split('T')[0]);
+    const [date, setDate] = useState<string>(initialData?.date || new Date().toISOString().split('T')[0]);
     const [location, setLocation] = useState(initialData?.location || "");
     const [notes, setNotes] = useState(initialData?.notes || "");
 

@@ -6,7 +6,23 @@ import { PlusCircle, X, Check, Trash2, Swords, Users, Edit3 } from "lucide-react
 import clsx from "clsx";
 import { useRole } from "@/context/AuthContext";
 
-export function SessionMatches({ sessionId, sessionPlayers, matches }: { sessionId: string, sessionPlayers: any[], matches: any[] }) {
+interface SessionPlayer {
+    players: { id: string, name: string } | null;
+    player_id: string;
+}
+
+interface Match {
+    id: string;
+    team_a_score: number;
+    team_b_score: number;
+    team_a_player1: string;
+    team_a_player2: string;
+    team_b_player1: string;
+    team_b_player2: string;
+    created_at: string;
+}
+
+export function SessionMatches({ sessionId, sessionPlayers, matches }: { sessionId: string, sessionPlayers: SessionPlayer[], matches: Match[] }) {
     const { isAdmin } = useRole();
     const [isAdding, setIsAdding] = useState(false);
     const [editingMatchId, setEditingMatchId] = useState<string | null>(null);
@@ -17,9 +33,9 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
     const [scoreB, setScoreB] = useState<string>("");
 
     const availablePlayers = sessionPlayers.map(sp => ({
-        id: sp.players?.id,
-        name: sp.players?.name
-    })).filter(p => p.id && p.name);
+        id: sp.players?.id || sp.player_id,
+        name: sp.players?.name || "Unknown"
+    })).filter(p => p.id);
 
     // Map all player IDs to names for quick lookup in match history
     const playerMap = Object.fromEntries(availablePlayers.map(p => [p.id, p.name]));
@@ -38,10 +54,10 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
         }
     };
 
-    const startEdit = (match: any) => {
+    const startEdit = (match: { id: string, team_a_ids?: string[], team_b_ids?: string[], team_a_player1?: string, team_a_player2?: string, team_b_player1?: string, team_b_player2?: string, team_a_score: number, team_b_score: number }) => {
         setEditingMatchId(match.id);
-        setTeamAIds(match.team_a_ids || [match.team_a_player1, match.team_a_player2].filter(Boolean));
-        setTeamBIds(match.team_b_ids || [match.team_b_player1, match.team_b_player2].filter(Boolean));
+        setTeamAIds(match.team_a_ids || [match.team_a_player1, match.team_a_player2].filter((p): p is string => !!p));
+        setTeamBIds(match.team_b_ids || [match.team_b_player1, match.team_b_player2].filter((p): p is string => !!p));
         setScoreA(match.team_a_score.toString());
         setScoreB(match.team_b_score.toString());
         setIsAdding(true);
@@ -80,8 +96,9 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
                 return;
             }
             resetForm();
-        } catch (err: any) {
-            alert("Unexpected error: " + err.message);
+        } catch (err: unknown) {
+            const e = err as Error;
+            alert("Unexpected error: " + (e.message || "Unknown error"));
         }
     };
 
@@ -198,12 +215,12 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                {sortedMatches.map((m: any, idx: number) => {
+                {sortedMatches.map((m: { id: string, team_a_score: number, team_b_score: number, team_a_player1: string, team_a_player2: string, team_b_player1: string, team_b_player2: string }, idx: number) => {
                     const isAWin = m.team_a_score > m.team_b_score;
                     const isBWin = m.team_b_score > m.team_a_score;
                     
-                    const tA = m.team_a_ids || [m.team_a_player1, m.team_a_player2].filter(Boolean);
-                    const tB = m.team_b_ids || [m.team_b_player1, m.team_b_player2].filter(Boolean);
+                    const tA = [m.team_a_player1, m.team_a_player2].filter((p): p is string => !!p);
+                    const tB = [m.team_b_player1, m.team_b_player2].filter((p): p is string => !!p);
 
                     return (
                         <div key={m.id} className="flex flex-col bg-slate-950/50 rounded-xl border border-slate-800/80 p-3.5 relative group">
@@ -232,7 +249,7 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
                                 <div className={clsx("flex-1 text-right text-xs", isAWin ? "text-slate-100 font-bold" : "text-slate-500")}>
                                     {tA.map((id: string, i: number) => (
                                         <div key={id} className={clsx("truncate", i > 0 && "text-[10px] opacity-70 mt-0.5")}>
-                                            {playerMap[id] || (i === 0 ? (m.players_a1?.name || '...') : (m.players_a2?.name || ''))}
+                                            {playerMap[id] || '...'}
                                         </div>
                                     ))}
                                 </div>
@@ -244,7 +261,7 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
                                 <div className={clsx("flex-1 text-left text-xs", isBWin ? "text-slate-100 font-bold" : "text-slate-500")}>
                                     {tB.map((id: string, i: number) => (
                                         <div key={id} className={clsx("truncate", i > 0 && "text-[10px] opacity-70 mt-0.5")}>
-                                            {playerMap[id] || (i === 0 ? (m.players_b1?.name || '...') : (m.players_b2?.name || ''))}
+                                            {playerMap[id] || '...'}
                                         </div>
                                     ))}
                                 </div>

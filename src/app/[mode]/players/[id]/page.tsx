@@ -96,7 +96,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
     let wins = 0;
     let losses = 0;
 
-    const formattedMatches = (matches || []).map((m: any) => {
+    const formattedMatches = (matches || []).map((m: { id: string, created_at: string, team_a_score: number, team_b_score: number, team_a_player1: string, team_a_player2: string, team_b_player1: string, team_b_player2: string, sessions: { date: string } | { date: string }[] | null }) => {
         totalMatchesCount++;
         
         const isTeamA = m.team_a_player1 === id || m.team_a_player2 === id;
@@ -123,7 +123,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
 
         return {
             id: m.id,
-            date: m.sessions?.date || new Date(m.created_at).toISOString().split('T')[0],
+            date: (Array.isArray(m.sessions) ? m.sessions[0]?.date : m.sessions?.date) || new Date(m.created_at).toISOString().split('T')[0],
             isWin,
             isDraw,
             myScore,
@@ -139,7 +139,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
     const h2h: Record<string, { name: string, wins: number, losses: number, total: number }> = {};
     const partnersMap: Record<string, { name: string, wins: number, total: number }> = {};
 
-    formattedMatches.forEach((m: any) => {
+    formattedMatches.forEach((m: { isWin: boolean, isDraw: boolean, opponents: string[], partners: string[] }) => {
         if (!m) return;
         // Track Head-to-Head
         m.opponents.forEach((oppName: string) => {
@@ -323,7 +323,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                         </div>
                     ) : (
                         <div className="space-y-3">
-                            {formattedMatches.map((m: any) => (
+                            {formattedMatches.map((m: { id: string, date: string, isWin: boolean, isDraw: boolean, myScore: number, oppScore: number, partners: string[], opponents: string[] }) => (
                                 <div key={m.id} className="flex flex-col bg-slate-950/50 p-4 rounded-xl border border-slate-800/80 gap-4">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-4">
@@ -368,7 +368,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                         </div>
                     ) : (
                         <div className="space-y-3">
-                            {(paymentsData || []).map((pay: any) => (
+                            {(paymentsData || []).map((pay: { id: string, date: string, amount: number }) => (
                                 <div key={pay.id} className="flex items-center justify-between bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
                                     <div className="flex items-center gap-4">
                                         <div className="p-2 bg-emerald-500/5 rounded-lg border border-emerald-500/10">

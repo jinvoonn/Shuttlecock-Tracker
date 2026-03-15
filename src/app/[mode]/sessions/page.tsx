@@ -4,6 +4,26 @@ import MobileSessions from "@/stitch-designs/mobile/Sessions";
 
 export const revalidate = 0;
 
+interface SessionPlayer {
+  players: { id: string, name: string } | null;
+}
+
+interface Session {
+  id: string;
+  date: string;
+  location: string | null;
+  notes: string | null;
+  session_players: SessionPlayer[];
+  session_usage: {
+    quantity_used: number;
+    purchases: {
+      tube_number: number;
+      brands: { name: string } | null;
+      price_per_cock: number;
+    } | null;
+  }[];
+}
+
 export default async function SessionsPage({ params }: { params: Promise<{ mode: string }> }) {
   await params;
   
@@ -25,18 +45,19 @@ export default async function SessionsPage({ params }: { params: Promise<{ mode:
     );
   }
 
-  const formattedSessions = (sessions || []).map((session: any, index: number) => {
-    const attendees = session.session_players?.map((sp: any) => sp.players?.name || "Unknown") || [];
+  const formattedSessions = (sessions as unknown as Session[] || []).map((session, index: number) => {
+    const attendees = session.session_players?.map((sp) => sp.players?.name || "Unknown") || [];
     
     let shuttleName = "None";
     let totalShuttles = 0;
     let totalCost = 0;
 
     if (session.session_usage && session.session_usage.length > 0) {
-      shuttleName = session.session_usage[0].purchases?.brands?.name || "Various";
-      session.session_usage.forEach((su: any) => {
+      shuttleName = (Array.isArray(session.session_usage[0].purchases?.brands) ? session.session_usage[0].purchases?.brands[0]?.name : session.session_usage[0].purchases?.brands?.name) || "Various";
+      session.session_usage.forEach((su) => {
+        const purchases = Array.isArray(su.purchases) ? su.purchases[0] : su.purchases;
         const qty = su.quantity_used || 0;
-        const price = su.purchases?.price_per_cock || 0;
+        const price = purchases?.price_per_cock || 0;
         totalShuttles += qty;
         totalCost += (qty * price);
       });

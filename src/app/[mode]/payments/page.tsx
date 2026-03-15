@@ -20,13 +20,16 @@ export default async function PaymentsPage({ params }: { params: Promise<{ mode:
     );
   }
 
-  const payments = (paymentsData || []).map((p: any) => ({
-    id: p.id,
-    amount: p.amount,
-    date: p.date,
-    playerName: p.players?.name || "Unknown",
-    playerId: p.players?.id || ""
-  }));
+  const payments = (paymentsData || []).map((p: { id: string, amount: number, date: string, players: { id: string, name: string } | { id: string, name: string }[] | null }) => {
+    const player = Array.isArray(p.players) ? p.players[0] : p.players;
+    return {
+      id: p.id,
+      amount: p.amount,
+      date: p.date,
+      playerName: player?.name || "Unknown",
+      playerId: player?.id || ""
+    };
+  });
 
   return (
     <>

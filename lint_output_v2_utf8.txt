@@ -1,0 +1,209 @@
+﻿
+> shuttle-tracker@0.1.0 lint
+> eslint
+
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\scripts\deduplicate-brands.js
+  1:26  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  2:1   error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\app\[mode]\layout.tsx
+  2:10  warning  'Navigation' is defined but never used  @typescript-eslint/no-unused-vars
+  3:10  warning  'MobileNav' is defined but never used   @typescript-eslint/no-unused-vars
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\app\[mode]\players\[id]\page.tsx
+   97:9   warning  'losses' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  165:11  warning  'recentForm' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\app\[mode]\purchases\PurchaseItem.tsx
+  5:54  warning  'Tag' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\app\[mode]\sessions\SessionForm.tsx
+  19:13  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\app\[mode]\sessions\SessionItem.tsx
+    4:18  warning  'Calendar' is defined but never used      @typescript-eslint/no-unused-vars
+   11:14  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   12:17  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   13:19  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   22:45  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   31:56  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  107:60  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  127:61  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\app\[mode]\sessions\SessionMatches.tsx
+    9:164  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  202:40   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\app\[mode]\sessions\SessionsList.tsx
+  10:11  warning  'Session' is defined but never used                                    @typescript-eslint/no-unused-vars
+  20:91  error    Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  23:30  error    Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  39:53  error    Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  51:13  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\app\[mode]\sessions\[id]\edit\page.tsx
+   3:10  warning  'redirect' is defined but never used       @typescript-eslint/no-unused-vars
+   8:11  warning  'mode' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  39:53  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  42:27  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  59:50  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  60:33  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  65:50  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\app\[mode]\sessions\[id]\page.tsx
+   8:11  warning  'mode' is assigned a value but never used   @typescript-eslint/no-unused-vars
+  60:9   warning  'usage' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  74:57  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\app\[mode]\sessions\[id]\record-match\page.tsx
+   8:11  warning  'mode' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  23:51  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\app\[mode]\sessions\log\page.tsx
+  28:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\app\[mode]\sessions\page.tsx
+  28:60  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  29:57  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  37:42  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\app\layout.tsx
+  4:10  warning  'Navigation' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\calculate_total_payments.mjs
+  27:9  warning  'currentBatchDate' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\components\AddMatchModal.tsx
+   48:11  warning  'playerNames' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  102:17  error    Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\components\DashboardClient.tsx
+   4:10  warning  'ArrowDownRight' is defined but never used      @typescript-eslint/no-unused-vars
+   4:26  warning  'ArrowUpRight' is defined but never used        @typescript-eslint/no-unused-vars
+   4:53  warning  'SortAsc' is defined but never used             @typescript-eslint/no-unused-vars
+  85:31  warning  'paidRatio' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\components\DatePicker.tsx
+  23:13  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\components\DatePicker.tsx:23:13
+  21 |     useEffect(() => {
+  22 |         if (defaultValue !== prevDefaultValue.current) {
+> 23 |             setDate(defaultValue || new Date().toISOString().split('T')[0]);
+     |             ^^^^^^^ Avoid calling setState() directly within an effect
+  24 |             prevDefaultValue.current = defaultValue;
+  25 |         }
+  26 |     }, [defaultValue]);  react-hooks/set-state-in-effect
+  33:22  warning  'e' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\components\Navigation.tsx
+   5:67  warning  'Eye' is defined but never used                @typescript-eslint/no-unused-vars
+  25:11  warning  'pageName' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\components\SettleButton.tsx
+  28:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\components\SkillRatingEditor.tsx
+   4:10  warning  'Star' is defined but never used          @typescript-eslint/no-unused-vars
+  27:23  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\context\AuthContext.tsx
+  3:37  warning  'useEffect' is defined but never used  @typescript-eslint/no-unused-vars
+  3:48  warning  'useState' is defined but never used   @typescript-eslint/no-unused-vars
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\full_peek.mjs
+  8:48  warning  'index' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\lib\actions\matches.ts
+  66:42  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\project_balances.mjs
+  27:10  warning  'excelDateToDate' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\stitch-designs\desktop\AddNewStock.tsx
+  38:9  warning  'estimatedTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\stitch-designs\desktop\Dashboard.tsx
+  12:3  warning  'TrendingDown' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\stitch-designs\desktop\PaymentLedger.tsx
+   7:3  warning  'User' is defined but never used        @typescript-eslint/no-unused-vars
+   8:3  warning  'TrendingUp' is defined but never used  @typescript-eslint/no-unused-vars
+   9:3  warning  'Clock' is defined but never used       @typescript-eslint/no-unused-vars
+  10:3  warning  'Users' is defined but never used       @typescript-eslint/no-unused-vars
+  11:3  warning  'Filter' is defined but never used      @typescript-eslint/no-unused-vars
+  12:3  warning  'Download' is defined but never used    @typescript-eslint/no-unused-vars
+  20:8  warning  'clsx' is defined but never used        @typescript-eslint/no-unused-vars
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\stitch-designs\desktop\RecordMatch.tsx
+  12:3  warning  'CheckCircle2' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\stitch-designs\desktop\SessionList.tsx
+  11:3  warning  'PlusCircle' is defined but never used  @typescript-eslint/no-unused-vars
+  12:3  warning  'TrendingUp' is defined but never used  @typescript-eslint/no-unused-vars
+  13:3  warning  'CreditCard' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\stitch-designs\desktop\Sessions.tsx
+  6:3  warning  'Settings' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\stitch-designs\mobile\AddNewStock.tsx
+  66:9  warning  'brands' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\stitch-designs\mobile\Dashboard.tsx
+  10:3  warning  'FileText' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\stitch-designs\mobile\LogSessions.tsx
+   15:3   warning  'Clock' is defined but never used                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+  188:25  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\stitch-designs\mobile\PaymentLedger.tsx
+  10:3   warning  'History' is defined but never used       @typescript-eslint/no-unused-vars
+  13:3   warning  'TrendingDown' is defined but never used  @typescript-eslint/no-unused-vars
+  54:16  warning  'err' is defined but never used           @typescript-eslint/no-unused-vars
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\stitch-designs\mobile\RecordMatch.tsx
+   5:3   warning  'Users' is defined but never used         @typescript-eslint/no-unused-vars
+   6:3   warning  'UserPlus' is defined but never used      @typescript-eslint/no-unused-vars
+   7:3   warning  'ChevronRight' is defined but never used  @typescript-eslint/no-unused-vars
+  10:3   warning  'LayoutGrid' is defined but never used    @typescript-eslint/no-unused-vars
+  11:3   warning  'Activity' is defined but never used      @typescript-eslint/no-unused-vars
+  12:3   warning  'Package' is defined but never used       @typescript-eslint/no-unused-vars
+  13:3   warning  'Banknote' is defined but never used      @typescript-eslint/no-unused-vars
+  14:3   warning  'Search' is defined but never used        @typescript-eslint/no-unused-vars
+  15:3   warning  'X' is defined but never used             @typescript-eslint/no-unused-vars
+  76:14  warning  'err' is defined but never used           @typescript-eslint/no-unused-vars
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\stitch-designs\mobile\RecordTransaction.tsx
+    6:3   warning  'HelpCircle' is defined but never used                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+   13:3   warning  'DollarSign' is defined but never used                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+   44:12  warning  'int' is assigned a value but never used                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+  138:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\stitch-designs\mobile\SessionDetails.tsx
+   6:3   warning  'MoreVertical' is defined but never used                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+  15:3   warning  'ChevronRight' is defined but never used                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+  17:3   warning  'Share2' is defined but never used                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  87:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\stitch-designs\mobile\Sessions.tsx
+   7:3   warning  'Calendar' is defined but never used   @typescript-eslint/no-unused-vars
+  14:3   warning  'ArrowLeft' is defined but never used  @typescript-eslint/no-unused-vars
+  55:16  warning  'err' is defined but never used        @typescript-eslint/no-unused-vars
+
+C:\Users\jinvo\OneDrive\Documents\Antigravity\Shuttlecocks\shuttle-tracker\src\stitch-designs\mobile\StockInventory.tsx
+   7:3   warning  'Plus' is defined but never used          @typescript-eslint/no-unused-vars
+   8:3   warning  'Trash2' is defined but never used        @typescript-eslint/no-unused-vars
+   9:3   warning  'Edit2' is defined but never used         @typescript-eslint/no-unused-vars
+  12:3   warning  'ChevronRight' is defined but never used  @typescript-eslint/no-unused-vars
+  19:8   warning  'Link' is defined but never used          @typescript-eslint/no-unused-vars
+  65:16  warning  'err' is defined but never used           @typescript-eslint/no-unused-vars
+
+Γ£û 107 problems (31 errors, 76 warnings)
+

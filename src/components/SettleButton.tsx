@@ -25,8 +25,9 @@ export function SettleButton({ playerId, playerName, amount }: SettleButtonProps
             await quickSettle(playerId, amount);
             setDone(true);
             setTimeout(() => setDone(false), 2000);
-        } catch (err: any) {
-            alert(err.message || "Failed to settle up");
+        } catch (err: unknown) {
+            const e = err as Error;
+            alert(e.message || "Failed to settle up");
         } finally {
             setLoading(false);
         }

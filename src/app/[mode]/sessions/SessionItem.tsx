@@ -1,16 +1,52 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, Calendar, Target, MapPin, Edit3, User } from "lucide-react";
+import { Trash2, Target, MapPin, Edit3, User } from "lucide-react";
 import { SessionForm } from "./SessionForm";
 import { deleteSession } from "@/lib/actions/sessions";
 import { SessionMatches } from "./SessionMatches";
 import { useRole } from "@/context/AuthContext";
 
+interface SessionPlayer {
+    players: { id: string, name: string } | null;
+    player_id: string;
+}
+
+interface Match {
+    id: string;
+    team_a_score: number;
+    team_b_score: number;
+    team_a_player1: string;
+    team_a_player2: string;
+    team_b_player1: string;
+    team_b_player2: string;
+    created_at: string;
+}
+
+export interface Session {
+    id: string;
+    date: string;
+    location: string | null;
+    notes: string | null;
+    session_players: SessionPlayer[];
+    session_usage: {
+        purchase_id: string;
+        quantity_used: number;
+        purchases: {
+            tube_number: number;
+            brands: { name: string } | null;
+        } | null;
+    }[];
+    matches?: Match[];
+}
+
+interface Player { id: string; name: string; }
+interface Purchase { id: string; remaining_quantity: number; tube_number: number; brands: { name: string } | null; price_per_tube: number; price_per_cock: number; }
+
 interface SessionItemProps {
-    session: any;
-    allPlayers: any[];
-    allPurchases: any[];
+    session: Session;
+    allPlayers: Player[];
+    allPurchases: Purchase[];
 }
 
 export function SessionItem({ session, allPlayers, allPurchases }: SessionItemProps) {
@@ -19,7 +55,7 @@ export function SessionItem({ session, allPlayers, allPurchases }: SessionItemPr
 
     if (isEditing) {
         const initialUsage: Record<string, number> = {};
-        session.session_usage?.forEach((su: any) => {
+        session.session_usage?.forEach((su: { purchase_id: string, quantity_used: number }) => {
             initialUsage[su.purchase_id] = su.quantity_used;
         });
 
@@ -28,7 +64,7 @@ export function SessionItem({ session, allPlayers, allPurchases }: SessionItemPr
             date: session.date,
             location: session.location || "",
             notes: session.notes || "",
-            players: session.session_players?.map((sp: any) => sp.player_id) || [],
+            players: session.session_players?.map((sp: { player_id: string }) => sp.player_id) || [],
             usage: initialUsage
         };
 
@@ -104,7 +140,7 @@ export function SessionItem({ session, allPlayers, allPurchases }: SessionItemPr
                         <User className="w-3 h-3" /> {session.session_players?.length || 0} Players
                     </div>
                     <div className="flex flex-wrap gap-2">
-                        {session.session_players?.map((sp: any, i: number) => {
+                        {session.session_players?.map((sp, i: number) => {
                             const name = sp.players?.name || "Unknown";
                             return (
                                 <div key={i} className="flex items-center gap-1.5 bg-slate-950/30 px-3 py-1.5 rounded-xl border border-white/5 shadow-sm group-hover:border-white/10 transition-colors">
@@ -124,7 +160,7 @@ export function SessionItem({ session, allPlayers, allPurchases }: SessionItemPr
                         {session.session_usage?.length === 0 ? (
                             <span className="text-xs text-slate-500 italic opacity-60">No shuttles used.</span>
                         ) : (
-                            session.session_usage?.map((su: any, i: number) => {
+                            session.session_usage?.map((su, i: number) => {
                                 const bName = su.purchases?.brands?.name || "Unknown";
                                 const tNo = su.purchases?.tube_number || "?";
                                 const q = su.quantity_used;

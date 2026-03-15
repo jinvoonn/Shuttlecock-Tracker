@@ -20,10 +20,12 @@ export default async function RecordMatchPage({ params }: { params: Promise<{ mo
     );
   }
 
-  const players = (sessionPlayers || []).map((sp: any) => ({
-    id: sp.players?.id,
-    name: sp.players?.name || "Unknown",
-  }));
+  const players = (sessionPlayers || []).map((sp: { players: { id: string, name: string } | { id: string, name: string }[] | null }) => {
+    if (!sp.players) return null;
+    return Array.isArray(sp.players) ? sp.players[0] : sp.players;
+  }).filter((p): p is { id: string, name: string } => !!p);
+
+  Object.fromEntries(players.map((p: { id: string, name: string }) => [p.id, p.name]));
 
   return (
     <>

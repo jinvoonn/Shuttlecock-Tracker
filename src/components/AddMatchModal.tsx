@@ -89,7 +89,7 @@ export default function AddMatchModal({ sessionId, players, onClose, onSuccess, 
         scoreB
       };
       
-      const result = isEdit 
+      const result = (isEdit && initialMatch?.id)
         ? await updateMatch(initialMatch.id, JSON.stringify(payload))
         : await addMatch(JSON.stringify(payload));
 
@@ -99,8 +99,9 @@ export default function AddMatchModal({ sessionId, players, onClose, onSuccess, 
       } else {
         setError(result.error || "Failed to save match.");
       }
-    } catch (e: any) {
-      setError(e.message);
+    } catch (err: unknown) {
+      const e = err as Error;
+      setError(e.message || "Failed to save match");
     } finally {
       setIsSubmitting(false);
     }

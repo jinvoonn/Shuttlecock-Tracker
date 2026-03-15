@@ -36,10 +36,12 @@ export default async function EditSessionPage({ params }: { params: Promise<{ mo
   // Restore inventory for the current session's usage so the editor shows correct availability
   const initialUsage = session.session_usage || [];
   const sortedPurchases = (purchasesData || []).map(p => {
-    const usedInThisSession = initialUsage.find((u: any) => u.purchase_id === p.id)?.quantity_used || 0;
+    const usedInThisSession = initialUsage.find((u: { purchase_id: string }) => u.purchase_id === p.id)?.quantity_used || 0;
     return {
       id: p.id,
-      brand: (p.brands as any)?.name || "Unknown Brand",
+      brand: (Array.isArray(p.brands) 
+        ? (p.brands as unknown as {name: string}[])[0]?.name 
+        : (p.brands as unknown as {name: string} | null)?.name) || "Unknown Brand",
       model: `Tube #${p.tube_number}`,
       price_per_cock: p.price_per_cock || 0,
       remaining_quantity: p.remaining_quantity + usedInThisSession
@@ -56,13 +58,13 @@ export default async function EditSessionPage({ params }: { params: Promise<{ mo
     date: session.date,
     location: session.location || "",
     notes: session.notes || "",
-    playerIds: session.session_players?.map((sp: any) => sp.player_id) || [],
-    usage: initialUsage.map((u: any) => ({ purchaseId: u.purchase_id, quantityUsed: u.quantity_used }))
+    playerIds: session.session_players?.map((sp: { player_id: string }) => sp.player_id) || [],
+    usage: initialUsage.map((u: { purchase_id: string, quantity_used: number }) => ({ purchaseId: u.purchase_id, quantityUsed: u.quantity_used }))
   };
 
   return (
     <div className="hidden lg:block">
-      <DesktopSessions tubes={sortedPurchases as any} players={players} initialData={initialData} />
+      <DesktopSessions tubes={sortedPurchases} players={players} initialData={initialData} />
     </div>
   );
 }
