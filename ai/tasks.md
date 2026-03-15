@@ -78,6 +78,11 @@
 *   [x] **UI**: Add horizontal scrollable stats row at the top of the Dashboard (Mobile & Desktop).
 *   [x] **UX**: Add `scrollbar-hide` utility for a clean mobile swipe experience.
 
+## Phase 53 — SEO Configuration
+*   [x] **Logic**: Create centralized `src/lib/seo.ts` and integrate with root `src/app/layout.tsx`.
+*   [x] **Assets**: correctly reference `/og-image.png` and `/favicon.ico` in all metadata.
+*   [x] **Integration**: Added `manifest.ts` for PWA and manifest support.
+
 ## Current State
 
 The app is stable. All match CRUD operations (add, edit, delete) work on both desktop and mobile. Zero lint errors.
