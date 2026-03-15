@@ -6,6 +6,7 @@ import { Trash2, Calendar, Archive, Edit3, X, Check, Tag } from "lucide-react";
 import { DatePicker } from "@/components/DatePicker";
 import clsx from "clsx";
 import { useRole } from "@/context/AuthContext";
+import { usePathname } from "next/navigation";
 
 interface Brand {
     id: string;
@@ -27,6 +28,8 @@ interface Purchase {
 
 export function PurchaseItem({ purchase, brands }: { purchase: Purchase, brands: Brand[] }) {
     const { isAdmin } = useRole();
+    const pathname = usePathname();
+    const currentMode = (pathname || "").split("/")[1] || "view";
     const [isEditing, setIsEditing] = useState(false);
     const brandName = purchase.brands?.name || 'Unknown Brand';
 
@@ -43,7 +46,7 @@ export function PurchaseItem({ purchase, brands }: { purchase: Purchase, brands:
         return (
             <div className="rounded-2xl border border-violet-500/30 bg-violet-900/10 backdrop-blur-sm p-5 animate-in fade-in slide-in-from-top-2 duration-300">
                 <form action={async (formData) => {
-                    await editPurchase(purchase.id, formData);
+                    await editPurchase(purchase.id, formData, currentMode);
                     setIsEditing(false);
                 }} className="space-y-4">
                     <div className="flex items-center justify-between mb-4">
@@ -169,7 +172,7 @@ export function PurchaseItem({ purchase, brands }: { purchase: Purchase, brands:
                             <Edit3 className="w-4 h-4" />
                         </button>
 
-                        <form action={deletePurchase.bind(null, purchase.id)}>
+                        <form action={deletePurchase.bind(null, purchase.id, currentMode)}>
                             <button type="submit" className="p-2.5 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all duration-300 border border-transparent hover:border-rose-500/20" title="Delete tube">
                                 <Trash2 className="w-4 h-4" />
                             </button>

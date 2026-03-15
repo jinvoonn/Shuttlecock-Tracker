@@ -3,9 +3,10 @@
 import { useState, useMemo } from "react";
 import { Folder } from "@/components/Folder";
 import { FilterBar } from "@/components/FilterBar";
-import { HandCoins, Trash2, Calendar, User } from "lucide-react";
+import { Trash2, Calendar, User, HandCoins } from "lucide-react";
 import { deletePayment } from "@/lib/actions/payments";
 import { useRole } from "@/context/AuthContext";
+import { usePathname } from "next/navigation";
 
 interface Payment {
     id: string;
@@ -18,6 +19,8 @@ interface Payment {
 
 export function PaymentsList({ payments }: { payments: Payment[] }) {
     const { isAdmin } = useRole();
+    const pathname = usePathname();
+    const currentMode = (pathname || "").split("/")[1] || "view";
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
 
@@ -81,7 +84,7 @@ export function PaymentsList({ payments }: { payments: Payment[] }) {
                                 </p>
 
                                 {isAdmin && (
-                                    <form action={deletePayment.bind(null, payment.id)}>
+                                    <form action={deletePayment.bind(null, payment.id, currentMode)}>
                                         <button type="submit" className="p-2.5 -mr-2 sm:mr-0 rounded-xl text-slate-600 hover:text-rose-400 hover:bg-rose-500/10 transition-all" title="Delete payment">
                                             <Trash2 className="w-5 h-5" />
                                         </button>
