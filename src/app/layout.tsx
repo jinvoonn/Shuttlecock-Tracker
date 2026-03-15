@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(seo.url),
   openGraph: {
     title: seo.title,
-    description: seo.tagline,
+    description: seo.description,
     url: seo.url,
     siteName: seo.title,
     images: [
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: seo.title,
-    description: seo.tagline,
+    description: seo.description,
     images: [seo.ogImage],
   },
   icons: {
