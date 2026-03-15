@@ -95,11 +95,10 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
 
   // 5. Transform match data using lookup map
   const matches = (matchesData || []).map(m => {
-      // Handle both possible naming conventions just in case
-      const p1 = m.player1_id || m.team_a_player1;
-      const p2 = m.player2_id || m.team_a_player2;
-      const p3 = m.player3_id || m.team_b_player1;
-      const p4 = m.player4_id || m.team_b_player2;
+      const p1 = m.team_a_player1;
+      const p2 = m.team_a_player2;
+      const p3 = m.team_b_player1;
+      const p4 = m.team_b_player2;
 
       const teamAStr = [playerMap[p1], playerMap[p2]].filter(Boolean).join(" & ");
       const teamBStr = [playerMap[p3], playerMap[p4]].filter(Boolean).join(" & ");
@@ -110,10 +109,10 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
         teamB: teamBStr || "Team B",
         scoreA: m.team_a_score || 0,
         scoreB: m.team_b_score || 0,
-        player1_id: p1,
-        player2_id: p2,
-        player3_id: p3,
-        player4_id: p4,
+        team_a_player1: p1,
+        team_a_player2: p2,
+        team_b_player1: p3,
+        team_b_player2: p4,
         type: "Doubles",
         court: "Any",
         status: (m.team_a_score > 0 || m.team_b_score > 0) ? "Completed" as const : "Live" as const

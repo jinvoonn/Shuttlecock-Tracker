@@ -41,13 +41,13 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
             created_at,
             team_a_score,
             team_b_score,
-            player1_id,
-            player2_id,
-            player3_id,
-            player4_id,
+            team_a_player1,
+            team_a_player2,
+            team_b_player1,
+            team_b_player2,
             sessions ( date )
         `)
-        .or(`player1_id.eq.${id},player2_id.eq.${id},player3_id.eq.${id},player4_id.eq.${id}`)
+        .or(`team_a_player1.eq.${id},team_a_player2.eq.${id},team_b_player1.eq.${id},team_b_player2.eq.${id}`)
         .order("created_at", { ascending: false });
 
     // Fetch all players to map IDs to names for match history
@@ -99,7 +99,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
     const formattedMatches = (matches || []).map((m: any) => {
         totalMatchesCount++;
         
-        const isTeamA = m.player1_id === id || m.player2_id === id;
+        const isTeamA = m.team_a_player1 === id || m.team_a_player2 === id;
         
         const myScore = isTeamA ? m.team_a_score : m.team_b_score;
         const oppScore = isTeamA ? m.team_b_score : m.team_a_score;
@@ -111,12 +111,12 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
         else if (!isDraw) losses++;
         
         const myPartnerId = isTeamA 
-            ? (m.player1_id === id ? m.player2_id : m.player1_id)
-            : (m.player3_id === id ? m.player4_id : m.player3_id);
+            ? (m.team_a_player1 === id ? m.team_a_player2 : m.team_a_player1)
+            : (m.team_b_player1 === id ? m.team_b_player2 : m.team_b_player1);
         
         const opponentsIds = isTeamA 
-            ? [m.player3_id, m.player4_id]
-            : [m.player1_id, m.player2_id];
+            ? [m.team_b_player1, m.team_b_player2]
+            : [m.team_a_player1, m.team_a_player2];
 
         const myPartners = myPartnerId && myPartnerId !== id ? [myPartnerId] : [];
         const opponents = opponentsIds.filter(Boolean);

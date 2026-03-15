@@ -34,10 +34,10 @@ export async function addMatch(payloadJson: string) {
             .from("matches")
             .insert([{
                 session_id: payload.sessionId,
-                player1_id: payload.playerA1,
-                player2_id: payload.playerA2 || payload.playerA1,
-                player3_id: payload.playerB1,
-                player4_id: payload.playerB2 || payload.playerB1,
+                team_a_player1: payload.playerA1,
+                team_a_player2: payload.playerA2 || payload.playerA1,
+                team_b_player1: payload.playerB1,
+                team_b_player2: payload.playerB2 || payload.playerB1,
                 team_a_score: payload.scoreA,
                 team_b_score: payload.scoreB
             }])

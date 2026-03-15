@@ -16,11 +16,11 @@ interface MatchModalProps {
   onClose: () => void;
   onSuccess: () => void;
   initialMatch?: {
-    id: string;
-    player1_id: string;
-    player2_id: string;
-    player3_id: string;
-    player4_id: string;
+    id?: string;
+    team_a_player1: string;
+    team_a_player2: string;
+    team_b_player1: string;
+    team_b_player2: string;
     team_a_score: number;
     team_b_score: number;
   };
@@ -29,13 +29,13 @@ interface MatchModalProps {
 export default function AddMatchModal({ sessionId, players, onClose, onSuccess, initialMatch }: MatchModalProps) {
   const isEdit = !!initialMatch;
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>(
-    isEdit ? [initialMatch.player1_id, initialMatch.player2_id, initialMatch.player3_id, initialMatch.player4_id].filter(Boolean) : []
+    isEdit ? [initialMatch.team_a_player1, initialMatch.team_a_player2, initialMatch.team_b_player1, initialMatch.team_b_player2].filter(Boolean) : []
   );
   const [teamA, setTeamA] = useState<string[]>(
-    isEdit ? [initialMatch.player1_id, initialMatch.player2_id].filter(Boolean) : []
+    isEdit ? [initialMatch.team_a_player1, initialMatch.team_a_player2].filter(Boolean) : []
   );
   const [teamB, setTeamB] = useState<string[]>(
-    isEdit ? [initialMatch.player3_id, initialMatch.player4_id].filter(Boolean) : []
+    isEdit ? [initialMatch.team_b_player1, initialMatch.team_b_player2].filter(Boolean) : []
   );
   const [scoreA, setScoreA] = useState<number>(isEdit ? initialMatch.team_a_score : 0);
   const [scoreB, setScoreB] = useState<number>(isEdit ? initialMatch.team_b_score : 0);
@@ -45,7 +45,7 @@ export default function AddMatchModal({ sessionId, players, onClose, onSuccess, 
   const togglePlayer = (id: string) => {
     setError(null);
     if (selectedPlayerIds.includes(id)) {
-      setSelectedPlayerIds(prev => prev.filter(pid => pid !== id));
+    const playerNames = selectedPlayerIds.map(id => players.find(p => p.id === id)?.name || "Unknown");
       setTeamA(prev => prev.filter(pid => pid !== id));
       setTeamB(prev => prev.filter(pid => pid !== id));
     } else {

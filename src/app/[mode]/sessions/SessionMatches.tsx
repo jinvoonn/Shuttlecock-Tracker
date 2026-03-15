@@ -40,8 +40,8 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
 
     const startEdit = (match: any) => {
         setEditingMatchId(match.id);
-        setTeamAIds(match.team_a_ids || [match.player1_id, match.player2_id].filter(Boolean));
-        setTeamBIds(match.team_b_ids || [match.player3_id, match.player4_id].filter(Boolean));
+        setTeamAIds(match.team_a_ids || [match.team_a_player1, match.team_a_player2].filter(Boolean));
+        setTeamBIds(match.team_b_ids || [match.team_b_player1, match.team_b_player2].filter(Boolean));
         setScoreA(match.team_a_score.toString());
         setScoreB(match.team_b_score.toString());
         setIsAdding(true);
@@ -202,8 +202,8 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
                     const isAWin = m.team_a_score > m.team_b_score;
                     const isBWin = m.team_b_score > m.team_a_score;
                     
-                    const tA = m.team_a_ids || [m.player1_id, m.player2_id].filter(Boolean);
-                    const tB = m.team_b_ids || [m.player3_id, m.player4_id].filter(Boolean);
+                    const tA = m.team_a_ids || [m.team_a_player1, m.team_a_player2].filter(Boolean);
+                    const tB = m.team_b_ids || [m.team_b_player1, m.team_b_player2].filter(Boolean);
 
                     return (
                         <div key={m.id} className="flex flex-col bg-slate-950/50 rounded-xl border border-slate-800/80 p-3.5 relative group">
