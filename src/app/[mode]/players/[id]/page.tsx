@@ -160,7 +160,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
 
     const rivals = Object.values(h2h).sort((a, b) => b.total - a.total).slice(0, 3);
     
-    const partnerCandidates = Object.values(partnersMap).filter(p => p.total >= 3);
+    const partnerCandidates = Object.values(partnersMap);
     const bestPartner = [...partnerCandidates].sort((a, b) => (b.wins / b.total) - (a.wins / a.total) || b.total - a.total)[0];
     const sadgePartner = [...partnerCandidates].sort((a, b) => (a.wins / a.total) - (b.wins / b.total) || a.total - b.total)[0];
 
@@ -284,36 +284,36 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                         <Target className="w-4 h-4 text-emerald-400" /> Partner Stats
                     </h3>
                     <div className="space-y-4">
-                        {bestPartner ? (
-                            <div className="p-3 bg-emerald-500/5 rounded-xl border border-emerald-500/10">
-                                <p className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest mb-1">Best Partner</p>
-                                <p className="text-lg font-bold text-slate-200">{bestPartner.name}</p>
-                                <p className="text-xs text-slate-500 mt-0.5">
-                                    {bestPartner.wins} wins / {bestPartner.total} total
-                                    <span className="ml-2 font-mono text-emerald-400 font-bold">
-                                        {Math.round((bestPartner.wins / bestPartner.total) * 100)}%
-                                    </span>
-                                </p>
-                            </div>
+                        {totalMatchesCount === 0 ? (
+                            <p className="text-sm text-slate-500 italic mt-2 text-center font-bold font-mono tracking-widest uppercase">No Partner Data</p>
                         ) : (
-                            <p className="text-[10px] text-slate-500 italic uppercase font-bold tracking-tighter">No Best Partner Data</p>
-                        )}
+                            <>
+                                {bestPartner ? (
+                                    <div className="p-3 bg-emerald-500/5 rounded-xl border border-emerald-500/10">
+                                        <p className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest mb-1">Best Partner</p>
+                                        <p className="text-lg font-bold text-slate-200">
+                                            {bestPartner.name} – {Math.round((bestPartner.wins / bestPartner.total) * 100)}%
+                                        </p>
+                                        <p className="text-[10px] text-slate-500 mt-0.5 uppercase tracking-tighter">
+                                            {bestPartner.wins} Wins / {bestPartner.total} Total
+                                        </p>
+                                    </div>
+                                ) : null}
 
-                        {sadgePartner && sadgePartner !== bestPartner ? (
-                            <div className="p-3 bg-rose-500/5 rounded-xl border border-rose-500/10">
-                                <p className="text-[9px] font-bold text-rose-400 uppercase tracking-widest mb-1">Sadge Partner</p>
-                                <p className="text-lg font-bold text-slate-200">{sadgePartner.name}</p>
-                                <p className="text-xs text-slate-500 mt-0.5">
-                                    {sadgePartner.wins} wins / {sadgePartner.total} total
-                                    <span className="ml-2 font-mono text-rose-400 font-bold">
-                                        {Math.round((sadgePartner.wins / sadgePartner.total) * 100)}%
-                                    </span>
-                                </p>
-                            </div>
-                        ) : sadgePartner && sadgePartner === bestPartner ? (
-                            <p className="text-[10px] text-slate-600 italic uppercase font-bold tracking-tighter">Only one consistent partner found</p>
-                        ) : (
-                            <p className="text-[10px] text-slate-500 italic uppercase font-bold tracking-tighter">No Sadge Partner Data</p>
+                                {sadgePartner && (sadgePartner !== bestPartner || partnerCandidates.length === 1) ? (
+                                    <div className="p-3 bg-rose-500/5 rounded-xl border border-rose-500/10">
+                                        <p className="text-[9px] font-bold text-rose-400 uppercase tracking-widest mb-1">Sadge Partner</p>
+                                        <p className="text-lg font-bold text-slate-200">
+                                            {sadgePartner.name} – {Math.round((sadgePartner.wins / sadgePartner.total) * 100)}%
+                                        </p>
+                                        <p className="text-[10px] text-slate-500 mt-0.5 uppercase tracking-tighter">
+                                            {sadgePartner.wins} Wins / {sadgePartner.total} Total
+                                        </p>
+                                    </div>
+                                ) : sadgePartner ? (
+                                    <p className="text-[10px] text-slate-600 italic uppercase font-bold tracking-tighter text-center">Only one consistent partner found</p>
+                                ) : null}
+                            </>
                         )}
                     </div>
                 </div>
