@@ -20,12 +20,16 @@ import {
 import clsx from 'clsx';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { editPayment, deletePayment } from '@/lib/actions/payments';
+import { DatePicker } from '@/components/DatePicker';
 
 interface PaymentRecord {
   id: string;
   playerName: string;
+  playerId: string;
   amount: number;
   date: string;
+  note: string;
 }
 
 interface DesktopPaymentLedgerProps {
@@ -37,6 +41,7 @@ export default function DesktopPaymentLedger({ payments }: DesktopPaymentLedgerP
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
   const [searchTerm, setSearchTerm] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const filteredPayments = payments.filter(p => 
     p.playerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -100,7 +105,7 @@ export default function DesktopPaymentLedger({ payments }: DesktopPaymentLedgerP
             </div>
           </div>
           <div className="flex items-center gap-6">
-            <Link href={`${basePath}/record-transaction-stitch`} className="bg-[#13ec80] text-[#020617] px-6 py-2 rounded font-black text-xs tracking-tighter hover:brightness-110 transition-all uppercase shadow-lg shadow-[#13ec80]/20 border border-[#13ec80]">
+            <Link href={`${basePath}/payments/record-transaction`} className="bg-[#13ec80] text-[#020617] px-6 py-2 rounded font-black text-xs tracking-tighter hover:brightness-110 transition-all uppercase shadow-lg shadow-[#13ec80]/20 border border-[#13ec80]">
               Record Payment
             </Link>
             <div className="flex items-center gap-3">
@@ -159,39 +164,89 @@ export default function DesktopPaymentLedger({ payments }: DesktopPaymentLedgerP
                         <td colSpan={3} className="px-6 py-8 text-center text-slate-500 font-bold">No payments found.</td>
                       </tr>
                     )}
-                    {filteredPayments.map(p => (
-                      <tr key={p.id} className="hover:bg-slate-950/50 transition-colors">
-                        <td className="px-6 py-4">
-                          <p className="text-sm font-bold text-slate-100 uppercase tracking-tight">{p.playerName}</p>
-                        </td>
-                        <td className="px-6 py-4 font-mono text-sm text-slate-400">{p.date}</td>
-                        <td className="px-6 py-4 text-right whitespace-nowrap">
-                          <span className="font-mono text-sm font-bold text-[#13ec80]">
-                            +RM{p.amount.toFixed(2)}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex justify-end gap-2">
-                            <button 
-                              onClick={() => {/* TODO: Implement Edit */}}
-                              className="p-1.5 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors"
-                            >
-                              <Pencil className="size-3.5" />
-                            </button>
-                            <button 
-                              onClick={() => {
-                                if (window.confirm("Are you sure you want to delete this payment record?")) {
-                                  // TODO: call deletePayment
-                                }
-                              }}
-                              className="p-1.5 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
-                            >
-                              <Trash2 className="size-3.5" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {filteredPayments.map(p => {
+                      if (editingId === p.id) {
+                        return (
+                          <tr key={p.id} className="bg-slate-900/80">
+                            <td colSpan={4} className="px-6 py-4">
+                              <form action={async (formData) => {
+                                await editPayment(p.id, formData);
+                                setEditingId(null);
+                              }} className="flex items-center gap-4">
+                                <input type="hidden" name="player_id" value={p.playerId} />
+                                <div className="w-1/4">
+                                  <p className="text-[10px] font-black tracking-widest text-slate-500 uppercase mb-1">Date</p>
+                                  <DatePicker name="date" defaultValue={p.date} />
+                                </div>
+                                <div className="w-1/4">
+                                  <p className="text-[10px] font-black tracking-widest text-slate-500 uppercase mb-1">Amount (RM)</p>
+                                  <input 
+                                    type="number" 
+                                    name="amount" 
+                                    step="0.01" 
+                                    defaultValue={p.amount} 
+                                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-100 focus:ring-1 focus:ring-[#13ec80] outline-none" 
+                                  />
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-[10px] font-black tracking-widest text-slate-500 uppercase mb-1">Notes</p>
+                                  <input 
+                                    type="text" 
+                                    name="note" 
+                                    defaultValue={p.note} 
+                                    placeholder="Optional notes" 
+                                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-100 focus:ring-1 focus:ring-[#13ec80] outline-none placeholder-slate-600" 
+                                  />
+                                </div>
+                                <div className="flex gap-2 self-end mb-0.5">
+                                  <button type="button" onClick={() => setEditingId(null)} className="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+                                    Cancel
+                                  </button>
+                                  <button type="submit" className="px-6 py-2 bg-[#13ec80] text-slate-950 rounded-xl text-xs font-black uppercase tracking-widest hover:brightness-110 transition-all shadow-lg shadow-[#13ec80]/10 border border-[#13ec80]">
+                                    Save
+                                  </button>
+                                </div>
+                              </form>
+                            </td>
+                          </tr>
+                        );
+                      }
+                      
+                      return (
+                        <tr key={p.id} className="hover:bg-slate-950/50 transition-colors">
+                          <td className="px-6 py-4">
+                            <p className="text-sm font-bold text-slate-100 uppercase tracking-tight">{p.playerName}</p>
+                            {p.note && <p className="text-xs text-slate-500 truncate max-w-[200px]">{p.note}</p>}
+                          </td>
+                          <td className="px-6 py-4 font-mono text-sm text-slate-400">{p.date}</td>
+                          <td className="px-6 py-4 text-right whitespace-nowrap">
+                            <span className="font-mono text-sm font-bold text-[#13ec80]">
+                              +RM{p.amount.toFixed(2)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <div className="flex justify-end gap-2">
+                              <button 
+                                onClick={() => setEditingId(p.id)}
+                                className="p-1.5 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors"
+                              >
+                                <Pencil className="size-3.5" />
+                              </button>
+                              <button 
+                                onClick={async () => {
+                                  if (window.confirm("Are you sure you want to delete this payment record?")) {
+                                    await deletePayment(p.id);
+                                  }
+                                }}
+                                className="p-1.5 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
+                              >
+                                <Trash2 className="size-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

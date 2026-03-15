@@ -9,7 +9,7 @@ export default async function PaymentsPage({ params }: { params: Promise<{ mode:
   
   const { data: paymentsData, error: paymentsError } = await supabase
     .from("payments")
-    .select("id, amount, date, players(id, name)")
+    .select("id, amount, date, note, players(id, name)")
     .order('date', { ascending: false });
 
   if (paymentsError) {
@@ -20,12 +20,13 @@ export default async function PaymentsPage({ params }: { params: Promise<{ mode:
     );
   }
 
-  const payments = (paymentsData || []).map((p: { id: string, amount: number, date: string, players: { id: string, name: string } | { id: string, name: string }[] | null }) => {
+  const payments = (paymentsData || []).map((p: { id: string, amount: number, date: string, note: string | null, players: { id: string, name: string } | { id: string, name: string }[] | null }) => {
     const player = Array.isArray(p.players) ? p.players[0] : p.players;
     return {
       id: p.id,
       amount: p.amount,
       date: p.date,
+      note: p.note || "",
       playerName: player?.name || "Unknown",
       playerId: player?.id || ""
     };

@@ -8,6 +8,7 @@ export async function addPayment(formData: FormData) {
     let player_id = formData.get("player_id") as string;
     const new_player_name = formData.get("new_player_name") as string;
     const amount = parseFloat(formData.get("amount") as string);
+    const note = formData.get("note") as string || null;
 
     if (!date || isNaN(amount) || amount <= 0) {
         throw new Error("Invalid form data");
@@ -37,6 +38,7 @@ export async function addPayment(formData: FormData) {
         date,
         player_id,
         amount,
+        note,
     }]);
 
     if (error) {
@@ -51,6 +53,7 @@ export async function editPayment(id: string, formData: FormData) {
     const date = formData.get("date") as string;
     const player_id = formData.get("player_id") as string;
     const amount = parseFloat(formData.get("amount") as string);
+    const note = formData.get("note") as string || null;
 
     if (!date || isNaN(amount) || amount <= 0 || !player_id) {
         throw new Error("Invalid form data");
@@ -60,6 +63,7 @@ export async function editPayment(id: string, formData: FormData) {
         date,
         player_id,
         amount,
+        note,
     }).eq("id", id);
 
     if (error) {

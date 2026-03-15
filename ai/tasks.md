@@ -37,6 +37,12 @@
 *   [x] **Desktop UI**: Update `DesktopSessions.tsx` to handle `price_per_tube` prop and show Cost per Tube + Cost per Shuttle prominently.
 *   [x] **Mobile UI**: Update `MobileLogSessions.tsx` to handle `price_per_tube` prop and show Cost per Tube + Cost per Shuttle prominently.
 
+## Phase 44 — Payment Ledger Edit/Delete Functional Wire-up
+*   [x] **Database Schema**: Add `note` (text) column to `payments` table in Supabase.
+*   [x] **Server Actions**: Update `editPayment`, `addPayment`, and `deletePayment` in `payments.ts` to support the `note` field. Update the SELECT queries in `payments/page.tsx` to pull `note`.
+*   [x] **Desktop UI**: Wire up inline Edit/Delete functions in `DesktopPaymentLedger.tsx`. Ensure "Record Payment" link points to `/payments/record-transaction`. Add `note` support.
+*   [x] **Mobile UI**: Update inline Edit form in `MobilePaymentLedger.tsx` to support the new `note` field.
+
 ## Current State
 
 The app is stable. All match CRUD operations (add, edit, delete) work on both desktop and mobile. Zero lint errors.

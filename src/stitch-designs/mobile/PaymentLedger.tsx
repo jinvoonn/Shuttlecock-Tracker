@@ -27,6 +27,7 @@ interface PaymentRecord {
   playerId: string;
   amount: number;
   date: string;
+  note: string;
 }
 
 interface MobilePaymentLedgerProps {
@@ -123,9 +124,10 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
                         <div className="size-14 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-[#13ec80] font-black italic shadow-inner">
                           {p.playerName.slice(0, 2).toUpperCase()}
                         </div>
-                        <div>
+                        <div className="flex flex-col">
                           <p className="font-black text-slate-900 dark:text-slate-100 uppercase italic tracking-tighter text-lg leading-none mb-1">{p.playerName}</p>
                           <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{new Date(p.date).toLocaleDateString()}</p>
+                          {p.note && <p className="text-xs text-slate-400 mt-1 line-clamp-1 italic">{p.note}</p>}
                         </div>
                       </div>
                       <div className="text-right">
@@ -154,6 +156,16 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
                                 name="amount" 
                                 step="0.01"
                                 defaultValue={p.amount}
+                                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-[#13ec80]/20 outline-none text-left" 
+                              />
+                            </div>
+                            <div>
+                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 ml-1 text-left">Notes</p>
+                              <input 
+                                type="text" 
+                                name="note" 
+                                defaultValue={p.note}
+                                placeholder="Optional notes"
                                 className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-[#13ec80]/20 outline-none text-left" 
                               />
                             </div>
