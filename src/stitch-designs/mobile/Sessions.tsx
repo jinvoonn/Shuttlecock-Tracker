@@ -77,14 +77,6 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
           <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">
              Because Shuttlecocks Aren't Free
           </p>
-          {isAdmin && (
-            <button 
-              onClick={() => router.push(`${basePath}/sessions/log`)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-emerald-400 text-slate-900 rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-400/20 active:scale-95 transition-all"
-            >
-              Log New
-            </button>
-          )}
         </header>
 
         {/* Search and Filter */}
@@ -225,7 +217,16 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
             </div>
           ))}
         </main>
-
+  
+        {/* Floating Action Button */}
+        {isAdmin && (
+          <button 
+            onClick={() => router.push(`${basePath}/sessions/log`)}
+            className="fixed bottom-32 right-8 size-16 bg-emerald-400 text-slate-950 rounded-3xl shadow-[0_20px_50px_rgba(16,185,129,0.3)] flex items-center justify-center z-40 hover:scale-110 active:scale-90 transition-all border-b-4 border-emerald-600">
+            <Plus className="size-8 font-black" />
+          </button>
+        )}
+  
         {/* Bottom Navigation */}
         <nav className="fixed bottom-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-2xl border-t border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
           <div className="flex h-24 items-stretch px-4 max-w-[480px] mx-auto">

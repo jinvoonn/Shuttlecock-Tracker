@@ -29,7 +29,10 @@ export function AnalyticsClient({ data, type }: AnalyticsClientProps) {
   const color = isSpending ? '#10b981' : '#0ea5e9'; // Emerald or Sky
 
   return (
-    <div className="w-full h-48 sm:h-64 mt-4">
+    <div 
+      className="w-full h-48 sm:h-64 mt-4"
+      onClick={(e) => e.stopPropagation()}
+    >
       <ResponsiveContainer width="100%" height="100%">
         {isSpending ? (
           <AreaChart data={data}>
