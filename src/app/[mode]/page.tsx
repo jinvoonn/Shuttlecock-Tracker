@@ -33,7 +33,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
     supabase.from("players").select("id, name"),
     supabase.from("payments").select("amount, player_id"),
     supabase.from("purchases").select("price_per_tube, initial_quantity, remaining_quantity, brands(name)"),
-    supabase.from("sessions").select(`id, session_players ( player_id )`),
+    supabase.from("sessions").select(`id, date, session_players ( player_id )`),
     supabase.from("session_usage").select("session_id, quantity_used, purchases(price_per_cock)"),
     supabase.from("matches").select("*").order("created_at", { ascending: true })
   ]);
@@ -172,6 +172,41 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
     }
   ];
 
+  // --- Monthly Trends Calculation ---
+  const monthlyTrends: Record<string, { month: string, spending: number, usage: number }> = {};
+  
+  (sessionsData || []).forEach(s => {
+    const date = new Date(s.date);
+    const monthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+    const monthName = date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+    
+    if (!monthlyTrends[monthKey]) {
+      monthlyTrends[monthKey] = { month: monthName, spending: 0, usage: 0 };
+    }
+  });
+
+  (sessionUsageData || []).forEach(su => {
+    const s = (sessionsData || []).find(sess => sess.id === su.session_id);
+    if (!s) return;
+    
+    const date = new Date(s.date);
+    const monthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+    
+    const purchase = Array.isArray(su.purchases) ? su.purchases[0] : su.purchases;
+    const price_per_cock = Number(purchase?.price_per_cock || 0);
+    const qty = Number(su.quantity_used || 0);
+    
+    if (monthlyTrends[monthKey]) {
+      monthlyTrends[monthKey].spending += (price_per_cock * qty);
+      monthlyTrends[monthKey].usage += qty;
+    }
+  });
+
+  const trendData = Object.entries(monthlyTrends)
+    .sort(([aKey], [bKey]) => aKey.localeCompare(bKey))
+    .map(([, val]) => val)
+    .slice(-6); // Last 6 months
+
   const totalShuttlesUsed = (sessionUsageData || []).reduce((acc, curr) => acc + Number(curr.quantity_used || 0), 0);
   const totalSessions = (sessionsData || []).length;
 
@@ -238,10 +273,10 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
   return (
     <>
       <div className="block lg:hidden">
-        <MobileDashboard stats={mobileStatsProps} players={players} insights={insights} />
+        <MobileDashboard stats={mobileStatsProps} players={players} insights={insights} trendData={trendData} />
       </div>
       <div className="hidden lg:block">
-        <DesktopDashboard stats={statsProps} players={players} isAdmin={isAdmin} insights={insights} />
+        <DesktopDashboard stats={statsProps} players={players} isAdmin={isAdmin} insights={insights} trendData={trendData} />
       </div>
     </>
   );

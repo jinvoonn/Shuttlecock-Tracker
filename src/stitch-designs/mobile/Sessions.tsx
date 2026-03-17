@@ -77,6 +77,14 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
           <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">
              Because Shuttlecocks Aren't Free
           </p>
+          {isAdmin && (
+            <button 
+              onClick={() => router.push(`${basePath}/sessions/log`)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-emerald-400 text-slate-900 rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-400/20 active:scale-95 transition-all"
+            >
+              Log New
+            </button>
+          )}
         </header>
 
         {/* Search and Filter */}

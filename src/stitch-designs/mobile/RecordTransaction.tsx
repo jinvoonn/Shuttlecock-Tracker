@@ -76,13 +76,15 @@ export default function MobileRecordTransaction({ players, sessionId }: MobileRe
       formData.append("date", new Date().toISOString().split('T')[0]);
       formData.append("player_id", selectedPlayerId);
       formData.append("amount", amount);
+      formData.append("mode", currentMode);
       if (sessionId) formData.append("session_id", sessionId);
 
       await addPayment(formData);
-      router.push('/view/payment-ledger-stitch');
+      router.push(`${basePath}/payments`);
+      router.refresh();
     } catch (error) {
       console.error(error);
-      alert("Failed to record payment");
+      alert("Failed to record payment. Ensure you are in admin mode.");
     } finally {
       setIsSubmitting(false);
     }

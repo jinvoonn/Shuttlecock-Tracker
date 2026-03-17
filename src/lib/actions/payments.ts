@@ -101,7 +101,7 @@ export async function quickSettle(playerId: string, amount: number, mode?: strin
     if (mode !== ADMIN_SECRET) {
         throw new Error("Unauthorized: Admin access required for quick settle");
     }
-    if (!playerId || isNaN(amount) || amount <= 0) {
+    if (!playerId || isNaN(amount) || amount === 0) {
         throw new Error("Invalid settle up parameters");
     }
 

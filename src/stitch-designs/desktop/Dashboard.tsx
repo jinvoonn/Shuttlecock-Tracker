@@ -16,6 +16,7 @@ import clsx from 'clsx';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useRole } from '@/context/AuthContext';
+import { AnalyticsClient } from '@/components/AnalyticsClient';
 
 interface PlayerStat {
   id: string;
@@ -44,9 +45,14 @@ interface DashboardProps {
     value: string;
     subValue: string;
   }[];
+  trendData?: {
+    month: string;
+    spending: number;
+    usage: number;
+  }[];
 }
 
-export default function DesktopDashboard({ stats, players, upcomingSession, insights }: DashboardProps) {
+export default function DesktopDashboard({ stats, players, upcomingSession, insights, trendData }: DashboardProps) {
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
@@ -203,6 +209,37 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
               </h3>
             </div>
           </div>
+
+          {/* Analytics Trends Row */}
+          {trendData && trendData.length > 0 && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="bg-slate-900/60 border border-slate-800 rounded-[2.5rem] p-8 shadow-2xl">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-black italic uppercase tracking-tighter flex items-center gap-2">
+                    <TrendingUp className="size-5 text-emerald-400" /> 
+                    Spending Trends
+                  </h3>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">Last 6 Months</span>
+                </div>
+                <div className="h-64">
+                   {/* Importing AnalyticsClient dynamically or assuming it's imported at top */}
+                   <AnalyticsClient data={trendData} type="spending" />
+                </div>
+              </div>
+              <div className="bg-slate-900/60 border border-slate-800 rounded-[2.5rem] p-8 shadow-2xl">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-black italic uppercase tracking-tighter flex items-center gap-2">
+                    <Activity className="size-5 text-sky-400" /> 
+                    Usage Trends
+                  </h3>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">Last 6 Months</span>
+                </div>
+                <div className="h-64">
+                   <AnalyticsClient data={trendData} type="usage" />
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 gap-8">
             {/* Featured Session & Player Ledger */}

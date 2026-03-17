@@ -78,6 +78,6 @@ All match actions in `src/lib/actions/matches.ts` expect:
 The action maps `teamAIds[0]` → `team_a_player1`, `teamAIds[1]` → `team_a_player2`, etc.
 
 ## Current Project Status
-**Phase 53 complete (15 Mar 2026).** App features RBAC, unified branding, advanced player analytics, a dynamic dashboard stats row, and centralized SEO with PWA manifest support. Zero lint errors. Vercel deployment-ready.
+**Phase 53 complete (15 Mar 2026).** App features RBAC, advanced analytics, and a production-grade SEO setup targeting `shuttlecock-tracker-beige.vercel.app`.
 
 *"Because Shuttlecocks Aren't Free."*

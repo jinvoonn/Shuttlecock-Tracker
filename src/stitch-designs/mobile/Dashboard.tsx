@@ -13,11 +13,14 @@ import {
   Calendar,
   LayoutGrid,
   History as HistoryIcon,
-  Feather
+  Feather,
+  TrendingUp
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useRole } from '@/context/AuthContext';
+import { useState } from 'react';
+import { AnalyticsClient } from '@/components/AnalyticsClient';
 
 interface PlayerStat {
   id: string;
@@ -49,14 +52,21 @@ interface DashboardProps {
     value: string;
     subValue: string;
   }[];
+  trendData?: {
+    month: string;
+    spending: number;
+    usage: number;
+  }[];
 }
 
-export default function MobileDashboard({ stats, players, upcomingSession, insights }: DashboardProps) {
+export default function MobileDashboard({ stats, players, upcomingSession, insights, trendData }: DashboardProps) {
   const router = useRouter();
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
   const { canEdit } = useRole();
+  const [settlingId, setSettlingId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'spending' | 'usage'>('spending');
 
   return (
     <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-100 min-h-screen antialiased overflow-x-hidden">
@@ -161,8 +171,35 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
               </div>
               <div 
                 className="absolute top-0 right-0 w-full h-full bg-cover bg-center opacity-40 grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700 ease-out" 
-                style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBfmXBh3dgZ09S5o1pZuRMOo_tJn0NZ4fS6LuevxPecezeCbu3C10NhrGfv7SC5_I3EbkSp4bsVSdjSMMj_JRsPeEUNoE0uMzEeYeh8G4zpkhB3ts8_1br9MdemqVnaTubWy8IBuEvyxgTjZZ7c_jHUwueXewTzXtSIbCC-r18WsSoajtGMyON1wY13bmuYp5Oby8zMiRVXCQ96tuPuIJYyh4k67OOeGpOMb-_sBSdUYQjvRIPSI_n0oyXtVGE_gZ3qj-t77iEz65W9')" }}
+                style={{ backgroundImage: "url('/badminton-hero-v2.png')" }}
               ></div>
+            </div>
+          )}
+  
+          {/* Trends Section */}
+          {trendData && trendData.length > 0 && (
+            <div className="flex flex-col gap-4 rounded-3xl bg-slate-800/50 p-6 border border-slate-700 shadow-xl">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="size-4 text-emerald-400" />
+                  <h3 className="text-sm font-black uppercase tracking-tight italic">Monthly Trends</h3>
+                </div>
+                <div className="flex bg-slate-900 rounded-full p-1 border border-slate-700/50">
+                  <button 
+                    onClick={() => setActiveTab('spending')}
+                    className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest transition-all ${activeTab === 'spending' ? 'bg-emerald-400 text-slate-950' : 'text-slate-500'}`}
+                  >
+                    $$
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('usage')}
+                    className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest transition-all ${activeTab === 'usage' ? 'bg-sky-400 text-slate-950' : 'text-slate-500'}`}
+                  >
+                    USE
+                  </button>
+                </div>
+              </div>
+              <AnalyticsClient data={trendData} type={activeTab} />
             </div>
           )}
 
@@ -196,10 +233,27 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
                     </Link>
                     {canEdit('payments') && (
                       <button 
-                        onClick={() => router.push(`${basePath}/payments/record-transaction?playerId=${player.id}`)}
-                        className="flex-1 h-11 rounded-xl bg-emerald-400/10 text-emerald-400 font-black text-[10px] uppercase tracking-widest hover:bg-emerald-400 hover:text-slate-950 transition-all active:scale-95 border border-emerald-400/20 shadow-lg"
+                        onClick={async () => {
+                          if (player.balance === 0) return;
+                          setSettlingId(player.id);
+                          try {
+                            const { quickSettle } = await import("@/lib/actions/payments");
+                            await quickSettle(player.id, -player.balance, currentMode);
+                            router.refresh();
+                          } catch (err) {
+                            alert("Failed to settle balance");
+                          } finally {
+                            setSettlingId(null);
+                          }
+                        }}
+                        disabled={player.balance === 0 || settlingId === player.id}
+                        className={`flex-1 h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 border shadow-lg ${
+                          player.balance === 0 
+                            ? 'bg-slate-800 text-slate-600 border-slate-700 cursor-not-allowed opacity-50' 
+                            : 'bg-emerald-400/10 text-emerald-400 hover:bg-emerald-400 hover:text-slate-950 border-emerald-400/20'
+                        }`}
                       >
-                        SETTLE
+                        {settlingId === player.id ? 'SETTLING...' : 'SETTLE'}
                       </button>
                     )}
                   </div>
