@@ -88,7 +88,7 @@ export default function MobileLogSessions({ tubes, players }: MobileLogSessionsP
       };
 
       await addSession(JSON.stringify(payload));
-      router.push('/view/sessions-stitch');
+      router.push(`${basePath}/sessions`);
     } catch (error) {
       console.error(error);
       alert("Failed to create session");

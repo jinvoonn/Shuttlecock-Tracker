@@ -30,7 +30,7 @@ export function AnalyticsClient({ data, type }: AnalyticsClientProps) {
 
   return (
     <div 
-      className="w-full h-48 sm:h-64 mt-4"
+      className="w-full h-48 sm:h-64 mt-4 select-none outline-none focus:ring-0 focus:outline-none"
       onClick={(e) => e.stopPropagation()}
     >
       <ResponsiveContainer width="100%" height="100%">
