@@ -90,9 +90,15 @@ body::before {
   }
 }
 
-/* Recharts Focus Suppression */
+/* Recharts Focus & Tap Suppression (Desktop + Mobile) */
 .recharts-surface:focus, 
 .recharts-wrapper:focus, 
 .recharts-legend-item:focus {
+  outline: none !important;
+}
+
+.recharts-wrapper,
+.recharts-surface {
+  -webkit-tap-highlight-color: transparent !important;
   outline: none !important;
 }

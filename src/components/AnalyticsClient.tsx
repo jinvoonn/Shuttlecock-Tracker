@@ -32,6 +32,7 @@ export function AnalyticsClient({ data, type }: AnalyticsClientProps) {
     <div 
       className="w-full h-48 sm:h-64 mt-4 select-none outline-none focus:ring-0 focus:outline-none"
       onClick={(e) => e.stopPropagation()}
+      style={{ WebkitTapHighlightColor: 'transparent' }}
     >
       <ResponsiveContainer width="100%" height="100%" className="outline-none">
         {isSpending ? (
