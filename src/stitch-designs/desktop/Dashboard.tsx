@@ -109,16 +109,7 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
       {/* Main Content Area */}
       <main className="relative z-20 flex-1 flex flex-col overflow-y-auto">
         {/* Top Header */}
-        <header className="h-20 border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl flex items-center justify-end px-8 sticky top-0 z-50">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              <div className="text-right hidden sm:block">
-                <p className="text-xs font-black text-slate-100 uppercase">Shuttle Tracker</p>
-                <p className="text-[10px] text-[#13ec80] font-black uppercase tracking-tighter">{currentMode}</p>
-              </div>
-            </div>
-          </div>
-        </header>
+        <header className="h-14 border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl flex items-center px-8 sticky top-0 z-50" />
 
         <div className="p-8 space-y-8 max-w-6xl mx-auto w-full">
           {/* Insights Row */}

@@ -124,20 +124,12 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
       {/* Main Content Area */}
       <main className="relative z-20 flex-1 flex flex-col overflow-y-auto w-full">
         {/* Top Header */}
-        <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl px-8 py-4 flex items-center justify-end">
-          <div className="flex items-center gap-6">
-            {canEdit('purchases') && (
-              <Link href={`${basePath}/purchases/add`} className="bg-[#13ec80] text-[#020617] px-6 py-2 rounded font-black text-xs tracking-tighter hover:brightness-110 transition-all uppercase shadow-lg shadow-[#13ec80]/20 border border-[#13ec80]">
-                Add New Stock
-              </Link>
-            )}
-            <div className="flex items-center gap-3">
-              <div className="text-right hidden sm:block">
-                <p className="text-xs font-black text-slate-100 uppercase">Shuttle Tracker</p>
-                <p className="text-[10px] text-[#13ec80] font-black uppercase tracking-tighter">{currentMode}</p>
-              </div>
-            </div>
-          </div>
+        <header className="sticky top-0 z-50 h-14 border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl px-8 flex items-center justify-end">
+          {canEdit('purchases') && (
+            <Link href={`${basePath}/purchases/add`} className="bg-[#13ec80] text-[#020617] px-6 py-2 rounded font-black text-xs tracking-tighter hover:brightness-110 transition-all uppercase shadow-lg shadow-[#13ec80]/20 border border-[#13ec80]">
+              Add New Stock
+            </Link>
+          )}
         </header>
 
         <div className="px-8 py-8 space-y-8 flex-1 max-w-6xl mx-auto w-full">
