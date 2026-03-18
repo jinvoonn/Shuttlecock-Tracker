@@ -178,7 +178,11 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
   
           {/* Trends Section */}
           {trendData && trendData.length > 0 && (
-            <div className="flex flex-col gap-4 rounded-3xl bg-slate-800/50 p-6 border border-slate-700 shadow-xl">
+            <div 
+              className="flex flex-col gap-4 rounded-3xl bg-slate-800/50 p-6 border border-slate-700 shadow-xl"
+              style={{ WebkitTapHighlightColor: 'transparent' }}
+              onTouchStart={(e) => e.stopPropagation()}
+            >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <TrendingUp className="size-4 text-emerald-400" />

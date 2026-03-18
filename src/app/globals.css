@@ -90,15 +90,22 @@ body::before {
   }
 }
 
-/* Recharts Focus & Tap Suppression (Desktop + Mobile) */
-.recharts-surface:focus, 
-.recharts-wrapper:focus, 
-.recharts-legend-item:focus {
-  outline: none !important;
+/* Global tap highlight suppression - removes white/yellow mobile tap flash */
+* {
+  -webkit-tap-highlight-color: transparent;
 }
 
+/* Recharts Focus & Tap Suppression (Desktop + Mobile) */
 .recharts-wrapper,
-.recharts-surface {
+.recharts-wrapper *,
+.recharts-surface,
+.recharts-surface * {
   -webkit-tap-highlight-color: transparent !important;
+  outline: none !important;
+  user-select: none;
+}
+
+.recharts-surface:focus, 
+.recharts-wrapper:focus {
   outline: none !important;
 }
