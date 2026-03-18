@@ -59,6 +59,7 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
   const { canEdit } = useRole();
   const [activeEditingId, setActiveEditingId] = React.useState<string | null>(null);
   const [historyEditingId, setHistoryEditingId] = React.useState<string | null>(null);
+  const [expandedHistory, setExpandedHistory] = React.useState(false);
 
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
@@ -310,7 +311,7 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
                       <td colSpan={6} className="px-6 py-8 text-center text-slate-500 font-bold">No purchase history available.</td>
                     </tr>
                   )}
-                  {history.map(item => {
+                  {(expandedHistory ? history : history.slice(0, 6)).map(item => {
                     const isEditing = historyEditingId === item.id;
                     
                     if (isEditing) {
@@ -385,6 +386,17 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
               </table>
             </div>
           </section>
+
+          {history.length > 6 && (
+            <div className="flex justify-center pt-4">
+              <button
+                onClick={() => setExpandedHistory(!expandedHistory)}
+                className="text-emerald-400 text-sm font-bold uppercase tracking-widest hover:underline transition-all px-6 py-2 rounded-xl border border-emerald-400/20 hover:bg-emerald-400/5"
+              >
+                {expandedHistory ? 'Collapse' : `Expand All (${history.length})`}
+              </button>
+            </div>
+          )}
 
         </div>
       </main>

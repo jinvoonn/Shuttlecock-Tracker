@@ -42,6 +42,7 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
   const pathname = usePathname() || '';
   const router = useRouter();
   const { isAdmin } = useRole();
+  const [expanded, setExpanded] = useState(false);
 
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
@@ -117,7 +118,7 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-            {sessions.map((session) => (
+            {(expanded ? sessions : sessions.slice(0, 6)).map((session) => (
               <div 
                 onClick={() => router.push(`${basePath}/sessions/${session.id}`)}
                 key={session.id} 
@@ -210,6 +211,17 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
               </div>
             ))}
           </div>
+
+          {sessions.length > 6 && (
+            <div className="flex justify-center pt-4">
+              <button
+                onClick={() => setExpanded(!expanded)}
+                className="text-emerald-400 text-sm font-bold uppercase tracking-widest hover:underline transition-all px-6 py-2 rounded-xl border border-emerald-400/20 hover:bg-emerald-400/5"
+              >
+                {expanded ? 'Collapse' : `Expand All (${sessions.length})`}
+              </button>
+            </div>
+          )}
         </div>
       </main>
     </div>

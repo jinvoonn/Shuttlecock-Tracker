@@ -63,6 +63,7 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
   const { canEdit } = useRole();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [activeEditingId, setActiveEditingId] = useState<string | null>(null);
+  const [expandedHistory, setExpandedHistory] = useState(false);
 
   const handleDelete = async (id: string, name: string) => {
     if (window.confirm(`Are you sure you want to delete this purchase (${name})?`)) {
@@ -242,7 +243,7 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
             
             <div className="flex flex-col gap-4">
               {history.length === 0 && <p className="text-slate-500 py-6 text-center">No history found.</p>}
-              {history.map((item) => (
+              {(expandedHistory ? history : history.slice(0, 6)).map((item) => (
                 <div key={item.id} className="bg-slate-800 border border-slate-700 rounded-[2.5rem] p-6 flex flex-col gap-5 shadow-xl relative overflow-hidden group">
                   <div className="flex justify-between items-start relative z-10">
                     <div className="flex items-center gap-4">
@@ -319,6 +320,17 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
                 </div>
               ))}
             </div>
+
+            {history.length > 6 && (
+              <div className="flex justify-center pt-2 pb-4">
+                <button
+                  onClick={() => setExpandedHistory(!expandedHistory)}
+                  className="text-emerald-400 text-sm font-bold uppercase tracking-widest hover:underline transition-all px-6 py-3 rounded-2xl border border-emerald-400/20 hover:bg-emerald-400/5 bg-slate-800 w-full"
+                >
+                  {expandedHistory ? 'Collapse' : `Expand All (${history.length})`}
+                </button>
+              </div>
+            )}
           </section>
         </main>
 

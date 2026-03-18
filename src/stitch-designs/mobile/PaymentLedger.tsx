@@ -41,6 +41,7 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
   const basePath = `/${currentMode}`;
   const { canEdit } = useRole();
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [expandedPayments, setExpandedPayments] = useState(false);
 
   const handleDelete = async (id: string, playerName: string) => {
     if (window.confirm(`Are you sure you want to delete this payment from ${playerName}?`)) {
@@ -97,7 +98,7 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
             {/* Player List */}
             <div className="flex flex-col gap-4">
               {payments.length === 0 && <p className="text-slate-500 text-center py-8">No records found.</p>}
-              {payments.map((p) => (
+              {(expandedPayments ? payments : payments.slice(0, 6)).map((p) => (
                 <div key={p.id} className="bg-slate-800 border border-slate-700 rounded-[2.5rem] p-6 shadow-sm flex flex-col gap-5 relative overflow-hidden group">
                    <div className="absolute top-0 right-0 size-24 bg-emerald-400/5 rounded-full -translate-y-12 translate-x-12 blur-2xl group-hover:bg-emerald-400/10 transition-colors"></div>
                    
@@ -177,6 +178,17 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
                 </div>
               ))}
             </div>
+
+            {payments.length > 6 && (
+              <div className="flex justify-center pt-2 pb-4">
+                <button
+                  onClick={() => setExpandedPayments(!expandedPayments)}
+                  className="text-emerald-400 text-sm font-bold uppercase tracking-widest hover:underline transition-all px-6 py-3 rounded-2xl border border-emerald-400/20 hover:bg-emerald-400/5 bg-slate-800 w-full"
+                >
+                  {expandedPayments ? 'Collapse' : `Expand All (${payments.length})`}
+                </button>
+              </div>
+            )}
           </section>
         </main>
 

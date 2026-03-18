@@ -36,6 +36,7 @@ export default function DesktopPaymentLedger({ payments }: DesktopPaymentLedgerP
   const basePath = `/${currentMode}`;
   const { canEdit } = useRole();
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [expandedPayments, setExpandedPayments] = useState(false);
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#020617] text-slate-100 font-['Lexend',_sans-serif]">
@@ -142,7 +143,7 @@ export default function DesktopPaymentLedger({ payments }: DesktopPaymentLedgerP
                         <td colSpan={3} className="px-6 py-8 text-center text-slate-500 font-bold">No payments found.</td>
                       </tr>
                     )}
-                    {payments.map(p => {
+                    {(expandedPayments ? payments : payments.slice(0, 6)).map(p => {
                       if (editingId === p.id) {
                         return (
                           <tr key={p.id} className="bg-slate-900/80">
@@ -231,6 +232,17 @@ export default function DesktopPaymentLedger({ payments }: DesktopPaymentLedgerP
                 </table>
               </div>
             </div>
+
+            {payments.length > 6 && (
+              <div className="flex justify-center pt-4">
+                <button
+                  onClick={() => setExpandedPayments(!expandedPayments)}
+                  className="text-emerald-400 text-sm font-bold uppercase tracking-widest hover:underline transition-all px-6 py-2 rounded-xl border border-emerald-400/20 hover:bg-emerald-400/5"
+                >
+                  {expandedPayments ? 'Collapse' : `Expand All (${payments.length})`}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </main>

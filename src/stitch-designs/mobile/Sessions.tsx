@@ -48,6 +48,7 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
   const basePath = `/${currentMode}`;
   const { isAdmin } = useRole();
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   const handleDelete = async (id: string, label: string) => {
     if (window.confirm(`Are you sure you want to delete session at ${label}?`)) {
@@ -87,7 +88,7 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
             <div className="text-center py-10 text-slate-500">No sessions found.</div>
           )}
 
-          {sessions.map((session) => (
+          {(expanded ? sessions : sessions.slice(0, 6)).map((session) => (
             <div key={session.id} className="bg-slate-800 border border-slate-700 rounded-[2rem] p-6 flex flex-col gap-5 shadow-sm hover:shadow-md transition-all">
               <div className="flex justify-between items-start">
                 <div className="flex flex-col gap-1">
@@ -204,6 +205,17 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
               </div>
             </div>
           ))}
+
+          {sessions.length > 6 && (
+            <div className="flex justify-center pt-2 pb-4">
+              <button
+                onClick={() => setExpanded(!expanded)}
+                className="text-emerald-400 text-sm font-bold uppercase tracking-widest hover:underline transition-all px-6 py-3 rounded-2xl border border-emerald-400/20 hover:bg-emerald-400/5 bg-slate-800 w-full"
+              >
+                {expanded ? 'Collapse' : `Expand All (${sessions.length})`}
+              </button>
+            </div>
+          )}
         </main>
   
         {/* Floating Action Button */}
