@@ -33,9 +33,9 @@ export function AnalyticsClient({ data, type }: AnalyticsClientProps) {
       className="w-full h-48 sm:h-64 mt-4 select-none outline-none focus:ring-0 focus:outline-none"
       onClick={(e) => e.stopPropagation()}
     >
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height="100%" className="outline-none">
         {isSpending ? (
-          <AreaChart data={data}>
+          <AreaChart data={data} tabIndex={-1} style={{ outline: 'none' }}>
             <defs>
               <linearGradient id="colorSpending" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor={color} stopOpacity={0.3}/>
@@ -73,7 +73,7 @@ export function AnalyticsClient({ data, type }: AnalyticsClientProps) {
             />
           </AreaChart>
         ) : (
-          <BarChart data={data}>
+          <BarChart data={data} tabIndex={-1} style={{ outline: 'none' }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
             <XAxis 
               dataKey="month" 

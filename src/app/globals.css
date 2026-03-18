@@ -89,3 +89,10 @@ body::before {
     scrollbar-width: none;
   }
 }
+
+/* Recharts Focus Suppression */
+.recharts-surface:focus, 
+.recharts-wrapper:focus, 
+.recharts-legend-item:focus {
+  outline: none !important;
+}

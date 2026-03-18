@@ -78,34 +78,42 @@
 *   [x] **UI**: Add horizontal scrollable stats row at the top of the Dashboard (Mobile & Desktop).
 *   [x] **UX**: Add `scrollbar-hide` utility for a clean mobile swipe experience.
 
-## Phase 53 — SEO Configuration & Final Branding
-*   [x] **Logic**: Create centralized `src/lib/seo.ts` and integrate with root `src/app/layout.tsx`.
-*   [x] **Assets**: correctly reference `/og-image.png` and `/favicon.ico` in all metadata.
-*   [x] **Integration**: Added `manifest.ts`, `robots.ts`, and `sitemap.ts` for full SEO/PWA support.
-*   [x] **Alignment**: matched title, description, and URL to user's reference image (`shuttlecock-tracker-beige.vercel.app`).
-*   [x] **UX**: Reverted in-app branding to the `Feather` icon while keeping `og-image.png` for social previews.
+## Phase 54 — Analytics Trends & Asset Cleanup
+*   [x] **Monthly Trends**: Integrated `recharts` for spending (AreaChart) and usage (BarChart). Computed 6 months of historical data server-side.
+*   [x] **Mobile UX**: Added chart toggles for a cleaner layout on small screens.
+*   [x] **Premium Assets**: Replaced placeholder hero images with cinematic, AI-generated badminton court backgrounds (`/public/badminton-hero-v2.png`).
+
+## Phase 55 — Mobile Functional Fixes
+*   [x] **Direct Settle**: "Settle" button on Dashboard now executes `quickSettle` server action immediately (disabled if balance is zero).
+*   [x] **Payment Fix**: Corrected redirect and saving logic in `RecordTransaction.tsx`; ensured `mode` is passed for proper auth.
+
+## Phase 56 — UI/UX Improvements
+*   [x] **Sessions FAB**: Moved session creation button to an emerald Floating Action Button (FAB) at the bottom right, matching the Payments UI.
+*   [x] **Chart Interaction**: Suppressed parent click events on charts using `stopPropagation` to prevent accidental navigation.
+
+## Phase 57 — Critical Fixes
+*   [x] **Submission Redirect**: Corrected 404 error in `LogSessions.tsx` by using dynamic `basePath` for post-submission routing.
+*   [x] **Focus Suppression**: Removed focus rings, outlines, and text selection effects from charts for a cleaner "static" feel.
 
 ## Current State
 
-The app is stable. All match CRUD operations work. SEO is fully configured with a production URL and branding assets. Zero lint errors.
+The app is highly stable and verified with successful production builds. Analytics are functional, branding is premium, and the mobile UX is refined with consistent action patterns. Zero lint errors.
 
 ## Known Issues / Backlog
 
-*   **Asset Placeholders**: Hero images use hardcoded Google URLs.
-*   **Environment Variables**: `.env.local` requires real Supabase keys.
-*   **Session revalidation**: `revalidatePath` covers `/` and `/sessions`; dynamic session detail paths (`/sessions/[id]`) may need explicit revalidation if changes don't propagate.
+*   **Environment Variables**: `.env.local` requires real Supabase keys for public distribution.
+*   **Session revalidation**: Dynamic session detail paths (`/sessions/[id]`) may need explicit revalidation if match changes don't propagate immediately.
 
 ## Roadmap & Next Steps
 
-1.  **Analytics**: Charts for monthly spending and usage trends.
-2.  **Auto-Grouping**: Smart team generation based on skill ratings and partner history.
-3.  **Player Profiles**: Win rates, H2H records, best partner analytics.
-4.  **Settle Tracking**: Auto-suggest who pays what based on debt.
-5.  **Performance**: Move heavy analytics to Supabase SQL Views.
+1.  **Auto-Grouping**: Smart team generation based on skill ratings and partner history.
+2.  **Settle Tracking**: Auto-suggest who pays what based on complex debt chains.
+3.  **Performance**: Move heavy analytics to Supabase SQL Views for faster dashboard loads.
+4.  **Advanced Match Filters**: Search matches by player name or date range.
 
 ## Agent Tips
 
-- `lib/actions/matches.ts` is the single source of truth for match mutations. It now expects `{ teamAIds: string[], teamBIds: string[], scoreA: number, scoreB: number, sessionId: string }`.
-- The 4 player columns in the matches table are: `team_a_player1`, `team_a_player2`, `team_b_player1`, `team_b_player2`.
-- `stitch-designs/` contains the presentational components. `app/[mode]/` contains the routing and data-fetching pages.
-- Do NOT modify the database schema.
+- `lib/actions/payments.ts` includes `quickSettle` for zero-click resolution of balances.
+- `src/components/AnalyticsClient.tsx` is the central component for all chart visualizations.
+- FABs on mobile are standardized at `fixed bottom-32 right-8`.
+- `basePath` is computed as `/${currentMode}` where `currentMode` is parsed from the first segment of the URL (either `admin-92Kf8s` or `view`).

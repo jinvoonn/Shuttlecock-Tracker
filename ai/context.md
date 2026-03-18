@@ -9,8 +9,10 @@ CockCount is a premium web app to track badminton group costs — shuttlecock us
 *   **Match Logging**: Record match results (Team A vs Team B) within sessions with player cycle selection.
 *   **Auto-Grouping System**: (Planned) Smart balanced team generation.
 *   **Player Profiles**: Win rates, H2H records, best partner analytics, and win streaks.
+*   **Analytics Dashboard**: Monthly spending and usage trends visualized with `recharts`.
 *   **Dashboard Stats Row**: Horizontal scrollable insights (Most Wins, Win Streaks, Best/Cursed Duos).
-*   **Admin Access**: Secret path (`/admin-92Kf8s`) required for ALL mutations except Match logging/editing. Sessions are Admin-only for edit/delete.
+*   **Direct Settle**: One-tap settlement of player balances from the mobile dashboard.
+*   **Admin Access**: Secret path (`/admin-92Kf8s`) required for ALL mutations except Match logging/editing. Sessions/Payments are Admin-only for edit/delete.
 
 ## Tech Stack
 *   **Framework**: Next.js 16+ (App Router)
@@ -27,6 +29,7 @@ CockCount is a premium web app to track badminton group costs — shuttlecock us
 *   Do NOT modify the database schema
 *   Do NOT introduce new libraries
 *   Always call `revalidatePath` after mutations
+*   **FAB Pattern**: Mobile creation buttons (Sessions, Payments) use a standardized Floating Action Button at `fixed bottom-32 right-8` with `bg-emerald-400`.
 
 ## Database Schema (Key Tables)
 *   **`matches`**: `id`, `session_id`, `team_a_player1`, `team_a_player2`, `team_b_player1`, `team_b_player2`, `team_a_score`, `team_b_score`, `created_at`
@@ -78,6 +81,6 @@ All match actions in `src/lib/actions/matches.ts` expect:
 The action maps `teamAIds[0]` → `team_a_player1`, `teamAIds[1]` → `team_a_player2`, etc.
 
 ## Current Project Status
-**Phase 53 complete (15 Mar 2026).** App features RBAC, advanced analytics, and a production-grade SEO setup targeting `shuttlecock-tracker-beige.vercel.app`.
+**Phase 57 complete (17 Mar 2026).** App features robust analytics, premium assets, and polished mobile UX with consistent action patterns. Successfully verified with production builds.
 
 *"Because Shuttlecocks Aren't Free."*
