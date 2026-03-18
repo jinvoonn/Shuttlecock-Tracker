@@ -3,8 +3,6 @@
 import React from 'react';
 import { 
   Banknote, 
-  Bell, 
-  Search, 
   Plus, 
   LayoutGrid, 
   History, 
@@ -42,13 +40,7 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
   const { canEdit } = useRole();
-  const [searchTerm, setSearchTerm] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
-
-  const filteredPayments = payments.filter(p =>
-    p.playerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.date.includes(searchTerm)
-  );
 
   const handleDelete = async (id: string, playerName: string) => {
     if (window.confirm(`Are you sure you want to delete this payment from ${playerName}?`)) {
@@ -80,20 +72,6 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
         </header>
 
         <main className="flex-1 p-6 space-y-10 pb-40 text-left">
-          {/* Search Bar */}
-          <div className="relative group">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Search className="text-slate-500 size-5 group-focus-within:text-emerald-400 transition-colors" />
-            </div>
-            <input 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="block w-full pl-12 pr-6 py-5 bg-slate-800 border border-slate-700 rounded-3xl text-sm focus:ring-4 focus:ring-emerald-400/10 placeholder-slate-500 shadow-sm transition-all text-white outline-none" 
-              placeholder="Search players..." 
-              type="text" 
-            />
-          </div>
-
           {/* Summary Cards */}
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2 p-6 rounded-[2rem] bg-slate-800 border border-slate-700 shadow-lg relative overflow-hidden group hover:-translate-y-1 transition-all">
@@ -118,8 +96,8 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
 
             {/* Player List */}
             <div className="flex flex-col gap-4">
-              {filteredPayments.length === 0 && <p className="text-slate-500 text-center py-8">No records found.</p>}
-              {filteredPayments.map((p) => (
+              {payments.length === 0 && <p className="text-slate-500 text-center py-8">No records found.</p>}
+              {payments.map((p) => (
                 <div key={p.id} className="bg-slate-800 border border-slate-700 rounded-[2.5rem] p-6 shadow-sm flex flex-col gap-5 relative overflow-hidden group">
                    <div className="absolute top-0 right-0 size-24 bg-emerald-400/5 rounded-full -translate-y-12 translate-x-12 blur-2xl group-hover:bg-emerald-400/10 transition-colors"></div>
                    

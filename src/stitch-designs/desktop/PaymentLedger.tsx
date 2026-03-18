@@ -2,14 +2,6 @@
 
 import React, { useState } from 'react';
 import { 
-  Activity, 
-  Search, 
-  User, 
-  TrendingUp, 
-  Clock, 
-  Users, 
-  Filter, 
-  Download,
   LayoutDashboard,
   CalendarDays,
   Package,
@@ -43,13 +35,7 @@ export default function DesktopPaymentLedger({ payments }: DesktopPaymentLedgerP
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
   const { canEdit } = useRole();
-  const [searchTerm, setSearchTerm] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
-
-  const filteredPayments = payments.filter(p => 
-    p.playerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.date.includes(searchTerm)
-  );
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#020617] text-slate-100 font-['Lexend',_sans-serif]">
@@ -102,16 +88,10 @@ export default function DesktopPaymentLedger({ payments }: DesktopPaymentLedgerP
       <main className="relative z-20 flex-1 flex flex-col overflow-y-auto w-full">
         {/* Top Header */}
         <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-6 w-1/3">
-             <div className="relative w-full max-w-md group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 size-4 group-focus-within:text-[#13ec80] transition-colors" />
-              <input 
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 text-sm focus:ring-1 focus:ring-[#13ec80] transition-all text-slate-200 h-10 outline-none shadow-inner" 
-                placeholder="Search players..." 
-                type="text" 
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-              />
+          <div className="flex items-center gap-3">
+            <div className="text-right hidden sm:block">
+              <p className="text-xs font-black text-slate-100 uppercase">Shuttle Tracker</p>
+              <p className="text-[10px] text-[#13ec80] font-black uppercase tracking-tighter">{currentMode}</p>
             </div>
           </div>
           <div className="flex items-center gap-6">
@@ -120,12 +100,6 @@ export default function DesktopPaymentLedger({ payments }: DesktopPaymentLedgerP
                 Record Payment
               </Link>
             )}
-            <div className="flex items-center gap-3">
-              <div className="text-right hidden sm:block">
-                <p className="text-xs font-black text-slate-100 uppercase">Shuttle Tracker</p>
-                <p className="text-[10px] text-[#13ec80] font-black uppercase tracking-tighter">{currentMode}</p>
-              </div>
-            </div>
           </div>
         </header>
 
@@ -171,12 +145,12 @@ export default function DesktopPaymentLedger({ payments }: DesktopPaymentLedgerP
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/50">
-                    {filteredPayments.length === 0 && (
+                    {payments.length === 0 && (
                       <tr>
                         <td colSpan={3} className="px-6 py-8 text-center text-slate-500 font-bold">No payments found.</td>
                       </tr>
                     )}
-                    {filteredPayments.map(p => {
+                    {payments.map(p => {
                       if (editingId === p.id) {
                         return (
                           <tr key={p.id} className="bg-slate-900/80">

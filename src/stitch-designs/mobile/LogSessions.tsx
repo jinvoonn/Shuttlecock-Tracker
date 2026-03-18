@@ -7,7 +7,6 @@ import {
   Circle, 
   Minus, 
   Plus, 
-  Search, 
   LayoutGrid, 
   History, 
   Package, 
@@ -47,7 +46,6 @@ export default function MobileLogSessions({ tubes, players }: MobileLogSessionsP
   const [selectedTubeId, setSelectedTubeId] = useState<string | null>(tubes[0]?.id || null);
   const [shuttlesUsed, setShuttlesUsed] = useState(0);
   const [attendeeIds, setAttendeeIds] = useState<Set<string>>(new Set());
-  const [search, setSearch] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const selectedTube = tubes.find(t => t.id === selectedTubeId);
@@ -97,7 +95,7 @@ export default function MobileLogSessions({ tubes, players }: MobileLogSessionsP
     }
   };
 
-  const filteredPlayers = players.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
+
 
   return (
     <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-100 min-h-screen flex flex-col antialiased pb-48">
@@ -186,23 +184,11 @@ export default function MobileLogSessions({ tubes, players }: MobileLogSessionsP
               <h2 className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em]">Attendees ({attendeeIds.size}/{players.length})</h2>
               <button className="text-[10px] font-black text-emerald-400 border-2 border-emerald-400 px-3 py-1 rounded-lg uppercase tracking-[0.15em] active:scale-95 transition-transform" onClick={() => router.push(`${basePath}/payments/record-transaction`)}>ADD PAYMENT</button>
             </div>
-            
-            {/* Search Input */}
-            <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 size-5 transition-colors group-focus-within:text-emerald-400" />
-              <input 
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-slate-800 border-2 border-slate-700 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold placeholder:text-slate-600 text-slate-100 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-400/5 transition-all outline-none shadow-sm" 
-                placeholder="Search players..." 
-                type="text" 
-              />
-            </div>
 
             {/* Scrollable Player List */}
             <div className="flex flex-col gap-3 max-h-[400px] overflow-y-auto no-scrollbar pr-1">
-              {filteredPlayers.length === 0 && <p className="text-slate-500 text-center py-4 text-xs">No players found.</p>}
-              {filteredPlayers.map((player) => (
+              {players.length === 0 && <p className="text-slate-500 text-center py-4 text-xs">No players found.</p>}
+              {players.map((player) => (
                 <div 
                   key={player.id} 
                   className={`flex items-center justify-between p-4 bg-white dark:bg-[#0f172a] border-2 rounded-2xl transition-all shadow-sm cursor-pointer ${attendeeIds.has(player.id) ? 'border-[#13ec80]' : 'border-slate-100 dark:border-slate-800 hover:border-[#13ec80]/30'}`}

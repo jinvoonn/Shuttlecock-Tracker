@@ -6,7 +6,6 @@ import {
   CalendarDays, 
   Package, 
   Wallet, 
-  Search, 
   Activity,
   TrendingUp,
   TrendingDown,
@@ -110,18 +109,7 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
       {/* Main Content Area */}
       <main className="relative z-20 flex-1 flex flex-col overflow-y-auto">
         {/* Top Header */}
-        <header className="h-20 border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl flex items-center justify-between px-8 sticky top-0 z-50">
-          <div className="flex items-center gap-6 w-1/3">
-            <div className="relative w-full max-w-md group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 size-4 group-focus-within:text-[#13ec80] transition-colors" />
-              <input 
-                className="w-full bg-slate-950 border-slate-800 rounded-xl pl-10 text-sm focus:ring-1 focus:ring-[#13ec80] focus:border-[#13ec80] transition-all text-slate-200 h-10 outline-none shadow-inner" 
-                placeholder="Search..." 
-                type="text"
-              />
-            </div>
-          </div>
-          
+        <header className="h-20 border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl flex items-center justify-end px-8 sticky top-0 z-50">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">

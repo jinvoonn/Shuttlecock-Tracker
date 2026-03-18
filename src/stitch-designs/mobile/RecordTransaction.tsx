@@ -4,7 +4,6 @@ import React from 'react';
 import { 
   X, 
   HelpCircle, 
-  Search, 
   Delete, 
   LayoutGrid, 
   History, 
@@ -36,7 +35,6 @@ export default function MobileRecordTransaction({ players, sessionId }: MobileRe
   const basePath = `/${currentMode}`;
   const [amount, setAmount] = useState("0.00");
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
-  const [search, setSearch] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleKeyPress = (val: string) => {
@@ -90,7 +88,7 @@ export default function MobileRecordTransaction({ players, sessionId }: MobileRe
     }
   };
 
-  const filteredPlayers = players.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
+
 
   return (
     <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-100 antialiased min-h-screen flex flex-col overflow-hidden">
@@ -123,26 +121,10 @@ export default function MobileRecordTransaction({ players, sessionId }: MobileRe
             </div>
           </div>
 
-          {/* Player Search & Selection */}
-          <div className="px-6 mb-8">
-            <div className="relative group">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-emerald-400">
-                <Search className="size-5" />
-              </div>
-              <input 
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="block w-full pl-12 pr-6 py-5 bg-slate-800 border border-slate-700 rounded-2xl text-slate-100 placeholder-slate-600 focus:ring-4 focus:ring-emerald-400/10 focus:border-emerald-400/30 text-sm transition-all outline-none" 
-                placeholder="Search player..." 
-                type="text" 
-              />
-            </div>
-          </div>
-
           {/* Quick Select Horizontal Scroll */}
           <div className="flex gap-4 overflow-x-auto px-6 pb-10 no-scrollbar">
-            {filteredPlayers.length === 0 && <p className="text-slate-500 text-xs">No players found</p>}
-            {filteredPlayers.map((player) => (
+            {players.length === 0 && <p className="text-slate-500 text-xs">No players found</p>}
+            {players.map((player) => (
               <div 
                 key={player.id} 
                 className="flex flex-col items-center gap-2 shrink-0 group cursor-pointer"

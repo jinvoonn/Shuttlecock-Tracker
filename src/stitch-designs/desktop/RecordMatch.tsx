@@ -7,7 +7,6 @@ import {
   CalendarDays, 
   Package, 
   Wallet, 
-  Search,
   Users,
   Feather
 } from 'lucide-react';
@@ -132,18 +131,7 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
       {/* Main Content */}
       <main className="relative z-20 flex-1 flex flex-col overflow-y-auto">
         {/* Top Header */}
-        <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-6 w-1/3">
-             <div className="relative w-full max-w-md group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 size-4 group-focus-within:text-[#13ec80] transition-colors" />
-              <input 
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 text-sm focus:ring-1 focus:ring-[#13ec80] transition-all text-slate-200 h-10 outline-none shadow-inner cursor-not-allowed" 
-                placeholder="Global Search disabled..." 
-                type="text" 
-                disabled
-              />
-            </div>
-          </div>
+        <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl px-8 py-4 flex items-center justify-end">
           <div className="flex items-center gap-6">
             <div className="text-right hidden sm:block">
               <p className="text-xs font-black text-slate-100 uppercase">Shuttle Tracker</p>

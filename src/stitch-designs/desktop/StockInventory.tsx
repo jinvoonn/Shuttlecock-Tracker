@@ -3,7 +3,6 @@
 import React from 'react';
 import { 
   Activity, 
-  Search,
   PlusSquare, 
   Package, 
   History, 
@@ -58,14 +57,9 @@ import { DatePicker } from '@/components/DatePicker';
 
 export default function DesktopStockInventory({ stats, activeTubes, history }: DesktopStockInventoryProps) {
   const { canEdit } = useRole();
-  const [searchTerm, setSearchTerm] = React.useState('');
   const [activeEditingId, setActiveEditingId] = React.useState<string | null>(null);
   const [historyEditingId, setHistoryEditingId] = React.useState<string | null>(null);
 
-  const filteredHistory = history.filter(h => 
-    h.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    h.date.includes(searchTerm)
-  );
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
@@ -130,19 +124,7 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
       {/* Main Content Area */}
       <main className="relative z-20 flex-1 flex flex-col overflow-y-auto w-full">
         {/* Top Header */}
-        <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-6 w-1/3">
-             <div className="relative w-full max-w-md group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 size-4 group-focus-within:text-[#13ec80] transition-colors" />
-              <input 
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 text-sm focus:ring-1 focus:ring-[#13ec80] transition-all text-slate-200 h-10 outline-none shadow-inner" 
-                placeholder="Search stock..." 
-                type="text" 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
+        <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl px-8 py-4 flex items-center justify-end">
           <div className="flex items-center gap-6">
             {canEdit('purchases') && (
               <Link href={`${basePath}/purchases/add`} className="bg-[#13ec80] text-[#020617] px-6 py-2 rounded font-black text-xs tracking-tighter hover:brightness-110 transition-all uppercase shadow-lg shadow-[#13ec80]/20 border border-[#13ec80]">
@@ -336,7 +318,7 @@ export default function DesktopStockInventory({ stats, activeTubes, history }: D
                       <td colSpan={6} className="px-6 py-8 text-center text-slate-500 font-bold">No purchase history available.</td>
                     </tr>
                   )}
-                  {filteredHistory.map(item => {
+                  {history.map(item => {
                     const isEditing = historyEditingId === item.id;
                     
                     if (isEditing) {

@@ -11,7 +11,6 @@ import {
   Activity, 
   Package, 
   Banknote,
-  Search,
   X,
   PlusCircle,
   Feather

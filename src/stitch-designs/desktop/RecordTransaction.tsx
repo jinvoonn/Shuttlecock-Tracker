@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { 
   Banknote, 
-  Search, 
   Calendar, 
   Activity, 
   LayoutDashboard, 
@@ -37,11 +36,8 @@ export default function DesktopRecordTransaction({ players, sessionId }: Desktop
 
   const [amount, setAmount] = useState<string>('');
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
-  const [search, setSearch] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const filteredPlayers = players.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
 
   const handleConfirm = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,18 +115,7 @@ export default function DesktopRecordTransaction({ players, sessionId }: Desktop
       {/* Main Content Area */}
       <main className="relative z-20 flex-1 flex flex-col overflow-y-auto w-full">
         {/* Top Header */}
-        <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-6 w-1/3">
-             <div className="relative w-full max-w-md group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 size-4 group-focus-within:text-[#13ec80] transition-colors" />
-              <input 
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 text-sm focus:ring-1 focus:ring-[#13ec80] transition-all text-slate-200 h-10 outline-none shadow-inner cursor-not-allowed" 
-                placeholder="Global Search disabled..." 
-                type="text" 
-                disabled
-              />
-            </div>
-          </div>
+        <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl px-8 py-4 flex items-center justify-end">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
@@ -191,23 +176,12 @@ export default function DesktopRecordTransaction({ players, sessionId }: Desktop
               {/* Right Column: Player Selection */}
               <div className="flex flex-col h-[400px]">
                 <label className="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Select Player</label>
-                <div className="relative mb-4 shrink-0">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 size-5" />
-                  <input 
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-[#13ec80] outline-none rounded-lg py-4 pl-12 pr-4 text-sm font-medium text-slate-100 placeholder:text-slate-600 shadow-sm transition-all" 
-                    placeholder="Search player name..." 
-                    type="text" 
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                </div>
-                
                 {/* Player Grid */}
                 <div className="grid grid-cols-2 gap-3 overflow-y-auto pr-2 custom-scrollbar flex-1 pb-4">
-                  {filteredPlayers.length === 0 && (
+                  {players.length === 0 && (
                     <div className="col-span-2 text-center py-10 text-slate-500 font-bold">No players found.</div>
                   )}
-                  {filteredPlayers.map(player => (
+                  {players.map(player => (
                     <button 
                       key={player.id}
                       type="button"

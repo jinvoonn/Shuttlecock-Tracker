@@ -8,12 +8,8 @@ import {
   Package,
   Wallet,
   Plus,
-  PlusCircle,
-  TrendingUp,
-  CreditCard,
   Pencil,
   Trash2,
-  Search,
   Feather
 } from 'lucide-react';
 import clsx from 'clsx';
@@ -49,13 +45,7 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
 
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
-  const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredSessions = sessions.filter(s =>
-    s.date.includes(searchTerm) ||
-    s.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (s.notes || "").toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#020617] text-slate-100 font-['Lexend',_sans-serif]">
@@ -108,16 +98,10 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
       <main className="relative z-20 flex-1 flex flex-col overflow-y-auto w-full">
         {/* Top Header */}
         <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-6 w-1/3">
-             <div className="relative w-full max-w-md group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 size-4 group-focus-within:text-[#13ec80] transition-colors" />
-              <input
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 text-sm focus:ring-1 focus:ring-[#13ec80] transition-all text-slate-200 h-10 outline-none shadow-inner"
-                placeholder="Search sessions..."
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+          <div className="flex items-center gap-3">
+            <div className="text-right hidden sm:block">
+              <p className="text-xs font-black text-slate-100 uppercase">Shuttle Tracker</p>
+              <p className="text-[10px] text-[#13ec80] font-black uppercase tracking-tighter">{currentMode}</p>
             </div>
           </div>
           <div className="flex items-center gap-6">
@@ -126,12 +110,6 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
                 <Plus className="size-4" /> Log New
               </Link>
             )}
-            <div className="flex items-center gap-3">
-              <div className="text-right hidden sm:block">
-                <p className="text-xs font-black text-slate-100 uppercase">Shuttle Tracker</p>
-                <p className="text-[10px] text-[#13ec80] font-black uppercase tracking-tighter">{currentMode}</p>
-              </div>
-            </div>
           </div>
         </header>
 
@@ -142,12 +120,12 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
             <p className="text-slate-500 font-medium text-sm tracking-tight uppercase tracking-widest">Active matches & shuttle tracking</p>
           </div>
 
-          {filteredSessions.length === 0 && (
-            <div className="text-center py-20 text-slate-500 text-lg font-bold">No sessions found matching your search.</div>
+          {sessions.length === 0 && (
+            <div className="text-center py-20 text-slate-500 text-lg font-bold">No sessions found.</div>
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-            {filteredSessions.map((session) => (
+            {sessions.map((session) => (
               <div 
                 onClick={() => router.push(`${basePath}/sessions/${session.id}`)}
                 key={session.id} 

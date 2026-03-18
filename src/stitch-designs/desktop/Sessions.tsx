@@ -2,12 +2,9 @@
 
 import React, { useState } from 'react';
 import { 
-  PlusCircle, 
-  Settings, 
   Package, 
   Minus, 
   Plus, 
-  Search, 
   Zap,
   ArrowLeft,
   Feather
@@ -58,7 +55,6 @@ export default function DesktopSessions({ tubes, players, initialData }: Desktop
   );
   const [shuttlesUsed, setShuttlesUsed] = useState(initialData?.usage[0]?.quantityUsed || 0);
   const [attendeeIds, setAttendeeIds] = useState<Set<string>>(new Set(initialData?.playerIds || []));
-  const [search, setSearch] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const selectedTube = tubes.find(t => t.id === selectedTubeId);
@@ -76,7 +72,7 @@ export default function DesktopSessions({ tubes, players, initialData }: Desktop
     setAttendeeIds(next);
   };
 
-  const filteredPlayers = players.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
+
 
   const handleCreateSession = async () => {
     if (!selectedTubeId) {
@@ -229,21 +225,11 @@ export default function DesktopSessions({ tubes, players, initialData }: Desktop
             <section>
               <div className="flex items-end justify-between mb-4">
                 <h2 className="text-xs font-bold tracking-widest text-slate-500 uppercase italic">03. Attendees</h2>
-                <div className="relative">
-                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500 size-4" />
-                  <input 
-                    className="bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-[#1e293b] text-[10px] pl-8 pr-4 py-1.5 focus:ring-1 focus:ring-[#13ec80] w-40 placeholder:text-slate-600 font-bold uppercase tracking-wider outline-none rounded" 
-                    placeholder="SEARCH PLAYERS..." 
-                    type="text" 
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                </div>
               </div>
               
               <div className="bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-[#1e293b] p-4 max-h-[400px] overflow-y-auto rounded-lg">
                 <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                  {filteredPlayers.map(player => {
+                  {players.map(player => {
                     const isSelected = attendeeIds.has(player.id);
                     const initial = player.name.charAt(0).toUpperCase();
 
