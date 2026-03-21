@@ -19,10 +19,11 @@ import {
   X,
   Feather
 } from 'lucide-react';
-
 import { useRouter, usePathname } from "next/navigation";
 import { deleteMatch, updateMatch } from "@/lib/actions/matches";
 import clsx from "clsx";
+import Link from 'next/link';
+import { useRole } from "@/context/AuthContext";
 
 interface SessionMeta {
   id: string;
@@ -82,6 +83,7 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
   const [editScoreA, setEditScoreA] = useState("");
   const [editScoreB, setEditScoreB] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const { isAdmin } = useRole();
 
   // Cycle: None (0) → Team A (1) → Team B (2) → None (0)
   const cyclePlayer = (id: string) => {
@@ -190,11 +192,19 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                 className="absolute inset-0 w-full h-full object-cover"
               />
               <div className="absolute bottom-6 left-6 right-6 z-20 text-left">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-emerald-400 text-[10px] font-black tracking-[0.2em] uppercase bg-emerald-400/10 backdrop-blur-md px-2 py-1 rounded">{session.division}</span>
-                  <div className="size-1.5 rounded-full bg-emerald-400 animate-pulse"></div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-emerald-400 text-[10px] font-black tracking-[0.2em] uppercase bg-emerald-400/10 backdrop-blur-md px-2 py-1 rounded">{session.division}</span>
+                    <div className="size-1.5 rounded-full bg-emerald-400 animate-pulse"></div>
+                  </div>
+                  {isAdmin && (
+                      <Link href={`${basePath}/sessions/${session.id}/edit`} className="bg-slate-800/80 backdrop-blur-md text-emerald-400 border border-emerald-400/20 px-3 py-1.5 rounded-lg flex items-center gap-1.5 active:scale-95 transition-transform">
+                        <Pencil className="size-3.5" />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Edit</span>
+                      </Link>
+                  )}
                 </div>
-                <h2 className="text-white text-3xl font-black italic uppercase leading-tight tracking-tighter">{session.name}</h2>
+                <h2 className="text-white text-3xl font-black italic uppercase leading-tight tracking-tighter mt-1">{session.name}</h2>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-slate-300 text-xs mt-3 font-medium">
                   <span className="flex items-center gap-1"><Calendar className="size-3" /> {session.date}</span>
                   <span className="flex items-center gap-1"><Clock className="size-3" /> {session.time}</span>

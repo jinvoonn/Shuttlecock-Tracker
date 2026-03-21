@@ -81,6 +81,6 @@ All match actions in `src/lib/actions/matches.ts` expect:
 The action maps `teamAIds[0]` → `team_a_player1`, `teamAIds[1]` → `team_a_player2`, etc.
 
 ## Current Project Status
-**Phase 57 complete (17 Mar 2026).** App features robust analytics, premium assets, and polished mobile UX with consistent action patterns. Successfully verified with production builds.
+**Phase 60 complete (18 Mar 2026).** App features robust analytics, premium assets, cleanly managed long lists (expand/collapse), and polished mobile/desktop UX with standardized headers and consistent action patterns. Successfully verified with production builds.
 
 *"Because Shuttlecocks Aren't Free."*

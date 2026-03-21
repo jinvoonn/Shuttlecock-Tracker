@@ -56,12 +56,11 @@ export function SessionForm({
 
     if (!isAdmin && !isEdit) return null;
 
-    const handleAddExistingPlayer = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const val = e.target.value;
-        if (val && !selectedPlayerIds.includes(val)) {
-            setSelectedPlayerIds([...selectedPlayerIds, val]);
-        }
-        e.target.value = ""; // reset
+    const togglePlayer = (id: string, e: React.MouseEvent) => {
+        e.preventDefault();
+        setSelectedPlayerIds(prev => 
+            prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id]
+        );
     };
 
     const handleAddNewPlayer = (e: React.FormEvent) => {
@@ -71,10 +70,6 @@ export function SessionForm({
             setNewPlayers([...newPlayers, clean]);
         }
         setNewPlayerName("");
-    };
-
-    const removeSelectedPlayer = (id: string) => {
-        setSelectedPlayerIds(selectedPlayerIds.filter(pid => pid !== id));
     };
 
     const removeNewPlayer = (name: string) => {
@@ -173,17 +168,26 @@ export function SessionForm({
                         <Users className="w-4 h-4" /> Attendees
                     </h3>
 
-                    <div className="flex gap-2">
-                        <select
-                            onChange={handleAddExistingPlayer}
-                            className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500/50 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M6%209L12%2015L18%209%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')] bg-[length:1.25rem] bg-[right_0.75rem_center] bg-no-repeat"
-                            defaultValue=""
-                        >
-                            <option value="" disabled>Select Existing Player ▼</option>
-                            {players.map(p => (
-                                <option key={p.id} value={p.id} disabled={selectedPlayerIds.includes(p.id)}>{p.name}</option>
-                            ))}
-                        </select>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pb-2">
+                        {players.map(p => {
+                            const isSelected = selectedPlayerIds.includes(p.id);
+                            return (
+                                <button
+                                    key={p.id}
+                                    type="button"
+                                    onClick={(e) => togglePlayer(p.id, e)}
+                                    className={clsx(
+                                        "p-3 rounded-xl border-2 transition-all active:scale-95 text-left flex items-center justify-between group",
+                                        isSelected 
+                                            ? "bg-emerald-400 border-emerald-400 text-slate-900" 
+                                            : "bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-600 hover:bg-slate-750"
+                                    )}
+                                >
+                                    <span className={clsx("text-xs font-black uppercase italic truncate pr-2", !isSelected && "group-hover:text-emerald-400")}>{p.name}</span>
+                                    {isSelected && <div className="size-4 rounded-full border-2 border-slate-900/30 bg-slate-900/20 shrink-0"></div>}
+                                </button>
+                            );
+                        })}
                     </div>
 
                     <div className="flex gap-2">
@@ -203,21 +207,10 @@ export function SessionForm({
                         </button>
                     </div>
 
-                    {(selectedPlayerIds.length > 0 || newPlayers.length > 0) && (
-                        <div className="bg-slate-950/50 p-3 rounded-xl border border-slate-800/50">
-                            <p className="text-[10px] font-bold uppercase text-slate-600 mb-2 ml-1">Selected Players:</p>
+                    {newPlayers.length > 0 && (
+                        <div className="bg-slate-950/50 p-3 rounded-xl border border-slate-800/50 mt-2">
+                            <p className="text-[10px] font-bold uppercase text-slate-600 mb-2 ml-1">New Players Added:</p>
                             <div className="flex flex-wrap gap-2">
-                                {selectedPlayerIds.map(id => {
-                                    const p = players.find(x => x.id === id);
-                                    return (
-                                        <div key={id} className="flex items-center gap-1.5 bg-slate-800 px-2.5 py-1 rounded-lg text-xs text-slate-300 border border-slate-700">
-                                            {p?.name}
-                                            <button type="button" onClick={() => removeSelectedPlayer(id)} className="text-slate-500 hover:text-rose-400">
-                                                <X className="w-3 h-3" />
-                                            </button>
-                                        </div>
-                                    );
-                                })}
                                 {newPlayers.map(name => (
                                     <div key={name} className="flex items-center gap-1.5 bg-sky-900/30 text-sky-200 px-2.5 py-1 rounded-lg text-xs border border-sky-800/50">
                                         {name} <span className="text-[9px] opacity-70">(New)</span>

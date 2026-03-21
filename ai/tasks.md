@@ -95,9 +95,21 @@
 *   [x] **Submission Redirect**: Corrected 404 error in `LogSessions.tsx` by using dynamic `basePath` for post-submission routing.
 *   [x] **Focus Suppression**: Removed focus rings, outlines, and text selection effects from charts for a cleaner "static" feel.
 
+## Phase 58 — Global Search Removal
+*   [x] **UI**: Removed functional and disabled search bars across Dashboard, Sessions, Stock, Payments, and Record modules on both desktop and mobile.
+*   [x] **Logic**: Eliminated all `searchTerm`, `filteredX`, and `searchQuery` state dependencies for a cleaner, search-free experience.
+
+## Phase 59 — Desktop Header Standardization
+*   [x] **UI**: Standardized all 7 desktop page headers to a fixed `h-14` height with consistent `sticky top-0 z-50` styling.
+*   [x] **Cleanup**: Removed the floating "SHUTTLE TRACKER" / "VIEW" text globally; maintained strict right-aligned placement for primary action buttons (Log New, Add Stock, Record Payment).
+
+## Phase 60 — Lists Expand / Collapse Feature
+*   [x] **UX**: Restrained long lists (Session History, Purchase History, Transaction Log) to a default 6 visible items to improve performance and scannability.
+*   [x] **UI & Logic**: Implemented a responsive "Expand All ({count})" / "Collapse" toggle button tied to a local boolean `expanded` state across the 6 affected desktop and mobile files.
+
 ## Current State
 
-The app is highly stable and verified with successful production builds. Analytics are functional, branding is premium, and the mobile UX is refined with consistent action patterns. Zero lint errors.
+The app is highly stable and verified with successful production builds. Analytics are functional, branding is premium, the mobile UX is refined with consistent action patterns, and lists are cleanly collapsed. Zero lint errors.
 
 ## Known Issues / Backlog
 

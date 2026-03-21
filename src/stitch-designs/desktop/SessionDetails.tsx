@@ -20,6 +20,7 @@ import clsx from 'clsx';
 import { usePathname } from 'next/navigation';
 import AddMatchModal from "@/components/AddMatchModal";
 import { deleteMatch } from "@/lib/actions/matches";
+import { useRole } from "@/context/AuthContext";
 
 interface SessionMeta {
   id: string;
@@ -68,6 +69,7 @@ export default function DesktopSessionDetails({ session, matches, attendees }: D
   const basePath = `/${currentMode}`;
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [editingMatch, setEditingMatch] = React.useState<Match | null>(null);
+  const { isAdmin } = useRole();
 
   const isLive = new Date(session.date).toDateString() === new Date().toDateString();
 
@@ -119,6 +121,15 @@ export default function DesktopSessionDetails({ session, matches, attendees }: D
             </div>
           </div>
           <div className="flex gap-3">
+             {isAdmin && (
+               <Link 
+                 href={`${basePath}/sessions/${session.id}/edit`}
+                 className="bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 px-6 py-3 rounded font-bold text-sm uppercase transition-all flex items-center gap-2"
+               >
+                 <Pencil className="size-5" />
+                 Edit Session
+               </Link>
+             )}
              <button 
                onClick={() => setIsModalOpen(true)}
                className="bg-[#13ec80] hover:bg-[#13ec80]/90 text-[#020617] px-6 py-3 rounded font-bold text-sm uppercase transition-all flex items-center gap-2"
