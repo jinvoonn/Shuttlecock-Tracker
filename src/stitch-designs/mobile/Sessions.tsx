@@ -16,17 +16,21 @@ import {
   Target,
   Feather
 } from 'lucide-react';
-import { deleteSession, updateSessionMetadata } from '@/lib/actions/sessions';
+import { deleteSession } from '@/lib/actions/sessions';
 import { useRouter, usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRole } from '@/context/AuthContext';
-import { DatePicker } from '@/components/DatePicker';
+import { SessionForm } from '@/app/[mode]/sessions/SessionForm';
+
+interface Player { id: string; name: string; }
+interface Purchase { id: string; remaining_quantity: number; tube_number: number; brands: { name: string } | null; price_per_tube: number; price_per_cock: number; }
 
 interface SessionData {
   id: string;
   displayNumber: number;
   date: string;
   location: string;
+  notes?: string;
   status: 'Completed' | 'Outstanding' | 'Archived';
   shuttleUsed: {
     name: string;
@@ -34,21 +38,34 @@ interface SessionData {
   };
   costPerPerson: number;
   attendees: string[];
+  playerIds: string[];
+  usageMap: Record<string, number>;
   totalNet: number;
 }
 
 interface MobileSessionsProps {
   sessions: SessionData[];
+  allPlayers: Player[];
+  allPurchases: Purchase[];
 }
 
-export default function MobileSessions({ sessions }: MobileSessionsProps) {
+export default function MobileSessions({ sessions, allPlayers, allPurchases }: MobileSessionsProps) {
   const router = useRouter();
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
   const { isAdmin } = useRole();
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingSession, setEditingSession] = useState<SessionData | null>(null);
   const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    if (editingSession) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+    return () => document.body.classList.remove('overflow-hidden');
+  }, [editingSession]);
 
   const handleDelete = async (id: string, label: string) => {
     if (window.confirm(`Are you sure you want to delete session at ${label}?`)) {
@@ -100,70 +117,40 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
                     {session.location}
                   </h3>
                 </div>
-                
-                {editingId === session.id ? (
-                  <div className="flex-1 pt-2 animate-in fade-in slide-in-from-top-1 duration-200">
-                    <form action={async (formData) => {
-                      await updateSessionMetadata(session.id, formData);
-                      setEditingId(null);
-                      router.refresh();
-                    }} className="space-y-4">
-                      <div className="grid grid-cols-1 gap-3">
-                        <div>
-                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 ml-1 text-left">Date</p>
-                          <DatePicker name="date" defaultValue={session.date} />
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 ml-1 text-left">Location</p>
-                          <input 
-                            name="location"
-                            defaultValue={session.location}
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-emerald-400/20 outline-none text-left"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex gap-2 justify-end">
-                        <button type="button" onClick={() => setEditingId(null)} className="px-4 py-2 rounded-xl text-[10px] font-black uppercase text-slate-500 hover:bg-slate-700 transition-all">Cancel</button>
-                        <button type="submit" className="px-4 py-2 rounded-xl text-[10px] font-black uppercase bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-400/20">Save</button>
-                      </div>
-                    </form>
+                <div className="flex flex-col gap-2 items-end">
+                  <div className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${
+                    session.status === 'Completed' ? 'bg-emerald-400/10 text-emerald-400' :
+                    session.status === 'Outstanding' ? 'bg-rose-500/10 text-rose-500' :
+                    'bg-slate-700 text-slate-400'
+                  }`}>
+                    {session.status}
                   </div>
-                ) : (
-                  <div className="flex flex-col gap-2 items-end">
-                    <div className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${
-                      session.status === 'Completed' ? 'bg-emerald-400/10 text-emerald-400' :
-                      session.status === 'Outstanding' ? 'bg-rose-500/10 text-rose-500' :
-                      'bg-slate-700 text-slate-400'
-                    }`}>
-                      {session.status}
-                    </div>
-                    <div className="flex gap-1.5">
-                      <button 
-                        onClick={() => router.push(`${basePath}/sessions/${session.id}/record-match`)}
-                        className="size-8 rounded-lg bg-orange-500/10 text-orange-500 flex items-center justify-center active:scale-90 transition-all border border-orange-500/20"
-                        title="Log Match"
-                      >
-                        <Target className="size-4" />
-                      </button>
-                      {isAdmin && (
-                        <>
-                          <button 
-                            onClick={() => setEditingId(session.id)}
-                            className="size-8 rounded-lg bg-slate-900 text-slate-400 flex items-center justify-center active:scale-90 transition-all border border-slate-800"
-                          >
-                            <Pencil className="size-4" />
-                          </button>
-                          <button 
-                            onClick={() => handleDelete(session.id, session.location)}
-                            className="size-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center active:scale-90 transition-all border border-rose-500/10"
-                          >
-                            <Trash className="size-4" />
-                          </button>
-                        </>
-                      )}
-                    </div>
+                  <div className="flex gap-1.5">
+                    <button 
+                      onClick={() => router.push(`${basePath}/sessions/${session.id}/record-match`)}
+                      className="size-8 rounded-lg bg-orange-500/10 text-orange-500 flex items-center justify-center active:scale-90 transition-all border border-orange-500/20"
+                      title="Log Match"
+                    >
+                      <Target className="size-4" />
+                    </button>
+                    {isAdmin && (
+                      <>
+                        <button 
+                          onClick={() => setEditingSession(session)}
+                          className="relative z-50 size-8 rounded-lg bg-slate-900 text-slate-400 flex items-center justify-center active:scale-90 transition-all border border-slate-800"
+                        >
+                          <Pencil className="size-4" />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(session.id, session.location)}
+                          className="size-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center active:scale-90 transition-all border border-rose-500/10"
+                        >
+                          <Trash className="size-4" />
+                        </button>
+                      </>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
               
               <div className="grid grid-cols-2 gap-6 py-5 border-y border-slate-700">
@@ -259,6 +246,28 @@ export default function MobileSessions({ sessions }: MobileSessionsProps) {
           </div>
         </nav>
       </div>
+
+      {/* Edit Session Modal */}
+      {editingSession && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-sm max-h-[90vh] overflow-y-auto custom-scrollbar bg-slate-900 rounded-3xl border border-slate-700 shadow-2xl relative">
+            <SessionForm
+              players={allPlayers}
+              purchases={allPurchases}
+              initialData={{
+                id: editingSession.id,
+                date: editingSession.date,
+                location: editingSession.location,
+                notes: editingSession.notes || "",
+                players: editingSession.playerIds,
+                usage: editingSession.usageMap
+              }}
+              isEdit={true}
+              onCancel={() => setEditingSession(null)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

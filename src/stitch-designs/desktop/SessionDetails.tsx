@@ -17,10 +17,12 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import clsx from 'clsx';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import AddMatchModal from "@/components/AddMatchModal";
 import { deleteMatch } from "@/lib/actions/matches";
 import { useRole } from "@/context/AuthContext";
+import { SessionForm } from '@/app/[mode]/sessions/SessionForm';
+import { useEffect, useState } from 'react';
 
 interface SessionMeta {
   id: string;
@@ -57,19 +59,37 @@ interface Attendee {
   paid: boolean;
 }
 
+interface Player { id: string; name: string; }
+interface Purchase { id: string; remaining_quantity: number; tube_number: number; brands: { name: string } | null; price_per_tube: number; price_per_cock: number; }
+interface InitialData { id: string; date: string; location: string; notes: string; players: string[]; usage: Record<string, number>; }
+
 interface DesktopSessionDetailsProps {
   session: SessionMeta;
   matches: Match[];
   attendees: Attendee[];
+  allPlayers: Player[];
+  allPurchases: Purchase[];
+  initialData: InitialData;
 }
 
-export default function DesktopSessionDetails({ session, matches, attendees }: DesktopSessionDetailsProps) {
+export default function DesktopSessionDetails({ session, matches, attendees, allPlayers, allPurchases, initialData }: DesktopSessionDetailsProps) {
   const pathname = usePathname() || '';
+  const router = useRouter();
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [editingMatch, setEditingMatch] = React.useState<Match | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingMatch, setEditingMatch] = useState<Match | null>(null);
+  const [isEditingSession, setIsEditingSession] = useState(false);
   const { isAdmin } = useRole();
+
+  useEffect(() => {
+    if (isEditingSession) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+    return () => document.body.classList.remove('overflow-hidden');
+  }, [isEditingSession]);
 
   const isLive = new Date(session.date).toDateString() === new Date().toDateString();
 
@@ -122,13 +142,13 @@ export default function DesktopSessionDetails({ session, matches, attendees }: D
           </div>
           <div className="flex gap-3">
              {isAdmin && (
-               <Link 
-                 href={`${basePath}/sessions/${session.id}/edit`}
-                 className="bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 px-6 py-3 rounded font-bold text-sm uppercase transition-all flex items-center gap-2"
+               <button 
+                 onClick={() => setIsEditingSession(true)}
+                 className="bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 px-6 py-3 rounded font-bold text-sm uppercase transition-all flex items-center gap-2 relative z-50"
                >
                  <Pencil className="size-5" />
                  Edit Session
-               </Link>
+               </button>
              )}
              <button 
                onClick={() => setIsModalOpen(true)}
@@ -323,6 +343,21 @@ export default function DesktopSessionDetails({ session, matches, attendees }: D
           </div>
         </div>
       </main>
+
+      {/* Edit Session Modal */}
+      {isEditingSession && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar bg-slate-900 rounded-3xl border border-slate-700 shadow-2xl relative">
+            <SessionForm
+              players={allPlayers}
+              purchases={allPurchases}
+              initialData={initialData}
+              isEdit={true}
+              onCancel={() => setIsEditingSession(false)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

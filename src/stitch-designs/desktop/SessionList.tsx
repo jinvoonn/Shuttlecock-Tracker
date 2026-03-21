@@ -17,6 +17,11 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { deleteSession } from "@/lib/actions/sessions";
 import { useRole } from '@/context/AuthContext';
+import { SessionForm } from '@/app/[mode]/sessions/SessionForm';
+import { useEffect } from 'react';
+
+interface Player { id: string; name: string; }
+interface Purchase { id: string; remaining_quantity: number; tube_number: number; brands: { name: string } | null; price_per_tube: number; price_per_cock: number; }
 
 interface SessionData {
   id: string;
@@ -31,18 +36,31 @@ interface SessionData {
   };
   costPerPerson: number;
   attendees: string[];
+  playerIds: string[];
+  usageMap: Record<string, number>;
   totalNet: number;
 }
-
 interface DesktopSessionsListProps {
   sessions: SessionData[];
+  allPlayers: Player[];
+  allPurchases: Purchase[];
 }
 
-export default function DesktopSessionList({ sessions }: DesktopSessionsListProps) {
+export default function DesktopSessionList({ sessions, allPlayers, allPurchases }: DesktopSessionsListProps) {
   const pathname = usePathname() || '';
   const router = useRouter();
   const { isAdmin } = useRole();
   const [expanded, setExpanded] = useState(false);
+  const [editingSession, setEditingSession] = useState<SessionData | null>(null);
+
+  useEffect(() => {
+    if (editingSession) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+    return () => document.body.classList.remove('overflow-hidden');
+  }, [editingSession]);
 
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
@@ -184,8 +202,7 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
                              onClick={(e) => {
                                e.preventDefault();
                                e.stopPropagation();
-                               const currentMode = pathname.split('/')[1] || 'view';
-                               router.push(`/${currentMode}/sessions/${session.id}/edit`);
+                               setEditingSession(session);
                              }}
                            >
                                <Pencil className="size-4" />
@@ -224,6 +241,28 @@ export default function DesktopSessionList({ sessions }: DesktopSessionsListProp
           )}
         </div>
       </main>
+
+      {/* Edit Session Modal */}
+      {editingSession && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar bg-slate-900 rounded-3xl border border-slate-700 shadow-2xl relative">
+            <SessionForm
+              players={allPlayers}
+              purchases={allPurchases}
+              initialData={{
+                id: editingSession.id,
+                date: editingSession.date,
+                location: editingSession.location,
+                notes: editingSession.notes || "",
+                players: editingSession.playerIds,
+                usage: editingSession.usageMap
+              }}
+              isEdit={true}
+              onCancel={() => setEditingSession(null)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

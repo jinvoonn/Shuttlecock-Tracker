@@ -24,18 +24,29 @@ interface Session {
   }[];
 }
 
+interface Player { id: string; name: string; }
+interface Purchase { id: string; remaining_quantity: number; tube_number: number; brands: { name: string } | null; price_per_tube: number; price_per_cock: number; }
+
 export default async function SessionsPage({ params }: { params: Promise<{ mode: string }> }) {
   await params;
   
-  const { data: sessions, error: sessionsError } = await supabase
-    .from("sessions")
-    .select(`
-      *,
-      session_players ( players ( id, name ) ),
-      session_usage ( quantity_used, purchases ( tube_number, brands ( name ), price_per_cock ) )
-    `)
-    .order("date", { ascending: true })
-    .order("created_at", { ascending: true });
+  const [
+    { data: sessions, error: sessionsError },
+    { data: playersData, error: playersError },
+    { data: purchasesData, error: purchasesError }
+  ] = await Promise.all([
+    supabase
+      .from("sessions")
+      .select(`
+        *,
+        session_players ( players ( id, name ) ),
+        session_usage ( quantity_used, purchases ( id, tube_number, brands ( name ), price_per_cock ) )
+      `)
+      .order("date", { ascending: true })
+      .order("created_at", { ascending: true }),
+    supabase.from("players").select("id, name").order("name"),
+    supabase.from("purchases").select("id, tube_number, brands(name), price_per_tube, price_per_cock, remaining_quantity").gt("remaining_quantity", 0).order("created_at", { ascending: true })
+  ]);
 
   if (sessionsError) {
     return (
@@ -47,10 +58,12 @@ export default async function SessionsPage({ params }: { params: Promise<{ mode:
 
   const formattedSessions = (sessions as unknown as Session[] || []).map((session, index: number) => {
     const attendees = session.session_players?.map((sp) => sp.players?.name || "Unknown") || [];
+    const playerIds = (session.session_players?.map((sp) => sp.players?.id).filter(Boolean) || []) as string[];
     
     let shuttleName = "None";
     let totalShuttles = 0;
     let totalCost = 0;
+    const usageMap: Record<string, number> = {};
 
     if (session.session_usage && session.session_usage.length > 0) {
       shuttleName = (Array.isArray(session.session_usage[0].purchases?.brands) ? session.session_usage[0].purchases?.brands[0]?.name : session.session_usage[0].purchases?.brands?.name) || "Various";
@@ -60,6 +73,7 @@ export default async function SessionsPage({ params }: { params: Promise<{ mode:
         const price = purchases?.price_per_cock || 0;
         totalShuttles += qty;
         totalCost += (qty * price);
+        if (purchases?.id) usageMap[purchases.id] = qty;
       });
     }
 
@@ -78,17 +92,37 @@ export default async function SessionsPage({ params }: { params: Promise<{ mode:
       },
       costPerPerson,
       attendees,
+      playerIds,
+      usageMap,
       totalNet: -totalCost // Defaulting to the negative expense of the session for now
     };
   }).reverse();
 
+  const allPlayers = (playersData || []).map(p => ({
+    id: p.id,
+    name: p.name,
+  }));
+
+  const sortedPurchases = (purchasesData || []).map(p => ({
+    id: p.id,
+    brand: (Array.isArray(p.brands) 
+      ? (p.brands as unknown as {name: string}[])[0]?.name 
+      : (p.brands as unknown as {name: string} | null)?.name) || "Unknown Brand",
+    model: `Batch #${p.tube_number}`,
+    price_per_tube: p.price_per_tube || 0,
+    price_per_cock: p.price_per_cock || 0,
+    remaining_quantity: p.remaining_quantity,
+    brands: p.brands,
+    tube_number: p.tube_number
+  }));
+
   return (
     <>
       <div className="block lg:hidden">
-        <MobileSessions sessions={formattedSessions} />
+        <MobileSessions sessions={formattedSessions} allPlayers={allPlayers} allPurchases={sortedPurchases as unknown as Purchase[]} />
       </div>
       <div className="hidden lg:block">
-        <DesktopSessionList sessions={formattedSessions} />
+        <DesktopSessionList sessions={formattedSessions} allPlayers={allPlayers} allPurchases={sortedPurchases as unknown as Purchase[]} />
       </div>
     </>
   );

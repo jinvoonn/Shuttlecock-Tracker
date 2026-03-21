@@ -29,17 +29,19 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
     { data: sessionUsage, error: usageError },
     { data: matchesData, error: matchesError },
     { data: allPlayers, error: allPlayersError },
-    { data: allSessions, error: allSessionsListError }
+    { data: allSessions, error: allSessionsListError },
+    { data: purchasesData, error: purchasesError }
   ] = await Promise.all([
     supabase.from("session_players").select("*, players(id, name)").eq("session_id", id),
-    supabase.from("session_usage").select("*, purchases(*, brands(*))").eq("session_id", id),
+    supabase.from("session_usage").select("*, purchases(id, tube_number, brands(name), price_per_cock)").eq("session_id", id),
     supabase.from("matches").select("*").eq("session_id", id),
     supabase.from("players").select("id, name"),
-    supabase.from("sessions").select("id").order("date", { ascending: true }).order("created_at", { ascending: true })
+    supabase.from("sessions").select("id").order("date", { ascending: true }).order("created_at", { ascending: true }),
+    supabase.from("purchases").select("id, tube_number, brands(name), price_per_tube, price_per_cock, remaining_quantity").gt("remaining_quantity", 0).order("created_at", { ascending: true })
   ]);
 
-  if (playersError || usageError || matchesError || allPlayersError || allSessionsListError) {
-    console.error("Error fetching related data:", { playersError, usageError, matchesError, allPlayersError, allSessionsListError });
+  if (playersError || usageError || matchesError || allPlayersError || allSessionsListError || purchasesError) {
+    console.error("Error fetching related data:", { playersError, usageError, matchesError, allPlayersError, allSessionsListError, purchasesError });
     return (
       <div className="p-8 text-rose-500 font-black italic uppercase flex items-center justify-center min-h-screen bg-[#020617]">
         Error loading session details
@@ -119,6 +121,36 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
       };
   });
 
+  const initialData = {
+    id: session.id,
+    date: session.date,
+    location: session.location || "",
+    notes: session.notes || "",
+    players: (sessionPlayers as any[] || []).map(sp => sp.players?.id).filter(Boolean),
+    usage: (sessionUsage as any[] || []).reduce((acc, su) => {
+      if (su.purchases?.id) acc[su.purchases.id] = su.quantity_used;
+      return acc;
+    }, {} as Record<string, number>)
+  };
+
+  const formattedPlayers = (allPlayers || []).map(p => ({
+    id: p.id,
+    name: p.name,
+  }));
+
+  const sortedPurchases = (purchasesData || []).map(p => ({
+    id: p.id,
+    brand: (Array.isArray(p.brands) 
+      ? (p.brands as unknown as {name: string}[])[0]?.name 
+      : (p.brands as unknown as {name: string} | null)?.name) || "Unknown Brand",
+    model: `Batch #${p.tube_number}`,
+    price_per_tube: p.price_per_tube || 0,
+    price_per_cock: p.price_per_cock || 0,
+    remaining_quantity: p.remaining_quantity,
+    brands: p.brands,
+    tube_number: p.tube_number
+  }));
+
   return (
     <>
       <div className="block lg:hidden">
@@ -130,10 +162,20 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
             id: sp.players?.id || "",
             name: sp.players?.name || "Unknown"
           })).filter((p: { id: string; name: string }) => !!p.id)}
+          allPlayers={formattedPlayers}
+          allPurchases={sortedPurchases as any[]}
+          initialData={initialData}
         />
       </div>
       <div className="hidden lg:block">
-        <DesktopSessionDetails session={sessionMeta} attendees={attendeesList} matches={matches} />
+        <DesktopSessionDetails 
+          session={sessionMeta} 
+          attendees={attendeesList} 
+          matches={matches} 
+          allPlayers={formattedPlayers}
+          allPurchases={sortedPurchases as any[]}
+          initialData={initialData}
+        />
       </div>
     </>
   );
