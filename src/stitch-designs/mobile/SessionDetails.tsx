@@ -81,8 +81,8 @@ interface MobileSessionDetailsProps {
   allPurchases: Purchase[];
   initialData: InitialData;
   sessionStats?: {
-    mostWins: { id: string; name: string; value: number; suffix: string }[];
-    winRate: { id: string; name: string; value: number }[];
+    mostWins: { id: string; name: string; value: number; suffix?: string }[];
+    winRate: { id: string; name: string; value: number; suffix?: string }[];
   }
 }
 
@@ -98,6 +98,7 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
   const [editScoreB, setEditScoreB] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isEditingSession, setIsEditingSession] = useState(false);
+  const [leaderboardMode, setLeaderboardMode] = React.useState<"wins" | "winRate">("wins");
   const { isAdmin } = useRole();
 
   useEffect(() => {
@@ -263,50 +264,37 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
               </div>
             </div>
 
-            {/* Session stats cards */}
+            {/* Unified Session Leaderboard */}
             {sessionStats && (sessionStats.mostWins.length > 0) && (
-              <div className="flex flex-col gap-4 mb-8">
-                  {/* Most Wins Card */}
-                  <div className="flex flex-col gap-4 rounded-[2rem] bg-slate-800 p-6 border border-slate-700 shadow-xl">
-                    <div className="flex items-center gap-2">
-                        <Trophy className="size-4 text-emerald-400" />
-                        <h3 className="text-sm font-black italic uppercase tracking-widest text-white">Most Wins</h3>
-                    </div>
-                    <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto scrollbar-hide pr-1">
-                        {sessionStats.mostWins.map((p, idx) => (
-                           <div key={p.id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
-                               <div className="flex items-center gap-3">
-                                   <span className={clsx("text-xs font-black italic w-4", idx === 0 ? "text-emerald-400" : "text-slate-500")}>#{idx + 1}</span>
-                                   <span className="text-sm font-black italic uppercase tracking-tight text-slate-100">{p.name}</span>
-                               </div>
-                               <span className="font-mono text-[10px] font-black italic bg-emerald-400/10 text-emerald-400 px-2 py-1 rounded">
-                                   {p.value} {p.value === 1 ? 'WIN' : 'WINS'}
-                               </span>
-                           </div>
-                        ))}
-                    </div>
+              <div className="flex flex-col gap-4 rounded-[2rem] bg-slate-800 p-6 border border-slate-700 shadow-xl mb-8">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Activity className="size-4 text-emerald-400" />
+                    <h3 className="text-sm font-black italic uppercase tracking-widest text-white">Session Leaderboard</h3>
                   </div>
-
-                  {/* Best Win Rate Card */}
-                  <div className="flex flex-col gap-4 rounded-[2rem] bg-slate-800 p-6 border border-slate-700 shadow-xl">
-                    <div className="flex items-center gap-2">
-                        <TrendingUp className="size-4 text-sky-400" />
-                        <h3 className="text-sm font-black italic uppercase tracking-widest text-white">Win Rate</h3>
+                  <button
+                    onClick={() => setLeaderboardMode(prev => prev === "wins" ? "winRate" : "wins")}
+                    className="bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest text-emerald-400 active:scale-95 transition-all"
+                  >
+                    {leaderboardMode === "wins" ? "Win Rate" : "Wins"}
+                  </button>
+                </div>
+                <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto scrollbar-hide pr-1">
+                  {(leaderboardMode === "wins" ? sessionStats.mostWins : sessionStats.winRate).map((p, idx) => (
+                    <div key={p.id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                      <div className="flex items-center gap-4">
+                        <span className={clsx("text-xs font-black italic w-4", idx === 0 ? "text-emerald-400" : "text-slate-500")}>#{idx + 1}</span>
+                        <span className="text-sm font-black italic uppercase tracking-tight text-slate-100">{p.name}</span>
+                      </div>
+                      <span className="font-mono text-[10px] font-black italic bg-emerald-400/10 text-emerald-400 px-2 py-1 rounded">
+                        {leaderboardMode === "wins" 
+                          ? `${p.value} ${p.value === 1 ? 'WIN' : 'WINS'}` 
+                          : `${((p.value || 0) * 100).toFixed(1)}%`
+                        }
+                      </span>
                     </div>
-                    <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto scrollbar-hide pr-1">
-                        {sessionStats.winRate.map((p, idx) => (
-                           <div key={p.id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
-                               <div className="flex items-center gap-3">
-                                   <span className={clsx("text-xs font-black italic w-4", idx === 0 ? "text-sky-400" : "text-slate-500")}>#{idx + 1}</span>
-                                   <span className="text-sm font-black italic uppercase tracking-tight text-slate-100">{p.name}</span>
-                               </div>
-                               <span className="font-mono text-[10px] font-black italic bg-sky-400/10 text-sky-400 px-2 py-1 rounded">
-                                   {(p.value * 100).toFixed(1)}%
-                               </span>
-                           </div>
-                        ))}
-                    </div>
-                  </div>
+                  ))}
+                </div>
               </div>
             )}
 

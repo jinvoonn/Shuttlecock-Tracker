@@ -14,7 +14,8 @@ import {
   Package,
   CheckCircle2,
   Feather,
-  TrendingUp
+  TrendingUp,
+  Activity
 } from 'lucide-react';
 import Link from 'next/link';
 import clsx from 'clsx';
@@ -72,8 +73,8 @@ interface DesktopSessionDetailsProps {
   allPurchases: Purchase[];
   initialData: InitialData;
   sessionStats?: {
-    mostWins: { id: string; name: string; value: number; suffix: string }[];
-    winRate: { id: string; name: string; value: number }[];
+    mostWins: { id: string; name: string; value: number; suffix?: string }[];
+    winRate: { id: string; name: string; value: number; suffix?: string }[];
   }
 }
 
@@ -85,6 +86,7 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMatch, setEditingMatch] = useState<Match | null>(null);
   const [isEditingSession, setIsEditingSession] = useState(false);
+  const [leaderboardMode, setLeaderboardMode] = useState<"wins" | "winRate">("wins");
   const { isAdmin } = useRole();
 
   useEffect(() => {
@@ -220,46 +222,43 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
           </div>
         </section>
 
-        {/* Session Stats Leaderboards */}
+        {/* Unified Session Leaderboard */}
         {sessionStats && (sessionStats.mostWins.length > 0) && (
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Most Wins Card */}
+          <section>
             <div className="bg-slate-800 border border-slate-700 rounded-3xl p-8 shadow-2xl">
-              <div className="flex items-center gap-3 mb-6">
-                <Trophy className="size-6 text-emerald-400" />
-                <h3 className="text-xl font-black italic uppercase tracking-tight text-white">Most Wins</h3>
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <Activity className="size-6 text-[#13ec80]" />
+                  <h3 className="text-xl font-black italic uppercase tracking-tight text-slate-100">Session Leaderboard</h3>
+                </div>
+                <button
+                  onClick={() => setLeaderboardMode(prev => prev === "wins" ? "winRate" : "wins")}
+                  className="bg-slate-900 hover:bg-slate-700 text-emerald-400 hover:text-white px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest border border-slate-700 transition-all flex items-center gap-2"
+                >
+                  {leaderboardMode === "wins" ? "Show Win Rate" : "Show Wins"}
+                </button>
               </div>
+              
               <div className="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar space-y-3">
-                {sessionStats.mostWins.map((p, idx) => (
-                  <div key={p.id} className="flex items-center justify-between p-4 bg-slate-900/40 border border-slate-800 rounded-2xl group hover:border-emerald-500/30 transition-all">
-                    <div className="flex items-center gap-4">
-                      <span className={clsx("text-lg font-black italic w-6", idx === 0 ? "text-emerald-400" : "text-slate-600")}>#{idx + 1}</span>
-                      <span className="font-black text-sm uppercase tracking-tight text-slate-100 italic">{p.name}</span>
+                {(leaderboardMode === "wins" ? sessionStats.mostWins : sessionStats.winRate).map((p, idx) => (
+                  <div key={p.id} className="flex items-center justify-between p-5 rounded-2xl bg-slate-950/40 border border-slate-800 hover:border-emerald-500/30 transition-all group">
+                    <div className="flex items-center gap-5">
+                      <span className={clsx(
+                        "text-xl font-black italic w-10",
+                        idx === 0 ? "text-emerald-400" : "text-slate-600"
+                      )}>
+                        #{idx + 1}
+                      </span>
+                      <span className="font-black text-lg uppercase tracking-tight text-slate-100 italic group-hover:text-white transition-colors">
+                        {p.name}
+                      </span>
                     </div>
-                    <span className="font-mono font-black italic text-[#13ec80] bg-emerald-500/5 px-3 py-1 rounded text-sm uppercase">
-                      {p.value} {p.suffix}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Win Rate Card */}
-            <div className="bg-slate-800 border border-slate-700 rounded-3xl p-8 shadow-2xl">
-              <div className="flex items-center gap-3 mb-6">
-                <TrendingUp className="size-6 text-sky-400" />
-                <h3 className="text-xl font-black italic uppercase tracking-tight text-white">Best Win Rate</h3>
-              </div>
-              <div className="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar space-y-3">
-                {sessionStats.winRate.map((p, idx) => (
-                  <div key={p.id} className="flex items-center justify-between p-4 bg-slate-900/40 border border-slate-800 rounded-2xl group hover:border-sky-500/30 transition-all">
-                    <div className="flex items-center gap-4">
-                      <span className={clsx("text-lg font-black italic w-6", idx === 0 ? "text-sky-400" : "text-slate-600")}>#{idx + 1}</span>
-                      <span className="font-black text-sm uppercase tracking-tight text-slate-100 italic">{p.name}</span>
+                    <div className="font-mono font-black italic text-[#13ec80] bg-emerald-500/5 px-4 py-1.5 rounded-lg text-lg">
+                      {leaderboardMode === "wins" 
+                        ? `${p.value} ${p.suffix || 'WINS'}` 
+                        : `${((p.value || 0) * 100).toFixed(1)}%`
+                      }
                     </div>
-                    <span className="font-mono font-black italic text-sky-400 bg-sky-500/5 px-3 py-1 rounded text-sm uppercase">
-                      {(p.value * 100).toFixed(1)}%
-                    </span>
                   </div>
                 ))}
               </div>
