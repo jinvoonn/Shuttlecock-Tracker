@@ -1,6 +1,4 @@
-"use client";
-
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   Activity,
   LayoutDashboard,
@@ -12,60 +10,8 @@ import {
   Trash2,
   Feather
 } from 'lucide-react';
-import clsx from 'clsx';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { deleteSession } from "@/lib/actions/sessions";
-import { useRole } from '@/context/AuthContext';
-import { SessionForm } from '@/app/[mode]/sessions/SessionForm';
-import { useEffect } from 'react';
 
-interface Player { id: string; name: string; }
-interface Purchase { id: string; remaining_quantity: number; tube_number: number; brands: { name: string } | null; price_per_tube: number; price_per_cock: number; }
-
-interface SessionData {
-  id: string;
-  date: string;
-  location: string;
-  notes?: string;
-  displayNumber?: number;
-  status: 'Completed' | 'Outstanding' | 'Archived';
-  shuttleUsed: {
-    name: string;
-    quantity: number;
-  };
-  costPerPerson: number;
-  attendees: string[];
-  playerIds: string[];
-  usageMap: Record<string, number>;
-  totalNet: number;
-}
-interface DesktopSessionsListProps {
-  sessions: SessionData[];
-  allPlayers: Player[];
-  allPurchases: Purchase[];
-}
-
-export default function DesktopSessionList({ sessions, allPlayers, allPurchases }: DesktopSessionsListProps) {
-  const pathname = usePathname() || '';
-  const router = useRouter();
-  const { isAdmin } = useRole();
-  const [expanded, setExpanded] = useState(false);
-  const [editingSession, setEditingSession] = useState<SessionData | null>(null);
-
-  useEffect(() => {
-    if (editingSession) {
-      document.body.classList.add('overflow-hidden');
-    } else {
-      document.body.classList.remove('overflow-hidden');
-    }
-    return () => document.body.classList.remove('overflow-hidden');
-  }, [editingSession]);
-
-  const currentMode = pathname.split('/')[1] || 'view';
-  const basePath = `/${currentMode}`;
-
-
+export default function SessionListUI() {
   return (
     <div className="flex h-screen overflow-hidden bg-[#020617] text-slate-100 font-['Lexend',_sans-serif]">
       {/* Background Overlay */}
@@ -80,189 +26,182 @@ export default function DesktopSessionList({ sessions, allPlayers, allPurchases 
         <div className="p-6">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-3">
-              <div className="size-9 rounded-xl bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
-                <Feather className="size-5 text-white transform rotate-45" />
+              <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-sky-600 shadow-lg shadow-sky-500/20">
+                <Feather className="size-5 transform text-white rotate-45" />
               </div>
-              <h2 className="text-2xl font-black text-slate-100 tracking-tighter">
+              <h2 className="text-2xl font-black tracking-tighter text-slate-100">
                 Cock<span className="text-sky-400">Count</span>
               </h2>
             </div>
-            <p className="text-slate-500 font-bold text-[9px] uppercase tracking-widest pl-1 leading-tight">
+            <p className="pl-1 text-[9px] font-bold uppercase leading-tight tracking-widest text-slate-500">
               Because Shuttlecocks Aren't Free
             </p>
           </div>
         </div>
 
-        <nav className="flex-1 px-4 space-y-2 mt-4">
-          <Link href={`${basePath}`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+        <nav className="mt-4 flex flex-1 flex-col space-y-2 px-4">
+          <div className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-4 py-3 text-slate-400 transition-all hover:bg-slate-800 hover:text-white">
             <LayoutDashboard className="size-5" />
-            <span className="text-sm font-bold tracking-wide uppercase">DASHBOARD</span>
-          </Link>
-          <Link href={`${basePath}/sessions`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-[#13ec80] text-slate-950 font-black transition-all shadow-lg shadow-[#13ec80]/10">
+            <span className="text-sm font-bold uppercase tracking-wide">DASHBOARD</span>
+          </div>
+          <div className="flex w-full cursor-pointer items-center gap-3 rounded-xl bg-[#13ec80] px-4 py-3 font-black text-slate-950 shadow-lg shadow-[#13ec80]/10 transition-all">
             <CalendarDays className="size-5" />
-            <span className="text-sm tracking-wide uppercase">SESSIONS</span>
-          </Link>
-          <Link href={`${basePath}/purchases`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+            <span className="text-sm uppercase tracking-wide">SESSIONS</span>
+          </div>
+          <div className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-4 py-3 text-slate-400 transition-all hover:bg-slate-800 hover:text-white">
             <Package className="size-5" />
-            <span className="text-sm font-bold tracking-wide uppercase">STOCK</span>
-          </Link>
-          <Link href={`${basePath}/payments`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+            <span className="text-sm font-bold uppercase tracking-wide">STOCK</span>
+          </div>
+          <div className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-4 py-3 text-slate-400 transition-all hover:bg-slate-800 hover:text-white">
             <Wallet className="size-5" />
-            <span className="text-sm font-bold tracking-wide uppercase">PAYMENTS</span>
-          </Link>
+            <span className="text-sm font-bold uppercase tracking-wide">PAYMENTS</span>
+          </div>
         </nav>
       </aside>
 
       {/* Main Content Area */}
-      <main className="relative z-20 flex-1 flex flex-col overflow-y-auto w-full">
-        {/* Top Header */}
-        <header className="sticky top-0 z-50 h-14 border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl px-8 flex items-center justify-end">
-          {isAdmin && (
-            <Link href={`${basePath}/sessions/log`} className="bg-[#13ec80] text-[#020617] px-6 py-2 rounded font-black text-xs tracking-tighter hover:brightness-110 transition-all uppercase shadow-lg shadow-[#13ec80]/20 border border-[#13ec80] flex items-center gap-2">
+      <main className="relative z-20 flex w-full flex-1 flex-col overflow-y-auto">
+        <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col space-y-8 px-8 py-8 md:py-12">
+          {/* Hero Title & Actions */}
+          <div className="flex items-start justify-between">
+            <div className="flex flex-col gap-1 text-left">
+              <h2 className="text-5xl font-black italic uppercase leading-none tracking-tighter text-slate-100">
+                Sessions History
+              </h2>
+              <p className="text-sm font-medium uppercase tracking-widest text-slate-500">
+                Active matches & shuttle tracking
+              </p>
+            </div>
+            <button className="flex items-center gap-2 rounded border border-[#13ec80] bg-[#13ec80] px-6 py-3 text-xs font-black uppercase tracking-tighter text-[#020617] shadow-lg shadow-[#13ec80]/20 transition-all hover:brightness-110">
               <Plus className="size-4" /> Log New
-            </Link>
-          )}
-        </header>
-
-        <div className="px-8 py-8 space-y-8 flex-1 max-w-6xl mx-auto w-full">
-          {/* Hero Title */}
-          <div className="flex flex-col gap-1 text-left">
-            <h2 className="text-5xl font-black italic tracking-tighter text-slate-100 uppercase leading-none">Sessions History</h2>
-            <p className="text-slate-500 font-medium text-sm tracking-tight uppercase tracking-widest">Active matches & shuttle tracking</p>
+            </button>
           </div>
 
-          {sessions.length === 0 && (
-            <div className="text-center py-20 text-slate-500 text-lg font-bold">No sessions found.</div>
-          )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-            {(expanded ? sessions : sessions.slice(0, 6)).map((session) => (
-              <div 
-                onClick={() => router.push(`${basePath}/sessions/${session.id}`)}
-                key={session.id} 
-                className="block group cursor-pointer"
-              >
-                <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 flex flex-col gap-4 shadow-sm hover:border-[#13ec80]/50 transition-all">
-                  <div className="flex justify-between items-start">
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-mono text-slate-500 font-bold uppercase tracking-tight">
-                        {new Date(session.date).toLocaleDateString()} • {session.location}
-                      </span>
-                      <h3 className="text-2xl font-black italic tracking-tight mt-1 text-slate-100 uppercase group-hover:text-[#13ec80] transition-colors">
-                        Session {session.displayNumber || session.id.slice(0, 4)}
-                      </h3>
-                    </div>
-                    <span className={clsx("px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border",
-                      session.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                      session.status === 'Outstanding' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' :
-                      'bg-slate-800 text-slate-400 border-slate-700'
-                    )}>
-                      {session.status}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
+            {/* Example Card 1: Completed */}
+            <div className="group block cursor-pointer">
+              <div className="flex flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-sm transition-all hover:border-[#13ec80]/50">
+                <div className="flex items-start justify-between">
+                  <div className="flex flex-col">
+                    <span className="font-mono text-[10px] font-bold uppercase tracking-tight text-slate-500">
+                      3/22/2026 • Setia Alam
                     </span>
+                    <h3 className="mt-1 text-2xl font-black italic uppercase tracking-tight text-slate-100 transition-colors group-hover:text-[#13ec80]">
+                      Session 0A1B
+                    </h3>
                   </div>
+                  <span className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-400">
+                    Completed
+                  </span>
+                </div>
 
-                  <div className="grid grid-cols-2 gap-4 py-4 border-y border-slate-800/80">
-                    <div className="flex flex-col gap-1.5">
-                      <span className="text-[9px] text-slate-500 uppercase font-black tracking-widest">Shuttle Used</span>
-                      <div className="flex items-center gap-2 text-xs font-bold text-slate-200">
-                        <Activity className="text-[#13ec80] size-4" />
-                        {session.shuttleUsed.name} ({session.shuttleUsed.quantity})
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-1.5 items-end text-right">
-                      <span className="text-[9px] text-slate-500 uppercase font-black tracking-widest">Cost / Person</span>
-                      <div className="text-lg font-mono font-black text-slate-100">
-                        RM{session.costPerPerson.toFixed(2)}
-                      </div>
+                <div className="grid grid-cols-2 gap-4 border-y border-slate-800/80 py-4">
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Shuttle Used</span>
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-200">
+                      <Activity className="size-4 text-[#13ec80]" />
+                      RSL Classic (12)
                     </div>
                   </div>
-
-                  <div className="flex items-center justify-between mt-2">
-                    <div className="flex -space-x-2.5">
-                      {session.attendees.slice(0, 4).map((name, i) => (
-                        <div key={i} className="size-10 rounded-full border-2 border-[#0f172a] bg-slate-800 flex items-center justify-center text-[10px] font-black text-slate-400 uppercase">
-                          {name.slice(0, 2)}
-                        </div>
-                      ))}
-                      {session.attendees.length > 4 && (
-                        <div className="size-10 rounded-full border-2 border-[#0f172a] bg-slate-700 flex items-center justify-center text-[10px] font-black text-slate-300">
-                          +{session.attendees.length - 4}
-                        </div>
-                      )}
+                  <div className="flex flex-col items-end gap-1.5 text-right">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Cost / Person</span>
+                    <div className="font-mono text-lg font-black text-slate-100">
+                      RM25.50
                     </div>
-                    <div className="flex flex-col items-end text-right">
-                      <span className="text-[9px] text-slate-500 uppercase font-black tracking-widest">Total Net</span>
-                      <span className={clsx("text-2xl font-mono font-black leading-none", session.totalNet >= 0 ? 'text-emerald-400' : 'text-rose-400')}>
-                        {session.totalNet >= 0 ? '+' : '-'}RM{Math.abs(session.totalNet).toFixed(2)}
-                      </span>
-                      {isAdmin && (
-                        <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                           <button
-                             className="p-2 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors"
-                             onClick={(e) => {
-                               e.preventDefault();
-                               e.stopPropagation();
-                               setEditingSession(session);
-                             }}
-                           >
-                               <Pencil className="size-4" />
-                            </button>
-                            <button
-                              className="p-2 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
-                              onClick={async (e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                if (window.confirm("Are you sure you want to delete this session? This will also restore used shuttlecocks to inventory.")) {
-                                   await deleteSession(session.id);
-                                   window.location.reload();
-                                }
-                              }}
-                            >
-                               <Trash2 className="size-4" />
-                            </button>
-                        </div>
-                      )}
+                  </div>
+                </div>
+
+                <div className="mt-2 flex items-center justify-between">
+                  <div className="flex -space-x-2.5">
+                    <div className="flex size-10 items-center justify-center rounded-full border-2 border-[#0f172a] bg-slate-800 text-[10px] font-black uppercase text-slate-400">JA</div>
+                    <div className="flex size-10 items-center justify-center rounded-full border-2 border-[#0f172a] bg-slate-800 text-[10px] font-black uppercase text-slate-400">MI</div>
+                    <div className="flex size-10 items-center justify-center rounded-full border-2 border-[#0f172a] bg-slate-800 text-[10px] font-black uppercase text-slate-400">KE</div>
+                    <div className="flex size-10 items-center justify-center rounded-full border-2 border-[#0f172a] bg-slate-800 text-[10px] font-black uppercase text-slate-400">SA</div>
+                    <div className="flex size-10 items-center justify-center rounded-full border-2 border-[#0f172a] bg-slate-700 text-[10px] font-black text-slate-300">+2</div>
+                  </div>
+                  <div className="flex flex-col items-end text-right">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Total Net</span>
+                    <span className="font-mono text-2xl font-black leading-none text-emerald-400">
+                      +RM15.00
+                    </span>
+                    <div className="mt-4 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+                      <button className="rounded p-2 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white">
+                        <Pencil className="size-4" />
+                      </button>
+                      <button className="rounded p-2 text-slate-500 transition-colors hover:bg-rose-500/10 hover:text-rose-400">
+                        <Trash2 className="size-4" />
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
-            ))}
+            </div>
+
+            {/* Example Card 2: Outstanding */}
+            <div className="group block cursor-pointer">
+              <div className="flex flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-sm transition-all hover:border-[#13ec80]/50">
+                <div className="flex items-start justify-between">
+                  <div className="flex flex-col">
+                    <span className="font-mono text-[10px] font-bold uppercase tracking-tight text-slate-500">
+                      3/20/2026 • Petaling Jaya
+                    </span>
+                    <h3 className="mt-1 text-2xl font-black italic uppercase tracking-tight text-slate-100 transition-colors group-hover:text-[#13ec80]">
+                      Session 9F2C
+                    </h3>
+                  </div>
+                  <span className="rounded-lg border border-rose-500/20 bg-rose-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-rose-400">
+                    Outstanding
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 border-y border-slate-800/80 py-4">
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Shuttle Used</span>
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-200">
+                      <Activity className="size-4 text-[#13ec80]" />
+                      Yonex AS-40 (8)
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1.5 text-right">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Cost / Person</span>
+                    <div className="font-mono text-lg font-black text-slate-100">
+                      RM18.20
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-2 flex items-center justify-between">
+                  <div className="flex -space-x-2.5">
+                    <div className="flex size-10 items-center justify-center rounded-full border-2 border-[#0f172a] bg-slate-800 text-[10px] font-black uppercase text-slate-400">AL</div>
+                    <div className="flex size-10 items-center justify-center rounded-full border-2 border-[#0f172a] bg-slate-800 text-[10px] font-black uppercase text-slate-400">BE</div>
+                  </div>
+                  <div className="flex flex-col items-end text-right">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Total Net</span>
+                    <span className="font-mono text-2xl font-black leading-none text-rose-400">
+                      -RM36.40
+                    </span>
+                    <div className="mt-4 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+                      <button className="rounded p-2 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white">
+                        <Pencil className="size-4" />
+                      </button>
+                      <button className="rounded p-2 text-slate-500 transition-colors hover:bg-rose-500/10 hover:text-rose-400">
+                        <Trash2 className="size-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
 
-          {sessions.length > 6 && (
-            <div className="flex justify-center pt-4">
-              <button
-                onClick={() => setExpanded(!expanded)}
-                className="text-emerald-400 text-sm font-bold uppercase tracking-widest hover:underline transition-all px-6 py-2 rounded-xl border border-emerald-400/20 hover:bg-emerald-400/5"
-              >
-                {expanded ? 'Collapse' : `Expand All (${sessions.length})`}
-              </button>
-            </div>
-          )}
+          <div className="flex justify-center pt-4">
+            <button className="rounded-xl border border-emerald-400/20 px-6 py-2 text-sm font-bold uppercase tracking-widest text-emerald-400 transition-all hover:bg-emerald-400/5 hover:underline">
+              Expand All (12)
+            </button>
+          </div>
         </div>
       </main>
-
-      {/* Edit Session Modal */}
-      {editingSession && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar bg-slate-900 rounded-3xl border border-slate-700 shadow-2xl relative">
-            <SessionForm
-              players={allPlayers}
-              purchases={allPurchases}
-              initialData={{
-                id: editingSession.id,
-                date: editingSession.date,
-                location: editingSession.location,
-                notes: editingSession.notes || "",
-                players: editingSession.playerIds,
-                usage: editingSession.usageMap
-              }}
-              isEdit={true}
-              onCancel={() => setEditingSession(null)}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

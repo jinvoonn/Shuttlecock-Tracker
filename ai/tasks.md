@@ -107,9 +107,14 @@
 *   [x] **UX**: Restrained long lists (Session History, Purchase History, Transaction Log) to a default 6 visible items to improve performance and scannability.
 *   [x] **UI & Logic**: Implemented a responsive "Expand All ({count})" / "Collapse" toggle button tied to a local boolean `expanded` state across the 6 affected desktop and mobile files.
 
+## Phase 61 — Session Inline Edit Modal
+*   [x] **UI/UX**: Transitioned session editing functionality from a page-based approach to an inline modal, ensuring seamless operation on both mobile and desktop. Fixed the edit button's accessibility.
+*   [x] **Logic**: Integrated `SessionForm` into the modal, allowing comprehensive editing of all session details, including players, directly from the session view.
+*   [x] **Cleanup**: Removed outdated dedicated edit page routes (`/sessions/[id]/edit`), standardizing the UI with the app's modern design patterns.
+
 ## Current State
 
-The app is highly stable and verified with successful production builds. Analytics are functional, branding is premium, the mobile UX is refined with consistent action patterns, and lists are cleanly collapsed. Zero lint errors.
+The app is highly stable and verified with successful production builds. Analytics are functional, branding is premium, the mobile UX is refined with consistent action patterns, lists are cleanly collapsed, and session editing is now handled via seamless inline modals. Zero lint errors.
 
 ## Known Issues / Backlog
 
