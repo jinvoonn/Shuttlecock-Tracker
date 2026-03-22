@@ -8,7 +8,8 @@ import {
   Wallet,
   Pencil,
   Trash2,
-  Feather
+  Feather,
+  Plus
 } from 'lucide-react';
 import clsx from 'clsx';
 import Link from 'next/link';
@@ -87,20 +88,22 @@ export default function DesktopPaymentLedger({ payments }: DesktopPaymentLedgerP
 
       {/* Main Content Area */}
       <main className="relative z-20 flex-1 flex flex-col overflow-y-auto w-full">
-        {/* Top Header */}
-        <header className="sticky top-0 z-50 h-14 border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl px-8 flex items-center justify-end">
-          {canEdit('payments') && (
-            <Link href={`${basePath}/payments/record-transaction`} className="bg-[#13ec80] text-[#020617] px-6 py-2 rounded font-black text-xs tracking-tighter hover:brightness-110 transition-all uppercase shadow-lg shadow-[#13ec80]/20 border border-[#13ec80]">
-              Record Payment
-            </Link>
-          )}
-        </header>
-
-        <div className="px-8 py-8 space-y-8 flex-1 max-w-6xl mx-auto w-full">
-          {/* Hero Title */}
-          <div className="flex flex-col gap-1 text-left">
-            <h2 className="text-5xl font-black italic tracking-tighter text-slate-100 uppercase leading-none">Payment History</h2>
-            <p className="text-slate-500 font-medium text-sm tracking-tight uppercase">Recent transactions & top-ups</p>
+        <div className="px-8 py-8 md:py-12 space-y-8 flex-1 max-w-6xl mx-auto w-full">
+          {/* Hero Title & Actions */}
+          <div className="flex items-start justify-between">
+            <div className="flex flex-col gap-1 text-left">
+              <h2 className="text-5xl font-black italic tracking-tighter text-slate-100 uppercase leading-none">Payment History</h2>
+              <p className="text-slate-500 font-medium text-sm tracking-tight uppercase">Recent transactions & top-ups</p>
+            </div>
+            {canEdit('payments') && (
+              <Link 
+                href={`${basePath}/payments/record-transaction`}
+                className="bg-[#13ec80] text-slate-950 font-black px-6 py-3 rounded uppercase tracking-tighter flex items-center gap-2 hover:brightness-110 transition-all shadow-lg shadow-[#13ec80]/20 cursor-pointer"
+              >
+                <Plus className="size-5" />
+                Record Payment
+              </Link>
+            )}
           </div>
 
           {/* Stats Bar (Simplified) */}

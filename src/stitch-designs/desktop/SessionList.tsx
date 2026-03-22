@@ -106,8 +106,9 @@ export default function SessionListUI({ sessions, allPlayers, allPurchases }: De
             {isAdmin && (
               <button 
                 onClick={() => router.push(`${basePath}/sessions/log`)}
-                className="flex items-center gap-2 rounded border border-[#13ec80] bg-[#13ec80] px-6 py-3 text-xs font-black uppercase tracking-tighter text-[#020617] shadow-lg shadow-[#13ec80]/20 transition-all hover:brightness-110">
-                <Plus className="size-4" /> Log New
+                className="bg-[#13ec80] text-slate-950 font-black px-6 py-3 rounded uppercase tracking-tighter flex items-center gap-2 hover:brightness-110 transition-all shadow-lg shadow-[#13ec80]/20 cursor-pointer"
+              >
+                <Plus className="size-5" /> Log New
               </button>
             )}
           </div>
