@@ -149,9 +149,9 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
                                         className={clsx(
                                             "px-4 py-2.5 rounded-xl text-xs font-bold transition-all border active:scale-95 flex items-center gap-2",
                                             isTeamA 
-                                                ? "bg-sky-500 text-white border-sky-400 shadow-lg shadow-sky-500/20" 
+                                                ? "bg-emerald-500 text-white border-emerald-400 shadow-lg shadow-emerald-500/20" 
                                                 : isTeamB
-                                                    ? "bg-emerald-500 text-white border-emerald-400 shadow-lg shadow-emerald-500/20"
+                                                    ? "bg-sky-500 text-white border-sky-400 shadow-lg shadow-sky-500/20"
                                                     : "bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-500 hover:text-slate-100"
                                         )}
                                     >
@@ -165,12 +165,12 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
 
                         {/* Preview / Scores */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                            <div className="bg-sky-500/5 p-4 rounded-2xl border border-sky-500/10 space-y-3">
+                            <div className="bg-emerald-500/5 p-4 rounded-2xl border border-emerald-500/10 space-y-3">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[10px] font-bold text-sky-400 uppercase tracking-widest">Team A Score</span>
+                                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Team A Score</span>
                                     <input
                                         type="number"
-                                        className="w-16 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-center font-mono text-lg text-slate-100 focus:ring-2 focus:ring-sky-500/50 outline-none"
+                                        className="w-16 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-center font-mono text-lg text-slate-100 focus:ring-2 focus:ring-emerald-500/50 outline-none"
                                         placeholder="0"
                                         value={scoreA}
                                         onChange={e => setScoreA(e.target.value)}
@@ -181,12 +181,12 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
                                 </div>
                             </div>
 
-                            <div className="bg-emerald-500/5 p-4 rounded-2xl border border-emerald-500/10 space-y-3">
+                            <div className="bg-sky-500/5 p-4 rounded-2xl border border-sky-500/10 space-y-3">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Team B Score</span>
+                                    <span className="text-[10px] font-bold text-sky-400 uppercase tracking-widest">Team B Score</span>
                                     <input
                                         type="number"
-                                        className="w-16 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-center font-mono text-lg text-slate-100 focus:ring-2 focus:ring-emerald-500/50 outline-none"
+                                        className="w-16 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-center font-mono text-lg text-slate-100 focus:ring-2 focus:ring-sky-500/50 outline-none"
                                         placeholder="0"
                                         value={scoreB}
                                         onChange={e => setScoreB(e.target.value)}
@@ -256,9 +256,9 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
                                     ))}
                                 </div>
                                 <div className="shrink-0 flex items-center justify-center font-mono bg-slate-900 px-3 py-1 rounded-lg border border-slate-800 shadow-inner">
-                                    <span className={clsx("text-sm", isAWin ? "text-indigo-400 font-bold" : "text-slate-500")}>{m.team_a_score}</span>
+                                    <span className={clsx("text-sm", isAWin ? "text-emerald-400 font-bold" : "text-slate-500")}>{m.team_a_score}</span>
                                     <span className="text-slate-700 mx-2 text-[10px]">VS</span>
-                                    <span className={clsx("text-sm", isBWin ? "text-emerald-400 font-bold" : "text-slate-500")}>{m.team_b_score}</span>
+                                    <span className={clsx("text-sm", isBWin ? "text-sky-400 font-bold" : "text-slate-500")}>{m.team_b_score}</span>
                                 </div>
                                 <div className={clsx("flex-1 text-left text-xs", isBWin ? "text-slate-100 font-bold" : "text-slate-500")}>
                                     {tB.map((id: string, i: number) => (

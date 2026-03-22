@@ -272,9 +272,9 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
                         className={clsx(
                           "px-4 py-2.5 rounded-xl text-sm font-bold transition-all border active:scale-95 flex items-center gap-2",
                           isTeamA
-                            ? "bg-sky-500 text-white border-sky-400 shadow-lg shadow-sky-500/20"
+                            ? "bg-emerald-500 text-white border-emerald-400 shadow-lg shadow-emerald-500/20"
                             : isTeamB
-                              ? "bg-emerald-500 text-white border-emerald-400 shadow-lg shadow-emerald-500/20"
+                              ? "bg-sky-500 text-white border-sky-400 shadow-lg shadow-sky-500/20"
                               : "bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-500 hover:text-slate-100"
                         )}
                       >
@@ -293,8 +293,8 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
 
                 {/* Team Preview */}
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-sky-500/5 border border-sky-500/15 rounded-xl p-4">
-                    <div className="text-[10px] font-black text-sky-400 uppercase tracking-widest mb-2">Team Alpha ({teamAIds.length})</div>
+                  <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-xl p-4">
+                    <div className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-2">Team Alpha ({teamAIds.length})</div>
                     {teamAIds.length === 0 ? (
                       <p className="text-xs text-slate-600 italic">No players selected</p>
                     ) : (
@@ -302,8 +302,8 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
                         {teamAIds.map(id => {
                           const p = players.find(pl => pl.id === id);
                           return p ? (
-                            <div key={id} className="text-sm font-bold text-sky-200 flex items-center gap-1.5">
-                              <div className="w-1.5 h-1.5 bg-sky-400 rounded-full" />
+                            <div key={id} className="text-sm font-bold text-emerald-200 flex items-center gap-1.5">
+                              <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />
                               {p.name}
                             </div>
                           ) : null;
@@ -311,8 +311,8 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
                       </div>
                     )}
                   </div>
-                  <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-xl p-4">
-                    <div className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-2">Team Bravo ({teamBIds.length})</div>
+                  <div className="bg-sky-500/5 border border-sky-500/15 rounded-xl p-4">
+                    <div className="text-[10px] font-black text-sky-400 uppercase tracking-widest mb-2">Team Bravo ({teamBIds.length})</div>
                     {teamBIds.length === 0 ? (
                       <p className="text-xs text-slate-600 italic">No players selected</p>
                     ) : (
@@ -320,8 +320,8 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
                         {teamBIds.map(id => {
                           const p = players.find(pl => pl.id === id);
                           return p ? (
-                            <div key={id} className="text-sm font-bold text-emerald-200 flex items-center gap-1.5">
-                              <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />
+                            <div key={id} className="text-sm font-bold text-sky-200 flex items-center gap-1.5">
+                              <div className="w-1.5 h-1.5 bg-sky-400 rounded-full" />
                               {p.name}
                             </div>
                           ) : null;

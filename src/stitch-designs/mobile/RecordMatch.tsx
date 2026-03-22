@@ -103,11 +103,11 @@ export default function MobileRecordMatch({ sessionId, players }: MobileRecordMa
           {/* Header Legend */}
           <div className="px-6 py-6 flex gap-4 justify-center bg-slate-900 border-b border-slate-800">
              <div className="flex items-center gap-2">
-                <div className="size-3 rounded-full bg-emerald-400"></div>
+                <div className="size-3 rounded-full bg-emerald-500"></div>
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Team A</span>
              </div>
              <div className="flex items-center gap-2">
-                <div className="size-3 rounded-full bg-emerald-600"></div>
+                <div className="size-3 rounded-full bg-sky-500"></div>
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Team B</span>
              </div>
              <div className="flex items-center gap-2">
@@ -129,12 +129,12 @@ export default function MobileRecordMatch({ sessionId, players }: MobileRecordMa
                      key={player.id}
                      onClick={() => cyclePlayer(player.id)}
                      className={`p-4 rounded-2xl border-2 transition-all active:scale-95 text-left flex items-center justify-between group h-16 ${
-                       isA ? 'bg-emerald-400 border-emerald-400 text-slate-950' :
-                       isB ? 'bg-emerald-600 border-emerald-600 text-white' :
+                       isA ? 'bg-emerald-500 border-emerald-500 text-white' :
+                       isB ? 'bg-sky-500 border-sky-500 text-white' :
                        'bg-slate-800 border-slate-700 text-slate-300'
                      }`}
                    >
-                     <span className={`text-xs font-black uppercase italic truncate pr-2 ${isA || isB ? '' : 'group-hover:text-emerald-400'}`}>
+                     <span className={`text-xs font-black uppercase italic truncate pr-2 ${isA || isB ? '' : 'group-hover:text-emerald-500'}`}>
                        {player.name}
                      </span>
                      <div className={`size-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
