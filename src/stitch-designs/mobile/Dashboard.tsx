@@ -91,7 +91,7 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
     <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-100 min-h-screen antialiased overflow-x-hidden">
       <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-800 shadow-2xl pb-24">
         {/* Header Section */}
-        <header className="sticky top-0 z-10 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-sky-400/10">
+        <header className="sticky top-0 z-10 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-white/5">
           <div className="flex items-center gap-2 mb-1">
             <div className="size-8 rounded-lg bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-md shadow-sky-500/20">
               <Feather className="size-5 text-white transform rotate-45" />
@@ -131,13 +131,13 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
           {/* Dashboard Stats - Stacked Vertically */}
           <div className="flex flex-col gap-4">
             {/* Total Owed - RED */}
-            <div className="flex flex-col gap-2 rounded-2xl bg-rose-50 dark:bg-rose-950/20 p-6 border border-rose-100 dark:border-rose-900/30 shadow-sm relative overflow-hidden group">
+            <div className="flex flex-col gap-2 rounded-2xl bg-rose-500/10 p-6 border border-rose-500/20 shadow-sm relative overflow-hidden group">
               <div className="absolute top-0 right-0 size-24 bg-rose-500/5 rounded-full -translate-y-8 translate-x-8 blur-3xl"></div>
-              <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
+              <div className="flex items-center gap-2 text-rose-400">
                 <Wallet className="size-4" />
                 <p className="text-[10px] font-black uppercase tracking-tight">Total Owed</p>
               </div>
-              <p className="font-mono text-4xl font-black text-rose-600 dark:text-rose-500 tracking-tighter italic">RM {stats.totalOwed.toFixed(2)}</p>
+              <p className="font-mono text-4xl font-black text-rose-500 tracking-tighter italic">RM {stats.totalOwed.toFixed(2)}</p>
             </div>
 
             {/* Shuttle Used */}

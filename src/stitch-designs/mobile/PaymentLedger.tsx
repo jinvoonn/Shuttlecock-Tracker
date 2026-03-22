@@ -58,7 +58,7 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
     <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-100 min-h-screen flex flex-col antialiased">
       <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-800 shadow-2xl bg-slate-900">
         {/* Header Section */}
-        <header className="sticky top-0 z-20 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-sky-400/10">
+        <header className="sticky top-0 z-20 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-white/5">
           <div className="flex items-center gap-2 mb-1">
             <div className="size-8 rounded-lg bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-md shadow-sky-500/20">
               <Feather className="size-5 text-white transform rotate-45" />
@@ -107,8 +107,8 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
                         <div className="size-14 rounded-2xl bg-slate-900 border border-slate-700 flex items-center justify-center text-emerald-400 font-black italic shadow-inner">
                           {p.playerName.slice(0, 2).toUpperCase()}
                         </div>
-                        <div className="flex flex-col">
-                          <p className="font-black text-slate-900 dark:text-slate-100 uppercase italic tracking-tighter text-lg leading-none mb-1">{p.playerName}</p>
+                        <div className="flex flex-col text-left">
+                          <p className="font-black text-slate-100 uppercase italic tracking-tighter text-lg leading-none mb-1">{p.playerName}</p>
                           <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{new Date(p.date).toLocaleDateString()}</p>
                           {p.note && <p className="text-xs text-slate-400 mt-1 line-clamp-1 italic">{p.note}</p>}
                         </div>

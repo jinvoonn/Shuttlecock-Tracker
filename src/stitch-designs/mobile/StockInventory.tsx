@@ -99,12 +99,12 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
           <section>
             <div className="flex overflow-x-auto gap-4 pb-4 no-scrollbar -mx-2 px-2">
               <div className="flex-none w-36 p-5 rounded-[2rem] bg-slate-800 border border-slate-700 shadow-xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 size-16 bg-white/5 rounded-full -translate-y-8 translate-x-8 blur-2xl group-hover:bg-emerald-400/10 transition-colors"></div>
+                <div className="absolute top-0 right-0 size-16 bg-white/2 rounded-full -translate-y-8 translate-x-8 blur-2xl group-hover:bg-emerald-400/10 transition-colors"></div>
                 <p className="text-[10px] uppercase font-black tracking-[0.2em] mb-2 text-slate-500">Total Bought</p>
                 <p className="text-3xl font-black font-['JetBrains_Mono',_monospace] tracking-tighter text-emerald-400">{stats.totalTubesBought}</p>
               </div>
               <div className="flex-none p-5 rounded-[2rem] bg-slate-800 border border-slate-700 shadow-xl relative overflow-hidden group min-w-[144px]">
-                <div className="absolute top-0 right-0 size-16 bg-white/5 rounded-full -translate-y-8 translate-x-8 blur-2xl group-hover:bg-emerald-400/10 transition-colors"></div>
+                <div className="absolute top-0 right-0 size-16 bg-white/2 rounded-full -translate-y-8 translate-x-8 blur-2xl group-hover:bg-emerald-400/10 transition-colors"></div>
                 <p className="text-[10px] uppercase font-black tracking-[0.2em] mb-2 text-slate-500">Total Spend</p>
                 <div className="flex items-baseline gap-1">
                   <span className="text-xs font-black text-emerald-400 font-['Lexend',_sans-serif] uppercase">RM</span>

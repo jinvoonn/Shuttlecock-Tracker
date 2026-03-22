@@ -6,12 +6,12 @@
 }
 
 :root {
-  --background: #020617;
-  --foreground: #f8fafc;
-  --card: #0f172a; /* Solid slate-900 */
-  --primary: #38bdf8;
-  --secondary: #94a3b8;
-  --border: rgba(255, 255, 255, 0.1);
+  --background: #0f172a; /* slate-900 */
+  --foreground: #f1f5f9; /* slate-100 */
+  --card: #1e293b; /* slate-800 */
+  --primary: #10b981; /* emerald-500 */
+  --secondary: #94a3b8; /* slate-400 */
+  --border: #1e293b; /* slate-800 */
 }
 
 body {

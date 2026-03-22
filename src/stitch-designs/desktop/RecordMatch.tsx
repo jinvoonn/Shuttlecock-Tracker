@@ -82,13 +82,13 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#020617] text-slate-100 font-['Lexend',_sans-serif]">
+    <div className="flex h-screen overflow-hidden bg-slate-900 text-slate-100 font-['Lexend',_sans-serif]">
       {/* Background Overlay */}
       <div 
         className="fixed inset-0 opacity-10 pointer-events-none grayscale bg-cover bg-center"
         style={{ backgroundImage: "url('/badminton-bg.png')" }}
       />
-      <div className="fixed inset-0 bg-gradient-to-b from-[#020617]/90 to-[#020617]/95 pointer-events-none" />
+      <div className="fixed inset-0 bg-gradient-to-b from-slate-900/90 to-slate-900/95 pointer-events-none" />
 
       {/* Sidebar Navigation */}
       <aside className="relative z-20 w-64 border-r border-slate-800 bg-slate-900/50 backdrop-blur-md hidden lg:flex flex-col">
@@ -98,8 +98,8 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
               <div className="size-9 rounded-xl bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
                 <Feather className="size-5 text-white transform rotate-45" />
               </div>
-              <h2 className="text-2xl font-black text-slate-100 tracking-tighter">
-                Cock<span className="text-sky-400">Count</span>
+              <h2 className="text-2xl font-black text-slate-100 tracking-tighter uppercase italic">
+                Cock<span className="text-emerald-400">Count</span>
               </h2>
             </div>
             <p className="text-slate-500 font-bold text-[9px] uppercase tracking-widest pl-1 leading-tight">
@@ -113,7 +113,7 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
             <LayoutDashboard className="size-5" />
             <span className="text-sm font-bold tracking-wide uppercase">DASHBOARD</span>
           </Link>
-          <Link href={`${basePath}/sessions`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-[#13ec80] text-slate-950 font-black transition-all shadow-lg shadow-[#13ec80]/10">
+          <Link href={`${basePath}/sessions`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-400 text-slate-950 font-black transition-all shadow-lg shadow-emerald-400/10">
             <CalendarDays className="size-5" />
             <span className="text-sm tracking-wide uppercase">SESSIONS</span>
           </Link>
@@ -138,7 +138,7 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
           <header className="mb-10 flex justify-between items-end border-b border-slate-800 pb-6">
             <div>
               <h2 className="text-5xl font-black italic text-slate-100 uppercase tracking-tighter leading-none mb-2">Log Match Result</h2>
-              <div className="flex items-center gap-2 text-[#13ec80] font-medium">
+              <div className="flex items-center gap-2 text-emerald-400 font-medium">
                 <CalendarDays className="size-4" />
                 <span className="text-sm uppercase tracking-widest font-bold text-slate-500">Session • {sessionId.slice(0, 8)}</span>
               </div>
@@ -148,7 +148,7 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
               <button 
                 onClick={handleConfirm}
                 disabled={isSubmitting}
-                className="px-8 py-3 bg-[#13ec80] text-[#020617] text-sm font-black rounded-lg uppercase tracking-wider hover:brightness-110 transition-all shadow-lg shadow-[#13ec80]/20 disabled:opacity-50"
+                className="px-8 py-3 bg-emerald-400 text-slate-950 text-sm font-black rounded-lg uppercase tracking-wider hover:brightness-110 transition-all shadow-lg shadow-emerald-400/20 disabled:opacity-50"
               >
                 {isSubmitting ? 'Saving...' : 'Save Match Result'}
               </button>
@@ -166,14 +166,14 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
                     <label key={type} className={clsx(
                       "flex items-center gap-3 p-4 rounded-lg border cursor-pointer group transition-all",
                       matchType === type
-                        ? "bg-[#13ec80]/10 border-[#13ec80]/50"
-                        : "bg-slate-950 border-slate-800 hover:border-[#13ec80]/30"
+                        ? "bg-emerald-400/10 border-emerald-400/50"
+                        : "bg-slate-950 border-slate-800 hover:border-emerald-400/30"
                     )}>
                       <div className={clsx(
                         "size-4 rounded-full border-2 flex items-center justify-center",
-                        matchType === type ? "border-[#13ec80]" : "border-slate-600"
+                        matchType === type ? "border-emerald-400" : "border-slate-600"
                       )}>
-                        {matchType === type && <div className="size-2 bg-[#13ec80] rounded-full" />}
+                        {matchType === type && <div className="size-2 bg-emerald-400 rounded-full" />}
                       </div>
                       <input 
                         type="radio"
@@ -185,7 +185,7 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
                       />
                       <span className={clsx(
                         "text-sm font-bold",
-                        matchType === type ? "text-[#13ec80]" : "text-slate-400 group-hover:text-slate-200"
+                        matchType === type ? "text-emerald-400" : "text-slate-400 group-hover:text-slate-200"
                       )}>{type}</span>
                     </label>
                   ))}
@@ -203,8 +203,8 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
                       className={clsx(
                         "w-12 h-12 rounded-lg border flex items-center justify-center text-sm font-black transition-all",
                         court === n.toString()
-                          ? "bg-[#13ec80] text-[#020617] border-[#13ec80]"
-                          : "bg-slate-950 border-slate-800 text-slate-400 hover:border-[#13ec80]/50 hover:text-slate-200"
+                          ? "bg-emerald-400 text-slate-900 border-emerald-400"
+                          : "bg-slate-950 border-slate-800 text-slate-400 hover:border-emerald-400/50 hover:text-slate-200"
                       )}
                     >
                       {n}
@@ -227,7 +227,7 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
                     <input 
                       className={clsx(
                         "w-full text-center text-7xl font-black bg-slate-950 border-2 rounded-xl p-6 focus:ring-0 outline-none transition-all",
-                        scoreA >= scoreB ? "border-[#13ec80]/50 text-[#13ec80]" : "border-slate-800 text-slate-400 focus:border-[#13ec80]/50"
+                        scoreA >= scoreB ? "border-emerald-400/50 text-emerald-400" : "border-slate-800 text-slate-400 focus:border-emerald-400/50"
                       )}
                       type="number" 
                       min="0"
@@ -241,7 +241,7 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
                     <input 
                       className={clsx(
                         "w-full text-center text-7xl font-black bg-slate-950 border-2 rounded-xl p-6 focus:ring-0 outline-none transition-all",
-                        scoreB > scoreA ? "border-[#13ec80]/50 text-[#13ec80]" : "border-slate-800 text-slate-400 focus:border-[#13ec80]/50"
+                        scoreB > scoreA ? "border-emerald-400/50 text-emerald-400" : "border-slate-800 text-slate-400 focus:border-emerald-400/50"
                       )}
                       type="number" 
                       min="0"

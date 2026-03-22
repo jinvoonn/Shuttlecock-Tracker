@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { addMatch, updateMatch, deleteMatch } from "@/lib/actions/matches";
-import { PlusCircle, X, Check, Trash2, Swords, Users, Edit3 } from "lucide-react";
+import { PlusCircle, X, Check, Trash2, Swords, Users, Edit3, Activity } from "lucide-react";
 import clsx from "clsx";
 import { useRole } from "@/context/AuthContext";
 
@@ -106,7 +106,7 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
     const sortedMatches = (matches || []).sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 
     return (
-        <div className="mt-4 pt-4 border-t border-slate-800/50 space-y-4">
+        <div className="mt-4 pt-4 border-t border-white/5 space-y-4">
             <div className="flex items-center justify-between">
                 <h4 className="text-[10px] font-bold uppercase text-slate-500 flex items-center gap-2">
                     <Swords className="w-4 h-4" /> Matches ({matches?.length || 0})
@@ -114,7 +114,7 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
                 {!isAdding && (
                     <button
                         onClick={() => setIsAdding(true)}
-                        className="text-xs flex items-center gap-1 text-sky-400 hover:text-sky-300 transition-colors bg-sky-500/10 px-2 py-1.5 rounded-lg border border-sky-500/20"
+                        className="text-xs flex items-center gap-1 text-emerald-400 hover:text-emerald-300 transition-colors bg-emerald-500/10 px-2 py-1.5 rounded-lg border border-emerald-500/20"
                     >
                         <PlusCircle className="w-3.5 h-3.5" /> Log Match
                     </button>
@@ -124,8 +124,8 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
             {isAdding && (
                 <div className="bg-slate-900 border border-slate-700/60 rounded-2xl p-5 md:p-6 space-y-6 shadow-2xl animate-in slide-in-from-top-2 duration-300">
                     <div className="flex items-center justify-between">
-                        <span className="text-sm font-black text-slate-100 flex items-center gap-2 uppercase tracking-tighter">
-                            <Users className="w-5 h-5 text-sky-400" /> {editingMatchId ? "Edit Match" : "New Match"}
+                        <span className="text-sm font-black text-white flex items-center gap-2 uppercase tracking-tighter italic">
+                            <Activity className="w-5 h-5 text-emerald-400" /> {editingMatchId ? "Edit Match" : "New Match"}
                         </span>
                         <button onClick={resetForm} className="p-2 rounded-lg hover:bg-slate-800 text-slate-500 transition-colors"><X className="w-5 h-5" /></button>
                     </div>
@@ -149,10 +149,10 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
                                         className={clsx(
                                             "px-4 py-2.5 rounded-xl text-xs font-bold transition-all border active:scale-95 flex items-center gap-2",
                                             isTeamA 
-                                                ? "bg-emerald-500 text-white border-emerald-400 shadow-lg shadow-emerald-500/20" 
+                                                ? "bg-emerald-400 text-slate-950 border-emerald-400 shadow-lg shadow-emerald-400/20" 
                                                 : isTeamB
-                                                    ? "bg-sky-500 text-white border-sky-400 shadow-lg shadow-sky-500/20"
-                                                    : "bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-500 hover:text-slate-100"
+                                                    ? "bg-sky-400 text-slate-950 border-sky-400 shadow-lg shadow-sky-400/20"
+                                                    : "bg-slate-800 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-slate-100"
                                         )}
                                     >
                                         {p.name}
@@ -208,7 +208,7 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
                         </button>
                         <button
                             onClick={handleSave}
-                            className="flex-[2] bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs px-6 py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-xl shadow-sky-500/20 active:scale-95"
+                            className="flex-[2] bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black text-xs px-6 py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-xl shadow-emerald-400/20 active:scale-95"
                         >
                             <Check className="w-4 h-4" /> {editingMatchId ? "Update Match" : "Finalize Match"}
                         </button>

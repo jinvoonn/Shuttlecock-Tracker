@@ -82,7 +82,7 @@ export default function MobileRecordMatch({ sessionId, players }: MobileRecordMa
     <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-100 min-h-screen flex flex-col antialiased">
       <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-800 shadow-2xl pb-24">
         {/* Header */}
-        <header className="sticky top-0 z-20 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-sky-400/10">
+        <header className="sticky top-0 z-20 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-white/5">
           <div className="flex items-center gap-2 mb-1">
             <div className="size-8 rounded-lg bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-md shadow-sky-500/20">
               <Feather className="size-5 text-white transform rotate-45" />
@@ -129,8 +129,8 @@ export default function MobileRecordMatch({ sessionId, players }: MobileRecordMa
                      key={player.id}
                      onClick={() => cyclePlayer(player.id)}
                      className={`p-4 rounded-2xl border-2 transition-all active:scale-95 text-left flex items-center justify-between group h-16 ${
-                       isA ? 'bg-emerald-500 border-emerald-500 text-white' :
-                       isB ? 'bg-sky-500 border-sky-500 text-white' :
+                       isA ? 'bg-emerald-400 border-emerald-400 text-slate-950 shadow-lg shadow-emerald-400/20' :
+                       isB ? 'bg-sky-400 border-sky-400 text-slate-950 shadow-lg shadow-sky-400/20' :
                        'bg-slate-800 border-slate-700 text-slate-300'
                      }`}
                    >
@@ -140,7 +140,7 @@ export default function MobileRecordMatch({ sessionId, players }: MobileRecordMa
                      <div className={`size-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
                        isA ? 'border-white/30 bg-white/20' :
                        isB ? 'border-white/30 bg-white/20' :
-                       'border-slate-200 dark:border-slate-600'
+                       'border-slate-700'
                      }`}>
                         {isA && <span className="text-[8px] font-bold text-white uppercase">A</span>}
                         {isB && <span className="text-[8px] font-bold text-white uppercase">B</span>}

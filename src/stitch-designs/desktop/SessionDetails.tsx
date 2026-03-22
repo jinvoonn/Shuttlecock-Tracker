@@ -101,7 +101,7 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
   const isLive = new Date(session.date).toDateString() === new Date().toDateString();
 
   return (
-    <div className="bg-[#f6f8f7] dark:bg-[#020617] text-slate-900 dark:text-slate-100 font-['Lexend',_sans-serif] min-h-screen pb-24">
+    <div className="bg-slate-900 text-slate-100 font-['Lexend',_sans-serif] min-h-screen pb-24 text-left">
       {/* Top Navigation Header */}
       <header className="sticky top-0 z-50 bg-[#f6f8f7]/80 dark:bg-[#020617]/80 backdrop-blur-md border-b border-slate-200 dark:border-[#1e293b] px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
@@ -114,8 +114,8 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                 <div className="size-8 rounded-lg bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-md shadow-sky-500/20">
                   <Feather className="size-4 text-white transform rotate-45" />
                 </div>
-                <h1 className="text-xl font-black tracking-tighter italic uppercase text-slate-900 dark:text-slate-50">
-                  Cock<span className="text-sky-400">Count</span>
+                <h1 className="text-xl font-black tracking-tighter italic uppercase text-slate-50">
+                  Cock<span className="text-emerald-400">Count</span>
                 </h1>
               </div>
               <p className="text-[8px] text-slate-500 font-bold uppercase tracking-[0.2em] pl-1">
@@ -131,11 +131,11 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
         <section className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             {isLive ? (
-              <span className="inline-block px-2 py-1 bg-[#13ec80]/20 text-[#13ec80] text-xs font-bold rounded mb-2 tracking-widest uppercase">Live Session</span>
+              <span className="inline-block px-2 py-1 bg-emerald-400/20 text-emerald-400 text-xs font-bold rounded mb-2 tracking-widest uppercase italic">Live Session</span>
             ) : (
-              <span className="inline-block px-2 py-1 bg-slate-200 dark:bg-slate-800 text-slate-500 text-xs font-bold rounded mb-2 tracking-widest uppercase">Archived</span>
+              <span className="inline-block px-2 py-1 bg-slate-800 text-slate-500 text-xs font-bold rounded mb-2 tracking-widest uppercase italic">Archived</span>
             )}
-            <h2 className="text-4xl md:text-5xl font-black italic uppercase tracking-tight text-slate-900 dark:text-slate-100">{session.name}</h2>
+            <h2 className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter text-white">{session.name}</h2>
             <div className="flex items-center gap-4 mt-2 text-slate-500 dark:text-slate-400">
               <div className="flex items-center gap-1.5">
                 <Calendar className="size-4" />
@@ -159,7 +159,7 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
              )}
              <button 
                onClick={() => setIsModalOpen(true)}
-               className="bg-[#13ec80] hover:bg-[#13ec80]/90 text-[#020617] px-6 py-3 rounded font-bold text-sm uppercase transition-all flex items-center gap-2"
+               className="bg-emerald-400 hover:bg-emerald-500 text-slate-950 px-6 py-3 rounded-xl font-black text-sm uppercase transition-all flex items-center gap-2 shadow-lg shadow-emerald-400/20 active:scale-95"
              >
               <Plus className="size-5" />
               Record Match
@@ -193,31 +193,31 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
 
         {/* Key Stats Grid */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-slate-200 dark:bg-[#0f172a] border border-slate-300 dark:border-[#1e293b] p-6 rounded-lg relative overflow-hidden group">
+          <div className="bg-slate-800 border border-slate-700/50 p-6 rounded-2xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
               <Package className="size-12" />
             </div>
-            <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest mb-1 italic">Total Shuttles Used</p>
+            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1 italic">Total Shuttles Used</p>
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-black text-slate-900 dark:text-slate-100 italic">{session.shuttlesUsed}</span>
+              <span className="text-4xl font-black text-white italic">{session.shuttlesUsed}</span>
             </div>
           </div>
-          <div className="bg-slate-200 dark:bg-[#0f172a] border border-slate-300 dark:border-[#1e293b] p-6 rounded-lg relative overflow-hidden group">
+          <div className="bg-slate-800 border border-slate-700/50 p-6 rounded-2xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
               <Plus className="size-12" />
             </div>
-            <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest mb-1 italic">Cost per Person</p>
+            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1 italic">Cost per Person</p>
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-black text-slate-900 dark:text-slate-100 italic">RM{session.costPerHead.toFixed(2)}</span>
+              <span className="text-4xl font-black text-white italic">RM{session.costPerHead.toFixed(2)}</span>
             </div>
           </div>
-          <div className="bg-slate-200 dark:bg-[#0f172a] border border-slate-300 dark:border-[#1e293b] p-6 rounded-lg relative overflow-hidden group">
+          <div className="bg-slate-800 border border-slate-700/50 p-6 rounded-2xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
               <Trophy className="size-12" />
             </div>
-            <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest mb-1 italic">Total Net</p>
+            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1 italic">Total Net</p>
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-black text-slate-900 dark:text-slate-100 italic">RM{session.totalCost.toFixed(2)}</span>
+              <span className="text-4xl font-black text-white italic">RM{session.totalCost.toFixed(2)}</span>
             </div>
           </div>
         </section>
@@ -228,7 +228,7 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
             <div className="bg-slate-800 border border-slate-700 rounded-3xl p-8 shadow-2xl">
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
-                  <Activity className="size-6 text-[#13ec80]" />
+                  <Activity className="size-6 text-emerald-400" />
                   <h3 className="text-xl font-black italic uppercase tracking-tight text-slate-100">Session Leaderboard</h3>
                 </div>
                 <div className="flex bg-slate-900/50 border border-slate-800 rounded-xl p-1">
@@ -271,7 +271,7 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                         {p.name}
                       </span>
                     </div>
-                    <div className="font-mono font-black italic text-[#13ec80] bg-emerald-500/5 px-4 py-1.5 rounded-lg text-lg">
+                    <div className="font-mono font-black italic text-emerald-400 bg-emerald-400/5 px-4 py-1.5 rounded-lg text-lg">
                       {leaderboardMode === "wins" 
                         ? `${p.value} ${p.suffix || 'WINS'}` 
                         : `${((p.value || 0) * 100).toFixed(1)}%`
@@ -292,25 +292,25 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                 <Users className="text-[#13ec80] size-6" />
                 Participants ({attendees.length})
               </h3>
-              <div className="bg-slate-200 dark:bg-[#0f172a] border border-slate-300 dark:border-[#1e293b] rounded-lg divide-y divide-slate-300 dark:divide-[#1e293b] overflow-hidden">
+              <div className="bg-slate-800 border border-slate-700 rounded-2xl divide-y divide-slate-700/50 overflow-hidden">
                 {attendees.map(attendee => {
                   const initial = attendee.name.charAt(0).toUpperCase();
                   return (
-                    <div key={attendee.id} className="p-4 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors">
+                    <div key={attendee.id} className="p-4 flex items-center justify-between hover:bg-slate-700/30 transition-colors">
                       <div className="flex items-center gap-3">
-                        <div className={clsx("w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs", 
-                          attendee.paid ? "bg-[#13ec80]/20 text-[#13ec80]" : "bg-rose-500/20 text-rose-500"
+                        <div className={clsx("w-10 h-10 rounded-full flex items-center justify-center font-black text-sm border", 
+                          attendee.paid ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" : "bg-rose-500/10 border-rose-500/20 text-rose-500"
                         )}>
                           {initial}
                         </div>
                         <div>
-                          <p className="text-sm font-bold">{attendee.name}</p>
-                          <p className={clsx("text-[10px] uppercase font-bold", attendee.paid ? "text-slate-500" : "text-rose-400")}>
+                          <p className="text-sm font-black text-slate-100 uppercase tracking-tight">{attendee.name}</p>
+                          <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">
                             {attendee.role} • {attendee.paid ? 'Settled' : 'Pending'}
                           </p>
                         </div>
                       </div>
-                      <span className={clsx("font-black italic", attendee.paid ? "text-[#13ec80]" : "text-slate-400")}>
+                      <span className={clsx("font-black italic text-lg", attendee.paid ? "text-emerald-400" : "text-slate-500")}>
                         RM{attendee.fee.toFixed(2)}
                       </span>
                     </div>
@@ -324,7 +324,7 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
           <div className="lg:col-span-2">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-black italic uppercase tracking-tight flex items-center gap-2">
-                <Trophy className="text-[#13ec80] size-6" />
+                <Trophy className="text-emerald-400 size-6" />
                 Logged Matches
               </h3>
             </div>
@@ -339,7 +339,7 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
               {matches.map(match => (
                 <div key={match.id} className={clsx(
                   "border rounded-xl overflow-hidden transition-all",
-                  match.status === 'Completed' ? 'bg-slate-200 dark:bg-[#0f172a] border-slate-300 dark:border-[#1e293b]' : 'bg-slate-200 dark:bg-[#0f172a] border-[#13ec80]/30 shadow-[#13ec80]/10 shadow-[0_0_15px]'
+                  match.status === 'Completed' ? 'bg-slate-900 border-white/5' : 'bg-slate-900 border-emerald-400/30 shadow-emerald-400/10 shadow-[0_0_15px]'
                 )}>
                   <div className="p-4 border-b border-slate-300 dark:border-[#1e293b] bg-slate-300/30 dark:bg-slate-800/30 flex justify-between items-center">
                     <span className="text-[10px] font-black italic uppercase tracking-widest text-slate-500">
@@ -347,11 +347,11 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                     </span>
                     <div className="flex items-center gap-3">
                       {match.status === 'Completed' ? (
-                        <span className="text-[10px] font-bold text-[#13ec80] flex items-center gap-1">
+                        <span className="text-[10px] font-bold text-emerald-400 flex items-center gap-1">
                           <CheckCircle2 className="size-3" /> COMPLETED
                         </span>
                       ) : (
-                        <span className="text-[10px] font-bold text-[#13ec80] animate-pulse flex items-center gap-1">
+                        <span className="text-[10px] font-bold text-emerald-400 animate-pulse flex items-center gap-1">
                           <AlertCircle className="size-3 fill-current" /> LIVE
                         </span>
                       )}
@@ -386,8 +386,8 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                       <div className={clsx(
                         "px-2 py-1 font-black italic text-lg rounded leading-tight transition-colors",
                         match.scoreA > match.scoreB && match.status === 'Completed'
-                          ? "bg-[#13ec80] text-[#020617]" 
-                          : "text-slate-500 dark:text-slate-100"
+                          ? "bg-emerald-400 text-slate-950" 
+                          : "text-slate-100"
                       )}>
                         {match.scoreA}
                       </div>
@@ -395,8 +395,8 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                       <div className={clsx(
                         "px-2 py-1 font-black italic text-lg rounded leading-tight transition-colors",
                         match.scoreB > match.scoreA && match.status === 'Completed'
-                          ? "bg-[#13ec80] text-[#020617]" 
-                          : "text-slate-500 dark:text-slate-100"
+                          ? "bg-emerald-400 text-slate-950" 
+                          : "text-slate-100"
                       )}>
                         {match.scoreB}
                       </div>

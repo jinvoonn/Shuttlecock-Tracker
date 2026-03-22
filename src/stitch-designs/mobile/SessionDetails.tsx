@@ -243,20 +243,20 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
 
             {/* Quick Summary */}
             <div className="grid grid-cols-3 gap-3 mb-8">
-              <div className="flex flex-col gap-1 rounded-2xl p-4 bg-slate-800 border-l-4 border-emerald-400 shadow-sm text-left">
+              <div className="flex flex-col gap-1 rounded-2xl p-4 bg-slate-800 border-l-4 border-emerald-400 shadow-xl text-left">
                 <p className="text-slate-500 text-[9px] font-black uppercase tracking-widest">Shuttles</p>
-                <p className="text-slate-100 text-xl font-black italic leading-none mt-1">
-                  {session.shuttlesUsed} 
-                  <span className="text-[10px] not-italic font-bold text-slate-400 ml-1 uppercase">Units</span>
-                </p>
+                <div className="flex items-baseline gap-1 mt-1">
+                  <span className="text-slate-100 text-xl font-black italic leading-none">{session.shuttlesUsed}</span>
+                  <span className="text-[9px] font-black text-slate-500 uppercase">PCS</span>
+                </div>
               </div>
-              <div className="flex flex-col gap-1 rounded-2xl p-4 bg-slate-800 border-l-4 border-emerald-400 shadow-sm text-left">
+              <div className="flex flex-col gap-1 rounded-2xl p-4 bg-slate-800 border-l-4 border-emerald-400 shadow-xl text-left">
                 <p className="text-slate-500 text-[9px] font-black uppercase tracking-widest">Cost/Head</p>
                 <p className="text-slate-100 text-xl font-black italic leading-none mt-1">
                   RM{session.costPerHead.toFixed(2)}
                 </p>
               </div>
-              <div className="flex flex-col gap-1 rounded-2xl p-4 bg-slate-800 border-l-4 border-emerald-400 shadow-sm text-left">
+              <div className="flex flex-col gap-1 rounded-2xl p-4 bg-slate-800 border-l-4 border-emerald-400 shadow-xl text-left">
                 <p className="text-slate-500 text-[9px] font-black uppercase tracking-widest">Total</p>
                 <p className="text-slate-100 text-xl font-black italic leading-none mt-1">
                   RM{session.totalCost.toFixed(2)}
@@ -319,7 +319,7 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
             {/* Attendees */}
             <section className="mb-8">
               <div className="flex items-center justify-between mb-4 px-1">
-                <h3 className="text-slate-900 dark:text-slate-100 text-sm font-black uppercase tracking-[0.15em] italic">Attendees ({attendees.length})</h3>
+                <h3 className="text-slate-100 text-sm font-black uppercase tracking-[0.15em] italic">Attendees ({attendees.length})</h3>
               </div>
               <div className="flex flex-col gap-2">
                 {attendees.length === 0 && <p className="text-slate-500 text-sm text-center py-4">No attendees listed.</p>}
@@ -330,13 +330,13 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                         {person.name.split(' ').map(n => n[0]).join('')}
                       </div>
                       <div className="text-left">
-                        <p className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase">{person.name}</p>
+                        <p className="text-sm font-black text-white uppercase">{person.name}</p>
                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{person.role}</p>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-black text-emerald-400">RM{person.fee.toFixed(2)}</p>
-                      <p className={`text-[10px] font-black uppercase italic tracking-widest ${person.paid ? 'text-emerald-500' : 'text-amber-500'}`}>
+                      <p className={`text-[10px] font-black uppercase italic tracking-widest ${person.paid ? 'text-emerald-400' : 'text-rose-500'}`}>
                         {person.paid ? 'Paid' : 'Pending'}
                       </p>
                     </div>
@@ -447,7 +447,7 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                               placeholder="0"
                             />
                           </div>
-                          <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-xl p-3 space-y-1">
+                          <div className="bg-emerald-400/5 border border-emerald-400/15 rounded-xl p-3 space-y-1">
                             <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">
                               Team B — {teamBIds.map(id => playerMap[id] || id).join(", ") || "none"}
                             </p>

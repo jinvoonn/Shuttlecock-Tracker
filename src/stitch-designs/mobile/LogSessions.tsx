@@ -99,15 +99,15 @@ export default function MobileLogSessions({ tubes, players }: MobileLogSessionsP
 
   return (
     <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-100 min-h-screen flex flex-col antialiased pb-48">
-      <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-800 shadow-2xl bg-slate-900">
+      <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-800 shadow-2xl bg-slate-900 text-left">
         {/* Header */}
-        <header className="sticky top-0 z-20 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-sky-400/10">
+        <header className="sticky top-0 z-20 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-white/5">
           <div className="flex items-center gap-2 mb-1">
-            <div className="size-8 rounded-lg bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-md shadow-sky-500/20">
+            <div className="size-8 rounded-lg bg-gradient-to-br from-indigo-500 to-emerald-600 flex items-center justify-center shadow-md shadow-emerald-500/20">
               <Feather className="size-5 text-white transform rotate-45" />
             </div>
             <h1 className="text-2xl font-black text-slate-50 tracking-tighter">
-              Cock<span className="text-sky-400">Count</span>
+              Cock<span className="text-emerald-400">Count</span>
             </h1>
           </div>
           <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">
@@ -130,7 +130,7 @@ export default function MobileLogSessions({ tubes, players }: MobileLogSessionsP
                   <button 
                     key={tube.id}
                     onClick={() => setSelectedTubeId(tube.id)}
-                    className={`flex-none w-[75vw] p-5 rounded-2xl flex flex-col gap-3 snap-center shadow-xl transition-all text-left h-auto min-h-[144px] ${isSelected ? 'bg-emerald-400 text-slate-950 ring-8 ring-emerald-400/10' : 'bg-slate-800 border-2 border-slate-700 text-slate-100'}`}
+                    className={`flex-none w-[75vw] p-5 rounded-3xl flex flex-col gap-3 snap-center shadow-2xl transition-all text-left h-auto min-h-[144px] ${isSelected ? 'bg-emerald-400 text-slate-950 shadow-emerald-400/20' : 'bg-slate-800 border border-slate-700 text-slate-100'}`}
                   >
                     <div className="flex items-start justify-between">
                         <div className="flex flex-col">
@@ -155,8 +155,8 @@ export default function MobileLogSessions({ tubes, players }: MobileLogSessionsP
           </section>
 
           {/* Shuttle Counter */}
-          <section className="bg-slate-800 border-2 border-slate-700 rounded-3xl p-8 shadow-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 size-32 bg-emerald-400/5 dark:bg-emerald-400/10 rounded-full -translate-y-16 translate-x-16 blur-3xl"></div>
+          <section className="bg-slate-800 border border-slate-700 rounded-[2rem] p-8 shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 size-32 bg-emerald-400/10 rounded-full -translate-y-16 translate-x-16 blur-3xl"></div>
             <h2 className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] mb-6 text-center relative z-10">Shuttle Counter</h2>
             <div className="flex items-center justify-between gap-4 relative z-10">
               <button 
@@ -191,11 +191,11 @@ export default function MobileLogSessions({ tubes, players }: MobileLogSessionsP
               {players.map((player) => (
                 <div 
                   key={player.id} 
-                  className={`flex items-center justify-between p-4 bg-white dark:bg-[#0f172a] border-2 rounded-2xl transition-all shadow-sm cursor-pointer ${attendeeIds.has(player.id) ? 'border-[#13ec80]' : 'border-slate-100 dark:border-slate-800 hover:border-[#13ec80]/30'}`}
+                  className={`flex items-center justify-between p-4 bg-slate-800 border border-slate-700 rounded-2xl transition-all shadow-sm cursor-pointer ${attendeeIds.has(player.id) ? 'border-emerald-400 ring-2 ring-emerald-400/10' : 'hover:border-slate-500'}`}
                   onClick={() => toggleAttendee(player.id)}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="size-12 rounded-full border-2 border-slate-100 dark:border-slate-800 p-0.5 bg-slate-50 dark:bg-slate-900 overflow-hidden flex items-center justify-center">
+                    <div className="size-12 rounded-full border border-slate-700 p-0.5 bg-slate-900 overflow-hidden flex items-center justify-center">
                       {player.avatar ? (
                         <img alt={player.name} className="rounded-full w-full h-full object-cover" src={player.avatar} />
                       ) : (
@@ -203,8 +203,8 @@ export default function MobileLogSessions({ tubes, players }: MobileLogSessionsP
                       )}
                     </div>
                     <div className="text-left">
-                      <p className="font-black text-sm uppercase text-slate-900 dark:text-slate-100">{player.name}</p>
-                      <p className={`text-[10px] uppercase font-black tracking-widest leading-none mt-1 ${attendeeIds.has(player.id) ? 'text-[#13ec80]' : 'text-slate-400 dark:text-slate-500'}`}>
+                      <p className="font-black text-sm uppercase text-white">{player.name}</p>
+                      <p className={`text-[10px] uppercase font-black tracking-widest leading-none mt-1 ${attendeeIds.has(player.id) ? 'text-emerald-400' : 'text-slate-500'}`}>
                         {attendeeIds.has(player.id) ? 'Attending' : 'Not Attending'}
                       </p>
                     </div>

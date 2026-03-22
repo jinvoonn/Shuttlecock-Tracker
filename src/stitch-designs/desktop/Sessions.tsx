@@ -121,11 +121,11 @@ export default function DesktopSessions({ tubes, players, initialData }: Desktop
   };
 
   return (
-    <div className="bg-[#f6f8f7] dark:bg-[#020617] font-['Lexend',_sans-serif] text-slate-900 dark:text-slate-100 min-h-screen">
+    <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-100 min-h-screen">
       <div className="max-w-6xl mx-auto px-4 pb-32 pt-8">
-        <header className="flex flex-col items-center justify-center py-6 border-b border-slate-200 dark:border-sky-400/10 mb-8">
+        <header className="flex flex-col items-center justify-center py-6 border-b border-white/5 mb-8">
           <div className="flex items-center gap-4 mb-2">
-            <Link href={`${basePath}/sessions`} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors hidden lg:block">
+            <Link href={`${basePath}/sessions`} className="p-2 hover:bg-slate-800 rounded-full transition-colors hidden lg:block">
               <ArrowLeft className="size-6 text-slate-400" />
             </Link>
             <div className="flex items-center gap-3">
@@ -164,8 +164,8 @@ export default function DesktopSessions({ tubes, players, initialData }: Desktop
                       className={clsx(
                         "min-w-[200px] p-4 cursor-pointer snap-start relative group rounded-lg shadow-sm transition-all border-2",
                         isSelected 
-                          ? "bg-white dark:bg-[#0f172a] border-[#13ec80]" 
-                          : "bg-white dark:bg-[#0f172a] border-slate-200 dark:border-[#1e293b] hover:border-slate-400 dark:hover:border-slate-700"
+                          ? "bg-slate-800 border-emerald-400 shadow-emerald-400/10 shadow-lg" 
+                          : "bg-slate-800 border-slate-700 hover:border-slate-500"
                       )}
                     >
                       <div className="flex justify-between items-start mb-4">
@@ -176,11 +176,9 @@ export default function DesktopSessions({ tubes, players, initialData }: Desktop
                           <span className="bg-[#13ec80]/10 text-[#13ec80] text-[10px] px-2 py-1 font-bold rounded">SELECTED</span>
                         )}
                       </div>
-                      <h3 className={clsx("font-bold text-base", isSelected ? "text-slate-900 dark:text-white" : "text-slate-700 dark:text-slate-300")}>
-                        {tube.brand}
-                      </h3>
-                      <p className="text-slate-400 dark:text-slate-500 text-xs font-mono mb-2">{tube.model}</p>
-                      <div className="flex flex-col gap-1 border-t border-slate-100 dark:border-slate-800 pt-3">
+                      <h3 className="font-black italic uppercase tracking-tight text-white">{tube.brand}</h3>
+                      <p className="text-slate-400 text-xs font-mono mb-2">{tube.model}</p>
+                      <div className="flex flex-col gap-1 border-t border-slate-700 pt-3">
                         <p className={clsx("text-sm font-bold flex items-center gap-1", isSelected ? "text-[#13ec80]" : "text-slate-700 dark:text-slate-300")}>
                           RM{tube.price_per_tube?.toFixed(2) || '0.00'} <span className="text-[10px] text-slate-400 uppercase tracking-widest font-normal">/ tube</span>
                         </p>
@@ -199,20 +197,20 @@ export default function DesktopSessions({ tubes, players, initialData }: Desktop
               <div className="flex items-end justify-between mb-4">
                 <h2 className="text-xs font-bold tracking-widest text-slate-500 uppercase italic">02. Shuttles Used</h2>
               </div>
-              <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-[#1e293b] p-8 flex flex-col items-center justify-center gap-6 rounded-lg shadow-sm">
+              <div className="bg-slate-800 border border-slate-700 p-8 flex flex-col items-center justify-center gap-6 rounded-2xl shadow-xl">
                 <div className="flex items-center gap-12">
                   <button 
                     onClick={() => setShuttlesUsed(Math.max(0, shuttlesUsed - 1))}
-                    className="w-16 h-16 rounded-full border border-slate-200 dark:border-[#1e293b] flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    className="w-16 h-16 rounded-full border border-slate-700 flex items-center justify-center hover:bg-slate-700 transition-colors"
                   >
                     <Minus className="text-3xl size-8" />
                   </button>
-                  <div className="text-8xl font-mono font-bold text-[#13ec80] tabular-nums tracking-tighter w-32 text-center">
+                  <div className="text-8xl font-mono font-black text-emerald-400 tabular-nums tracking-tighter w-32 text-center italic">
                     {shuttlesUsed.toString().padStart(2, '0')}
                   </div>
                   <button 
                     onClick={() => setShuttlesUsed(shuttlesUsed + 1)}
-                    className="w-16 h-16 rounded-full border border-slate-200 dark:border-[#1e293b] flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    className="w-16 h-16 rounded-full border border-slate-700 flex items-center justify-center hover:bg-slate-700 transition-colors"
                   >
                     <Plus className="text-[#13ec80] size-8" />
                   </button>
@@ -227,7 +225,7 @@ export default function DesktopSessions({ tubes, players, initialData }: Desktop
                 <h2 className="text-xs font-bold tracking-widest text-slate-500 uppercase italic">03. Attendees</h2>
               </div>
               
-              <div className="bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-[#1e293b] p-4 max-h-[400px] overflow-y-auto rounded-lg">
+              <div className="bg-slate-800/50 border border-slate-700 p-4 max-h-[400px] overflow-y-auto rounded-2xl">
                 <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3">
                   {players.map(player => {
                     const isSelected = attendeeIds.has(player.id);
@@ -247,8 +245,8 @@ export default function DesktopSessions({ tubes, players, initialData }: Desktop
                         <div className={clsx(
                           "size-12 rounded-full flex items-center justify-center font-black text-lg",
                           isSelected 
-                            ? "border-2 border-slate-950 bg-slate-950 text-[#13ec80]" 
-                            : "bg-slate-200 dark:bg-slate-800 text-slate-500"
+                            ? "border-2 border-slate-900 bg-slate-900 text-emerald-400" 
+                            : "bg-slate-900 text-slate-500 border border-slate-800"
                         )}>
                           {initial}
                         </div>
@@ -269,32 +267,32 @@ export default function DesktopSessions({ tubes, players, initialData }: Desktop
           {/* Right Column: Live Calculation (Sticky) */}
           <div className="lg:col-span-4">
             <div className="sticky top-28 space-y-4">
-              <div className="bg-white dark:bg-[#0f172a] border-l-4 border-l-[#13ec80] border border-slate-200 dark:border-[#1e293b] p-6 shadow-xl rounded-r-lg">
+              <div className="bg-slate-800 border-l-4 border-l-emerald-400 border border-slate-700 p-6 shadow-2xl rounded-2xl">
                 <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6 italic">Live Session Summary</h2>
                 <div className="space-y-6">
                   <div className="flex justify-between items-end">
                     <span className="text-slate-400 text-xs font-medium uppercase">Total Cost</span>
-                    <span className="text-3xl font-mono font-bold text-[#13ec80] tracking-tighter">RM{totalCost.toFixed(2)}</span>
+                    <span className="text-3xl font-mono font-black text-emerald-400 tracking-tighter italic">RM{totalCost.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between items-end border-t border-slate-100 dark:border-slate-800 pt-6">
+                  <div className="flex justify-between items-end border-t border-slate-700 pt-6">
                     <span className="text-slate-400 text-xs font-medium uppercase">Cost Per Person</span>
-                    <span className="text-3xl font-mono font-bold text-[#13ec80] tracking-tighter">RM{perPlayerCost.toFixed(2)}</span>
+                    <span className="text-3xl font-mono font-black text-emerald-400 tracking-tighter italic">RM{perPlayerCost.toFixed(2)}</span>
                   </div>
                 </div>
-                <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 space-y-2">
+                <div className="mt-8 pt-6 border-t border-slate-700 space-y-2">
                   <div className="flex justify-between text-[10px] font-bold uppercase tracking-tight">
                     <span className="text-slate-500">Shuttles ({shuttlesUsed})</span>
-                    <span className="text-slate-700 dark:text-slate-300">RM{totalCost.toFixed(2)}</span>
+                    <span className="text-slate-300">RM{totalCost.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-[10px] font-bold uppercase tracking-tight">
                     <span className="text-slate-500">Attendees</span>
-                    <span className="text-slate-700 dark:text-slate-300">{attendeeIds.size} Players</span>
+                    <span className="text-slate-300">{attendeeIds.size} Players</span>
                   </div>
                 </div>
                 <button 
                   onClick={handleCreateSession}
                   disabled={isSubmitting || shuttlesUsed === 0 || attendeeIds.size === 0}
-                  className="w-full mt-8 bg-[#13ec80] disabled:bg-slate-300 dark:disabled:bg-slate-800 hover:bg-[#13ec80]/90 text-slate-950 font-black py-4 rounded uppercase tracking-tighter transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#13ec80]/20 disabled:shadow-none"
+                  className="w-full mt-8 bg-emerald-400 disabled:bg-slate-800 hover:bg-emerald-500 text-slate-950 font-black py-4 rounded-xl uppercase tracking-tighter transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-400/20 disabled:shadow-none"
                 >
                   <span>{isSubmitting ? 'Finalizing...' : isEdit ? 'Update Session' : 'Finalize Session'}</span>
                   <Zap className="size-5 fill-current" />

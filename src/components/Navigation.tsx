@@ -42,8 +42,8 @@ export function Navigation() {
                             className={clsx(
                                 "relative flex flex-row items-center gap-3 w-full px-4 py-3 rounded-xl transition-all duration-500 group",
                                 isActive
-                                    ? "text-sky-400 bg-sky-500/10 shadow-lg shadow-sky-500/5"
-                                    : "text-slate-500 hover:text-slate-100 hover:bg-white/5"
+                                    ? "text-emerald-400 bg-emerald-400/10 shadow-lg shadow-emerald-500/5"
+                                    : "text-slate-500 hover:text-slate-100 hover:bg-slate-800"
                             )}
                         >
                             <Icon className={clsx("w-5 h-5 transition-transform duration-500", isActive ? "scale-110" : "group-hover:scale-110")} />
