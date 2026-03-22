@@ -69,9 +69,6 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
     pStats[p.id] = { wins: 0, total: 0, sessions: 0, streak: 0, maxStreak: 0, matchResults: [] };
   });
 
-  // Duo stats
-  const duoStats: Record<string, { wins: number, total: number }> = {};
-
   matches.forEach(m => {
     // Dynamically extract all team players regardless of schema hardcoding limits
     const teamA = Object.keys(m)
@@ -100,27 +97,12 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
       }
     });
 
-    // Flexible Duos Generation
-    const getPairs = (team: string[]) => {
-      const pairs: string[] = [];
-      for (let i = 0; i < team.length; i++) {
-        for (let j = i + 1; j < team.length; j++) {
-          pairs.push([team[i], team[j]].sort().join("-"));
-        }
+    teamB.forEach(pid => {
+      if (pStats[pid]) {
+        pStats[pid].total++;
+        if (winB) pStats[pid].wins++;
+        pStats[pid].matchResults.push(winB);
       }
-      return pairs;
-    };
-
-    getPairs(teamA).forEach(duoKey => {
-      if (!duoStats[duoKey]) duoStats[duoKey] = { wins: 0, total: 0 };
-      duoStats[duoKey].total++;
-      if (winA) duoStats[duoKey].wins++;
-    });
-
-    getPairs(teamB).forEach(duoKey => {
-      if (!duoStats[duoKey]) duoStats[duoKey] = { wins: 0, total: 0 };
-      duoStats[duoKey].total++;
-      if (winB) duoStats[duoKey].wins++;
     });
   });
 
@@ -147,13 +129,9 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
   // Insights
   const mostWinsP = Object.entries(pStats).sort((a, b) => b[1].wins - a[1].wins)[0];
   const bestWinRateP = Object.entries(pStats)
-    .filter(([, s]) => s.total >= 10)
+    .filter(([, s]) => s.total >= 3)
     .sort((a, b) => (b[1].wins / b[1].total) - (a[1].wins / a[1].total))[0];
   const longestStreakP = Object.entries(pStats).sort((a, b) => b[1].maxStreak - a[1].maxStreak)[0];
-  
-  const duoArray = Object.entries(duoStats).filter(([, s]) => s.total >= 3);
-  const bestDuo = duoArray.sort((a, b) => (b[1].wins / b[1].total) - (a[1].wins / a[1].total))[0];
-  const cursedDuo = duoArray.sort((a, b) => (a[1].wins / a[1].total) - (b[1].wins / b[1].total))[0];
 
   const insights = [
     {
@@ -173,25 +151,18 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
       icon: "🔥",
       value: longestStreakP ? playerMap[longestStreakP[0]] : "None",
       subValue: longestStreakP ? `${longestStreakP[1].maxStreak} Wins Streak` : "0 Wins"
-    },
-    {
-      title: "Best Duo",
-      icon: "🤝",
-      value: bestDuo ? bestDuo[0].split("-").map(id => playerMap[id]).join(" & ") : "None",
-      subValue: bestDuo ? `${((bestDuo[1].wins / bestDuo[1].total) * 100).toFixed(1)}%` : "0%"
-    },
-    {
-      title: "Most Cursed Duo",
-      icon: "💀",
-      value: cursedDuo ? cursedDuo[0].split("-").map(id => playerMap[id]).join(" & ") : "None",
-      subValue: cursedDuo ? `${((cursedDuo[1].wins / cursedDuo[1].total) * 100).toFixed(1)}%` : "0%"
     }
   ];
 
   const leaderboard = Object.entries(pStats)
-    .map(([id, stats]) => ({ id, name: playerMap[id], wins: stats.wins }))
-    .sort((a, b) => b.wins - a.wins)
-    .slice(0, 5);
+    .map(([id, stats]) => ({
+      id,
+      name: playerMap[id],
+      wins: stats.wins,
+      total: stats.total,
+      winRate: stats.total > 0 ? (stats.wins / stats.total) * 100 : 0
+    }))
+    .sort((a, b) => b.wins - a.wins); // Pass all players who have played at least 1 game
 
   // --- Monthly Trends Calculation ---
   const monthlyTrends: Record<string, { month: string, spending: number, usage: number }> = {};

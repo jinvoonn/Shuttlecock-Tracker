@@ -53,6 +53,8 @@ interface DashboardProps {
     id: string;
     name: string;
     wins: number;
+    total: number;
+    winRate: number;
   }[];
 }
 
@@ -61,6 +63,17 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
   const { canEdit } = useRole();
+  const [leaderboardMode, setLeaderboardMode] = React.useState<"wins" | "winRate">("wins");
+
+  const sortedLeaderboard = React.useMemo(() => {
+    if (!leaderboard) return [];
+    if (leaderboardMode === "winRate") {
+      return [...leaderboard]
+        .filter(p => p.total >= 3)
+        .sort((a, b) => b.winRate - a.winRate);
+    }
+    return [...leaderboard].sort((a, b) => b.wins - a.wins);
+  }, [leaderboard, leaderboardMode]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#020617] text-slate-100 font-['Lexend',_sans-serif]">
@@ -196,23 +209,39 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
 
           {/* Leaderboard Section */}
           {leaderboard && leaderboard.length > 0 && (
-            <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 rounded-2xl p-6 shadow-lg">
-              <h3 className="text-lg font-black italic uppercase tracking-tighter flex items-center gap-2 mb-4 text-slate-100">
-                🏆 Leaderboard
-              </h3>
-              <div className="flex flex-col gap-3">
-                {leaderboard.map((player, index) => (
-                  <div key={player.id} className="flex items-center justify-between p-4 rounded-xl bg-slate-800 border border-slate-700">
-                    <div className="flex items-center gap-3">
-                      <span className={`text-lg font-black italic ${index === 0 ? 'text-emerald-400' : 'text-slate-500'}`}>
+            <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 rounded-2xl p-8 shadow-2xl">
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-2xl font-black italic uppercase tracking-tighter flex items-center gap-3 text-slate-100">
+                  <Activity className="size-6 text-[#13ec80]" />
+                  🏆 Leaderboard
+                </h3>
+                <button
+                  onClick={() => setLeaderboardMode(prev => prev === "wins" ? "winRate" : "wins")}
+                  className="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest border border-slate-700 transition-all flex items-center gap-2"
+                >
+                  {leaderboardMode === "wins" ? "Show Win Rate" : "Show Wins"}
+                </button>
+              </div>
+              
+              <div className="max-h-[400px] overflow-y-auto pr-2 custom-scrollbar space-y-3">
+                {sortedLeaderboard.map((player, index) => (
+                  <div key={player.id} className="flex items-center justify-between p-5 rounded-2xl bg-slate-950/40 border border-slate-800 hover:border-emerald-500/30 transition-all group">
+                    <div className="flex items-center gap-5">
+                      <span className={clsx(
+                        "text-xl font-black italic w-10",
+                        index === 0 ? "text-emerald-400" : "text-slate-600"
+                      )}>
                         #{index + 1}
                       </span>
-                      <span className="font-bold uppercase tracking-tight text-slate-100">
+                      <span className="font-black text-lg uppercase tracking-tight text-slate-100 italic group-hover:text-white transition-colors">
                         {player.name}
                       </span>
                     </div>
-                    <div className="font-mono font-black italic text-emerald-400">
-                      {player.wins} WINS
+                    <div className="font-mono font-black italic text-[#13ec80] bg-emerald-500/5 px-4 py-1.5 rounded-lg text-lg">
+                      {leaderboardMode === "wins" 
+                        ? `${player.wins} WINS` 
+                        : `${player.winRate.toFixed(1)}%`
+                      }
                     </div>
                   </div>
                 ))}

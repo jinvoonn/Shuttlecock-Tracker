@@ -61,6 +61,8 @@ interface DashboardProps {
     id: string;
     name: string;
     wins: number;
+    total: number;
+    winRate: number;
   }[];
 }
 
@@ -72,6 +74,17 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
   const { canEdit } = useRole();
   const [settlingId, setSettlingId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'spending' | 'usage'>('spending');
+  const [leaderboardMode, setLeaderboardMode] = useState<"wins" | "winRate">("wins");
+
+  const sortedLeaderboard = React.useMemo(() => {
+    if (!leaderboard) return [];
+    if (leaderboardMode === "winRate") {
+      return [...leaderboard]
+        .filter(p => p.total >= 3)
+        .sort((a, b) => b.winRate - a.winRate);
+    }
+    return [...leaderboard].sort((a, b) => b.wins - a.wins);
+  }, [leaderboard, leaderboardMode]);
 
   return (
     <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-100 min-h-screen antialiased overflow-x-hidden">
@@ -158,23 +171,31 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
 
             {/* Leaderboard Card */}
             {leaderboard && leaderboard.length > 0 && (
-              <div className="flex flex-col gap-4 rounded-2xl bg-slate-800 p-6 border border-slate-700 shadow-sm mt-2">
-                <h3 className="text-sm font-black italic uppercase tracking-tight flex items-center gap-2 text-white">
-                  🏆 Win Leaderboard
-                </h3>
-                <div className="flex flex-col gap-3">
-                  {leaderboard.map((player, index) => (
+              <div className="flex flex-col gap-4 rounded-3xl bg-slate-800 p-6 border border-slate-700 shadow-xl mt-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-black italic uppercase tracking-tight flex items-center gap-2 text-white">
+                    🏆 Leaderboard
+                  </h3>
+                  <button
+                    onClick={() => setLeaderboardMode(prev => prev === "wins" ? "winRate" : "wins")}
+                    className="bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest text-emerald-400 active:scale-95 transition-all"
+                  >
+                    {leaderboardMode === "wins" ? "By Win Rate" : "By Wins"}
+                  </button>
+                </div>
+                <div className="flex flex-col gap-3 max-h-[350px] overflow-y-auto scrollbar-hide">
+                  {sortedLeaderboard.map((player, index) => (
                     <div key={player.id} className="flex items-center justify-between border-b border-slate-700/50 last:border-0 pb-3 last:pb-0">
-                      <div className="flex items-center gap-3">
-                        <span className={`text-sm font-black italic ${index === 0 ? 'text-emerald-400' : 'text-slate-500'}`}>
+                      <div className="flex items-center gap-4">
+                        <span className={`text-xs font-black italic w-5 ${index === 0 ? 'text-emerald-400' : 'text-slate-500'}`}>
                           #{index + 1}
                         </span>
-                        <span className="text-sm font-bold tracking-tight text-slate-100 uppercase">
+                        <span className="text-sm font-black tracking-tight text-slate-100 uppercase italic">
                           {player.name}
                         </span>
                       </div>
-                      <span className="font-mono text-sm font-black italic text-emerald-400">
-                        {player.wins}
+                      <span className="font-mono text-sm font-black italic text-emerald-400 bg-emerald-400/5 px-2 py-0.5 rounded">
+                        {leaderboardMode === "wins" ? player.wins : `${player.winRate.toFixed(1)}%`}
                       </span>
                     </div>
                   ))}
