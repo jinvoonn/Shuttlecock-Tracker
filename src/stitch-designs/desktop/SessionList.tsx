@@ -11,7 +11,22 @@ import {
   Feather
 } from 'lucide-react';
 
-export default function SessionListUI() {
+interface Player { id: string; name: string; }
+interface Purchase { id: string; remaining_quantity: number; tube_number: number; brands: { name: string } | null; price_per_tube: number; price_per_cock: number; }
+interface SessionData {
+  id: string; date: string; location: string; notes?: string; displayNumber?: number;
+  status: 'Completed' | 'Outstanding' | 'Archived';
+  shuttleUsed: { name: string; quantity: number; };
+  costPerPerson: number; attendees: string[]; playerIds: string[];
+  usageMap: Record<string, number>; totalNet: number;
+}
+interface DesktopSessionsListProps {
+  sessions: SessionData[];
+  allPlayers: Player[];
+  allPurchases: Purchase[];
+}
+
+export default function SessionListUI(props: DesktopSessionsListProps) {
   return (
     <div className="flex h-screen overflow-hidden bg-[#020617] text-slate-100 font-['Lexend',_sans-serif]">
       {/* Background Overlay */}
