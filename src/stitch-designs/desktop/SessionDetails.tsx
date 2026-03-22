@@ -231,12 +231,30 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                   <Activity className="size-6 text-[#13ec80]" />
                   <h3 className="text-xl font-black italic uppercase tracking-tight text-slate-100">Session Leaderboard</h3>
                 </div>
-                <button
-                  onClick={() => setLeaderboardMode(prev => prev === "wins" ? "winRate" : "wins")}
-                  className="bg-slate-900 hover:bg-slate-700 text-emerald-400 hover:text-white px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest border border-slate-700 transition-all flex items-center gap-2"
-                >
-                  {leaderboardMode === "wins" ? "Show Win Rate" : "Show Wins"}
-                </button>
+                <div className="flex bg-slate-900/50 border border-slate-800 rounded-xl p-1">
+                  <button
+                    onClick={() => setLeaderboardMode("wins")}
+                    className={clsx(
+                      "px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all duration-200 active:scale-95",
+                      leaderboardMode === "wins"
+                        ? "bg-emerald-400 text-white shadow-lg"
+                        : "text-slate-500 hover:text-slate-300"
+                    )}
+                  >
+                    Wins
+                  </button>
+                  <button
+                    onClick={() => setLeaderboardMode("winRate")}
+                    className={clsx(
+                      "px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all duration-200 active:scale-95",
+                      leaderboardMode === "winRate"
+                        ? "bg-emerald-400 text-white shadow-lg"
+                        : "text-slate-500 hover:text-slate-300"
+                    )}
+                  >
+                    Win Rate
+                  </button>
+                </div>
               </div>
               
               <div className="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar space-y-3">

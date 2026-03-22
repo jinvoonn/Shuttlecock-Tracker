@@ -215,12 +215,30 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
                   <Activity className="size-6 text-[#13ec80]" />
                   🏆 Leaderboard
                 </h3>
-                <button
-                  onClick={() => setLeaderboardMode(prev => prev === "wins" ? "winRate" : "wins")}
-                  className="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest border border-slate-700 transition-all flex items-center gap-2"
-                >
-                  {leaderboardMode === "wins" ? "Show Win Rate" : "Show Wins"}
-                </button>
+                <div className="flex bg-slate-800 border border-slate-700 rounded-xl p-1 shadow-inner">
+                  <button
+                    onClick={() => setLeaderboardMode("wins")}
+                    className={clsx(
+                      "px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all duration-200 active:scale-95",
+                      leaderboardMode === "wins"
+                        ? "bg-emerald-400 text-white shadow-lg"
+                        : "text-slate-500 hover:text-slate-300"
+                    )}
+                  >
+                    Most Wins
+                  </button>
+                  <button
+                    onClick={() => setLeaderboardMode("winRate")}
+                    className={clsx(
+                      "px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all duration-200 active:scale-95",
+                      leaderboardMode === "winRate"
+                        ? "bg-emerald-400 text-white shadow-lg"
+                        : "text-slate-500 hover:text-slate-300"
+                    )}
+                  >
+                    Win Rate
+                  </button>
+                </div>
               </div>
               
               <div className="max-h-[400px] overflow-y-auto pr-2 custom-scrollbar space-y-3">

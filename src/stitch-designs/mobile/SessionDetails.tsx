@@ -272,12 +272,30 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                     <Activity className="size-4 text-emerald-400" />
                     <h3 className="text-sm font-black italic uppercase tracking-widest text-white">Session Leaderboard</h3>
                   </div>
-                  <button
-                    onClick={() => setLeaderboardMode(prev => prev === "wins" ? "winRate" : "wins")}
-                    className="bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest text-emerald-400 active:scale-95 transition-all"
-                  >
-                    {leaderboardMode === "wins" ? "Win Rate" : "Wins"}
-                  </button>
+                  <div className="flex bg-slate-900/50 rounded-xl p-1 border border-white/5">
+                    <button
+                      onClick={() => setLeaderboardMode("wins")}
+                      className={clsx(
+                        "px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all duration-200 active:scale-95",
+                        leaderboardMode === "wins"
+                          ? "bg-emerald-400 text-white shadow-sm"
+                          : "text-slate-500"
+                      )}
+                    >
+                      Wins
+                    </button>
+                    <button
+                      onClick={() => setLeaderboardMode("winRate")}
+                      className={clsx(
+                        "px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all duration-200 active:scale-95",
+                        leaderboardMode === "winRate"
+                          ? "bg-emerald-400 text-white shadow-sm"
+                          : "text-slate-500"
+                      )}
+                    >
+                      Rate
+                    </button>
+                  </div>
                 </div>
                 <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto scrollbar-hide pr-1">
                   {(leaderboardMode === "wins" ? sessionStats.mostWins : sessionStats.winRate).map((p, idx) => (
