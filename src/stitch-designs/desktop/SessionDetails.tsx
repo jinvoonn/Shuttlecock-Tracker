@@ -13,7 +13,8 @@ import {
   Trash2,
   Package,
   CheckCircle2,
-  Feather
+  Feather,
+  TrendingUp
 } from 'lucide-react';
 import Link from 'next/link';
 import clsx from 'clsx';
@@ -70,9 +71,13 @@ interface DesktopSessionDetailsProps {
   allPlayers: Player[];
   allPurchases: Purchase[];
   initialData: InitialData;
+  sessionStats?: {
+    mostWins: { id: string; name: string; value: number; suffix: string }[];
+    winRate: { id: string; name: string; value: number }[];
+  }
 }
 
-export default function DesktopSessionDetails({ session, matches, attendees, allPlayers, allPurchases, initialData }: DesktopSessionDetailsProps) {
+export default function DesktopSessionDetails({ session, matches, attendees, allPlayers, allPurchases, initialData, sessionStats }: DesktopSessionDetailsProps) {
   const pathname = usePathname() || '';
   const router = useRouter();
   const currentMode = pathname.split('/')[1] || 'view';
@@ -214,6 +219,53 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
             </div>
           </div>
         </section>
+
+        {/* Session Stats Leaderboards */}
+        {sessionStats && (sessionStats.mostWins.length > 0) && (
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Most Wins Card */}
+            <div className="bg-slate-800 border border-slate-700 rounded-3xl p-8 shadow-2xl">
+              <div className="flex items-center gap-3 mb-6">
+                <Trophy className="size-6 text-emerald-400" />
+                <h3 className="text-xl font-black italic uppercase tracking-tight text-white">Most Wins</h3>
+              </div>
+              <div className="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar space-y-3">
+                {sessionStats.mostWins.map((p, idx) => (
+                  <div key={p.id} className="flex items-center justify-between p-4 bg-slate-900/40 border border-slate-800 rounded-2xl group hover:border-emerald-500/30 transition-all">
+                    <div className="flex items-center gap-4">
+                      <span className={clsx("text-lg font-black italic w-6", idx === 0 ? "text-emerald-400" : "text-slate-600")}>#{idx + 1}</span>
+                      <span className="font-black text-sm uppercase tracking-tight text-slate-100 italic">{p.name}</span>
+                    </div>
+                    <span className="font-mono font-black italic text-[#13ec80] bg-emerald-500/5 px-3 py-1 rounded text-sm uppercase">
+                      {p.value} {p.suffix}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Win Rate Card */}
+            <div className="bg-slate-800 border border-slate-700 rounded-3xl p-8 shadow-2xl">
+              <div className="flex items-center gap-3 mb-6">
+                <TrendingUp className="size-6 text-sky-400" />
+                <h3 className="text-xl font-black italic uppercase tracking-tight text-white">Best Win Rate</h3>
+              </div>
+              <div className="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar space-y-3">
+                {sessionStats.winRate.map((p, idx) => (
+                  <div key={p.id} className="flex items-center justify-between p-4 bg-slate-900/40 border border-slate-800 rounded-2xl group hover:border-sky-500/30 transition-all">
+                    <div className="flex items-center gap-4">
+                      <span className={clsx("text-lg font-black italic w-6", idx === 0 ? "text-sky-400" : "text-slate-600")}>#{idx + 1}</span>
+                      <span className="font-black text-sm uppercase tracking-tight text-slate-100 italic">{p.name}</span>
+                    </div>
+                    <span className="font-mono font-black italic text-sky-400 bg-sky-500/5 px-3 py-1 rounded text-sm uppercase">
+                      {(p.value * 100).toFixed(1)}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column: Participants */}
