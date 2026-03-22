@@ -73,8 +73,15 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
   const duoStats: Record<string, { wins: number, total: number }> = {};
 
   matches.forEach(m => {
-    const teamA = [m.team_a_player1, m.team_a_player2].filter(Boolean) as string[];
-    const teamB = [m.team_b_player1, m.team_b_player2].filter(Boolean) as string[];
+    // Dynamically extract all team players regardless of schema hardcoding limits
+    const teamA = Object.keys(m)
+      .filter(k => k.startsWith('team_a_player') && (m as any)[k])
+      .map(k => (m as any)[k] as string);
+      
+    const teamB = Object.keys(m)
+      .filter(k => k.startsWith('team_b_player') && (m as any)[k])
+      .map(k => (m as any)[k] as string);
+
     const winA = m.team_a_score > m.team_b_score;
     const winB = m.team_b_score > m.team_a_score;
 
@@ -93,19 +100,28 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
       }
     });
 
-    // Duos
-    if (teamA.length === 2) {
-      const duoKey = teamA.sort().join(":");
+    // Flexible Duos Generation
+    const getPairs = (team: string[]) => {
+      const pairs: string[] = [];
+      for (let i = 0; i < team.length; i++) {
+        for (let j = i + 1; j < team.length; j++) {
+          pairs.push([team[i], team[j]].sort().join("-"));
+        }
+      }
+      return pairs;
+    };
+
+    getPairs(teamA).forEach(duoKey => {
       if (!duoStats[duoKey]) duoStats[duoKey] = { wins: 0, total: 0 };
       duoStats[duoKey].total++;
       if (winA) duoStats[duoKey].wins++;
-    }
-    if (teamB.length === 2) {
-      const duoKey = teamB.sort().join(":");
+    });
+
+    getPairs(teamB).forEach(duoKey => {
       if (!duoStats[duoKey]) duoStats[duoKey] = { wins: 0, total: 0 };
       duoStats[duoKey].total++;
       if (winB) duoStats[duoKey].wins++;
-    }
+    });
   });
 
   // Calculate session participation
@@ -135,7 +151,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
     .sort((a, b) => (b[1].wins / b[1].total) - (a[1].wins / a[1].total))[0];
   const longestStreakP = Object.entries(pStats).sort((a, b) => b[1].maxStreak - a[1].maxStreak)[0];
   
-  const duoArray = Object.entries(duoStats).filter(([, s]) => s.total >= 5);
+  const duoArray = Object.entries(duoStats).filter(([, s]) => s.total >= 3);
   const bestDuo = duoArray.sort((a, b) => (b[1].wins / b[1].total) - (a[1].wins / a[1].total))[0];
   const cursedDuo = duoArray.sort((a, b) => (a[1].wins / a[1].total) - (b[1].wins / b[1].total))[0];
 
@@ -161,16 +177,21 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
     {
       title: "Best Duo",
       icon: "🤝",
-      value: bestDuo ? bestDuo[0].split(":").map(id => playerMap[id]).join(" & ") : "None",
+      value: bestDuo ? bestDuo[0].split("-").map(id => playerMap[id]).join(" & ") : "None",
       subValue: bestDuo ? `${((bestDuo[1].wins / bestDuo[1].total) * 100).toFixed(1)}%` : "0%"
     },
     {
       title: "Most Cursed Duo",
       icon: "💀",
-      value: cursedDuo ? cursedDuo[0].split(":").map(id => playerMap[id]).join(" & ") : "None",
+      value: cursedDuo ? cursedDuo[0].split("-").map(id => playerMap[id]).join(" & ") : "None",
       subValue: cursedDuo ? `${((cursedDuo[1].wins / cursedDuo[1].total) * 100).toFixed(1)}%` : "0%"
     }
   ];
+
+  const leaderboard = Object.entries(pStats)
+    .map(([id, stats]) => ({ id, name: playerMap[id], wins: stats.wins }))
+    .sort((a, b) => b.wins - a.wins)
+    .slice(0, 5);
 
   // --- Monthly Trends Calculation ---
   const monthlyTrends: Record<string, { month: string, spending: number, usage: number }> = {};
@@ -273,10 +294,10 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
   return (
     <>
       <div className="block lg:hidden">
-        <MobileDashboard stats={mobileStatsProps} players={players} insights={insights} trendData={trendData} />
+        <MobileDashboard stats={mobileStatsProps} players={players} insights={insights} trendData={trendData} leaderboard={leaderboard} />
       </div>
       <div className="hidden lg:block">
-        <DesktopDashboard stats={statsProps} players={players} isAdmin={isAdmin} insights={insights} trendData={trendData} />
+        <DesktopDashboard stats={statsProps} players={players} isAdmin={isAdmin} insights={insights} trendData={trendData} leaderboard={leaderboard} />
       </div>
     </>
   );

@@ -49,9 +49,14 @@ interface DashboardProps {
     spending: number;
     usage: number;
   }[];
+  leaderboard?: {
+    id: string;
+    name: string;
+    wins: number;
+  }[];
 }
 
-export default function DesktopDashboard({ stats, players, upcomingSession, insights, trendData }: DashboardProps) {
+export default function DesktopDashboard({ stats, players, upcomingSession, insights, trendData, leaderboard }: DashboardProps) {
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
@@ -188,6 +193,32 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
               </h3>
             </div>
           </div>
+
+          {/* Leaderboard Section */}
+          {leaderboard && leaderboard.length > 0 && (
+            <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 rounded-2xl p-6 shadow-lg">
+              <h3 className="text-lg font-black italic uppercase tracking-tighter flex items-center gap-2 mb-4 text-slate-100">
+                🏆 Leaderboard
+              </h3>
+              <div className="flex flex-col gap-3">
+                {leaderboard.map((player, index) => (
+                  <div key={player.id} className="flex items-center justify-between p-4 rounded-xl bg-slate-800 border border-slate-700">
+                    <div className="flex items-center gap-3">
+                      <span className={`text-lg font-black italic ${index === 0 ? 'text-emerald-400' : 'text-slate-500'}`}>
+                        #{index + 1}
+                      </span>
+                      <span className="font-bold uppercase tracking-tight text-slate-100">
+                        {player.name}
+                      </span>
+                    </div>
+                    <div className="font-mono font-black italic text-emerald-400">
+                      {player.wins} WINS
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Analytics Trends Row */}
           {trendData && trendData.length > 0 && (

@@ -57,9 +57,14 @@ interface DashboardProps {
     spending: number;
     usage: number;
   }[];
+  leaderboard?: {
+    id: string;
+    name: string;
+    wins: number;
+  }[];
 }
 
-export default function MobileDashboard({ stats, players, upcomingSession, insights, trendData }: DashboardProps) {
+export default function MobileDashboard({ stats, players, upcomingSession, insights, trendData, leaderboard }: DashboardProps) {
   const router = useRouter();
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
@@ -150,6 +155,32 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
                 <p className="text-xs font-black text-slate-500 uppercase tracking-widest italic">{"// "}{stats.inventory.remainingTubes} Tubes Left</p>
               </div>
             </div>
+
+            {/* Leaderboard Card */}
+            {leaderboard && leaderboard.length > 0 && (
+              <div className="flex flex-col gap-4 rounded-2xl bg-slate-800 p-6 border border-slate-700 shadow-sm mt-2">
+                <h3 className="text-sm font-black italic uppercase tracking-tight flex items-center gap-2 text-white">
+                  🏆 Win Leaderboard
+                </h3>
+                <div className="flex flex-col gap-3">
+                  {leaderboard.map((player, index) => (
+                    <div key={player.id} className="flex items-center justify-between border-b border-slate-700/50 last:border-0 pb-3 last:pb-0">
+                      <div className="flex items-center gap-3">
+                        <span className={`text-sm font-black italic ${index === 0 ? 'text-emerald-400' : 'text-slate-500'}`}>
+                          #{index + 1}
+                        </span>
+                        <span className="text-sm font-bold tracking-tight text-slate-100 uppercase">
+                          {player.name}
+                        </span>
+                      </div>
+                      <span className="font-mono text-sm font-black italic text-emerald-400">
+                        {player.wins}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Next Session Card */}
