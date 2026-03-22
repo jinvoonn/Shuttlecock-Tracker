@@ -334,6 +334,16 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
           </section>
         </main>
 
+        {/* Floating Action Button */}
+        {canEdit('purchases') && (
+          <button 
+            onClick={() => router.push(`${basePath}/purchases/add`)}
+            className="fixed bottom-32 right-8 z-[100] bg-emerald-400 hover:bg-emerald-500 text-white rounded-full p-4 shadow-lg cursor-pointer flex items-center justify-center transition-all"
+          >
+            <Plus className="size-6" />
+          </button>
+        )}
+
         {/* Bottom Navigation */}
         <nav className="fixed bottom-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-2xl border-t border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
           <div className="flex h-24 items-stretch px-4 max-w-[480px] mx-auto">
