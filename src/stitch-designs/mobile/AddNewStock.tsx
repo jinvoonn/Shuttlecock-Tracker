@@ -57,8 +57,9 @@ export default function MobileAddNewStock({ brands: serverBrands }: { brands: Br
       formData.append("price_per_tube", pricePerTube.toString());
       formData.append("notes", notes);
 
-      await addPurchase(formData);
-      router.push('/view/purchases');
+      await addPurchase(formData, currentMode);
+      router.push(`${basePath}/purchases`);
+      router.refresh();
     } catch (error) {
       console.error(error);
       alert("Failed to log stock");

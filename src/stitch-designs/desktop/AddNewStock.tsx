@@ -52,8 +52,9 @@ export default function DesktopAddNewStock({ brands }: { brands: Brand[] }) {
       formData.append("price_per_tube", pricePerTube.toString());
       formData.append("notes", notes);
 
-      await addPurchase(formData);
+      await addPurchase(formData, currentMode);
       router.push(`${basePath}/purchases`);
+      router.refresh();
     } catch (error) {
       console.error(error);
       alert("Failed to log stock");

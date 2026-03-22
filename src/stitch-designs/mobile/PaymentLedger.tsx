@@ -196,8 +196,9 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
         {canEdit('payments') && (
           <button 
             onClick={() => router.push(`${basePath}/payments/record-transaction`)}
-            className="fixed bottom-32 right-8 size-16 bg-emerald-400 text-slate-950 rounded-3xl shadow-[0_20px_50px_rgba(16,185,129,0.3)] flex items-center justify-center z-40 hover:scale-110 active:scale-90 transition-all border-b-4 border-emerald-600">
-            <Plus className="size-8 font-black" />
+            className="fixed bottom-32 right-8 z-[100] bg-emerald-400 hover:bg-emerald-500 text-white rounded-full p-4 shadow-lg cursor-pointer flex items-center justify-center transition-all"
+          >
+            <Plus className="size-6" />
           </button>
         )}
 
