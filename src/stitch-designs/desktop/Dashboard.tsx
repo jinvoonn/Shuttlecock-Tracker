@@ -240,7 +240,7 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
                     <div className="font-mono font-black italic text-[#13ec80] bg-emerald-500/5 px-4 py-1.5 rounded-lg text-lg">
                       {leaderboardMode === "wins" 
                         ? `${player.wins} WINS` 
-                        : `${player.winRate.toFixed(1)}%`
+                        : `${(player.winRate * 100).toFixed(1)}%`
                       }
                     </div>
                   </div>

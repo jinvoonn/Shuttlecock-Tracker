@@ -195,7 +195,7 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
                         </span>
                       </div>
                       <span className="font-mono text-sm font-black italic text-emerald-400 bg-emerald-400/5 px-2 py-0.5 rounded">
-                        {leaderboardMode === "wins" ? player.wins : `${player.winRate.toFixed(1)}%`}
+                        {leaderboardMode === "wins" ? player.wins : `${(player.winRate * 100).toFixed(1)}%`}
                       </span>
                     </div>
                   ))}

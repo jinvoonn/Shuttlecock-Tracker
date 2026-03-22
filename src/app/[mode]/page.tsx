@@ -79,8 +79,10 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
       .filter(k => k.startsWith('team_b_player') && (m as any)[k])
       .map(k => (m as any)[k] as string);
 
-    const winA = m.team_a_score > m.team_b_score;
-    const winB = m.team_b_score > m.team_a_score;
+    const scoreA = Number(m.team_a_score);
+    const scoreB = Number(m.team_b_score);
+    const winA = scoreA > scoreB;
+    const winB = scoreB > scoreA;
 
     teamA.forEach(pid => {
       if (pStats[pid]) {
@@ -89,14 +91,6 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
         pStats[pid].matchResults.push(winA);
       }
     });
-    teamB.forEach(pid => {
-      if (pStats[pid]) {
-        pStats[pid].total++;
-        if (winB) pStats[pid].wins++;
-        pStats[pid].matchResults.push(winB);
-      }
-    });
-
     teamB.forEach(pid => {
       if (pStats[pid]) {
         pStats[pid].total++;
@@ -155,14 +149,20 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
   ];
 
   const leaderboard = Object.entries(pStats)
-    .map(([id, stats]) => ({
-      id,
-      name: playerMap[id],
-      wins: stats.wins,
-      total: stats.total,
-      winRate: stats.total > 0 ? (stats.wins / stats.total) * 100 : 0
-    }))
-    .sort((a, b) => b.wins - a.wins); // Pass all players who have played at least 1 game
+    .map(([id, stats]) => {
+      const entry = {
+        id,
+        name: playerMap[id],
+        wins: stats.wins,
+        total: stats.total,
+        winRate: stats.total > 0 ? stats.wins / stats.total : 0
+      };
+      return entry;
+    })
+    .sort((a, b) => b.wins - a.wins);
+
+  console.log("Player Stats:", pStats);
+  console.log("Leaderboard:", leaderboard);
 
   // --- Monthly Trends Calculation ---
   const monthlyTrends: Record<string, { month: string, spending: number, usage: number }> = {};
