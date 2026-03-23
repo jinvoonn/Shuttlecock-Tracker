@@ -8,6 +8,7 @@ import { aggregatePlayerStats } from "@/lib/analytics/core";
 import { getPlayerProfileStats } from "@/lib/analytics/profile";
 import { getPlayerEloHistory } from "@/lib/analytics/eloTrend";
 import EloTrendChart from "./EloTrendChart";
+import EloRatingCard from "./EloRatingCard";
 import { getBestPartner, getWorstPartner, getPartnerStats } from "@/lib/analytics/partner";
 import clsx from "clsx";
 
@@ -264,13 +265,12 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
 
             {/* Summary Cards */}
             <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8 text-center pt-2">
-                <div className={clsx("p-5 rounded-2xl border shadow-lg relative overflow-hidden flex flex-col justify-center text-left", eloBg)}>
-                    <p className={clsx("text-[10px] font-bold uppercase mb-1 tracking-widest relative z-10 leading-none", eloColor)}>{eloLabel}</p>
-                    <div className="flex items-baseline gap-2 relative z-10 mt-1">
-                       <p className={clsx("text-3xl font-black font-mono leading-none tracking-tighter italic", eloColor)}>{playerElo}</p>
-                       <p className={clsx("text-[10px] uppercase font-bold tracking-widest", eloColor)}>ELO</p>
-                    </div>
-                </div>
+                <EloRatingCard 
+                    playerElo={playerElo} 
+                    eloLabel={eloLabel} 
+                    eloColor={eloColor} 
+                    eloBg={eloBg} 
+                />
                 <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-lg relative overflow-hidden text-left">
                     <div className="absolute top-0 right-0 p-3 opacity-10"><Activity className="w-12 h-12" /></div>
                     <p className="text-[10px] font-bold uppercase text-slate-500 mb-1 relative z-10">Matches</p>
