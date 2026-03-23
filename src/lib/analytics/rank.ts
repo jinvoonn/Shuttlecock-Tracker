@@ -91,17 +91,18 @@ export function getCockRank(elo: number, placementMatchesPlayed: number = 5): Co
   return RANK_TIERS[RANK_TIERS.length - 1];
 }
 
-const rankBadgeMap: Record<string, string> = {
-  Unranked: "/badges/unranked.svg",
-  "Soft Chick": "/badges/soft-chick.svg",
-  "Rising Chick": "/badges/rising-chick.svg",
-  "Hard Hitter": "/badges/hard-hitter.svg",
-  "Big Cock": "/badges/big-cock.svg",
-  "Battle Cock": "/badges/battle-cock.svg",
-  "Alpha Cock": "/badges/alpha-cock.svg",
-  "CockMaster": "/badges/cockmaster.svg"
-};
-
 export function getRankBadge(rank: string): string {
-  return rankBadgeMap[rank] ?? "/badges/unranked.svg";
+  const map: Record<string, string> = {
+    "Unranked": "unranked.svg",
+    "Soft Chick": "soft-chick.svg",
+    "Rising Chick": "rising-chick.svg",
+    "Hard Hitter": "hard-hitter.svg",
+    "Big Cock": "big-cock.svg",
+    "Battle Cock": "battle-cock.svg",
+    "Alpha Cock": "alpha-cock.svg",
+    "CockMaster": "cockmaster.svg"
+  };
+
+  const filename = map[rank] ?? "unranked.svg";
+  return `/badges/${filename}`;
 }
