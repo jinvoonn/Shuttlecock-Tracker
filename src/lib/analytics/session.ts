@@ -1,27 +1,14 @@
-import { NormalizedMatch, PlayerStats, LeaderboardEntry } from "./types";
-import { getPlayerStats } from "./core";
-import { getLeaderboard } from "./leaderboard";
+import { NormalizedMatch } from "./types";
 
 /**
- * Aggregates statistics for a specific session.
+ * Calculates the total number of shuttlecocks used across a set of matches.
+ * @param sessionMatches Array of normalized matches for a specific session.
+ * @returns Total shuttle count.
  */
-export function getSessionAnalytics(
-  matches: NormalizedMatch[],
-  playerMap: Record<string, string>,
-  sessionId: string
-) {
-  const sessionMatches = matches.filter((m) => {
-    // Depending on how sessionId is stored in NormalizedMatch (optional) or raw
-    // In our case, we usually filter before passing to these functions, 
-    // but we can provide helper here.
-    return true; // Assume filtered by caller for now
-  });
-
-  const stats = getPlayerStats(sessionMatches, playerMap);
+export function getTotalShuttleUsed(sessionMatches: NormalizedMatch[]): number {
+  if (!sessionMatches || sessionMatches.length === 0) return 0;
   
-  return {
-    stats,
-    leaderboardWins: getLeaderboard(stats, { sortBy: "wins" }),
-    leaderboardWinRate: getLeaderboard(stats, { sortBy: "winRate" }),
-  };
+  return sessionMatches.reduce((total, match) => {
+    return total + (match.shuttleUsed || 0);
+  }, 0);
 }

@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { normalizeMatches } from "@/lib/analytics/normalize";
 import { getPlayerStats, aggregatePlayerStats } from "@/lib/analytics/core";
 import { getLeaderboard } from "@/lib/analytics/leaderboard";
+import { getTotalShuttleUsed } from "@/lib/analytics/session";
 import DesktopSessionDetails from "@/stitch-designs/desktop/SessionDetails";
 import MobileSessionDetails from "@/stitch-designs/mobile/SessionDetails";
 
@@ -100,7 +101,6 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
 
   // 5. Transform attendee data
   let currentSessionTotalCost = 0;
-  let shuttlesUsedCount = 0;
 
   (sessionUsage || []).forEach(su => {
     const purchase = Array.isArray(su.purchases) ? su.purchases[0] : su.purchases;
@@ -130,6 +130,11 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
   });
 
   const costPerHead = attendeesList.length > 0 ? currentSessionTotalCost / attendeesList.length : 0;
+
+  // 6. Calculate Session Stats using Analytics Engine
+  const normalizedSessionMatches = normalizeMatches(matchesData || [], playerMap);
+  const coreSessionStats = getPlayerStats(normalizedSessionMatches, playerMap);
+  const shuttlesUsedCount = getTotalShuttleUsed(normalizedSessionMatches);
 
   const sessionMeta = {
     id: session.id,
@@ -208,10 +213,6 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
     tube_number: p.tube_number
   }));
 
-  // 6. Calculate Session Stats using Analytics Engine
-  const normalizedSessionMatches = normalizeMatches(matchesData || [], playerMap);
-  const coreSessionStats = getPlayerStats(normalizedSessionMatches, playerMap);
-  
   const winsLeaderboard = getLeaderboard(coreSessionStats, { sortBy: "wins" });
   const winRateLeaderboard = getLeaderboard(coreSessionStats, { sortBy: "winRate", minGames: 1 });
 

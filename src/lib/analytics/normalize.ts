@@ -32,6 +32,7 @@ export function normalizeMatch(raw: any, playerMap: Record<string, string>): Nor
     scoreA,
     scoreB,
     winner,
+    shuttleUsed: Number(raw.shuttle_used || 0),
   };
 }
 

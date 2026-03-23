@@ -37,16 +37,16 @@ export default function CockRatingModal({ isOpen, onClose, playerElo = 1200 }: C
   if (!isOpen && !isRendered) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 font-['Lexend',_sans-serif]">
-      {/* Backdrop */}
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 font-['Lexend',_sans-serif]">
+      {/* Backdrop Overlay */}
       <div 
         onClick={onClose}
-        className={`fixed inset-0 bg-black/80 backdrop-blur-xl transition-all duration-300 ease-out ${isRendered ? 'opacity-100' : 'opacity-0'}`} 
+        className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] transition-all duration-300 ease-out ${isRendered ? 'opacity-100' : 'opacity-0'}`} 
       />
 
       <div 
-        className={`relative w-full sm:max-w-md bg-[#1A1D23] border border-slate-700/60 shadow-2xl rounded-t-[2rem] sm:rounded-3xl flex flex-col max-h-[90vh] transform transition-all duration-300 ease-out origin-bottom sm:origin-center
-          ${isRendered ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-full sm:translate-y-0 sm:scale-95 opacity-0'}
+        className={`relative z-[9999] w-full max-w-md bg-[#1A1D23] border border-slate-700/60 shadow-2xl rounded-3xl flex flex-col max-h-[90vh] transform transition-all duration-300 ease-out
+          ${isRendered ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-4 opacity-0 scale-95'}
         `}
       >
         {/* Header Ribbon */}
