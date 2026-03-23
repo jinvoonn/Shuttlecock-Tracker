@@ -157,12 +157,10 @@
 *   [x] **Config**: Renamed `RANK_TIERS` in `rank.ts` to new tier names (Soft Chick, Rising Chick, Hard Hitter, Big Cock, Battle Cock, Alpha Cock).
 *   [x] **Propagation**: Because the entire application uses `getCockRank` and maps over `RANK_TIERS`, updating `rank.ts` automatically applies changes consistently down to the Dashboard, Player Profile, Sessions, and CockRating Guide.
 
-## Phase 72 — Rank Badge Icons (Complete)
-*   [x] **Component Design**: Created `/components/ui/RankIcon.tsx` rendering Lucide-based icons supporting standard sizes (`small`, `normal`, `large`).
-*   [x] **Strict Mapping Enforcement**: Refined `RankIcon.tsx` to strictly use the exact icons (Egg, CircleDot, TrendingUp, Activity, Flame, Swords, Crown) and explicit Tailwind class combinations provided without unrequested shadows or modifications, ensuring absolute visual alignment.
-*   [x] **System Update**: Removed legacy `icon` strings from `CockRank` structure in `rank.ts`.
-*   [x] **Component Integration**: Updated `RankBadge.tsx`, `EloRatingCard.tsx`, and `cockrating/page.tsx` to mount `<RankIcon>` mapped by `rank.name`. Legacy emoji sizes dynamically translated into `RankIcon` sizing.
-*   [x] **UI Polish**: Resolved badge vertical alignment by modifying compact badge padding and using 20px (`w-5 h-5`) dimension for `RankIcon` small size.
+## Phase 72 — Emoji Rank Indicators Reversion (Complete)
+*   [x] **Config Update**: Centralized a `rankEmojiMap` inside `rank.ts` and created the `getRankEmoji(rank)` helper. Re-added strictly mapped emojis.
+*   [x] **Component Teardown**: Deleted the `RankIcon.tsx` component to enforce simplicity and resolve complex dependencies.
+*   [x] **System Integration**: Rewired `RankBadge.tsx`, `EloRatingCard.tsx`, and `cockrating/page.tsx` to mount standard `<span>{getRankEmoji(rank.name)}</span>` across both full and compact views.
 
 ## Current State
 
