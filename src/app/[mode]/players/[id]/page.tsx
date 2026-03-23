@@ -12,6 +12,7 @@ import EloRatingCard from "./EloRatingCard";
 import { getBestPartner, getWorstPartner, getPartnerStats } from "@/lib/analytics/partner";
 import RankBadge from "@/components/ui/RankBadge";
 import PlayerName from "@/components/ui/PlayerName";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import clsx from "clsx";
 
 export const revalidate = 0;
@@ -168,10 +169,11 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
         };
     });
 
-    // H2H Logic (Keeping here for now as requested to focus on stats/partners)
+    // H2H Logic
     const h2h: Record<string, { name: string, wins: number, losses: number, total: number }> = {};
     formattedMatches.forEach((m: any) => {
-        m.opponents.forEach((oppName: string) => {
+        m.opponents.forEach((opp: any) => {
+            const oppName = typeof opp === 'string' ? opp : opp.name;
             if (!h2h[oppName]) h2h[oppName] = { name: oppName, wins: 0, losses: 0, total: 0 };
             h2h[oppName].total++;
             if (m.isWin) h2h[oppName].wins++;
@@ -199,7 +201,22 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
     } : null;
 
     return (
-        <div className="flex h-screen overflow-hidden bg-slate-900 text-slate-100 font-['Lexend',_sans-serif]">
+        <ErrorBoundary fallback={
+            <div className="p-8 text-rose-500 flex flex-col items-center justify-center min-h-screen bg-slate-900">
+                <h2 className="text-2xl font-black mb-4 uppercase italic tracking-tighter">Something went wrong</h2>
+                <p className="text-slate-400 mb-6">We couldn't load this player profile.</p>
+                <Link href={basePath} className="px-6 py-3 bg-slate-800 rounded-xl text-white font-bold hover:bg-slate-700 transition-all">
+                    Back to Dashboard
+                </Link>
+            </div>
+        }>
+            <PlayerProfileContent />
+        </ErrorBoundary>
+    );
+
+    function PlayerProfileContent() {
+        return (
+            <div className="flex h-screen overflow-hidden bg-slate-900 text-slate-100 font-['Lexend',_sans-serif]">
             {/* Cinematic Background Overlay */}
             <div 
                 className="fixed inset-0 opacity-10 pointer-events-none grayscale bg-cover bg-center"
@@ -440,8 +457,9 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                     )}
                 </div>
             </div>
-        </div>
-    </main>
-</div>
+          </div>
+        </main>
+      </div>
     );
+  }
 }
