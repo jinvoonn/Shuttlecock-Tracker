@@ -1,35 +1,35 @@
 import React from 'react';
-import { Egg, Feather, TrendingUp, Activity, Flame, Swords, Crown } from 'lucide-react';
+import { Egg, CircleDot, TrendingUp, Activity, Flame, Swords, Crown } from 'lucide-react';
 import clsx from 'clsx';
 
 const rankConfig: Record<string, { icon: React.ElementType, className: string }> = {
   "Unranked": {
     icon: Egg,
-    className: "bg-slate-700 text-slate-400 border border-slate-600"
+    className: "bg-slate-700 text-slate-400"
   },
   "Soft Chick": {
-    icon: Feather,
-    className: "bg-yellow-300 text-yellow-900 shadow-sm"
+    icon: CircleDot,
+    className: "bg-yellow-200 text-yellow-800"
   },
   "Rising Chick": {
     icon: TrendingUp,
-    className: "bg-gradient-to-br from-yellow-400 to-orange-400 text-white shadow-[0_0_10px_rgba(251,191,36,0.5)]"
+    className: "bg-gradient-to-br from-yellow-400 to-orange-400 text-white"
   },
   "Hard Hitter": {
     icon: Activity,
-    className: "bg-blue-500 text-white shadow-[0_0_12px_rgba(59,130,246,0.6)]"
+    className: "bg-blue-500 text-white"
   },
   "Big Cock": {
     icon: Flame,
-    className: "bg-gradient-to-br from-orange-500 to-red-500 text-white shadow-[0_0_12px_rgba(249,115,22,0.7)]"
+    className: "bg-gradient-to-br from-orange-500 to-red-500 text-white"
   },
   "Battle Cock": {
     icon: Swords,
-    className: "bg-red-600 text-white shadow-[0_0_12px_rgba(220,38,38,0.8)]"
+    className: "bg-red-600 text-white"
   },
   "Alpha Cock": {
     icon: Crown,
-    className: "bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-[0_0_12px_rgba(168,85,247,0.8)]"
+    className: "bg-gradient-to-br from-purple-500 to-pink-500 text-white"
   },
   "CockMaster": {
     icon: Crown,
