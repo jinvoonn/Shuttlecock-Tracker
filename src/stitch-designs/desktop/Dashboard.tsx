@@ -55,6 +55,7 @@ interface DashboardProps {
     wins: number;
     total: number;
     winRate: number;
+    elo: number;
   }[];
 }
 
@@ -63,10 +64,13 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
   const { canEdit } = useRole();
-  const [leaderboardMode, setLeaderboardMode] = React.useState<"wins" | "winRate">("wins");
+  const [leaderboardMode, setLeaderboardMode] = React.useState<"wins" | "winRate" | "elo">("elo");
 
   const sortedLeaderboard = React.useMemo(() => {
     if (!leaderboard) return [];
+    if (leaderboardMode === "elo") {
+      return [...leaderboard].sort((a, b) => b.elo - a.elo);
+    }
     if (leaderboardMode === "winRate") {
       return [...leaderboard]
         .filter(p => p.total >= 3)
@@ -225,7 +229,7 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
                         : "text-slate-500 hover:text-slate-300"
                     )}
                   >
-                    Most Wins
+                    Wins
                   </button>
                   <button
                     onClick={() => setLeaderboardMode("winRate")}
@@ -237,6 +241,17 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
                     )}
                   >
                     Win Rate
+                  </button>
+                  <button
+                    onClick={() => setLeaderboardMode("elo")}
+                    className={clsx(
+                      "px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all duration-200 active:scale-95",
+                      leaderboardMode === "elo"
+                        ? "bg-emerald-400 text-white shadow-lg"
+                        : "text-slate-500 hover:text-slate-300"
+                    )}
+                  >
+                    ELO
                   </button>
                 </div>
               </div>
@@ -258,7 +273,9 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
                     <div className="font-mono font-black italic text-[#13ec80] bg-emerald-500/5 px-4 py-1.5 rounded-lg text-lg">
                       {leaderboardMode === "wins" 
                         ? `${player.wins} WINS` 
-                        : `${(player.winRate * 100).toFixed(1)}%`
+                        : leaderboardMode === "winRate"
+                           ? `${(player.winRate * 100).toFixed(1)}%`
+                           : `${player.elo} ELO`
                       }
                     </div>
                   </div>

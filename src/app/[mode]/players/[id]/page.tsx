@@ -4,6 +4,7 @@ import Link from "next/link";
 import { SkillRatingEditor } from "@/components/SkillRatingEditor";
 import { MatchHistory } from "./MatchHistory";
 import { normalizeMatches } from "@/lib/analytics/normalize";
+import { aggregatePlayerStats } from "@/lib/analytics/core";
 import { getPlayerProfileStats } from "@/lib/analytics/profile";
 import { getBestPartner, getWorstPartner, getPartnerStats } from "@/lib/analytics/partner";
 import clsx from "clsx";
@@ -97,6 +98,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
 
     // --- ANALYTICS ENGINE INTEGRATION ---
     const normalizedMatches = normalizeMatches(matches || [], playerMap);
+    const { elo: globalElo } = aggregatePlayerStats(normalizedMatches, Object.fromEntries(Object.keys(playerMap).map(k => [k, playerMap[k]])));
     const profileStats = getPlayerProfileStats(matches || [], playerMap, id);
     const allPartnersStats = getPartnerStats(normalizedMatches);
     const playerPartnerStats = allPartnersStats[id] || {};
@@ -107,6 +109,26 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
     const winRate = profileStats ? Math.round(profileStats.winRate * 100) : 0;
     const winStreak = profileStats?.streak || 0;
     const recentForm = profileStats?.lastResults || [];
+    
+    // ELO Settings
+    const playerElo = Math.round(globalElo[id] || 1200);
+    let eloLabel = "Elite";
+    let eloColor = "text-emerald-400";
+    let eloBg = "bg-emerald-500/5 border-emerald-500/20";
+    
+    if (playerElo < 1000) {
+        eloLabel = "Below Average";
+        eloColor = "text-rose-400";
+        eloBg = "bg-rose-500/5 border-rose-500/20";
+    } else if (playerElo < 1300) {
+        eloLabel = "Average";
+        eloColor = "text-slate-300";
+        eloBg = "bg-slate-800 border-slate-700";
+    } else if (playerElo < 1600) {
+        eloLabel = "Strong";
+        eloColor = "text-sky-400";
+        eloBg = "bg-sky-500/5 border-sky-500/20";
+    }
 
     // Map matches for backward compatibility with UI
     const formattedMatches = normalizedMatches.map((m: any) => {
@@ -237,7 +259,14 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                     </header>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8 text-center pt-2">
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8 text-center pt-2">
+                <div className={clsx("p-5 rounded-2xl border shadow-lg relative overflow-hidden flex flex-col justify-center text-left", eloBg)}>
+                    <p className={clsx("text-[10px] font-bold uppercase mb-1 tracking-widest relative z-10 leading-none", eloColor)}>{eloLabel}</p>
+                    <div className="flex items-baseline gap-2 relative z-10 mt-1">
+                       <p className={clsx("text-3xl font-black font-mono leading-none tracking-tighter italic", eloColor)}>{playerElo}</p>
+                       <p className={clsx("text-[10px] uppercase font-bold tracking-widest", eloColor)}>ELO</p>
+                    </div>
+                </div>
                 <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-lg relative overflow-hidden text-left">
                     <div className="absolute top-0 right-0 p-3 opacity-10"><Activity className="w-12 h-12" /></div>
                     <p className="text-[10px] font-bold uppercase text-slate-500 mb-1 relative z-10">Matches</p>

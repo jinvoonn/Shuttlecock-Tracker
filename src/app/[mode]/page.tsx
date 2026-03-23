@@ -4,7 +4,7 @@ import MobileDashboard from "@/stitch-designs/mobile/Dashboard";
 import { AlertCircle } from "lucide-react";
 import { ADMIN_SECRET } from "@/lib/constants";
 import { normalizeMatches } from "@/lib/analytics/normalize";
-import { getPlayerStats } from "@/lib/analytics/core";
+import { aggregatePlayerStats } from "@/lib/analytics/core";
 import { getLeaderboard, getGlobalInsights } from "@/lib/analytics/leaderboard";
 
 export const revalidate = 0;
@@ -58,7 +58,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
   const playerMap = Object.fromEntries((playersData || []).map(p => [p.id, p.name]));
 
   const normalizedMatches = normalizeMatches(matchesData || [], playerMap);
-  const coreStats = getPlayerStats(normalizedMatches, playerMap);
+  const { stats: coreStats, elo: globalElo } = aggregatePlayerStats(normalizedMatches, playerMap);
 
   // Still need to calculate session participation as it's not in match data
   (sessionsData || []).forEach(s => {
@@ -100,7 +100,8 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
     name: s.name,
     wins: s.wins,
     total: s.totalGames,
-    winRate: s.winRate
+    winRate: s.winRate,
+    elo: Math.round(globalElo[s.id] || 1200)
   }));
 
   console.log("Analytics Stats:", coreStats);

@@ -30,3 +30,7 @@ export type GlobalInsights = {
   bestWinRatePlayer: PlayerStats | null;
   longestStreakPlayer: PlayerStats | null;
 };
+
+export type EloMap = {
+  [playerId: string]: number;
+};

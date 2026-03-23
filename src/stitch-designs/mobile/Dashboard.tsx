@@ -64,6 +64,7 @@ interface DashboardProps {
     wins: number;
     total: number;
     winRate: number;
+    elo: number;
   }[];
 }
 
@@ -75,10 +76,13 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
   const { canEdit } = useRole();
   const [settlingId, setSettlingId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'spending' | 'usage'>('spending');
-  const [leaderboardMode, setLeaderboardMode] = useState<"wins" | "winRate">("wins");
+  const [leaderboardMode, setLeaderboardMode] = useState<"wins" | "winRate" | "elo">("elo");
 
   const sortedLeaderboard = React.useMemo(() => {
     if (!leaderboard) return [];
+    if (leaderboardMode === "elo") {
+      return [...leaderboard].sort((a, b) => b.elo - a.elo);
+    }
     if (leaderboardMode === "winRate") {
       return [...leaderboard]
         .filter(p => p.total >= 3)
@@ -200,6 +204,17 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
                     >
                       Rate
                     </button>
+                    <button
+                      onClick={() => setLeaderboardMode("elo")}
+                      className={clsx(
+                        "px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all duration-200 active:scale-95",
+                        leaderboardMode === "elo"
+                          ? "bg-emerald-400 text-white shadow-sm"
+                          : "text-slate-500"
+                      )}
+                    >
+                      ELO
+                    </button>
                   </div>
                 </div>
                 <div className="flex flex-col gap-3 max-h-[350px] overflow-y-auto scrollbar-hide">
@@ -214,7 +229,7 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
                         </span>
                       </div>
                       <span className="font-mono text-sm font-black italic text-emerald-400 bg-emerald-400/5 px-2 py-0.5 rounded">
-                        {leaderboardMode === "wins" ? player.wins : `${(player.winRate * 100).toFixed(1)}%`}
+                        {leaderboardMode === "wins" ? player.wins : leaderboardMode === "winRate" ? `${(player.winRate * 100).toFixed(1)}%` : player.elo}
                       </span>
                     </div>
                   ))}

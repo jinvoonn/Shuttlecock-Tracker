@@ -89,3 +89,24 @@ export function getPlayerStats(
 
   return stats;
 }
+
+// Ensure calculateEloRatings is imported at the top
+import { calculateEloRatings } from "./elo";
+import { EloMap } from "./types";
+
+/**
+ * Aggregates both standard player statistics and Team ELO ratings concurrently.
+ * This extends outputs for UI consumption while preventing breaking changes to getPlayerStats.
+ */
+export function aggregatePlayerStats(
+  matches: NormalizedMatch[],
+  playerMap: Record<string, string>
+): { stats: Record<string, PlayerStats>; elo: EloMap } {
+  const stats = getPlayerStats(matches, playerMap);
+  const elo = calculateEloRatings(matches);
+
+  return {
+    stats,
+    elo
+  };
+}
