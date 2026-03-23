@@ -16,11 +16,13 @@ import { useRouter, usePathname } from "next/navigation";
 import { addPayment } from "@/lib/actions/payments";
 import clsx from 'clsx';
 import Link from 'next/link';
+import PlayerName from "@/components/ui/PlayerName";
 
 interface Player {
   id: string;
   name: string;
   avatar?: string;
+  elo?: number;
 }
 
 interface DesktopRecordTransactionProps {
@@ -191,10 +193,15 @@ export default function DesktopRecordTransaction({ players, sessionId }: Desktop
                         {player.name.substring(0, 2)}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className={clsx(
-                          "text-sm font-bold truncate",
-                          selectedPlayerId === player.id ? "text-slate-100" : "text-slate-300"
-                        )}>{player.name}</p>
+                        <PlayerName 
+                          name={player.name} 
+                          elo={player.elo || 1200} 
+                          showRankName={false} 
+                          nameClassName={clsx(
+                            "text-sm font-bold truncate",
+                            selectedPlayerId === player.id ? "text-slate-100" : "text-slate-300"
+                          )}
+                        />
                       </div>
                       {selectedPlayerId === player.id && (
                         <CheckCircle2 className="size-4 text-[#13ec80] shrink-0" />

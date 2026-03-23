@@ -21,8 +21,10 @@ import {
   Trophy
 } from 'lucide-react';
 import { useRouter, usePathname } from "next/navigation";
+import PlayerName from "@/components/ui/PlayerName";
 import { deleteMatch, updateMatch } from "@/lib/actions/matches";
 import clsx from "clsx";
+import RankBadge from '@/components/ui/RankBadge';
 import Link from 'next/link';
 import { useRole } from "@/context/AuthContext";
 import { useEffect } from 'react';
@@ -44,6 +46,8 @@ interface Match {
   id: string;
   teamA: string;
   teamB: string;
+  teamAPlayers?: { id: string; name: string; elo: number }[];
+  teamBPlayers?: { id: string; name: string; elo: number }[];
   scoreA: number;
   scoreB: number;
   type: string;
@@ -61,6 +65,7 @@ interface Attendee {
   role: string;
   fee: number;
   paid: boolean;
+  elo?: number;
 }
 
 interface SessionPlayer {
@@ -81,8 +86,8 @@ interface MobileSessionDetailsProps {
   allPurchases: Purchase[];
   initialData: InitialData;
   sessionStats?: {
-    mostWins: { id: string; name: string; value: number; suffix?: string }[];
-    winRate: { id: string; name: string; value: number; suffix?: string }[];
+    mostWins: { id: string; name: string; value: number; suffix?: string; elo?: number }[];
+    winRate: { id: string; name: string; value: number; suffix?: string; elo?: number }[];
   }
 }
 
@@ -330,8 +335,13 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                         {person.name.split(' ').map(n => n[0]).join('')}
                       </div>
                       <div className="text-left">
-                        <p className="text-sm font-black text-white uppercase">{person.name}</p>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{person.role}</p>
+                        <PlayerName 
+                          name={person.name} 
+                          elo={person.elo || 1200} 
+                          showRankName={false} 
+                          nameClassName="text-sm"
+                        />
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{person.role}</p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -387,16 +397,24 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-3">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm font-black text-slate-300 uppercase tracking-tight truncate max-w-[160px] italic">{match.teamA}</span>
-                          <span className={`text-3xl font-black italic leading-none tabular-nums ${match.scoreA >= match.scoreB && match.status === 'Completed' ? 'text-emerald-400' : 'text-slate-700'}`}>{match.scoreA}</span>
+                        <div className="flex flex-col gap-3">
+                          <div className="flex justify-between items-center">
+                            <div className="flex flex-col gap-1.5">
+                              {match.teamAPlayers?.map(p => (
+                                <PlayerName key={p.id} name={p.name} elo={p.elo} showRankName={false} nameClassName="text-xs" />
+                              )) || <span className="text-sm font-black text-slate-300 uppercase tracking-tight truncate max-w-[160px] italic">{match.teamA}</span>}
+                            </div>
+                            <span className={`text-3xl font-black italic leading-none tabular-nums ${match.scoreA >= match.scoreB && match.status === 'Completed' ? 'text-emerald-400' : 'text-slate-700'}`}>{match.scoreA}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <div className="flex flex-col gap-1.5">
+                              {match.teamBPlayers?.map(p => (
+                                <PlayerName key={p.id} name={p.name} elo={p.elo} showRankName={false} nameClassName="text-xs" />
+                              )) || <span className="text-sm font-bold text-slate-500 uppercase tracking-tight truncate max-w-[160px] italic">{match.teamB}</span>}
+                            </div>
+                            <span className={`text-3xl font-black italic leading-none tabular-nums ${match.scoreB >= match.scoreA && match.status === 'Completed' ? 'text-emerald-400' : 'text-slate-700'}`}>{match.scoreB}</span>
+                          </div>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm font-bold text-slate-500 uppercase tracking-tight truncate max-w-[160px] italic">{match.teamB}</span>
-                          <span className={`text-3xl font-black italic leading-none tabular-nums ${match.scoreB >= match.scoreA && match.status === 'Completed' ? 'text-emerald-400' : 'text-slate-700'}`}>{match.scoreB}</span>
-                        </div>
-                      </div>
                     </div>
 
                     {/* Inline Edit Panel */}

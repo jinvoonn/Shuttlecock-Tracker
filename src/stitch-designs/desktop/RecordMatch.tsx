@@ -13,11 +13,13 @@ import {
 import { useRouter, usePathname } from "next/navigation";
 import { addMatch } from "@/lib/actions/matches";
 import clsx from 'clsx';
+import PlayerName from "@/components/ui/PlayerName";
 import Link from 'next/link';
 
 interface Player {
   id: string;
   name: string;
+  elo?: number;
 }
 
 interface DesktopRecordMatchProps {
@@ -278,7 +280,12 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
                               : "bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-500 hover:text-slate-100"
                         )}
                       >
-                        {p.name}
+                      <PlayerName 
+                        name={p.name} 
+                        elo={p.elo || 1200} 
+                        showRankName={false} 
+                        nameClassName="text-sm"
+                      />
                         {isTeamA && <span className="bg-white/20 px-1.5 py-0.5 rounded text-[9px] font-black">A</span>}
                         {isTeamB && <span className="bg-white/20 px-1.5 py-0.5 rounded text-[9px] font-black">B</span>}
                       </button>
@@ -302,9 +309,13 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
                         {teamAIds.map(id => {
                           const p = players.find(pl => pl.id === id);
                           return p ? (
-                            <div key={id} className="text-sm font-bold text-emerald-200 flex items-center gap-1.5">
-                              <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />
-                              {p.name}
+                            <div key={id} className="text-sm font-bold text-emerald-200 flex items-center gap-1.5 py-0.5">
+                              <PlayerName 
+                                name={p.name} 
+                                elo={p.elo || 1200} 
+                                showRankName={false} 
+                                nameClassName="text-sm"
+                              />
                             </div>
                           ) : null;
                         })}
@@ -320,9 +331,13 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
                         {teamBIds.map(id => {
                           const p = players.find(pl => pl.id === id);
                           return p ? (
-                            <div key={id} className="text-sm font-bold text-sky-200 flex items-center gap-1.5">
-                              <div className="w-1.5 h-1.5 bg-sky-400 rounded-full" />
-                              {p.name}
+                            <div key={id} className="text-sm font-bold text-sky-200 flex items-center gap-1.5 py-0.5">
+                              <PlayerName 
+                                name={p.name} 
+                                elo={p.elo || 1200} 
+                                showRankName={false} 
+                                nameClassName="text-sm"
+                              />
                             </div>
                           ) : null;
                         })}

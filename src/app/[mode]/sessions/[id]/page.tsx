@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { normalizeMatches } from "@/lib/analytics/normalize";
-import { getPlayerStats } from "@/lib/analytics/core";
+import { getPlayerStats, aggregatePlayerStats } from "@/lib/analytics/core";
 import { getLeaderboard } from "@/lib/analytics/leaderboard";
 import DesktopSessionDetails from "@/stitch-designs/desktop/SessionDetails";
 import MobileSessionDetails from "@/stitch-designs/mobile/SessionDetails";
@@ -36,7 +36,8 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
     { data: purchasesData, error: purchasesError },
     // Global data for balance calculation
     { data: allPayments, error: allPaymentsError },
-    { data: allSessionUsage, error: allUsageError }
+    { data: allSessionUsage, error: allUsageError },
+    { data: allMatchesData, error: allMatchesError }
   ] = await Promise.all([
     supabase.from("session_players").select("*, players(id, name)").eq("session_id", id),
     supabase.from("session_usage").select("*, purchases(id, tube_number, brands(name), price_per_cock)").eq("session_id", id),
@@ -45,11 +46,12 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
     supabase.from("sessions").select("id, date, session_players(player_id)").order("date", { ascending: true }).order("created_at", { ascending: true }),
     supabase.from("purchases").select("id, tube_number, brands(name), price_per_tube, price_per_cock, remaining_quantity").gt("remaining_quantity", 0).order("created_at", { ascending: true }),
     supabase.from("payments").select("amount, player_id"),
-    supabase.from("session_usage").select("session_id, quantity_used, purchases(price_per_cock)")
+    supabase.from("session_usage").select("session_id, quantity_used, purchases(price_per_cock)"),
+    supabase.from("matches").select("*").order("created_at", { ascending: true }) // Global match history
   ]);
 
-  if (playersError || usageError || matchesError || allPlayersError || allSessionsListError || purchasesError || allPaymentsError || allUsageError) {
-    console.error("Error fetching related data:", { playersError, usageError, matchesError, allPlayersError, allSessionsListError, purchasesError, allPaymentsError, allUsageError });
+  if (playersError || usageError || matchesError || allPlayersError || allSessionsListError || purchasesError || allPaymentsError || allUsageError || allMatchesError) {
+    console.error("Error fetching related data:", { playersError, usageError, matchesError, allPlayersError, allSessionsListError, purchasesError, allPaymentsError, allUsageError, allMatchesError });
     return (
       <div className="p-8 text-rose-500 font-black italic uppercase flex items-center justify-center min-h-screen bg-[#020617]">
         Error loading session details
@@ -105,9 +107,12 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
     const qty = su.quantity_used || 0;
     const price = purchase?.price_per_cock || 0;
     
-    shuttlesUsedCount += qty;
     currentSessionTotalCost += (qty * price);
   });
+
+  // 6.5 Calculate Global ELO
+  const normalizedGlobalMatches = normalizeMatches(allMatchesData || [], playerMap);
+  const { elo: globalElo } = aggregatePlayerStats(normalizedGlobalMatches, playerMap);
 
   const attendeesList = (sessionPlayers || []).map((sp: { players: { id: string, name: string } | null }) => {
     const pId = sp.players?.id || "";
@@ -118,7 +123,8 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
       name: sp.players?.name || "Unknown",
       role: "Player",
       fee: currentSessionTotalCost / (sessionPlayers?.length || 1),
-      paid: balance >= -0.01 // Use a small epsilon for float precision
+      paid: balance >= -0.01, // Use a small epsilon for float precision
+      elo: globalElo[pId] || 1200
     };
   });
 
@@ -143,13 +149,22 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
       const p3 = m.team_b_player1;
       const p4 = m.team_b_player2;
 
-      const teamAStr = [playerMap[p1], playerMap[p2]].filter(Boolean).join(" & ");
-      const teamBStr = [playerMap[p3], playerMap[p4]].filter(Boolean).join(" & ");
+      const teamAPlayers = [
+        { id: p1, name: playerMap[p1] || "Unknown", elo: globalElo[p1] || 1200 },
+        { id: p2, name: playerMap[p2] || "Unknown", elo: globalElo[p2] || 1200 }
+      ].filter(p => p.id);
+
+      const teamBPlayers = [
+        { id: p3, name: playerMap[p3] || "Unknown", elo: globalElo[p3] || 1200 },
+        { id: p4, name: playerMap[p4] || "Unknown", elo: globalElo[p4] || 1200 }
+      ].filter(p => p.id);
 
       return {
         id: m.id,
-        teamA: teamAStr || "Team A",
-        teamB: teamBStr || "Team B",
+        teamA: teamAPlayers.map(p => p.name).join(" & ") || "Team A",
+        teamB: teamBPlayers.map(p => p.name).join(" & ") || "Team B",
+        teamAPlayers,
+        teamBPlayers,
         scoreA: m.team_a_score || 0,
         scoreB: m.team_b_score || 0,
         team_a_player1: p1,
@@ -195,7 +210,7 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
   // 6. Calculate Session Stats using Analytics Engine
   const normalizedSessionMatches = normalizeMatches(matchesData || [], playerMap);
   const coreSessionStats = getPlayerStats(normalizedSessionMatches, playerMap);
-
+  
   const winsLeaderboard = getLeaderboard(coreSessionStats, { sortBy: "wins" });
   const winRateLeaderboard = getLeaderboard(coreSessionStats, { sortBy: "winRate", minGames: 1 });
 
@@ -204,12 +219,14 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
       id: s.id,
       name: s.name,
       value: s.wins,
-      suffix: s.wins === 1 ? "win" : "wins"
+      suffix: s.wins === 1 ? "win" : "wins",
+      elo: globalElo[s.id] || 1200
     })),
     winRate: winRateLeaderboard.map(s => ({
       id: s.id,
       name: s.name,
-      value: s.winRate
+      value: s.winRate,
+      elo: globalElo[s.id] || 1200
     }))
   };
 

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Activity, LayoutDashboard, CalendarDays, Package, Wallet, Plus, Pencil, Trash2, Feather
 } from 'lucide-react';
+import PlayerName from '@/components/ui/PlayerName';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -18,7 +19,7 @@ interface SessionData {
   id: string; date: string; location: string; notes?: string; displayNumber?: number;
   status: 'Completed' | 'Outstanding' | 'Archived';
   shuttleUsed: { name: string; quantity: number; };
-  costPerPerson: number; attendees: string[]; playerIds: string[];
+  costPerPerson: number; attendees: { id: string; name: string; elo: number }[]; playerIds: string[];
   usageMap: Record<string, number>; totalNet: number;
 }
 interface DesktopSessionsListProps {
@@ -161,9 +162,12 @@ export default function SessionListUI({ sessions, allPlayers, allPurchases }: De
 
                   <div className="mt-2 flex items-center justify-between">
                     <div className="flex -space-x-2.5">
-                      {session.attendees.slice(0, 4).map((name, i) => (
-                        <div key={i} className="flex size-10 items-center justify-center rounded-full border-2 border-[#0f172a] bg-slate-800 text-[10px] font-black uppercase text-slate-400">
-                          {name.slice(0, 2)}
+                      {session.attendees.slice(0, 4).map((att, i) => (
+                        <div key={i} className="flex size-10 items-center justify-center rounded-full border-2 border-[#0f172a] bg-slate-800 text-[10px] font-black uppercase text-slate-400 group/att relative">
+                          {att.name.slice(0, 2)}
+                          <div className="absolute -top-1 -right-1 scale-50 origin-bottom-left transition-transform group-hover/att:scale-75">
+                            <PlayerName name="" elo={att.elo} showRankName={false} hideName={true} />
+                          </div>
                         </div>
                       ))}
                       {session.attendees.length > 4 && (

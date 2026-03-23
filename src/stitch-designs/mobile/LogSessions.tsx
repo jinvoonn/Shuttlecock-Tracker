@@ -14,6 +14,7 @@ import {
   Clock,
   Feather
 } from 'lucide-react';
+import PlayerName from "@/components/ui/PlayerName";
 
 import { useState } from 'react';
 import { useRouter, usePathname } from "next/navigation";
@@ -31,6 +32,7 @@ interface Player {
   id: string;
   name: string;
   avatar?: string;
+  elo?: number;
 }
 
 interface MobileLogSessionsProps {
@@ -203,7 +205,12 @@ export default function MobileLogSessions({ tubes, players }: MobileLogSessionsP
                       )}
                     </div>
                     <div className="text-left">
-                      <p className="font-black text-sm uppercase text-white">{player.name}</p>
+                      <PlayerName 
+                        name={player.name} 
+                        elo={player.elo || 1200} 
+                        showRankName={false} 
+                        nameClassName="text-sm font-black uppercase text-white"
+                      />
                       <p className={`text-[10px] uppercase font-black tracking-widest leading-none mt-1 ${attendeeIds.has(player.id) ? 'text-emerald-400' : 'text-slate-500'}`}>
                         {attendeeIds.has(player.id) ? 'Attending' : 'Not Attending'}
                       </p>

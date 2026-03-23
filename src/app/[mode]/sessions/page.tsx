@@ -1,6 +1,8 @@
 import { supabase } from "@/lib/supabase";
 import DesktopSessionList from "@/stitch-designs/desktop/SessionList";
 import MobileSessions from "@/stitch-designs/mobile/Sessions";
+import { normalizeMatches } from "@/lib/analytics/normalize";
+import { aggregatePlayerStats } from "@/lib/analytics/core";
 
 export const revalidate = 0;
 
@@ -48,6 +50,13 @@ export default async function SessionsPage({ params }: { params: Promise<{ mode:
     supabase.from("purchases").select("id, tube_number, brands(name), price_per_tube, price_per_cock, remaining_quantity").gt("remaining_quantity", 0).order("created_at", { ascending: true })
   ]);
 
+  // 1. Fetch data
+  const { data: matchesData } = await supabase.from("matches").select("*").order("created_at", { ascending: true });
+  const { data: allPlayersData } = await supabase.from("players").select("id, name");
+  const playerMap = Object.fromEntries((allPlayersData || []).map(p => [p.id, p.name]));
+  const normalizedMatches = normalizeMatches(matchesData || [], playerMap);
+  const { elo: globalElo } = aggregatePlayerStats(normalizedMatches, playerMap);
+
   if (sessionsError) {
     return (
       <div className="p-8 text-rose-500 font-black italic uppercase flex items-center justify-center min-h-screen bg-[#020617]">
@@ -91,7 +100,11 @@ export default async function SessionsPage({ params }: { params: Promise<{ mode:
         quantity: totalShuttles
       },
       costPerPerson,
-      attendees,
+      attendees: (session.session_players?.map((sp) => ({
+        id: sp.players?.id || "",
+        name: sp.players?.name || "Unknown",
+        elo: globalElo[sp.players?.id || ""] || 1200
+      })) || []),
       playerIds,
       usageMap,
       totalNet: -totalCost // Defaulting to the negative expense of the session for now
@@ -101,6 +114,7 @@ export default async function SessionsPage({ params }: { params: Promise<{ mode:
   const allPlayers = (playersData || []).map(p => ({
     id: p.id,
     name: p.name,
+    elo: globalElo[p.id] || 1200
   }));
 
   const sortedPurchases = (purchasesData || []).map(p => ({

@@ -19,8 +19,10 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import clsx from 'clsx';
+import RankBadge from '@/components/ui/RankBadge';
 import { usePathname, useRouter } from 'next/navigation';
 import AddMatchModal from "@/components/AddMatchModal";
+import PlayerName from "@/components/ui/PlayerName";
 import { deleteMatch } from "@/lib/actions/matches";
 import { useRole } from "@/context/AuthContext";
 import { SessionForm } from '@/app/[mode]/sessions/SessionForm';
@@ -42,6 +44,8 @@ interface Match {
   id: string;
   teamA: string;
   teamB: string;
+  teamAPlayers?: { id: string; name: string; elo: number }[];
+  teamBPlayers?: { id: string; name: string; elo: number }[];
   scoreA: number;
   scoreB: number;
   team_a_player1: string;
@@ -59,6 +63,7 @@ interface Attendee {
   role: string;
   fee: number;
   paid: boolean;
+  elo?: number;
 }
 
 interface Player { id: string; name: string; }
@@ -73,8 +78,8 @@ interface DesktopSessionDetailsProps {
   allPurchases: Purchase[];
   initialData: InitialData;
   sessionStats?: {
-    mostWins: { id: string; name: string; value: number; suffix?: string }[];
-    winRate: { id: string; name: string; value: number; suffix?: string }[];
+    mostWins: { id: string; name: string; value: number; suffix?: string; elo?: number }[];
+    winRate: { id: string; name: string; value: number; suffix?: string; elo?: number }[];
   }
 }
 
@@ -267,9 +272,13 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                       )}>
                         #{idx + 1}
                       </span>
-                      <span className="font-black text-lg uppercase tracking-tight text-slate-100 italic group-hover:text-white transition-colors">
-                        {p.name}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-black text-lg uppercase tracking-tight text-slate-100 italic group-hover:text-white transition-colors">
+                          {p.name}
+                        </span>
+                        <span className="text-slate-800 font-light text-sm">|</span>
+                        <RankBadge elo={p.elo || 1200} compact />
+                      </div>
                     </div>
                     <div className="font-mono font-black italic text-emerald-400 bg-emerald-400/5 px-4 py-1.5 rounded-lg text-lg">
                       {leaderboardMode === "wins" 
@@ -304,8 +313,13 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                           {initial}
                         </div>
                         <div>
-                          <p className="text-sm font-black text-slate-100 uppercase tracking-tight">{attendee.name}</p>
-                          <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">
+                          <PlayerName 
+                            name={attendee.name} 
+                            elo={attendee.elo || 1200} 
+                            showRankName={false} 
+                            nameClassName="text-sm"
+                          />
+                          <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest mt-0.5">
                             {attendee.role} • {attendee.paid ? 'Settled' : 'Pending'}
                           </p>
                         </div>
@@ -379,8 +393,12 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                   </div>
                   <div className="p-6 grid grid-cols-7 items-center gap-4">
                     <div className="col-span-3 text-right">
-                      <p className="text-sm font-black italic">{match.teamA}</p>
-                      <p className="text-[10px] text-slate-500 font-bold tracking-widest">TEAM A</p>
+                      <div className="flex flex-col items-end gap-1.5">
+                        {match.teamAPlayers?.map(p => (
+                          <PlayerName key={p.id} name={p.name} elo={p.elo} showRankName={false} nameClassName="text-sm" />
+                        )) || <p className="text-sm font-black italic">{match.teamA}</p>}
+                      </div>
+                      <p className="text-[10px] text-slate-500 font-bold tracking-widest mt-1">TEAM A</p>
                     </div>
                     <div className="col-span-1 flex flex-col items-center">
                       <div className={clsx(
@@ -402,8 +420,12 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                       </div>
                     </div>
                     <div className="col-span-3 text-left">
-                      <p className="text-sm font-black italic">{match.teamB}</p>
-                      <p className="text-[10px] text-slate-500 font-bold tracking-widest">TEAM B</p>
+                      <div className="flex flex-col items-start gap-1.5">
+                        {match.teamBPlayers?.map(p => (
+                          <PlayerName key={p.id} name={p.name} elo={p.elo} showRankName={false} nameClassName="text-sm" />
+                        )) || <p className="text-sm font-black italic">{match.teamB}</p>}
+                      </div>
+                      <p className="text-[10px] text-slate-500 font-bold tracking-widest mt-1">TEAM B</p>
                     </div>
                   </div>
                 </div>

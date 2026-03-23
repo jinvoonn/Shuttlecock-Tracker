@@ -37,11 +37,11 @@ export default function CockRatingModal({ isOpen, onClose, playerElo = 1200 }: C
   if (!isOpen && !isRendered) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 font-['Lexend',_sans-serif]">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 font-['Lexend',_sans-serif]">
       {/* Backdrop */}
       <div 
         onClick={onClose}
-        className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ease-out ${isRendered ? 'opacity-100' : 'opacity-0'}`} 
+        className={`fixed inset-0 bg-black/80 backdrop-blur-xl transition-all duration-300 ease-out ${isRendered ? 'opacity-100' : 'opacity-0'}`} 
       />
 
       <div 

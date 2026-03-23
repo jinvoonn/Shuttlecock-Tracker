@@ -14,6 +14,7 @@ import { addSession, editSession } from "@/lib/actions/sessions";
 import clsx from 'clsx';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import PlayerName from "@/components/ui/PlayerName";
 
 interface Tube {
   id: string;
@@ -27,6 +28,7 @@ interface Player {
   id: string;
   name: string;
   avatar?: string;
+  elo?: number;
 }
 
 interface DesktopLogSessionsProps {
@@ -250,12 +252,15 @@ export default function DesktopSessions({ tubes, players, initialData }: Desktop
                         )}>
                           {initial}
                         </div>
-                        <span className={clsx(
-                          "text-[10px] font-bold uppercase text-center w-full truncate",
-                          isSelected ? "text-slate-950" : "text-slate-500 dark:text-slate-400"
-                        )}>
-                          {player.name}
-                        </span>
+                        <PlayerName 
+                          name={player.name} 
+                          elo={player.elo || 1200} 
+                          showRankName={false} 
+                          nameClassName={clsx(
+                            "text-[10px] font-bold uppercase text-center w-full truncate",
+                            isSelected ? "text-slate-950" : "text-slate-500 dark:text-slate-400"
+                          )}
+                        />
                       </div>
                     );
                   })}

@@ -11,6 +11,7 @@ import EloTrendChart from "./EloTrendChart";
 import EloRatingCard from "./EloRatingCard";
 import { getBestPartner, getWorstPartner, getPartnerStats } from "@/lib/analytics/partner";
 import RankBadge from "@/components/ui/RankBadge";
+import PlayerName from "@/components/ui/PlayerName";
 import clsx from "clsx";
 
 export const revalidate = 0;
@@ -154,8 +155,16 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
             isDraw,
             myScore,
             oppScore,
-            partners: myPartnerIds.map((pid: string) => playerMap[pid] || "Unknown"),
-            opponents: opponentIds.map((pid: string) => playerMap[pid] || "Unknown")
+            partners: myPartnerIds.map((pid: string) => ({
+                id: pid,
+                name: playerMap[pid] || "Unknown",
+                elo: Math.round(globalElo[pid] || 1200)
+            })),
+            opponents: opponentIds.map((pid: string) => ({
+                id: pid,
+                name: playerMap[pid] || "Unknown",
+                elo: Math.round(globalElo[pid] || 1200)
+            }))
         };
     });
 
@@ -249,10 +258,12 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                             <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/20 to-transparent"></div>
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-slate-50 tracking-tight flex items-center gap-3">
-                                {player.name}
-                                <RankBadge elo={playerElo} />
-                            </h1>
+                            <PlayerName 
+                                name={player.name} 
+                                elo={playerElo} 
+                                showRankName={true} 
+                                nameClassName="text-3xl"
+                            />
                             <div className="flex flex-col mt-2">
                                 {bestPartner && (
                                     <div className="flex items-center gap-2 mb-1">

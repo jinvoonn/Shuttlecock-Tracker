@@ -1,6 +1,8 @@
 import { supabase } from "@/lib/supabase";
 import DesktopSessions from "@/stitch-designs/desktop/Sessions";
 import MobileLogSessions from "@/stitch-designs/mobile/LogSessions";
+import { normalizeMatches } from "@/lib/analytics/normalize";
+import { aggregatePlayerStats } from "@/lib/analytics/core";
 
 export const revalidate = 0;
 
@@ -33,9 +35,17 @@ export default async function LogSessionPage({ params }: { params: Promise<{ mod
     price_per_cock: p.price_per_cock || 0
   }));
 
+  // 2. Fetch matches to compute Elos
+  const { data: matchesData } = await supabase.from("matches").select("*").order("created_at", { ascending: true });
+  const { data: allPlayers } = await supabase.from("players").select("id, name");
+  const playerMap = Object.fromEntries((allPlayers || []).map(p => [p.id, p.name]));
+  const normalizedMatches = normalizeMatches(matchesData || [], playerMap);
+  const { elo: globalElo } = aggregatePlayerStats(normalizedMatches, playerMap);
+
   const players = (playersData || []).map(p => ({
     id: p.id,
     name: p.name,
+    elo: globalElo[p.id] || 1200
   }));
 
   return (

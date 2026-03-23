@@ -17,6 +17,7 @@ import { usePathname } from 'next/navigation';
 import { editPayment, deletePayment } from '@/lib/actions/payments';
 import { useRole } from '@/context/AuthContext';
 import { DatePicker } from '@/components/DatePicker';
+import PlayerName from '@/components/ui/PlayerName';
 
 interface PaymentRecord {
   id: string;
@@ -25,6 +26,7 @@ interface PaymentRecord {
   amount: number;
   date: string;
   note: string;
+  elo?: number;
 }
 
 interface DesktopPaymentLedgerProps {
@@ -197,8 +199,13 @@ export default function DesktopPaymentLedger({ payments }: DesktopPaymentLedgerP
                       return (
                         <tr key={p.id} className="hover:bg-slate-950/50 transition-colors">
                           <td className="px-6 py-4">
-                            <p className="text-sm font-bold text-slate-100 uppercase tracking-tight">{p.playerName}</p>
-                            {p.note && <p className="text-xs text-slate-500 truncate max-w-[200px]">{p.note}</p>}
+                            <PlayerName 
+                              name={p.playerName} 
+                              elo={p.elo || 1200} 
+                              showRankName={false} 
+                              nameClassName="text-sm"
+                            />
+                            {p.note && <p className="text-xs text-slate-500 truncate max-w-[200px] mt-0.5">{p.note}</p>}
                           </td>
                           <td className="px-6 py-4 font-mono text-sm text-slate-400">{p.date}</td>
                            <td className="px-6 py-4 text-right whitespace-nowrap">

@@ -19,6 +19,7 @@ import {
 interface Player {
   id: string;
   name: string;
+  elo?: number;
 }
 
 interface MobileRecordMatchProps {
@@ -29,6 +30,7 @@ interface MobileRecordMatchProps {
 import { useState } from 'react';
 import { addMatch } from "@/lib/actions/matches";
 import { useRouter } from "next/navigation";
+import PlayerName from "@/components/ui/PlayerName";
 
 export default function MobileRecordMatch({ sessionId, players }: MobileRecordMatchProps) {
   const router = useRouter();
@@ -134,9 +136,14 @@ export default function MobileRecordMatch({ sessionId, players }: MobileRecordMa
                        'bg-slate-800 border-slate-700 text-slate-300'
                      }`}
                    >
-                     <span className={`text-xs font-black uppercase italic truncate pr-2 ${isA || isB ? '' : 'group-hover:text-emerald-500'}`}>
-                       {player.name}
-                     </span>
+                     <div className={`pr-2 overflow-hidden ${isA || isB ? 'text-slate-950' : ''}`}>
+                       <PlayerName 
+                         name={player.name} 
+                         elo={player.elo || 1200} 
+                         showRankName={false} 
+                         nameClassName="text-xs font-black"
+                       />
+                     </div>
                      <div className={`size-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
                        isA ? 'border-white/30 bg-white/20' :
                        isB ? 'border-white/30 bg-white/20' :

@@ -183,6 +183,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
   const players = Object.values(playerBalances).map(stats => ({
     ...stats,
     balance: stats.totalPayments - stats.totalShares,
+    elo: globalElo[stats.id] || 1200
   })).sort((a, b) => a.balance - b.balance);
 
   const totalOwed = players.filter(p => p.balance < 0).reduce((acc, p) => acc + Math.abs(p.balance), 0);

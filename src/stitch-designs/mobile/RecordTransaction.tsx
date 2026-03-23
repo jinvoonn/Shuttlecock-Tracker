@@ -1,17 +1,17 @@
 "use client";
 
-import React from 'react';
 import { 
   X, 
   HelpCircle, 
   Delete, 
   LayoutGrid, 
-  History, 
+  History as HistoryIcon, 
   Package, 
   Banknote,
   DollarSign,
   Feather
 } from 'lucide-react';
+import PlayerName from "@/components/ui/PlayerName";
 
 import { useState } from 'react';
 import { useRouter, usePathname } from "next/navigation";
@@ -21,6 +21,7 @@ interface Player {
   id: string;
   name: string;
   avatar?: string;
+  elo?: number;
 }
 
 interface MobileRecordTransactionProps {
@@ -137,7 +138,14 @@ export default function MobileRecordTransaction({ players, sessionId }: MobileRe
                     <span className="text-xl font-black italic text-slate-500 group-hover:text-emerald-400">{player.name[0]}</span>
                   )}
                 </div>
-                <span className={`text-[10px] font-black uppercase tracking-widest italic transition-colors ${selectedPlayerId === player.id ? 'text-emerald-400' : 'text-slate-500'}`}>{player.name.split(' ')[0]}</span>
+                <div className="mt-1">
+                  <PlayerName 
+                    name={player.name.split(' ')[0]} 
+                    elo={player.elo || 1200} 
+                    showRankName={false} 
+                    nameClassName={`text-[10px] font-black uppercase tracking-widest italic transition-colors ${selectedPlayerId === player.id ? 'text-emerald-400' : 'text-slate-500'}`}
+                  />
+                </div>
               </div>
             ))}
           </div>
@@ -180,7 +188,7 @@ export default function MobileRecordTransaction({ players, sessionId }: MobileRe
               <p className="text-[9px] font-black uppercase tracking-widest italic leading-none mt-1">Dashboard</p>
             </button>
             <button onClick={() => router.push(`${basePath}/sessions`)} className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-emerald-400 transition-colors group">
-              <History className="size-6 group-active:scale-90" />
+              <HistoryIcon className="size-6 group-active:scale-90" />
               <p className="text-[9px] font-black uppercase tracking-widest italic leading-none mt-1">Sessions</p>
             </button>
             <button onClick={() => router.push(`${basePath}/purchases`)} className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-emerald-400 transition-colors group">

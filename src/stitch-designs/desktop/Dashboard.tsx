@@ -18,6 +18,7 @@ import { useRole } from '@/context/AuthContext';
 import { AnalyticsClient } from '@/components/AnalyticsClient';
 import { getCockRank } from '@/lib/analytics/rank';
 import RankBadge from '@/components/ui/RankBadge';
+import PlayerName from '@/components/ui/PlayerName';
 
 interface PlayerStat {
   id: string;
@@ -25,6 +26,7 @@ interface PlayerStat {
   totalShares: number;
   totalPayments: number;
   balance: number;
+  elo?: number;
 }
 
 interface DashboardProps {
@@ -278,14 +280,12 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
                       )}>
                         #{index + 1}
                       </span>
-                      <div className="flex flex-col gap-1.5">
-                        <span className="font-black text-lg uppercase tracking-tight text-slate-100 italic group-hover:text-white transition-colors leading-none">
-                          {player.name}
-                        </span>
-                        <div>
-                          <RankBadge elo={player.elo} />
-                        </div>
-                      </div>
+                      <PlayerName 
+                        name={player.name} 
+                        elo={player.elo} 
+                        showRankName={false} 
+                        nameClassName="text-lg"
+                      />
                     </div>
                     <div className="font-mono font-black italic text-[#13ec80] bg-emerald-500/5 px-4 py-1.5 rounded-lg text-lg">
                       {leaderboardMode === "wins" 
@@ -387,7 +387,12 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
                                 href={`${basePath}/players/${player.id}`}
                                 className="font-black text-slate-100 text-sm hover:text-[#13ec80] transition-colors uppercase italic tracking-tight"
                               >
-                                {player.name}
+                                <PlayerName 
+                                  name={player.name} 
+                                  elo={player.elo || 1200} 
+                                  showRankName={false} 
+                                  nameClassName="text-sm font-black uppercase italic tracking-tight"
+                                />
                               </Link>
                             </div>
                           </td>

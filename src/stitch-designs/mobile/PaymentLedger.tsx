@@ -20,6 +20,7 @@ import { useRole } from '@/context/AuthContext';
 
 import { useState } from 'react';
 import { DatePicker } from '@/components/DatePicker';
+import PlayerName from '@/components/ui/PlayerName';
 
 interface PaymentRecord {
   id: string;
@@ -28,6 +29,7 @@ interface PaymentRecord {
   amount: number;
   date: string;
   note: string;
+  elo?: number;
 }
 
 interface MobilePaymentLedgerProps {
@@ -108,8 +110,13 @@ export default function MobilePaymentLedger({ payments }: MobilePaymentLedgerPro
                           {p.playerName.slice(0, 2).toUpperCase()}
                         </div>
                         <div className="flex flex-col text-left">
-                          <p className="font-black text-slate-100 uppercase italic tracking-tighter text-lg leading-none mb-1">{p.playerName}</p>
-                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{new Date(p.date).toLocaleDateString()}</p>
+                          <PlayerName 
+                            name={p.playerName} 
+                            elo={p.elo || 1200} 
+                            showRankName={false} 
+                            nameClassName="text-lg"
+                          />
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1">{new Date(p.date).toLocaleDateString()}</p>
                           {p.note && <p className="text-xs text-slate-400 mt-1 line-clamp-1 italic">{p.note}</p>}
                         </div>
                       </div>

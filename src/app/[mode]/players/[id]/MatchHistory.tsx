@@ -1,8 +1,13 @@
-"use client";
-
 import React, { useState } from 'react';
 import { Swords, ChevronDown, ChevronUp } from 'lucide-react';
 import clsx from 'clsx';
+import PlayerName from '@/components/ui/PlayerName';
+
+interface MatchPlayer {
+  id?: string;
+  name: string;
+  elo: number;
+}
 
 interface Match {
   id: string;
@@ -11,8 +16,8 @@ interface Match {
   isDraw: boolean;
   myScore: number;
   oppScore: number;
-  partners: string[];
-  opponents: string[];
+  partners: MatchPlayer[];
+  opponents: MatchPlayer[];
 }
 
 interface MatchHistoryProps {
@@ -59,9 +64,33 @@ export function MatchHistory({ matches }: MatchHistoryProps) {
                 </div>
               </div>
             </div>
-            <div className="text-[10px] text-slate-500 leading-tight">
-              <p className="mb-1 uppercase tracking-tighter">Partner: <span className="text-slate-300">{m.partners.length > 0 ? m.partners.join(" + ") : "None"}</span></p>
-              <p className="uppercase tracking-tighter">Opponents: <span className="text-slate-300">{m.opponents.join(" + ")}</span></p>
+            <div className="text-[10px] text-slate-500 leading-tight space-y-1">
+              <div className="flex items-center gap-1 uppercase tracking-tighter">
+                <span>Partner:</span>
+                <span className="text-slate-300">
+                  {m.partners.length > 0 ? (
+                    <div className="flex gap-2">
+                      {m.partners.map((p, idx) => (
+                        <React.Fragment key={idx}>
+                          {idx > 0 && " + "}
+                          <PlayerName name={p.name} elo={p.elo} showRankName={false} nameClassName="text-slate-300" />
+                        </React.Fragment>
+                      ))}
+                    </div>
+                  ) : "None"}
+                </span>
+              </div>
+              <div className="flex items-center gap-1 uppercase tracking-tighter">
+                <span>Opponents:</span>
+                <div className="flex gap-2 text-slate-300">
+                  {m.opponents.map((p, idx) => (
+                    <React.Fragment key={idx}>
+                      {idx > 0 && " + "}
+                      <PlayerName name={p.name} elo={p.elo} showRankName={false} nameClassName="text-slate-300" />
+                    </React.Fragment>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         ))}

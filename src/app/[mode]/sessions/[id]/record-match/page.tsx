@@ -1,6 +1,8 @@
 import { supabase } from "@/lib/supabase";
 import DesktopRecordMatch from "@/stitch-designs/desktop/RecordMatch";
 import MobileRecordMatch from "@/stitch-designs/mobile/RecordMatch";
+import { normalizeMatches } from "@/lib/analytics/normalize";
+import { aggregatePlayerStats } from "@/lib/analytics/core";
 
 export const revalidate = 0;
 
@@ -20,10 +22,21 @@ export default async function RecordMatchPage({ params }: { params: Promise<{ mo
     );
   }
 
-  const players = (sessionPlayers || []).map((sp: { players: { id: string, name: string } | { id: string, name: string }[] | null }) => {
-    if (!sp.players) return null;
-    return Array.isArray(sp.players) ? sp.players[0] : sp.players;
-  }).filter((p): p is { id: string, name: string } => !!p);
+  // 2. Fetch all matches to compute Elos
+  const { data: matchesData } = await supabase.from("matches").select("*").order("created_at", { ascending: true });
+  const { data: allPlayers } = await supabase.from("players").select("id, name");
+  const playerMap = Object.fromEntries((allPlayers || []).map(p => [p.id, p.name]));
+  const normalizedMatches = normalizeMatches(matchesData || [], playerMap);
+  const { elo: globalElo } = aggregatePlayerStats(normalizedMatches, playerMap);
+
+  const players = (sessionPlayers || []).map((sp: any) => {
+    const p = Array.isArray(sp.players) ? sp.players[0] : sp.players;
+    if (!p) return null;
+    return {
+      ...p,
+      elo: globalElo[p.id] || 1200
+    };
+  }).filter(Boolean);
 
   Object.fromEntries(players.map((p: { id: string, name: string }) => [p.id, p.name]));
 

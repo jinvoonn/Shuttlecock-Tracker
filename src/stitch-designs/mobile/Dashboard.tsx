@@ -24,6 +24,7 @@ import { AnalyticsClient } from '@/components/AnalyticsClient';
 import clsx from 'clsx';
 import { getCockRank } from '@/lib/analytics/rank';
 import RankBadge from '@/components/ui/RankBadge';
+import PlayerName from '@/components/ui/PlayerName';
 
 interface PlayerStat {
   id: string;
@@ -31,6 +32,7 @@ interface PlayerStat {
   totalShares: number;
   totalPayments: number;
   balance: number;
+  elo?: number;
 }
 
 interface DashboardProps {
@@ -231,12 +233,12 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
                         <span className={`text-xs font-black italic w-5 ${index === 0 ? 'text-emerald-400' : 'text-slate-500'}`}>
                           #{index + 1}
                         </span>
-                        <div className="flex flex-col gap-1.5 items-start">
-                          <span className="text-sm font-black tracking-tight text-slate-100 uppercase italic leading-none">
-                            {player.name}
-                          </span>
-                          <RankBadge elo={player.elo} />
-                        </div>
+                        <PlayerName 
+                          name={player.name} 
+                          elo={player.elo} 
+                          showRankName={false} 
+                          nameClassName="text-sm"
+                        />
                       </div>
                       <span className="font-mono text-sm font-black italic text-emerald-400 bg-emerald-400/5 px-2 py-0.5 rounded">
                         {leaderboardMode === "wins" ? player.wins : leaderboardMode === "winRate" ? `${(player.winRate * 100).toFixed(1)}%` : player.elo}
@@ -313,9 +315,12 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
                 <div key={player.id} className="bg-slate-800 rounded-[2rem] p-6 border border-slate-700 shadow-sm group hover:border-emerald-400/30 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex flex-col gap-4">
                   <div className="flex items-center justify-between">
                     <Link href={`${basePath}/players/${player.id}`} className="flex flex-col gap-1 flex-1">
-                      <span className="text-sm font-black uppercase tracking-tight text-slate-100 group-hover:text-emerald-400 transition-colors italic">
-                        {player.name}
-                      </span>
+                      <PlayerName 
+                        name={player.name} 
+                        elo={player.elo || 1200} 
+                        showRankName={false} 
+                        nameClassName="text-sm font-black uppercase tracking-tight text-slate-100 group-hover:text-emerald-400 transition-colors italic leading-none"
+                      />
                       <p className={`font-mono text-lg font-black tracking-tighter ${player.balance >= 0 ? 'text-emerald-400' : 'text-rose-500'}`}>
                         {player.balance >= 0 ? 'RM' : '-RM'}{Math.abs(player.balance).toFixed(2)}
                         <span className="text-[10px] uppercase font-bold tracking-widest ml-2 italic">
