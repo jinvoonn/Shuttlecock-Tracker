@@ -50,8 +50,8 @@ export default function CockRatingModal({ isOpen, onClose, playerElo = 1200 }: C
         `}
       >
         {/* Header Ribbon */}
-        <div className="sticky top-0 z-10 bg-[#1A1D23]/95 backdrop-blur-xl border-b border-slate-700/50 px-6 py-5 flex items-center justify-between">
-          <div>
+        <div className="sticky top-0 z-50 bg-[#1A1D23]/95 backdrop-blur-xl border-b border-slate-700/50 px-6 py-5 flex items-center justify-between overflow-hidden">
+          <div className="relative z-10">
             <h2 className="text-xl font-black italic tracking-tighter text-slate-100 uppercase leading-none">
               How CockRating Works
             </h2>
