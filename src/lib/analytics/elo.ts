@@ -1,4 +1,4 @@
-import { NormalizedMatch, EloMap } from "./types";
+import { NormalizedMatch, EloMap, EloHistoryMap } from "./types";
 
 const DEFAULT_RATING = 1200;
 const K_BASE = 24;
@@ -50,26 +50,25 @@ function getScoreMultiplier(teamAScore: number, teamBScore: number): number {
 /**
  * Calculates ELO ratings for all players by processing matches chronologically.
  */
-export function calculateEloRatings(matches: NormalizedMatch[]): EloMap {
+export function calculateEloRatings(matches: NormalizedMatch[]): { current: EloMap, history: EloHistoryMap } {
   const elo: EloMap = {};
-  const gamesPlayed: Record<string, number> = {};
+  const history: EloHistoryMap = {};
+  const gamesPlayed: { [playerId: string]: number } = {};
 
-  // Initialize players
-  for (const match of matches) {
+  // Sort matches chronologically to assure ELO accuracy.
+  const sortedMatches = [...matches].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  // Initialize all players seen natively
+  for (const match of sortedMatches) {
     const allPlayers = [...match.teamA, ...match.teamB];
-
     for (const player of allPlayers) {
       if (!(player in elo)) {
         elo[player] = DEFAULT_RATING;
+        history[player] = [];
         gamesPlayed[player] = 0;
       }
     }
   }
-
-  // Ensure matches are chronological
-  const sortedMatches = [...matches].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-  );
 
   // Process matches chronologically
   for (const match of sortedMatches) {
@@ -110,6 +109,7 @@ export function calculateEloRatings(matches: NormalizedMatch[]): EloMap {
       const k = getPlayerK(gamesPlayed[player]);
       elo[player] += k * multiplier * (scoreA - expectedA);
       gamesPlayed[player]++;
+      history[player].push({ date: match.date, elo: elo[player] });
     }
 
     // Update players individually on Team B
@@ -117,10 +117,11 @@ export function calculateEloRatings(matches: NormalizedMatch[]): EloMap {
       const k = getPlayerK(gamesPlayed[player]);
       elo[player] += k * multiplier * (scoreB - expectedB);
       gamesPlayed[player]++;
+      history[player].push({ date: match.date, elo: elo[player] });
     }
   }
 
-  return elo;
+  return { current: elo, history };
 }
 
 /**

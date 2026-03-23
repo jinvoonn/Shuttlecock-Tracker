@@ -1,11 +1,13 @@
 import { supabase } from "@/lib/supabase";
-import { User, Swords, Activity, ArrowLeft, Target, LayoutDashboard, CalendarDays, Package, Wallet, Feather } from "lucide-react";
+import { User, Swords, Activity, ArrowLeft, Target, LayoutDashboard, CalendarDays, Package, Wallet, Feather, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { SkillRatingEditor } from "@/components/SkillRatingEditor";
 import { MatchHistory } from "./MatchHistory";
 import { normalizeMatches } from "@/lib/analytics/normalize";
 import { aggregatePlayerStats } from "@/lib/analytics/core";
 import { getPlayerProfileStats } from "@/lib/analytics/profile";
+import { getPlayerEloHistory } from "@/lib/analytics/eloTrend";
+import EloTrendChart from "./EloTrendChart";
 import { getBestPartner, getWorstPartner, getPartnerStats } from "@/lib/analytics/partner";
 import clsx from "clsx";
 
@@ -98,10 +100,12 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
 
     // --- ANALYTICS ENGINE INTEGRATION ---
     const normalizedMatches = normalizeMatches(matches || [], playerMap);
-    const { elo: globalElo } = aggregatePlayerStats(normalizedMatches, Object.fromEntries(Object.keys(playerMap).map(k => [k, playerMap[k]])));
+    const { elo: globalElo, eloHistory } = aggregatePlayerStats(normalizedMatches, Object.fromEntries(Object.keys(playerMap).map(k => [k, playerMap[k]])));
     const profileStats = getPlayerProfileStats(matches || [], playerMap, id);
     const allPartnersStats = getPartnerStats(normalizedMatches);
     const playerPartnerStats = allPartnersStats[id] || {};
+    
+    const eloTimeline = getPlayerEloHistory(eloHistory, id);
 
     const totalMatchesCount = profileStats?.totalGames || 0;
     const wins = profileStats?.wins || 0;
@@ -299,6 +303,14 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                         <span className="font-mono text-slate-300 font-bold">{totalSessions}</span>
                     </div>
                 </div>
+            </div>
+
+            {/* ELO Trend Graph Section */}
+            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 mb-8 text-left shadow-xl">
+                <h3 className="text-sm font-bold uppercase text-slate-500 tracking-widest flex items-center gap-2 mb-6 italic">
+                    <TrendingUp className="w-5 h-5 text-emerald-400" /> Career ELO Progression
+                </h3>
+                <EloTrendChart data={eloTimeline} />
             </div>
 
             {/* Advanced Analytics Section */}

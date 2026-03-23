@@ -34,3 +34,12 @@ export type GlobalInsights = {
 export type EloMap = {
   [playerId: string]: number;
 };
+
+export type EloHistoryEntry = {
+  date: string;
+  elo: number;
+};
+
+export type EloHistoryMap = {
+  [playerId: string]: EloHistoryEntry[];
+};
