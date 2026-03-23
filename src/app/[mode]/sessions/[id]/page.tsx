@@ -101,6 +101,7 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
 
   // 5. Transform attendee data
   let currentSessionTotalCost = 0;
+  let shuttlesUsedFromUsage = 0;
 
   (sessionUsage || []).forEach(su => {
     const purchase = Array.isArray(su.purchases) ? su.purchases[0] : su.purchases;
@@ -108,6 +109,7 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
     const price = purchase?.price_per_cock || 0;
     
     currentSessionTotalCost += (qty * price);
+    shuttlesUsedFromUsage += qty;
   });
 
   // 6.5 Calculate Global ELO
@@ -131,10 +133,10 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
 
   const costPerHead = attendeesList.length > 0 ? currentSessionTotalCost / attendeesList.length : 0;
 
-  // 6. Calculate Session Stats using Analytics Engine
   const normalizedSessionMatches = normalizeMatches(matchesData || [], playerMap);
   const coreSessionStats = getPlayerStats(normalizedSessionMatches, playerMap);
-  const shuttlesUsedCount = getTotalShuttleUsed(normalizedSessionMatches);
+  const shuttlesUsedFromMatches = getTotalShuttleUsed(normalizedSessionMatches);
+  const shuttlesUsedCount = Math.max(shuttlesUsedFromMatches, shuttlesUsedFromUsage);
   
   const sessionMeta = {
     id: session.id,
