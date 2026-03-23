@@ -30,18 +30,23 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
     { data: matchesData, error: matchesError },
     { data: allPlayers, error: allPlayersError },
     { data: allSessions, error: allSessionsListError },
-    { data: purchasesData, error: purchasesError }
+    { data: purchasesData, error: purchasesError },
+    // Global data for balance calculation
+    { data: allPayments, error: allPaymentsError },
+    { data: allSessionUsage, error: allUsageError }
   ] = await Promise.all([
     supabase.from("session_players").select("*, players(id, name)").eq("session_id", id),
     supabase.from("session_usage").select("*, purchases(id, tube_number, brands(name), price_per_cock)").eq("session_id", id),
     supabase.from("matches").select("*").eq("session_id", id),
     supabase.from("players").select("id, name"),
-    supabase.from("sessions").select("id").order("date", { ascending: true }).order("created_at", { ascending: true }),
-    supabase.from("purchases").select("id, tube_number, brands(name), price_per_tube, price_per_cock, remaining_quantity").gt("remaining_quantity", 0).order("created_at", { ascending: true })
+    supabase.from("sessions").select("id, date, session_players(player_id)").order("date", { ascending: true }).order("created_at", { ascending: true }),
+    supabase.from("purchases").select("id, tube_number, brands(name), price_per_tube, price_per_cock, remaining_quantity").gt("remaining_quantity", 0).order("created_at", { ascending: true }),
+    supabase.from("payments").select("amount, player_id"),
+    supabase.from("session_usage").select("session_id, quantity_used, purchases(price_per_cock)")
   ]);
 
-  if (playersError || usageError || matchesError || allPlayersError || allSessionsListError || purchasesError) {
-    console.error("Error fetching related data:", { playersError, usageError, matchesError, allPlayersError, allSessionsListError, purchasesError });
+  if (playersError || usageError || matchesError || allPlayersError || allSessionsListError || purchasesError || allPaymentsError || allUsageError) {
+    console.error("Error fetching related data:", { playersError, usageError, matchesError, allPlayersError, allSessionsListError, purchasesError, allPaymentsError, allUsageError });
     return (
       <div className="p-8 text-rose-500 font-black italic uppercase flex items-center justify-center min-h-screen bg-[#020617]">
         Error loading session details
@@ -55,33 +60,66 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
   const sessionNum = sessionIndex !== -1 ? sessionIndex + 1 : "??";
   const sessionDate = new Date(session.date);
 
-  // 4. Transform attendee data
-  let totalCost = 0;
+  // 4. Calculate Global Balances (same logic as Dashboard)
+  const playerBalances: Record<string, { totalShares: number; totalPayments: number; balance: number }> = {};
+  (allPlayers || []).forEach(p => {
+    playerBalances[p.id] = { totalShares: 0, totalPayments: 0, balance: 0 };
+  });
+
+  (allPayments || []).forEach(p => {
+    if (playerBalances[p.player_id]) {
+      playerBalances[p.player_id].totalPayments += Number(p.amount || 0);
+    }
+  });
+
+  const sessionCosts: Record<string, number> = {};
+  (allSessionUsage || []).forEach(su => {
+    const sId = su.session_id;
+    const purchase = Array.isArray(su.purchases) ? su.purchases[0] : su.purchases;
+    const price_per_cock = Number(purchase?.price_per_cock || 0);
+    sessionCosts[sId] = (sessionCosts[sId] || 0) + (price_per_cock * Number(su.quantity_used || 0));
+  });
+
+  (allSessions || []).forEach(s => {
+    const cost = sessionCosts[s.id] || 0;
+    const attendees = s.session_players || [];
+    if (attendees.length > 0) {
+      const share = cost / attendees.length;
+      attendees.forEach((ap: { player_id: string }) => {
+        if (playerBalances[ap.player_id]) {
+          playerBalances[ap.player_id].totalShares += share;
+        }
+      });
+    }
+  });
+
+  // 5. Transform attendee data
+  let currentSessionTotalCost = 0;
   let shuttlesUsedCount = 0;
 
-  const usage = (sessionUsage || []).map(su => {
+  (sessionUsage || []).forEach(su => {
     const purchase = Array.isArray(su.purchases) ? su.purchases[0] : su.purchases;
     const qty = su.quantity_used || 0;
     const price = purchase?.price_per_cock || 0;
     
     shuttlesUsedCount += qty;
-    totalCost += (qty * price);
+    currentSessionTotalCost += (qty * price);
+  });
+
+  const attendeesList = (sessionPlayers || []).map((sp: { players: { id: string, name: string } | null }) => {
+    const pId = sp.players?.id || "";
+    const balance = playerBalances[pId] ? (playerBalances[pId].totalPayments - playerBalances[pId].totalShares) : -1;
     
     return {
-        ...su,
-        cost: qty * price
+      id: pId,
+      name: sp.players?.name || "Unknown",
+      role: "Player",
+      fee: currentSessionTotalCost / (sessionPlayers?.length || 1),
+      paid: balance >= -0.01 // Use a small epsilon for float precision
     };
   });
 
-  const attendeesList = (sessionPlayers || []).map((sp: { players: { id: string, name: string } | null }) => ({
-    id: sp.players?.id || "",
-    name: sp.players?.name || "Unknown",
-    role: "Player",
-    fee: totalCost / (sessionPlayers?.length || 1),
-    paid: false 
-  }));
-
-  const costPerHead = attendeesList.length > 0 ? totalCost / attendeesList.length : 0;
+  const costPerHead = attendeesList.length > 0 ? currentSessionTotalCost / attendeesList.length : 0;
 
   const sessionMeta = {
     id: session.id,
@@ -92,7 +130,7 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
     division: "Social Play",
     shuttlesUsed: shuttlesUsedCount,
     costPerHead,
-    totalCost
+    totalCost: currentSessionTotalCost
   };
 
   // 5. Transform match data using lookup map

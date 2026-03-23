@@ -50,8 +50,7 @@ export async function addPayment(formData: FormData, mode?: string) {
         throw new Error("Failed to add payment: " + error.message);
     }
 
-    revalidatePath("/");
-    revalidatePath("/payments");
+    revalidatePath("/", "layout");
 }
 
 export async function editPayment(id: string, formData: FormData, mode?: string) {
@@ -79,8 +78,7 @@ export async function editPayment(id: string, formData: FormData, mode?: string)
         throw new Error("Failed to update payment: " + error.message);
     }
 
-    revalidatePath("/");
-    revalidatePath("/payments");
+    revalidatePath("/", "layout");
 }
 
 export async function deletePayment(id: string, mode?: string) {
@@ -93,8 +91,7 @@ export async function deletePayment(id: string, mode?: string) {
         throw new Error("Failed to delete payment: " + error.message);
     }
 
-    revalidatePath("/");
-    revalidatePath("/payments");
+    revalidatePath("/", "layout");
 }
 
 export async function quickSettle(playerId: string, amount: number, mode?: string) {
@@ -115,6 +112,5 @@ export async function quickSettle(playerId: string, amount: number, mode?: strin
         throw new Error("Failed to quick settle: " + error.message);
     }
 
-    revalidatePath("/");
-    revalidatePath("/payments");
+    revalidatePath("/", "layout");
 }

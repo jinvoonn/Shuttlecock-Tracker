@@ -1,7 +1,7 @@
 # Project Context: CockCount
 
 ## Purpose
-CockCount is a premium web app to track badminton group costs — shuttlecock usage, session attendance, player payments, and match results. It replaces Excel sheets with a streamlined real-time interface.
+CockCount is a premium **Dark Mode Only** web app to track badminton group costs — shuttlecock usage, session attendance, player payments, and match results. It replaces Excel sheets with a streamlined real-time interface.
 
 ## Main Features
 *   **Balance Dashboard**: Real-time debt/credit status for all players.
@@ -10,7 +10,7 @@ CockCount is a premium web app to track badminton group costs — shuttlecock us
 *   **Auto-Grouping System**: (Planned) Smart balanced team generation.
 *   **Player Profiles**: Win rates, H2H records, best partner analytics, and win streaks.
 *   **Analytics Dashboard**: Monthly spending and usage trends visualized with `recharts`.
-*   **Dashboard Stats Row**: Horizontal scrollable insights (Most Wins, Win Streaks, Best/Cursed Duos).
+*   **Leaderboards**: Global and Session-level leaderboard with toggleable (Wins vs Win Rate) segmented controls.
 *   **Direct Settle**: One-tap settlement of player balances from the mobile dashboard.
 *   **Admin Access**: Secret path (`/admin-92Kf8s`) required for ALL mutations except Match logging/editing. Sessions/Payments are Admin-only for edit/delete.
 
@@ -29,6 +29,7 @@ CockCount is a premium web app to track badminton group costs — shuttlecock us
 *   Do NOT modify the database schema
 *   Do NOT introduce new libraries
 *   Always call `revalidatePath` after mutations
+*   **Dark Mode Only**: All UI must adhere to the Slate-900/800 background and Emerald-400 accent palette. Light mode is not supported.
 *   **FAB Pattern**: Mobile creation buttons (Sessions, Payments) use a standardized Floating Action Button at `fixed bottom-32 right-8` with `bg-emerald-400`.
 
 ## Database Schema (Key Tables)
@@ -81,6 +82,6 @@ All match actions in `src/lib/actions/matches.ts` expect:
 The action maps `teamAIds[0]` → `team_a_player1`, `teamAIds[1]` → `team_a_player2`, etc.
 
 ## Current Project Status
-**Phase 61 complete (21 Mar 2026).** App features a transitioned session editing functionality from a page-based approach to a seamless inline modal on both mobile and desktop. Robust analytics, premium assets, cleanly managed long lists (expand/collapse), and polished mobile/desktop UX with standardized headers and consistent action patterns. Successfully verified with production builds.
+**Phase 65 complete (22 Mar 2026).** App is standardized to a **Dark Mode Only** premium UI. Features include high-fidelity segmented controls for leaderboards, session-level performance tracking, unified mobile FAB patterns, and polished analytics. Successfully verified with production builds.
 
 *"Because Shuttlecocks Aren't Free."*

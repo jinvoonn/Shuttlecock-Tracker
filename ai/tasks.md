@@ -112,9 +112,27 @@
 *   [x] **Logic**: Integrated `SessionForm` into the modal, allowing comprehensive editing of all session details, including players, directly from the session view.
 *   [x] **Cleanup**: Removed outdated dedicated edit page routes (`/sessions/[id]/edit`), standardizing the UI with the app's modern design patterns.
 
+## Phase 62 — Global Dark Mode Standardization (22 Mar 2026)
+*   [x] **Enforcement**: Forced `dark` class on root `html` tag and updated `globals.css` with permanent slate-900/800 variables.
+*   [x] **Cleanup**: Systematically stripped 50+ instances of `light:` prefixes and conditional theme logic from all components.
+*   [x] **Consistency**: Replaced hardcoded light colors (white backgrounds, dark text) with the unified dark palette across all 19+ pages.
+
+## Phase 63 — High-Fidelity Leaderboard Toggle
+*   [x] **UI**: Replaced simple button toggles with a premium segmented pill-style control (`[ Wins ] [ Win Rate ]`).
+*   [x] **Interaction**: Added `active:scale-95` micro-animations and emerald-400 highlighting for the active segment.
+*   [x] **Scope**: Applied to both Global Dashboard and Session-level leaderboards.
+
+## Phase 64 — Session Leaderboard
+*   [x] **Feature**: Integrated a toggleable leaderboard directly into individual session pages to track performance per-session.
+*   [x] **Logic**: Calculated Session-only Most Wins and Win Rate using localized match data.
+
+## Phase 65 — Mobile FAB & Theme Polish
+*   [x] **Standardization**: Unified all mobile Floating Action Buttons (FABs) to a round, emerald-400 profile across Sessions, Stock, and Payments.
+*   [x] **Palette**: Enforced strict `emerald-400` primary and `slate-900/800` card background tokens globally.
+
 ## Current State
 
-The app is highly stable and verified with successful production builds. Analytics are functional, branding is premium, the mobile UX is refined with consistent action patterns, lists are cleanly collapsed, and session editing is now handled via seamless inline modals. Zero lint errors.
+The app is highly stable, verified with successful production builds, and now features a **Dark Mode Only** premium UI. Analytics are functional, branding is unified, and the mobile UX is standardized with consistent FAB patterns and segmented controls. Zero lint errors.
 
 ## Known Issues / Backlog
 
