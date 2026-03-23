@@ -7,6 +7,9 @@ import { aggregatePlayerStats } from "@/lib/analytics/core";
 import { getLeaderboard, getGlobalInsights } from "@/lib/analytics/leaderboard";
 import MobileDashboard from "@/stitch-designs/mobile/Dashboard";
 import DesktopDashboard from "@/stitch-designs/desktop/Dashboard";
+
+const MobileDash = MobileDashboard as any;
+const DesktopDash = DesktopDashboard as any;
 import { LeaderboardEntry } from "@/lib/analytics/types";
 
 import { useMatches } from "@/context/MatchesContext";
@@ -225,7 +228,7 @@ export default function DashboardClient({
   return (
     <>
       <div className="block lg:hidden">
-        <MobileDashboard 
+        <MobileDash 
           stats={mobileStatsProps} 
           players={players} 
           insights={insights} 
@@ -236,7 +239,7 @@ export default function DashboardClient({
         />
       </div>
       <div className="hidden lg:block">
-        <DesktopDashboard 
+        <DesktopDash 
           stats={statsProps} 
           players={players} 
           isAdmin={isAdmin} 
