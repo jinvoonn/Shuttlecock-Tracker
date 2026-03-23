@@ -261,7 +261,7 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
                         : "text-slate-500 hover:text-slate-300"
                     )}
                   >
-                    ELO
+                    CR
                   </button>
                 </div>
               </div>
@@ -295,7 +295,7 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
                         ? `${player.wins} WINS` 
                         : leaderboardMode === "winRate"
                            ? `${(player.winRate * 100).toFixed(1)}%`
-                           : `${player.elo} ELO`
+                           : `${player.elo} CR`
                       }
                     </div>
                   </div>

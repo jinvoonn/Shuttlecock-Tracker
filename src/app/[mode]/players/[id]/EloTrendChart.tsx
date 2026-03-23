@@ -83,6 +83,7 @@ export default function EloTrendChart({ data }: EloTrendChartProps) {
           <Line 
             type="monotone" 
             dataKey="elo" 
+            name="CR"
             stroke={isUp ? "#10b981" : "#f43f5e"} 
             strokeWidth={3}
             dot={{ r: 3, fill: '#0f172a', strokeWidth: 2 }}

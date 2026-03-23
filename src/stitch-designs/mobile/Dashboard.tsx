@@ -219,7 +219,7 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
                           : "text-slate-500"
                       )}
                     >
-                      ELO
+                      CR
                     </button>
                   </div>
                 </div>

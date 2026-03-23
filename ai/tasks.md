@@ -135,9 +135,27 @@
 *   [x] **Integration**: Refactored both the Global Dashboard and the Individual Session page to consume the unified engine, eliminating ~150 lines of redundant code and ensuring metric consistency.
 *   [x] **Standardization**: Unified win rate thresholds (min 3 games for global insights) and streak calculation across the platform.
 
+## Phase 68 — CockRating Guide & Modal Removal (Today, 23 Mar 2026)
+*   [x] **Dedicated Page**: Converted the "CockRating Walkthrough" modal into a premium page at `/[mode]/cockrating` to eliminate z-index and overlap bugs.
+*   [x] **UI/UX**: Implemented Hero, Mechanics, Placement, and Rank Tier sections with high-fidelity styling.
+*   [x] **Cleanup**: Removed `src/components/ui/CockRatingModal.tsx` and all legacy state logic.
+
+## Phase 69 — Rank Accuracy & Navigation Refinements
+*   [x] **Consistency**: Fixed ELO/Rank mismatch in Player Profile by fetching ALL matches for a globally accurate calculation.
+*   [x] **Navigation**: Implemented history-aware "Back" buttons (`router.back()`) on the CockRating page with a safe fallback to the Dashboard.
+*   [x] **Standardization**: Enforced "Name | 🐣 Unranked 3/5" or "Name | 🐓 CockMaster" format across profiles using centralized `getCockRank` logic.
+
+## Phase 70 — Branding Refinement: ELO to CockRating/CR (Complete)
+*   [x] **Dashboard**: Renamed leaderboard "ELO" toggle to "CR".
+*   [x] **Dashboard**: Updated desktop leaderboard row suffix from "ELO" to "CR".
+*   [x] **Player Profile**: Renamed "ELO" card label to "CR".
+*   [x] **Player Profile**: Updated chart title to "CockRating Progression".
+*   [x] **Guide Page**: Updated "ELO-Based Logic" and "ELO Bound" to "CockRating Logic" and "Rating Range".
+*   [x] **Charts**: Standardized tooltip labels to show "CR" instead of "elo" using name props.
+
 ## Current State
 
-The app is highly stable, verified with successful production builds, and features a redundant-free **Centralized Analytics Engine**. The UI is a **Dark Mode Only** premium experience with real-time settlement tracking and standardized mobile FAB patterns. Zero lint errors.
+The app is highly stable, featuring a **Centralized Analytics Engine** and a dedicated **CockRating Guide** system. All UI bugs related to modal layering have been resolved by moving to page-based education. Rankings are globally consistent across Dashboard and Profiles. Zero lint errors.
 
 ## Known Issues / Backlog
 
@@ -145,10 +163,11 @@ The app is highly stable, verified with successful production builds, and featur
 
 ## Roadmap & Next Steps
 
-1.  **Auto-Grouping**: Smart team generation based on skill ratings and partner history.
-2.  **Settle Tracking**: Auto-suggest who pays what based on complex debt chains.
-3.  **Performance**: Move heavy analytics to Supabase SQL Views for faster dashboard loads.
-4.  **Advanced Match Filters**: Search matches by player name or date range.
+1.  **Placement Match System**: (Complete) Dynamic K-factor and Unranked state implemented.
+2.  **Auto-Grouping**: Smart team generation based on skill ratings and partner history.
+3.  **Settle Tracking**: Auto-suggest who pays what based on complex debt chains.
+4.  **Performance**: Move heavy analytics to Supabase SQL Views for faster dashboard loads.
+
 
 ## Agent Tips
 

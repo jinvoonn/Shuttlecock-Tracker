@@ -343,7 +343,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
             {/* ELO Trend Graph Section */}
             <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 mb-8 text-left shadow-xl hover:border-emerald-500/20 hover:shadow-emerald-500/5 transition-all duration-500 animate-fade-in-up" style={{ animationDelay: "250ms" }}>
                 <h3 className="text-sm font-bold uppercase text-slate-500 tracking-widest flex items-center gap-2 mb-6 italic">
-                    <TrendingUp className="w-5 h-5 text-emerald-400" /> Career ELO Progression
+                    <TrendingUp className="w-5 h-5 text-emerald-400" /> CockRating Progression
                 </h3>
                 <EloTrendChart data={eloTimeline} />
             </div>

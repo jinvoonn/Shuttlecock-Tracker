@@ -83,6 +83,6 @@ All match actions in `src/lib/actions/matches.ts` expect:
 The action maps `teamAIds[0]` → `team_a_player1`, `teamAIds[1]` → `team_a_player2`, etc.
 
 ## Current Project Status
-**Phase 67 complete (23 Mar 2026).** App features a robust **Centralized Analytics Engine** and consistent real-time settlement tracking. UI is a **Dark Mode Only** premium experience verified for production stability.
+**Phase 69 complete (23 Mar 2026).** App features a robust **Centralized Analytics Engine**, consistent global rankings, and a dedicated **CockRating Guide**. UI is a **Dark Mode Only** premium experience verified for production stability.
 
 *"Because Shuttlecocks Aren't Free."*

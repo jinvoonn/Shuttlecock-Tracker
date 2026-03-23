@@ -89,7 +89,7 @@ export default function CockRatingPage() {
                   <TrendingUp className="w-5 h-5 text-sky-400" />
                 </div>
                 <div>
-                  <h4 className="font-black italic uppercase text-slate-200 tracking-tighter mb-1">ELO-Based Logic</h4>
+                  <h4 className="font-black italic uppercase text-slate-200 tracking-tighter mb-1">CockRating Logic</h4>
                   <p className="text-sm text-slate-400 leading-relaxed italic font-light">
                     Your rating is a dynamic number that fluctuates based on match outcomes. 
                     Victory increases your score, while defeat lowers it.
@@ -171,7 +171,7 @@ export default function CockRatingPage() {
           <div className="bg-slate-800/40 border border-slate-700/50 rounded-3xl overflow-hidden shadow-2xl">
             <div className="grid grid-cols-5 text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-900/50 p-4 border-b border-slate-700/50">
               <span className="col-span-3">Tier Name</span>
-              <span className="col-span-2 text-right">ELO Bound</span>
+              <span className="col-span-2 text-right">Rating Range</span>
             </div>
             
             <div className="divide-y divide-slate-700/30">

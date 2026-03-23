@@ -51,7 +51,7 @@ export default function EloRatingCard({ playerElo, placementMatchesPlayed = 5, e
                         {playerElo}
                     </p>
                     <p className="text-[10px] uppercase font-black tracking-widest mb-1" style={{ color: rank.color }}>
-                        ELO
+                        CR
                     </p>
                 </div>
 
