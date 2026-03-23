@@ -4,8 +4,8 @@ import Link from "next/link";
 import { SkillRatingEditor } from "@/components/SkillRatingEditor";
 import { MatchHistory } from "./MatchHistory";
 import { normalizeMatches } from "@/lib/analytics/normalize";
-import { getPlayerProfileStats, getPartnerStats } from "@/lib/analytics/profile";
-import { getBestPartner, getWorstPartner } from "@/lib/analytics/partner";
+import { getPlayerProfileStats } from "@/lib/analytics/profile";
+import { getBestPartner, getWorstPartner, getPartnerStats } from "@/lib/analytics/partner";
 import clsx from "clsx";
 
 export const revalidate = 0;
