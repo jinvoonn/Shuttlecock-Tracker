@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { X, Trophy, Activity, Target, Shield, Zap, TrendingUp } from "lucide-react";
+import { X, Trophy, Target, Shield, Zap, TrendingUp, Activity } from "lucide-react";
+import { RANK_TIERS } from "@/lib/analytics/rank";
 
 interface CockRatingModalProps {
   isOpen: boolean;
@@ -43,9 +44,8 @@ export default function CockRatingModal({ isOpen, onClose, playerElo = 1200 }: C
         className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ease-out ${isRendered ? 'opacity-100' : 'opacity-0'}`} 
       />
 
-      {/* Modal Card */}
       <div 
-        className={`relative w-full sm:max-w-md bg-[#1A1D23] border border-slate-700/60 shadow-2xl rounded-t-[2rem] sm:rounded-3xl flex flex-col max-h-[90vh] overflow-hidden transform transition-all duration-300 ease-out origin-bottom sm:origin-center
+        className={`relative w-full sm:max-w-md bg-[#1A1D23] border border-slate-700/60 shadow-2xl rounded-t-[2rem] sm:rounded-3xl flex flex-col max-h-[90vh] transform transition-all duration-300 ease-out origin-bottom sm:origin-center
           ${isRendered ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-full sm:translate-y-0 sm:scale-95 opacity-0'}
         `}
       >
@@ -68,7 +68,7 @@ export default function CockRatingModal({ isOpen, onClose, playerElo = 1200 }: C
         </div>
 
         {/* Scrollable Content */}
-        <div className="overflow-y-auto p-6 space-y-6 custom-scrollbar">
+        <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-8 custom-scrollbar rounded-b-[2rem] sm:rounded-b-3xl pb-12 sm:pb-6">
           
           {/* Highlight Card */}
           <div className="bg-slate-900 border border-emerald-500/20 shadow-[0_0_30px_rgba(16,185,129,0.05)] rounded-2xl p-6 text-center relative overflow-hidden group">
@@ -160,6 +160,39 @@ export default function CockRatingModal({ isOpen, onClose, playerElo = 1200 }: C
               </div>
             </div>
 
+          </div>
+
+          {/* 🏆 Rank Overview Section */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-black italic tracking-tighter text-slate-100 uppercase flex items-center gap-2">
+              <Trophy className="w-5 h-5 text-amber-400" />
+              Rank Overview
+            </h3>
+            
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-inner flex flex-col">
+              <div className="grid grid-cols-5 text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-950/50 p-3 border-b border-slate-800">
+                <span className="col-span-3">Tier Name</span>
+                <span className="col-span-2 text-right">ELO Bound</span>
+              </div>
+              
+              <div className="flex flex-col divide-y divide-slate-800/50">
+                {RANK_TIERS.map((tier, index) => (
+                  <div key={index} className="grid grid-cols-5 items-center p-3 hover:bg-slate-800/30 transition-colors">
+                    <div className="col-span-3 flex items-center gap-2.5">
+                      <span className="text-sm drop-shadow-md">{tier.icon}</span>
+                      <span className="text-xs font-black uppercase tracking-widest italic drop-shadow-sm" style={{ color: tier.color }}>
+                        {tier.name}
+                      </span>
+                    </div>
+                    <div className="col-span-2 text-right">
+                      <span className="text-xs font-mono font-bold text-slate-400">
+                        {tier.minElo}{tier.maxElo !== null ? `–${tier.maxElo - 1}` : '+'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Spacer for mobile safe area */}

@@ -23,6 +23,7 @@ import { useState } from 'react';
 import { AnalyticsClient } from '@/components/AnalyticsClient';
 import clsx from 'clsx';
 import { getCockRank } from '@/lib/analytics/rank';
+import RankBadge from '@/components/ui/RankBadge';
 
 interface PlayerStat {
   id: string;
@@ -230,13 +231,11 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
                         <span className={`text-xs font-black italic w-5 ${index === 0 ? 'text-emerald-400' : 'text-slate-500'}`}>
                           #{index + 1}
                         </span>
-                        <div className="flex flex-col gap-1">
+                        <div className="flex flex-col gap-1.5 items-start">
                           <span className="text-sm font-black tracking-tight text-slate-100 uppercase italic leading-none">
                             {player.name}
                           </span>
-                          <span className="text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 leading-none" style={{ color: rank.color }}>
-                            <span>{rank.icon}</span> {rank.name}
-                          </span>
+                          <RankBadge elo={player.elo} />
                         </div>
                       </div>
                       <span className="font-mono text-sm font-black italic text-emerald-400 bg-emerald-400/5 px-2 py-0.5 rounded">

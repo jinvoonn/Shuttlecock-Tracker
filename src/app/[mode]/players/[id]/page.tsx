@@ -10,6 +10,7 @@ import { getPlayerEloHistory } from "@/lib/analytics/eloTrend";
 import EloTrendChart from "./EloTrendChart";
 import EloRatingCard from "./EloRatingCard";
 import { getBestPartner, getWorstPartner, getPartnerStats } from "@/lib/analytics/partner";
+import RankBadge from "@/components/ui/RankBadge";
 import clsx from "clsx";
 
 export const revalidate = 0;
@@ -248,7 +249,10 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                             <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/20 to-transparent"></div>
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-slate-50 tracking-tight">{player.name}</h1>
+                            <h1 className="text-3xl font-bold text-slate-50 tracking-tight flex items-center gap-3">
+                                {player.name}
+                                <RankBadge elo={playerElo} />
+                            </h1>
                             <div className="flex flex-col mt-2">
                                 {bestPartner && (
                                     <div className="flex items-center gap-2 mb-1">

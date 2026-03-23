@@ -35,7 +35,7 @@ export const RANK_TIERS: CockRank[] = [
   {
     name: "Rally",
     color: "#34d399", // emerald-400
-    icon: "⚡",
+    icon: "🔥",
     minElo: 1400,
     maxElo: 1600,
     nextRank: "Smash",
@@ -59,7 +59,7 @@ export const RANK_TIERS: CockRank[] = [
   {
     name: "CockMaster",
     color: "#f43f5e", // rose-500
-    icon: "🌌",
+    icon: "🐓",
     minElo: 2000,
     maxElo: null,
     nextRank: null,

@@ -17,6 +17,7 @@ import { usePathname } from 'next/navigation';
 import { useRole } from '@/context/AuthContext';
 import { AnalyticsClient } from '@/components/AnalyticsClient';
 import { getCockRank } from '@/lib/analytics/rank';
+import RankBadge from '@/components/ui/RankBadge';
 
 interface PlayerStat {
   id: string;
@@ -281,9 +282,9 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
                         <span className="font-black text-lg uppercase tracking-tight text-slate-100 italic group-hover:text-white transition-colors leading-none">
                           {player.name}
                         </span>
-                        <span className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 leading-none" style={{ color: rank.color }}>
-                          <span>{rank.icon}</span> {rank.name}
-                        </span>
+                        <div>
+                          <RankBadge elo={player.elo} />
+                        </div>
                       </div>
                     </div>
                     <div className="font-mono font-black italic text-[#13ec80] bg-emerald-500/5 px-4 py-1.5 rounded-lg text-lg">
