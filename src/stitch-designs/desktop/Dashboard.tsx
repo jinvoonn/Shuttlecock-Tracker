@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useRole } from '@/context/AuthContext';
 import { AnalyticsClient } from '@/components/AnalyticsClient';
+import { getCockRank } from '@/lib/analytics/rank';
 
 interface PlayerStat {
   id: string;
@@ -261,7 +262,9 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
               </div>
               
               <div className="max-h-[400px] overflow-y-auto pr-2 custom-scrollbar space-y-3">
-                {sortedLeaderboard.map((player, index) => (
+                {sortedLeaderboard.map((player, index) => {
+                  const rank = getCockRank(player.elo);
+                  return (
                   <div 
                     key={player.id} 
                     className="flex items-center justify-between p-5 rounded-2xl bg-slate-950/40 border border-slate-800 hover:border-emerald-500/30 hover:-translate-y-0.5 hover:shadow-lg hover:bg-slate-900/80 transition-all duration-300 group opacity-0 animate-fade-in-up"
@@ -274,9 +277,14 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
                       )}>
                         #{index + 1}
                       </span>
-                      <span className="font-black text-lg uppercase tracking-tight text-slate-100 italic group-hover:text-white transition-colors">
-                        {player.name}
-                      </span>
+                      <div className="flex flex-col gap-1.5">
+                        <span className="font-black text-lg uppercase tracking-tight text-slate-100 italic group-hover:text-white transition-colors leading-none">
+                          {player.name}
+                        </span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 leading-none" style={{ color: rank.color }}>
+                          <span>{rank.icon}</span> {rank.name}
+                        </span>
+                      </div>
                     </div>
                     <div className="font-mono font-black italic text-[#13ec80] bg-emerald-500/5 px-4 py-1.5 rounded-lg text-lg">
                       {leaderboardMode === "wins" 
@@ -287,7 +295,7 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
                       }
                     </div>
                   </div>
-                ))}
+                )})}
               </div>
             </div>
           )}

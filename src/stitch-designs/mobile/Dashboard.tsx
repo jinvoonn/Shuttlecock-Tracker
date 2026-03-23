@@ -22,6 +22,7 @@ import { useRole } from '@/context/AuthContext';
 import { useState } from 'react';
 import { AnalyticsClient } from '@/components/AnalyticsClient';
 import clsx from 'clsx';
+import { getCockRank } from '@/lib/analytics/rank';
 
 interface PlayerStat {
   id: string;
@@ -218,7 +219,9 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
                   </div>
                 </div>
                 <div className="flex flex-col gap-3 max-h-[350px] overflow-y-auto scrollbar-hide">
-                  {sortedLeaderboard.map((player, index) => (
+                  {sortedLeaderboard.map((player, index) => {
+                    const rank = getCockRank(player.elo);
+                    return (
                     <div 
                       key={player.id} 
                       className="flex items-center justify-between border-b border-slate-700/50 last:border-0 pb-3 last:pb-0 hover:-translate-y-0.5 transition-transform duration-300"
@@ -227,15 +230,20 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
                         <span className={`text-xs font-black italic w-5 ${index === 0 ? 'text-emerald-400' : 'text-slate-500'}`}>
                           #{index + 1}
                         </span>
-                        <span className="text-sm font-black tracking-tight text-slate-100 uppercase italic">
-                          {player.name}
-                        </span>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-sm font-black tracking-tight text-slate-100 uppercase italic leading-none">
+                            {player.name}
+                          </span>
+                          <span className="text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 leading-none" style={{ color: rank.color }}>
+                            <span>{rank.icon}</span> {rank.name}
+                          </span>
+                        </div>
                       </div>
                       <span className="font-mono text-sm font-black italic text-emerald-400 bg-emerald-400/5 px-2 py-0.5 rounded">
                         {leaderboardMode === "wins" ? player.wins : leaderboardMode === "winRate" ? `${(player.winRate * 100).toFixed(1)}%` : player.elo}
                       </span>
                     </div>
-                  ))}
+                  )})}
                 </div>
               </div>
             )}
