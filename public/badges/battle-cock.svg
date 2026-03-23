@@ -1,0 +1,10 @@
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M20 2L36 8V20C36 28.8 29.2 37 20 40C10.8 37 4 28.8 4 20V8L20 2Z" fill="#DC2626" />
+  <path d="M14 14L26 26M26 14L14 26" stroke="white" stroke-width="3" stroke-linecap="round" />
+  <defs>
+    <linearGradient id="grad_battle" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EF4444" />
+      <stop offset="1" stop-color="#991B1B" />
+    </linearGradient>
+  </defs>
+</svg>

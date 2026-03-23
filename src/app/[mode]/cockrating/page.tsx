@@ -14,8 +14,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { RANK_TIERS, getRankEmoji } from "@/lib/analytics/rank";
+import { RANK_TIERS } from "@/lib/analytics/rank";
 import RankBadge from "@/components/ui/RankBadge";
+import RankBadgeIcon from "@/components/ui/RankBadgeIcon";
 
 export default function CockRatingPage() {
   const { mode } = useParams();
@@ -61,8 +62,8 @@ export default function CockRatingPage() {
         
         {/* Section 1: Hero */}
         <section className="text-center py-4">
-          <div className="inline-flex items-center justify-center size-20 bg-gradient-to-br from-emerald-500 to-sky-600 rounded-3xl shadow-2xl shadow-emerald-500/20 mb-6 rotate-3 hover:rotate-0 transition-transform duration-500">
-            <span className="text-4xl text-white">🐓</span>
+          <div className="inline-flex items-center justify-center size-24 bg-gradient-to-br from-emerald-500/20 to-sky-600/20 rounded-3xl shadow-2xl shadow-emerald-500/10 mb-6 rotate-3 hover:rotate-0 transition-transform duration-500 border border-emerald-500/20">
+            <RankBadgeIcon rank="CockMaster" size="large" className="scale-125" />
           </div>
           <h2 className="text-5xl font-black italic tracking-tighter uppercase mb-2">
             Cock<span className="text-emerald-400">Rating</span>
@@ -136,8 +137,8 @@ export default function CockRatingPage() {
             <Zap className="w-24 h-24 text-indigo-400" />
           </div>
           
-          <h3 className="text-xl font-black italic uppercase tracking-tighter text-indigo-400 mb-4">
-            🐣 Placement System
+          <h3 className="text-xl font-black italic uppercase tracking-tighter text-indigo-400 mb-4 flex items-center gap-3">
+            <RankBadgeIcon rank="Unranked" size="default" /> Placement System
           </h3>
           <p className="text-sm text-slate-300 leading-relaxed mb-6 italic font-light">
             New players are marked as <span className="text-white font-bold">Unranked</span> for their first 5 matches. 
@@ -178,7 +179,7 @@ export default function CockRatingPage() {
               {RANK_TIERS.map((tier, index) => (
                 <div key={index} className="grid grid-cols-5 items-center p-4 hover:bg-slate-700/20 transition-colors group">
                   <div className="col-span-3 flex items-center gap-3">
-                    <span className="text-xl group-hover:scale-125 transition-transform duration-300">{getRankEmoji(tier.name)}</span>
+                    <RankBadgeIcon rank={tier.name} size="default" className="group-hover:scale-110 transition-transform duration-300" />
                     <span className="text-sm font-black uppercase tracking-widest italic drop-shadow-sm" style={{ color: tier.color }}>
                       {tier.name}
                     </span>
