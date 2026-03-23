@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from 'react';
 import { Swords, ChevronDown, ChevronUp } from 'lucide-react';
 import clsx from 'clsx';
