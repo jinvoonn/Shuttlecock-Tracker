@@ -27,7 +27,7 @@ shuttle-tracker/
 ## Data Flow
 1.  **Read**: Server components in `src/app` fetch data directly from Supabase via the shared `supabase.ts` client.
 2.  **Write**: Mutations (adding matches, sessions, or updating skill) are handled via **Next.js Server Actions** located in `src/lib/actions`.
-3.  **Analytics**: Logic for Win Rate, H2H, and "Best Partner" is calculated client-side or on-the-fly in server components to ensure the UI stays responsive without complex backend views.
+30. **Analytics**: Logic for Win Rate, H2H, streaks, and leaderboards is centralized in `src/lib/analytics/`. This ensures metric consistency across the Dashboard, Session pages, and Player Profiles while reducing code duplication.
 
 ## Database Schema (Summary)
 The database structure is defined in `schema_v2.sql` and includes:

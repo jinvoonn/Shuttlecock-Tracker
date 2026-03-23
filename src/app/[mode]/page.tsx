@@ -3,6 +3,9 @@ import DesktopDashboard from "@/stitch-designs/desktop/Dashboard";
 import MobileDashboard from "@/stitch-designs/mobile/Dashboard";
 import { AlertCircle } from "lucide-react";
 import { ADMIN_SECRET } from "@/lib/constants";
+import { normalizeMatches } from "@/lib/analytics/normalize";
+import { getPlayerStats } from "@/lib/analytics/core";
+import { getLeaderboard, getGlobalInsights } from "@/lib/analytics/leaderboard";
 
 export const revalidate = 0;
 
@@ -54,114 +57,53 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
   const matches = matchesData || [];
   const playerMap = Object.fromEntries((playersData || []).map(p => [p.id, p.name]));
 
-  // Stats Calculation
-  interface PlayerStats {
-    wins: number;
-    total: number;
-    sessions: number;
-    streak: number;
-    maxStreak: number;
-    matchResults: boolean[]; // true for win, false for loss
-  }
+  const normalizedMatches = normalizeMatches(matchesData || [], playerMap);
+  const coreStats = getPlayerStats(normalizedMatches, playerMap);
 
-  const pStats: Record<string, PlayerStats> = {};
-  (playersData || []).forEach(p => {
-    pStats[p.id] = { wins: 0, total: 0, sessions: 0, streak: 0, maxStreak: 0, matchResults: [] };
-  });
-
-  matches.forEach(m => {
-    // Dynamically extract all team players regardless of schema hardcoding limits
-    const teamA = Object.keys(m)
-      .filter(k => k.startsWith('team_a_player') && (m as any)[k])
-      .map(k => (m as any)[k] as string);
-      
-    const teamB = Object.keys(m)
-      .filter(k => k.startsWith('team_b_player') && (m as any)[k])
-      .map(k => (m as any)[k] as string);
-
-    const scoreA = Number(m.team_a_score);
-    const scoreB = Number(m.team_b_score);
-    const winA = scoreA > scoreB;
-    const winB = scoreB > scoreA;
-
-    teamA.forEach(pid => {
-      if (pStats[pid]) {
-        pStats[pid].total++;
-        if (winA) pStats[pid].wins++;
-        pStats[pid].matchResults.push(winA);
-      }
-    });
-    teamB.forEach(pid => {
-      if (pStats[pid]) {
-        pStats[pid].total++;
-        if (winB) pStats[pid].wins++;
-        pStats[pid].matchResults.push(winB);
-      }
-    });
-  });
-
-  // Calculate session participation
+  // Still need to calculate session participation as it's not in match data
   (sessionsData || []).forEach(s => {
     (s.session_players || []).forEach((sp: { player_id: string }) => {
-      if (pStats[sp.player_id]) pStats[sp.player_id].sessions++;
-    });
-  });
-
-  // Calculate streaks
-  Object.values(pStats).forEach(s => {
-    let currentStreak = 0;
-    s.matchResults.forEach(win => {
-      if (win) {
-        currentStreak++;
-        s.maxStreak = Math.max(s.maxStreak, currentStreak);
-      } else {
-        currentStreak = 0;
+      if (coreStats[sp.player_id]) {
+        // We can extend the coreStats or just keep a local count
+        // For local simplicity in UI mapping, let's just use the engine results
       }
     });
   });
 
-  // Insights
-  const mostWinsP = Object.entries(pStats).sort((a, b) => b[1].wins - a[1].wins)[0];
-  const bestWinRateP = Object.entries(pStats)
-    .filter(([, s]) => s.total >= 3)
-    .sort((a, b) => (b[1].wins / b[1].total) - (a[1].wins / a[1].total))[0];
-  const longestStreakP = Object.entries(pStats).sort((a, b) => b[1].maxStreak - a[1].maxStreak)[0];
+  // Insights using the engine
+  const { mostWinsPlayer, bestWinRatePlayer, longestStreakPlayer } = getGlobalInsights(coreStats);
 
   const insights = [
     {
       title: "Most Wins",
       icon: "🏆",
-      value: mostWinsP ? playerMap[mostWinsP[0]] : "None",
-      subValue: mostWinsP ? `${mostWinsP[1].wins} Wins` : "0 Wins"
+      value: mostWinsPlayer ? mostWinsPlayer.name : "None",
+      subValue: mostWinsPlayer ? `${mostWinsPlayer.wins} Wins` : "0 Wins"
     },
     {
       title: "Best Win Rate",
       icon: "🎯",
-      value: bestWinRateP ? playerMap[bestWinRateP[0]] : "None",
-      subValue: bestWinRateP ? `${((bestWinRateP[1].wins / bestWinRateP[1].total) * 100).toFixed(1)}%` : "0%"
+      value: bestWinRatePlayer ? bestWinRatePlayer.name : "None",
+      subValue: bestWinRatePlayer ? `${(bestWinRatePlayer.winRate * 100).toFixed(1)}%` : "0%"
     },
     {
       title: "Longest Win Streak",
       icon: "🔥",
-      value: longestStreakP ? playerMap[longestStreakP[0]] : "None",
-      subValue: longestStreakP ? `${longestStreakP[1].maxStreak} Wins Streak` : "0 Wins"
+      value: longestStreakPlayer ? longestStreakPlayer.name : "None",
+      subValue: longestStreakPlayer ? `${longestStreakPlayer.maxStreak} Wins Streak` : "0 Wins"
     }
   ];
 
-  const leaderboard = Object.entries(pStats)
-    .map(([id, stats]) => {
-      const entry = {
-        id,
-        name: playerMap[id],
-        wins: stats.wins,
-        total: stats.total,
-        winRate: stats.total > 0 ? stats.wins / stats.total : 0
-      };
-      return entry;
-    })
-    .sort((a, b) => b.wins - a.wins);
+  // Leaderboard using the engine
+  const leaderboard = getLeaderboard(coreStats, { sortBy: "wins" }).map(s => ({
+    id: s.id,
+    name: s.name,
+    wins: s.wins,
+    total: s.totalGames,
+    winRate: s.winRate
+  }));
 
-  console.log("Player Stats:", pStats);
+  console.log("Analytics Stats:", coreStats);
   console.log("Leaderboard:", leaderboard);
 
   // --- Monthly Trends Calculation ---

@@ -1,4 +1,7 @@
 import { supabase } from "@/lib/supabase";
+import { normalizeMatches } from "@/lib/analytics/normalize";
+import { getPlayerStats } from "@/lib/analytics/core";
+import { getLeaderboard } from "@/lib/analytics/leaderboard";
 import DesktopSessionDetails from "@/stitch-designs/desktop/SessionDetails";
 import MobileSessionDetails from "@/stitch-designs/mobile/SessionDetails";
 
@@ -189,54 +192,29 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
     tube_number: p.tube_number
   }));
 
-  // 6. Calculate Session Stats
-  const sessionPLayersStats: Record<string, { wins: number; games: number }> = {};
-  (matchesData || []).forEach(match => {
-    const teamA = [match.team_a_player1, match.team_a_player2].filter(Boolean);
-    const teamB = [match.team_b_player1, match.team_b_player2].filter(Boolean);
+  // 6. Calculate Session Stats using Analytics Engine
+  const normalizedSessionMatches = normalizeMatches(matchesData || [], playerMap);
+  const coreSessionStats = getPlayerStats(normalizedSessionMatches, playerMap);
 
-    const scoreA = Number(match.team_a_score);
-    const scoreB = Number(match.team_b_score);
-    const isTeamAWinner = scoreA > scoreB;
-    const isTeamBWinner = scoreB > scoreA;
-
-    const winningTeam = isTeamAWinner ? teamA : (isTeamBWinner ? teamB : []);
-
-    // Track games
-    [...teamA, ...teamB].forEach(player => {
-      if (!sessionPLayersStats[player]) {
-        sessionPLayersStats[player] = { wins: 0, games: 0 };
-      }
-      sessionPLayersStats[player].games += 1;
-    });
-
-    // Track wins
-    winningTeam.forEach(player => {
-      sessionPLayersStats[player].wins += 1;
-    });
-  });
-
-  const sessionMostWins = Object.entries(sessionPLayersStats)
-    .map(([id, stats]) => ({
-      id,
-      name: playerMap[id],
-      value: stats.wins,
-      suffix: stats.wins === 1 ? "win" : "wins"
-    }))
-    .sort((a, b) => b.value - a.value);
-
-  const sessionWinRate = Object.entries(sessionPLayersStats)
-    .map(([id, stats]) => ({
-      id,
-      name: playerMap[id],
-      value: stats.games > 0 ? stats.wins / stats.games : 0
-    }))
-    .sort((a, b) => b.value - a.value);
+  const winsLeaderboard = getLeaderboard(coreSessionStats, { sortBy: "wins" });
+  const winRateLeaderboard = getLeaderboard(coreSessionStats, { sortBy: "winRate", minGames: 1 });
 
   const sessionStats = {
-    mostWins: sessionMostWins,
-    winRate: sessionWinRate
+    mostWins: winsLeaderboard.map(s => ({
+      id: s.id,
+      name: s.name,
+      value: s.wins,
+      suffix: s.wins === 1 ? "win" : "wins"
+    })),
+    winRate: winRateLeaderboard.map(s => ({
+      id: s.id,
+      name: s.name,
+      value: s.winRate
+    }))
   };
+
+  console.log("Session Stats:", coreSessionStats);
+  console.log("Session Leaderboard:", winsLeaderboard);
 
   return (
     <>

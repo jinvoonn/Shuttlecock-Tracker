@@ -10,6 +10,7 @@ CockCount is a premium **Dark Mode Only** web app to track badminton group costs
 *   **Auto-Grouping System**: (Planned) Smart balanced team generation.
 *   **Player Profiles**: Win rates, H2H records, best partner analytics, and win streaks.
 *   **Analytics Dashboard**: Monthly spending and usage trends visualized with `recharts`.
+*   **Centralized Analytics Engine**: Unified logic for all match stats, win rates, and leaderboards under `src/lib/analytics/`.
 *   **Leaderboards**: Global and Session-level leaderboard with toggleable (Wins vs Win Rate) segmented controls.
 *   **Direct Settle**: One-tap settlement of player balances from the mobile dashboard.
 *   **Admin Access**: Secret path (`/admin-92Kf8s`) required for ALL mutations except Match logging/editing. Sessions/Payments are Admin-only for edit/delete.
@@ -82,6 +83,6 @@ All match actions in `src/lib/actions/matches.ts` expect:
 The action maps `teamAIds[0]` → `team_a_player1`, `teamAIds[1]` → `team_a_player2`, etc.
 
 ## Current Project Status
-**Phase 65 complete (22 Mar 2026).** App is standardized to a **Dark Mode Only** premium UI. Features include high-fidelity segmented controls for leaderboards, session-level performance tracking, unified mobile FAB patterns, and polished analytics. Successfully verified with production builds.
+**Phase 67 complete (23 Mar 2026).** App features a robust **Centralized Analytics Engine** and consistent real-time settlement tracking. UI is a **Dark Mode Only** premium experience verified for production stability.
 
 *"Because Shuttlecocks Aren't Free."*

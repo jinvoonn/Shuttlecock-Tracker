@@ -3,6 +3,9 @@ import { User, Swords, Activity, ArrowLeft, Target, LayoutDashboard, CalendarDay
 import Link from "next/link";
 import { SkillRatingEditor } from "@/components/SkillRatingEditor";
 import { MatchHistory } from "./MatchHistory";
+import { normalizeMatches } from "@/lib/analytics/normalize";
+import { getPlayerProfileStats, getPartnerStats } from "@/lib/analytics/profile";
+import { getBestPartner, getWorstPartner } from "@/lib/analytics/partner";
 import clsx from "clsx";
 
 export const revalidate = 0;
@@ -92,85 +95,71 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
 
     const currentBalance = totalOwed - totalPayments;
 
-    // Calculate generic stats
-    let totalMatchesCount = 0;
-    let wins = 0;
-    let losses = 0;
+    // --- ANALYTICS ENGINE INTEGRATION ---
+    const normalizedMatches = normalizeMatches(matches || [], playerMap);
+    const profileStats = getPlayerProfileStats(matches || [], playerMap, id);
+    const allPartnersStats = getPartnerStats(normalizedMatches);
+    const playerPartnerStats = allPartnersStats[id] || {};
 
-    const formattedMatches = (matches || []).map((m: { id: string, created_at: string, team_a_score: number, team_b_score: number, team_a_player1: string, team_a_player2: string, team_b_player1: string, team_b_player2: string, sessions: { date: string } | { date: string }[] | null }) => {
-        totalMatchesCount++;
-        
-        const isTeamA = m.team_a_player1 === id || m.team_a_player2 === id;
-        
-        const myScore = isTeamA ? m.team_a_score : m.team_b_score;
-        const oppScore = isTeamA ? m.team_b_score : m.team_a_score;
-        
-        const isWin = myScore > oppScore;
-        const isDraw = myScore === oppScore;
+    const totalMatchesCount = profileStats?.totalGames || 0;
+    const wins = profileStats?.wins || 0;
+    const losses = profileStats?.losses || 0;
+    const winRate = profileStats ? Math.round(profileStats.winRate * 100) : 0;
+    const winStreak = profileStats?.streak || 0;
+    const recentForm = profileStats?.lastResults || [];
 
-        if (isWin) wins++;
-        else if (!isDraw) losses++;
-        
-        const myPartnerId = isTeamA 
-            ? (m.team_a_player1 === id ? m.team_a_player2 : m.team_a_player1)
-            : (m.team_b_player1 === id ? m.team_b_player2 : m.team_b_player1);
-        
-        const opponentsIds = isTeamA 
-            ? [m.team_b_player1, m.team_b_player2]
-            : [m.team_a_player1, m.team_a_player2];
+    // Map matches for backward compatibility with UI
+    const formattedMatches = normalizedMatches.map((m: any) => {
+        const isTeamA = m.teamA.includes(id);
+        const myScore = isTeamA ? m.scoreA : m.scoreB;
+        const oppScore = isTeamA ? m.scoreB : m.scoreA;
+        const isWin = (isTeamA && m.winner === "A") || (!isTeamA && m.winner === "B");
+        const isDraw = m.winner === "Draw";
 
-        const myPartners = myPartnerId && myPartnerId !== id ? [myPartnerId] : [];
-        const opponents = opponentsIds.filter(Boolean);
+        const myPartnerIds = (isTeamA ? m.teamA : m.teamB).filter((pid: string) => pid !== id);
+        const opponentIds = isTeamA ? m.teamB : m.teamA;
 
         return {
             id: m.id,
-            date: (Array.isArray(m.sessions) ? m.sessions[0]?.date : m.sessions?.date) || new Date(m.created_at).toISOString().split('T')[0],
+            date: m.date,
             isWin,
             isDraw,
             myScore,
             oppScore,
-            partners: myPartners.map((pid: string) => playerMap[pid] || "Unknown"),
-            opponents: opponents.map((pid: string) => playerMap[pid] || "Unknown")
+            partners: myPartnerIds.map((pid: string) => playerMap[pid] || "Unknown"),
+            opponents: opponentIds.map((pid: string) => playerMap[pid] || "Unknown")
         };
     });
 
-    const winRate = totalMatchesCount > 0 ? Math.round((wins / totalMatchesCount) * 100) : 0;
-
-    // --- PHASE 11: ADVANCED ANALYTICS ---
+    // H2H Logic (Keeping here for now as requested to focus on stats/partners)
     const h2h: Record<string, { name: string, wins: number, losses: number, total: number }> = {};
-    const partnersMap: Record<string, { name: string, wins: number, total: number }> = {};
-
-    formattedMatches.forEach((m: { isWin: boolean, isDraw: boolean, opponents: string[], partners: string[] }) => {
-        if (!m) return;
-        // Track Head-to-Head
+    formattedMatches.forEach((m: any) => {
         m.opponents.forEach((oppName: string) => {
             if (!h2h[oppName]) h2h[oppName] = { name: oppName, wins: 0, losses: 0, total: 0 };
             h2h[oppName].total++;
             if (m.isWin) h2h[oppName].wins++;
             else if (!m.isDraw) h2h[oppName].losses++;
         });
-
-        // Track Partners
-        m.partners.forEach((partnerName: string) => {
-            if (!partnersMap[partnerName]) partnersMap[partnerName] = { name: partnerName, wins: 0, total: 0 };
-            partnersMap[partnerName].total++;
-            if (m.isWin) partnersMap[partnerName].wins++;
-        });
     });
-
     const rivals = Object.values(h2h).sort((a, b) => b.total - a.total).slice(0, 3);
-    
-    const partnerCandidates = Object.values(partnersMap);
-    const bestPartner = [...partnerCandidates].sort((a, b) => (b.wins / b.total) - (a.wins / a.total) || b.total - a.total)[0];
-    const sadgePartner = [...partnerCandidates].sort((a, b) => (a.wins / a.total) - (b.wins / b.total) || a.total - b.total)[0];
 
-    let winStreak = 0;
-    for (const m of formattedMatches) {
-        if (m.isWin) winStreak++;
-        else break;
-    }
+    // Partner Intelligence
+    const bestPartnerMatch = getBestPartner(allPartnersStats, id, 3);
+    const worstPartnerMatch = getWorstPartner(allPartnersStats, id, 3);
 
-    const recentForm = formattedMatches.slice(0, 5).map(m => m?.isWin ? "W" : m?.isDraw ? "D" : "L");
+    const bestPartner = bestPartnerMatch ? {
+        name: playerMap[bestPartnerMatch.partnerId] || "Unknown",
+        wins: bestPartnerMatch.stats.wins,
+        total: bestPartnerMatch.stats.games,
+        winRate: bestPartnerMatch.stats.winRate
+    } : null;
+
+    const sadgePartner = worstPartnerMatch ? {
+        name: playerMap[worstPartnerMatch.partnerId] || "Unknown",
+        wins: worstPartnerMatch.stats.wins,
+        total: worstPartnerMatch.stats.games,
+        winRate: worstPartnerMatch.stats.winRate
+    } : null;
 
     return (
         <div className="flex h-screen overflow-hidden bg-slate-900 text-slate-100 font-['Lexend',_sans-serif]">
@@ -307,7 +296,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                                     </div>
                                 ) : null}
 
-                                {sadgePartner && (sadgePartner !== bestPartner || partnerCandidates.length === 1) ? (
+                                {sadgePartner && (sadgePartner.name !== bestPartner?.name || Object.keys(playerPartnerStats).length === 1) ? (
                                     <div className="p-3 bg-rose-500/5 rounded-xl border border-rose-500/10">
                                         <p className="text-[9px] font-bold text-rose-400 uppercase tracking-widest mb-1">Sadge Partner</p>
                                         <p className="text-lg font-bold text-slate-200">

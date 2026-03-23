@@ -126,18 +126,22 @@
 *   [x] **Feature**: Integrated a toggleable leaderboard directly into individual session pages to track performance per-session.
 *   [x] **Logic**: Calculated Session-only Most Wins and Win Rate using localized match data.
 
-## Phase 65 — Mobile FAB & Theme Polish
-*   [x] **Standardization**: Unified all mobile Floating Action Buttons (FABs) to a round, emerald-400 profile across Sessions, Stock, and Payments.
-*   [x] **Palette**: Enforced strict `emerald-400` primary and `slate-900/800` card background tokens globally.
+## Phase 66 — Session Status Synchronization (23 Mar 2026)
+*   [x] **Logic**: Implemented data-driven "Pending/Paid" status in the individual session page based on global player balances (Total Payments - Total Shares).
+*   [x] **Revalidation**: Updated `payments.ts` server actions to use layout-wide revalidation (`revalidatePath("/", "layout")`) for real-time UI updates after settlement.
+
+## Phase 67 — Centralized Analytics Engine
+*   [x] **Architecture**: Designed and implemented a modular analytics engine in `src/lib/analytics/` with shared types, normalization, and core aggregation logic.
+*   [x] **Integration**: Refactored both the Global Dashboard and the Individual Session page to consume the unified engine, eliminating ~150 lines of redundant code and ensuring metric consistency.
+*   [x] **Standardization**: Unified win rate thresholds (min 3 games for global insights) and streak calculation across the platform.
 
 ## Current State
 
-The app is highly stable, verified with successful production builds, and now features a **Dark Mode Only** premium UI. Analytics are functional, branding is unified, and the mobile UX is standardized with consistent FAB patterns and segmented controls. Zero lint errors.
+The app is highly stable, verified with successful production builds, and features a redundant-free **Centralized Analytics Engine**. The UI is a **Dark Mode Only** premium experience with real-time settlement tracking and standardized mobile FAB patterns. Zero lint errors.
 
 ## Known Issues / Backlog
 
 *   **Environment Variables**: `.env.local` requires real Supabase keys for public distribution.
-*   **Session revalidation**: Dynamic session detail paths (`/sessions/[id]`) may need explicit revalidation if match changes don't propagate immediately.
 
 ## Roadmap & Next Steps
 
