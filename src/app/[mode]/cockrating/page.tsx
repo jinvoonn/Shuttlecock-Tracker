@@ -13,13 +13,22 @@ import {
   Info
 } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { RANK_TIERS } from "@/lib/analytics/rank";
 import RankBadge from "@/components/ui/RankBadge";
 
 export default function CockRatingPage() {
   const { mode } = useParams();
+  const router = useRouter();
   const basePath = `/${mode}`;
+
+  const handleBack = () => {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push(basePath);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-slate-100 font-['Lexend',_sans-serif] pb-20">
@@ -32,12 +41,12 @@ export default function CockRatingPage() {
 
       {/* Sticky Top Header */}
       <header className="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-xl border-b border-slate-800/50 px-6 py-4 flex items-center gap-4">
-        <Link 
-          href={basePath}
+        <button 
+          onClick={handleBack}
           className="p-2 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-white transition-all active:scale-95"
         >
           <ArrowLeft className="w-5 h-5" />
-        </Link>
+        </button>
         <div>
           <h1 className="text-lg font-black italic uppercase tracking-tighter leading-none">
             CockRating Guide
@@ -220,12 +229,12 @@ export default function CockRatingPage() {
 
         {/* Footer Navigation */}
         <section className="pt-10 border-t border-slate-800/50 text-center">
-            <Link 
-              href={basePath}
+            <button 
+              onClick={handleBack}
               className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all active:scale-95 shadow-xl"
             >
-              <ArrowLeft className="w-4 h-4" /> Return to Dashboard
-            </Link>
+              <ArrowLeft className="w-4 h-4" /> Return to Previous Page
+            </button>
         </section>
 
       </main>

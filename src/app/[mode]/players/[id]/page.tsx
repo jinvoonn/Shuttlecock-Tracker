@@ -45,8 +45,8 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
         
     const totalSessions = attendedSessions?.length || 0;
 
-    // Fetch matches the player participated in
-    const { data: matches } = await supabase
+    // Fetch ALL matches to ensure global ELO consistency
+    const { data: allMatchesData } = await supabase
         .from("matches")
         .select(`
             id,
@@ -59,8 +59,9 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
             team_b_player2,
             sessions ( date )
         `)
-        .or(`team_a_player1.eq.${id},team_a_player2.eq.${id},team_b_player1.eq.${id},team_b_player2.eq.${id}`)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: true });
+
+    const matches = allMatchesData || [];
 
     // Fetch all players to map IDs to names for match history
     const { data: allPlayersData } = await supabase.from("players").select("id, name");
@@ -105,30 +106,34 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
 
     // --- ANALYTICS ENGINE INTEGRATION ---
     const normalizedMatches = normalizeMatches(matches || [], playerMap);
-    const { stats: allStats, elo: globalElo, eloHistory } = aggregatePlayerStats(normalizedMatches, Object.fromEntries(Object.keys(playerMap).map(k => [k, playerMap[k]])));
+    const { stats: allStats, elo: globalElo, eloHistory } = aggregatePlayerStats(normalizedMatches, playerMap);
     const currentPlayerStats = allStats[id];
+    
+    // Explicitly derive placement status
     const placementMatchesPlayed = currentPlayerStats?.placementMatchesPlayed ?? 0;
     const isUnranked = placementMatchesPlayed < 5;
     
-    const profileStats = getPlayerProfileStats(matches || [], playerMap, id);
     const allPartnersStats = getPartnerStats(normalizedMatches);
     const playerPartnerStats = allPartnersStats[id] || {};
     
     const eloTimeline = getPlayerEloHistory(eloHistory, id);
 
-    const totalMatchesCount = profileStats?.totalGames || 0;
-    const wins = profileStats?.wins || 0;
-    const losses = profileStats?.losses || 0;
-    const winRate = profileStats ? Math.round(profileStats.winRate * 100) : 0;
-    const winStreak = profileStats?.streak || 0;
-    const recentForm = profileStats?.lastResults || [];
+    const totalMatchesCount = currentPlayerStats?.totalGames || 0;
+    const wins = currentPlayerStats?.wins || 0;
+    const losses = currentPlayerStats?.losses || 0;
+    const winRate = currentPlayerStats ? Math.round(currentPlayerStats.winRate * 100) : 0;
+    const winStreak = currentPlayerStats?.streak || 0;
+    const recentForm = currentPlayerStats?.lastResults || [];
     
     // ELO Settings
     const playerElo = Math.round(globalElo[id] || 1200);
     const rank = getCockRank(playerElo, placementMatchesPlayed);
 
-    // Map matches for backward compatibility with UI
-    const formattedMatches = normalizedMatches.map((m: any) => {
+    // Map matches for backward compatibility with UI - ONLY for this player
+    const formattedMatches = normalizedMatches
+        .filter((m: any) => m.teamA.includes(id) || m.teamB.includes(id))
+        .reverse() // Newest first
+        .map((m: any) => {
         const isTeamA = m.teamA.includes(id);
         const myScore = isTeamA ? m.scoreA : m.scoreB;
         const oppScore = isTeamA ? m.scoreB : m.scoreA;
