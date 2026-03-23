@@ -133,10 +133,10 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
           )}
 
           {/* Dashboard Stats - Stacked Vertically */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 animate-fade-in-up md:delay-75">
             {/* Total Owed - RED */}
-            <div className="flex flex-col gap-2 rounded-2xl bg-rose-500/10 p-6 border border-rose-500/20 shadow-sm relative overflow-hidden group">
-              <div className="absolute top-0 right-0 size-24 bg-rose-500/5 rounded-full -translate-y-8 translate-x-8 blur-3xl"></div>
+            <div className="flex flex-col gap-2 rounded-2xl bg-rose-500/10 p-6 border border-rose-500/20 shadow-sm relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 cursor-default">
+              <div className="absolute top-0 right-0 size-24 bg-rose-500/5 rounded-full -translate-y-8 translate-x-8 blur-3xl group-hover:bg-rose-500/10 transition-colors"></div>
               <div className="flex items-center gap-2 text-rose-400">
                 <Wallet className="size-4" />
                 <p className="text-[10px] font-black uppercase tracking-tight">Total Owed</p>
@@ -145,7 +145,7 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
             </div>
 
             {/* Shuttle Used */}
-            <div className="flex flex-col gap-2 rounded-2xl bg-slate-800 p-6 border border-slate-700 shadow-sm transition-all hover:border-emerald-400/30 group">
+            <div className="flex flex-col gap-2 rounded-2xl bg-slate-800 p-6 border border-slate-700 shadow-sm hover:border-emerald-400/30 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group cursor-default">
               <div className="flex items-center gap-2 text-slate-400 group-hover:text-emerald-400 transition-colors">
                 <HistoryIcon className="size-4" />
                 <p className="text-[10px] font-black uppercase tracking-tight">Shuttle Used</p>
@@ -154,7 +154,7 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
             </div>
 
             {/* Sessions */}
-            <div className="flex flex-col gap-2 rounded-2xl bg-slate-800 p-6 border border-slate-700 shadow-sm transition-all hover:border-emerald-400/30 group">
+            <div className="flex flex-col gap-2 rounded-2xl bg-slate-800 p-6 border border-slate-700 shadow-sm hover:border-emerald-400/30 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group cursor-default">
               <div className="flex items-center gap-2 text-slate-400 group-hover:text-emerald-400 transition-colors">
                 <CalendarDays className="size-4" />
                 <p className="text-[10px] font-black uppercase tracking-tight">Sessions</p>
@@ -163,7 +163,7 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
             </div>
 
             {/* Inventory */}
-            <div className="flex flex-col gap-2 rounded-2xl bg-slate-800 p-6 border border-slate-700 shadow-sm group">
+            <div className="flex flex-col gap-2 rounded-2xl bg-slate-800 p-6 border border-slate-700 shadow-sm group hover:-translate-y-1 hover:border-sky-400/30 hover:shadow-lg transition-all duration-300 cursor-default">
               <div className="flex items-center gap-2 text-slate-400">
                 <Package className="size-4" />
                 <p className="text-[10px] font-black uppercase tracking-tight">Inventory</p>
@@ -219,7 +219,10 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
                 </div>
                 <div className="flex flex-col gap-3 max-h-[350px] overflow-y-auto scrollbar-hide">
                   {sortedLeaderboard.map((player, index) => (
-                    <div key={player.id} className="flex items-center justify-between border-b border-slate-700/50 last:border-0 pb-3 last:pb-0">
+                    <div 
+                      key={player.id} 
+                      className="flex items-center justify-between border-b border-slate-700/50 last:border-0 pb-3 last:pb-0 hover:-translate-y-0.5 transition-transform duration-300"
+                    >
                       <div className="flex items-center gap-4">
                         <span className={`text-xs font-black italic w-5 ${index === 0 ? 'text-emerald-400' : 'text-slate-500'}`}>
                           #{index + 1}
@@ -240,7 +243,7 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
 
           {/* Next Session Card */}
           {upcomingSession && (
-            <div className="relative overflow-hidden rounded-2xl bg-slate-800 border border-slate-700 group shadow-lg">
+            <div className="relative overflow-hidden rounded-2xl bg-slate-800 border border-slate-700 hover:border-emerald-500/40 hover:-translate-y-1 transition-all duration-300 group shadow-lg">
               <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/40 to-transparent z-10 opacity-90"></div>
               <div className="relative z-20 flex flex-col gap-4 p-6">
                 <div className="flex flex-col">
@@ -300,7 +303,7 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
             </div>
             <div className="flex flex-col gap-3">
               {players.map((player) => (
-                <div key={player.id} className="bg-slate-800 rounded-[2rem] p-6 border border-slate-700 shadow-sm group hover:border-emerald-400/30 transition-all flex flex-col gap-4">
+                <div key={player.id} className="bg-slate-800 rounded-[2rem] p-6 border border-slate-700 shadow-sm group hover:border-emerald-400/30 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex flex-col gap-4">
                   <div className="flex items-center justify-between">
                     <Link href={`${basePath}/players/${player.id}`} className="flex flex-col gap-1 flex-1">
                       <span className="text-sm font-black uppercase tracking-tight text-slate-100 group-hover:text-emerald-400 transition-colors italic">

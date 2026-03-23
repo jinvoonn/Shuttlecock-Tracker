@@ -264,14 +264,14 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                     </header>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8 text-center pt-2">
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8 text-center pt-2 animate-fade-in-up" style={{ animationDelay: "150ms" }}>
                 <EloRatingCard 
                     playerElo={playerElo} 
                     eloLabel={eloLabel} 
                     eloColor={eloColor} 
                     eloBg={eloBg} 
                 />
-                <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-lg relative overflow-hidden text-left">
+                <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-lg relative overflow-hidden text-left hover:-translate-y-1 hover:border-emerald-500/30 hover:shadow-emerald-500/5 transition-all duration-300 cursor-default group">
                     <div className="absolute top-0 right-0 p-3 opacity-10"><Activity className="w-12 h-12" /></div>
                     <p className="text-[10px] font-bold uppercase text-slate-500 mb-1 relative z-10">Matches</p>
                     <p className="text-2xl font-bold font-mono text-slate-200 relative z-10">{totalMatchesCount}</p>
@@ -306,7 +306,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
             </div>
 
             {/* ELO Trend Graph Section */}
-            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 mb-8 text-left shadow-xl">
+            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 mb-8 text-left shadow-xl hover:border-emerald-500/20 hover:shadow-emerald-500/5 transition-all duration-500 animate-fade-in-up" style={{ animationDelay: "250ms" }}>
                 <h3 className="text-sm font-bold uppercase text-slate-500 tracking-widest flex items-center gap-2 mb-6 italic">
                     <TrendingUp className="w-5 h-5 text-emerald-400" /> Career ELO Progression
                 </h3>
@@ -314,8 +314,8 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
             </div>
 
             {/* Advanced Analytics Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 text-left">
-                <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 relative overflow-hidden group">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 text-left animate-fade-in-up" style={{ animationDelay: "350ms" }}>
+                <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 relative overflow-hidden group hover:border-emerald-500/30 hover:-translate-y-1 transition-all duration-300 shadow-lg">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><User className="w-16 h-16" /></div>
                     <h3 className="text-[10px] font-bold uppercase text-slate-500 mb-4 tracking-widest flex items-center gap-2">
                         <Target className="w-4 h-4 text-emerald-400" /> Partner Stats
@@ -355,7 +355,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                     </div>
                 </div>
 
-                <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 relative overflow-hidden group text-left">
+                <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 relative overflow-hidden group text-left animate-fade-in-up" style={{ animationDelay: "450ms" }}>
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><Swords className="w-16 h-16" /></div>
                     <h3 className="text-[10px] font-bold uppercase text-slate-500 mb-4 tracking-widest flex items-center gap-2">
                         <Swords className="w-4 h-4 text-rose-500" /> Rivalries (H2H)

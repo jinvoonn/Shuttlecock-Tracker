@@ -139,7 +139,11 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
             <div className="overflow-x-auto pb-4 scrollbar-hide">
               <div className="flex gap-4 w-max">
                 {insights.map((insight, i) => (
-                  <div key={i} className="bg-slate-800/50 backdrop-blur-md border border-slate-700/50 rounded-2xl p-4 min-w-[200px] shadow-lg group hover:border-emerald-400/30 transition-all">
+                  <div 
+                    key={i} 
+                    className="bg-slate-800/50 w-full backdrop-blur-md border border-slate-700/50 rounded-2xl p-4 min-w-[200px] shadow-lg group hover:border-emerald-400/30 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 animate-fade-in-up opacity-0"
+                    style={{ animationDelay: `${i * 100}ms` }}
+                  >
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-xl">{insight.icon}</span>
                       <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover:text-slate-400 transition-colors uppercase italic">{insight.title}</span>
@@ -157,9 +161,9 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
           )}
 
           {/* Metric Grid - Exactly 4 Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in-up" style={{ animationDelay: "150ms" }}>
             {/* Total Owed */}
-            <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 p-6 rounded-2xl group hover:border-emerald-500/50 transition-all shadow-lg shadow-emerald-500/5">
+            <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 p-6 rounded-2xl group hover:border-red-500/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300 cursor-default">
               <div className="flex justify-between items-start mb-4">
                 <div className="p-3 bg-emerald-500/10 rounded-xl">
                   <TrendingUp className="size-6 text-emerald-400" />
@@ -172,7 +176,7 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
             </div>
 
             {/* Shuttles Used */}
-            <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 p-6 rounded-2xl group hover:border-sky-500/50 transition-all shadow-lg shadow-sky-500/5">
+            <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 p-6 rounded-2xl group hover:border-emerald-500/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 cursor-default">
               <div className="flex justify-between items-start mb-4">
                 <div className="p-3 bg-sky-500/10 rounded-xl">
                   <Activity className="size-6 text-sky-400" />
@@ -185,7 +189,7 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
             </div>
 
             {/* Total Sessions */}
-            <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 p-6 rounded-2xl group hover:border-amber-500/50 transition-all shadow-lg shadow-amber-500/5">
+            <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 p-6 rounded-2xl group hover:border-amber-500/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 cursor-default">
               <div className="flex justify-between items-start mb-4">
                 <div className="p-3 bg-amber-500/10 rounded-xl">
                   <CalendarDays className="size-6 text-amber-400" />
@@ -198,7 +202,7 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
             </div>
 
             {/* Inventory */}
-            <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 p-6 rounded-2xl group hover:border-rose-500/50 transition-all shadow-lg shadow-rose-500/5">
+            <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 p-6 rounded-2xl group hover:border-sky-500/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-sky-500/10 transition-all duration-300 cursor-default">
               <div className="flex justify-between items-start mb-4">
                 <div className="p-3 bg-rose-500/10 rounded-xl">
                   <Package className="size-6 text-rose-400" />
@@ -258,7 +262,11 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
               
               <div className="max-h-[400px] overflow-y-auto pr-2 custom-scrollbar space-y-3">
                 {sortedLeaderboard.map((player, index) => (
-                  <div key={player.id} className="flex items-center justify-between p-5 rounded-2xl bg-slate-950/40 border border-slate-800 hover:border-emerald-500/30 transition-all group">
+                  <div 
+                    key={player.id} 
+                    className="flex items-center justify-between p-5 rounded-2xl bg-slate-950/40 border border-slate-800 hover:border-emerald-500/30 hover:-translate-y-0.5 hover:shadow-lg hover:bg-slate-900/80 transition-all duration-300 group opacity-0 animate-fade-in-up"
+                    style={{ animationDelay: `${(index * 50) + 100}ms` }}
+                  >
                     <div className="flex items-center gap-5">
                       <span className={clsx(
                         "text-xl font-black italic w-10",
@@ -286,8 +294,8 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
 
           {/* Analytics Trends Row */}
           {trendData && trendData.length > 0 && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="bg-slate-900/60 border border-slate-800 rounded-[2.5rem] p-8 shadow-2xl">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-fade-in-up" style={{ animationDelay: "300ms" }}>
+              <div className="bg-slate-900/60 border border-slate-800 rounded-[2.5rem] p-8 shadow-2xl hover:border-emerald-500/20 hover:shadow-emerald-500/5 transition-all duration-500">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-black italic uppercase tracking-tighter flex items-center gap-2">
                     <TrendingUp className="size-5 text-emerald-400" /> 
@@ -317,10 +325,10 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
 
           <div className="grid grid-cols-1 gap-8">
             {/* Featured Session & Player Ledger */}
-            <div className="space-y-8">
+            <div className="space-y-8 animate-fade-in-up opacity-0" style={{ animationDelay: "450ms" }}>
               {/* Featured Card */}
               {upcomingSession && (
-                <section className="relative overflow-hidden rounded-[2.5rem] bg-slate-900 border border-slate-800 group h-64 shadow-2xl">
+                <section className="relative overflow-hidden rounded-[2.5rem] bg-slate-900 border border-slate-800 hover:border-emerald-500/30 group h-64 shadow-2xl transition-all duration-500">
                   <div className="absolute inset-0 bg-gradient-to-r from-[#020617] via-[#020617]/80 to-transparent z-10" />
                   <div className="absolute top-0 right-0 w-1/2 h-full bg-[#13ec80]/5" />
                   <div className="relative z-20 p-10 flex flex-col h-full justify-center max-w-md">
