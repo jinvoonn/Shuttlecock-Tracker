@@ -22,6 +22,22 @@ export function MatchesProvider({ children, initialMatches }: { children: React.
     setMatchesState(newMatches);
   }, []);
 
+  // Initial fetch
+  useEffect(() => {
+    async function fetchMatches() {
+      if (initialMatches && initialMatches.length > 0) return;
+      
+      const { data } = await supabase
+        .from('matches')
+        .select('*')
+        .order('created_at', { ascending: true });
+      
+      if (data) setMatchesState(data);
+    }
+    
+    fetchMatches();
+  }, [initialMatches]);
+
   // Sync with Supabase Realtime globally
   useEffect(() => {
     const channel = supabase

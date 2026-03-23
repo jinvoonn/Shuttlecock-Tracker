@@ -31,25 +31,23 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
     { data: paymentsData, error: paymentsError },
     { data: purchasesData, error: purchasesError },
     { data: sessionsData, error: sessionsError },
-    { data: sessionUsageData, error: sessionUsageError },
-    { data: matchesData, error: matchesError }
+    { data: sessionUsageData, error: sessionUsageError }
   ] = await Promise.all([
     supabase.from("players").select("id, name"),
     supabase.from("payments").select("amount, player_id"),
     supabase.from("purchases").select("price_per_tube, initial_quantity, remaining_quantity, brands(name)"),
     supabase.from("sessions").select(`id, date, session_players ( player_id )`),
-    supabase.from("session_usage").select("session_id, quantity_used, purchases(price_per_cock)"),
-    supabase.from("matches").select("*").order("created_at", { ascending: true })
+    supabase.from("session_usage").select("session_id, quantity_used, purchases(price_per_cock)")
   ]);
 
-  if (playersError || paymentsError || purchasesError || sessionsError || sessionUsageError || matchesError) {
-    console.error("Dashboard Fetch Error:", { playersError, paymentsError, purchasesError, sessionsError, sessionUsageError, matchesError });
+  if (playersError || paymentsError || purchasesError || sessionsError || sessionUsageError) {
+    console.error("Dashboard Fetch Error:", { playersError, paymentsError, purchasesError, sessionsError, sessionUsageError });
     return (
       <div className="p-8 flex flex-col items-center justify-center min-h-screen text-rose-500 bg-[#020617]">
         <p className="font-black italic uppercase text-2xl tracking-tighter">Failed to fetch data</p>
         <p className="text-sm text-slate-500 mt-2 font-bold tracking-widest uppercase">Database Connection Error</p>
         <div className="mt-6 p-4 bg-slate-900/50 rounded-xl border border-slate-800 font-mono text-[10px] text-slate-500 max-w-lg overflow-auto">
-           {JSON.stringify({ paymentsError, purchasesError, sessionsError, sessionUsageError, matchesError }, null, 2)}
+           {JSON.stringify({ paymentsError, purchasesError, sessionsError, sessionUsageError }, null, 2)}
         </div>
       </div>
     );
@@ -60,7 +58,6 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
 
   return (
     <DashboardClient 
-      initialMatches={matchesData || []}
       playersData={playersData || []}
       paymentsData={paymentsData || []}
       purchasesData={purchasesData || []}

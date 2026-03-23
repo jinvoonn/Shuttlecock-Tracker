@@ -56,30 +56,17 @@ export const viewport: Viewport = {
 
 export const dynamic = 'force-dynamic';
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  let initialMatches = [];
-  if (isSupabaseConfigured) {
-    try {
-      const { data } = await supabase
-        .from('matches')
-        .select('*')
-        .order('created_at', { ascending: true });
-      initialMatches = data || [];
-    } catch (err) {
-      console.error("Failed to fetch initial matches:", err);
-    }
-  }
-
   return (
     <html lang="en" className="dark scroll-smooth">
       <body
         className={`${inter.variable} ${outfit.variable} font-sans antialiased bg-slate-900 text-slate-100 min-h-screen selection:bg-emerald-500/30`}
       >
-        <ClientProviders initialMatches={initialMatches}>
+        <ClientProviders initialMatches={[]}>
           {children}
         </ClientProviders>
       </body>

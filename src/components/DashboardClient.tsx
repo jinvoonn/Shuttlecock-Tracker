@@ -5,11 +5,10 @@ import { supabase } from "@/lib/supabase";
 import { normalizeMatches } from "@/lib/analytics/normalize";
 import { aggregatePlayerStats } from "@/lib/analytics/core";
 import { getLeaderboard, getGlobalInsights } from "@/lib/analytics/leaderboard";
-import MobileDashboard from "@/stitch-designs/mobile/Dashboard";
-import DesktopDashboard from "@/stitch-designs/desktop/Dashboard";
+import dynamic from 'next/dynamic';
 
-const MobileDash = MobileDashboard as any;
-const DesktopDash = DesktopDashboard as any;
+const MobileDash = dynamic(() => import("@/stitch-designs/mobile/Dashboard"), { ssr: false }) as any;
+const DesktopDash = dynamic(() => import("@/stitch-designs/desktop/Dashboard"), { ssr: false }) as any;
 import { LeaderboardEntry } from "@/lib/analytics/types";
 
 import { useMatches } from "@/context/MatchesContext";
