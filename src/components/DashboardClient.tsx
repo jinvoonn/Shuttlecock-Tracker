@@ -1,144 +1,252 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowDownRight, ArrowUpRight, ArrowUpDown, SortAsc } from "lucide-react";
-import { SettleButton } from "@/components/SettleButton";
-import clsx from "clsx";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import React, { useState, useMemo, useEffect } from 'react';
+import { supabase } from "@/lib/supabase";
+import { normalizeMatches } from "@/lib/analytics/normalize";
+import { aggregatePlayerStats } from "@/lib/analytics/core";
+import { getLeaderboard, getGlobalInsights } from "@/lib/analytics/leaderboard";
+import MobileDashboard from "@/stitch-designs/mobile/Dashboard";
+import DesktopDashboard from "@/stitch-designs/desktop/Dashboard";
+import { LeaderboardEntry } from "@/lib/analytics/types";
 
-// Deterministic distinct colors per player logic removed in favor of status pills
+import { useMatches } from "@/context/MatchesContext";
 
-type SortMode = "debt" | "alpha" | "settled-last";
-
-interface Player {
-    id: string;
-    name: string;
-    totalShares: number;
-    totalPayments: number;
-    balance: number;
+interface DashboardClientProps {
+  // initialMatches is now handled by MatchesProvider at root, 
+  // but we might still accept it as a fallback or starting point.
+  playersData: any[];
+  paymentsData: any[];
+  purchasesData: any[];
+  sessionsData: any[];
+  sessionUsageData: any[];
+  isAdmin: boolean;
+  basePath: string;
 }
 
-export function DashboardClient({ players }: { players: Player[] }) {
-    const [sortMode, setSortMode] = useState<SortMode>("debt");
-    const pathname = usePathname();
-    const mode = pathname.split('/')[1] || 'view';
+export default function DashboardClient({
+  playersData,
+  paymentsData,
+  purchasesData,
+  sessionsData,
+  sessionUsageData,
+  isAdmin,
+  basePath
+}: DashboardClientProps) {
+  const { matches } = useMatches();
+  const [lastUpdatedPlayerIds, setLastUpdatedPlayerIds] = useState<string[]>([]);
+  const [isLiveUpdate, setIsLiveUpdate] = useState(false);
 
-    const sortedPlayers = [...players].sort((a, b) => {
-        if (sortMode === "debt") return a.balance - b.balance;
-        if (sortMode === "alpha") return a.name.localeCompare(b.name);
-        if (sortMode === "settled-last") {
-            const aSettled = Math.abs(a.balance) < 0.01 ? 1 : 0;
-            const bSettled = Math.abs(b.balance) < 0.01 ? 1 : 0;
-            return aSettled - bSettled || a.balance - b.balance;
-        }
-        return 0;
+  // Still need to trigger lastUpdatedPlayerIds and isLiveUpdate when matches change
+  // We can use a ref to detect new matches
+  const prevMatchesLength = React.useRef(matches.length);
+  
+  useEffect(() => {
+    if (matches.length > prevMatchesLength.current) {
+      setIsLiveUpdate(true);
+      const lastMatch = matches[matches.length - 1];
+      const affected = [
+          lastMatch.team_a_player1, 
+          lastMatch.team_a_player2, 
+          lastMatch.team_b_player1, 
+          lastMatch.team_b_player2
+      ].filter(Boolean);
+      setLastUpdatedPlayerIds(affected);
+      setTimeout(() => setIsLiveUpdate(false), 5000);
+    }
+    prevMatchesLength.current = matches.length;
+  }, [matches]);
+
+  const { statsProps, mobileStatsProps, players, insights, trendData, leaderboard } = useMemo(() => {
+    const playerMap = Object.fromEntries((playersData || []).map(p => [p.id, p.name]));
+    const normalizedMatches = normalizeMatches(matches, playerMap);
+    const { stats: coreStats, elo: globalElo, eloHistory } = aggregatePlayerStats(normalizedMatches, playerMap);
+
+    // Insights
+    const { mostWinsPlayer, bestWinRatePlayer, longestStreakPlayer } = getGlobalInsights(coreStats);
+    const computedInsights = [
+      {
+        title: "Most Wins",
+        icon: "🏆",
+        value: mostWinsPlayer ? mostWinsPlayer.name : "None",
+        subValue: mostWinsPlayer ? `${mostWinsPlayer.wins} Wins` : "0 Wins"
+      },
+      {
+        title: "Best Win Rate",
+        icon: "🎯",
+        value: bestWinRatePlayer ? bestWinRatePlayer.name : "None",
+        subValue: bestWinRatePlayer ? `${(bestWinRatePlayer.winRate * 100).toFixed(1)}%` : "0%"
+      },
+      {
+        title: "Longest Win Streak",
+        icon: "🔥",
+        value: longestStreakPlayer ? longestStreakPlayer.name : "None",
+        subValue: longestStreakPlayer ? `${longestStreakPlayer.maxStreak} Wins Streak` : "0 Wins"
+      }
+    ];
+
+    // Rank Movement
+    const previousElo: Record<string, number> = {};
+    Object.keys(globalElo).forEach(pid => {
+      const history = eloHistory[pid] || [];
+      if (history.length > 1) {
+        previousElo[pid] = history[history.length - 2].elo;
+      } else {
+        previousElo[pid] = 1200;
+      }
     });
 
+    const previousEloLeaderboard = Object.entries(previousElo)
+      .map(([id, elo]) => ({ id, elo }))
+      .sort((a, b) => b.elo - a.elo);
+    
+    const currentEloLeaderboard = Object.entries(globalElo)
+      .map(([id, elo]) => ({ id, elo }))
+      .sort((a, b) => b.elo - a.elo);
 
-    return (
-        <div className="glass-card rounded-3xl overflow-hidden shadow-2xl relative border-slate-800">
-            <div className="px-6 py-5 border-b border-slate-800 flex items-center justify-between bg-slate-900 flex-wrap gap-3">
-                <div className="flex items-center gap-4">
-                    <h2 className="text-xl italic-header text-white">Player Ledger</h2>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 opacity-60">
-                        {players.length} Registered
-                    </span>
-                </div>
+    const prevRankMap: Record<string, number> = {};
+    previousEloLeaderboard.forEach((item, idx) => { prevRankMap[item.id] = idx + 1; });
 
-                {/* Sort toggle */}
-                <div className="flex items-center gap-1 bg-slate-950/50 rounded-xl p-1 border border-slate-800/50">
-                    {([
-                        { key: "debt", label: "Debt" },
-                        { key: "alpha", label: "A–Z" },
-                        { key: "settled-last", label: "Settled" },
-                    ] as { key: SortMode; label: string }[]).map(opt => (
-                        <button
-                            key={opt.key}
-                            onClick={() => setSortMode(opt.key)}
-                            className={clsx(
-                                "text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg transition-all duration-300",
-                                sortMode === opt.key
-                                    ? "bg-sky-500 text-slate-950 shadow-lg shadow-sky-500/20"
-                                    : "text-slate-500 hover:text-slate-300"
-                            )}
-                        >
-                            {opt.label}
-                        </button>
-                    ))}
-                </div>
-            </div>
+    const currRankMap: Record<string, number> = {};
+    currentEloLeaderboard.forEach((item, idx) => { currRankMap[item.id] = idx + 1; });
 
-            {sortedPlayers.length === 0 ? (
-                <div className="p-20 text-center">
-                    <div className="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-700/50 text-slate-600">
-                        <ArrowUpDown className="w-8 h-8" />
-                    </div>
-                    <h3 className="text-slate-300 font-bold mb-1">No players found</h3>
-                    <p className="text-slate-500 text-sm max-w-xs mx-auto">No data recorded yet.</p>
-                </div>
-            ) : (
-                <div className="divide-y divide-slate-800">
-                    {sortedPlayers.map((player) => {
-                        const isDebt = player.balance < 0;
-                        const isSettled = Math.abs(player.balance) < 0.01;
-                        const paidRatio = player.totalShares > 0
-                            ? Math.min(1, player.totalPayments / player.totalShares)
-                            : 1;
+    const computedLeaderboard = getLeaderboard(coreStats, globalElo, { sortBy: "wins" }).map(s => {
+      const currentRank = currRankMap[s.id] || 99;
+      const previousRank = prevRankMap[s.id] || 99;
+      
+      return {
+        ...s,
+        previousRank,
+        rankChange: previousRank - currentRank
+      };
+    });
 
-                        return (
-                            <div key={player.id} className="flex items-center justify-between px-6 py-5 hover:bg-slate-800/30 transition-all duration-300 gap-4 group/item border-b border-slate-800/50 last:border-0 relative overflow-hidden">
-                                <div className="flex items-center gap-5 flex-1 min-w-0 z-10">
-                                    {/* Vertical Status Pill */}
-                                    <div className={clsx(
-                                        "w-2 h-10 rounded-full transition-all duration-500 shrink-0 shadow-lg",
-                                        isSettled 
-                                            ? "bg-slate-700" 
-                                            : isDebt 
-                                                ? "bg-rose-400 shadow-rose-500/20" 
-                                                : "bg-emerald-400 shadow-emerald-500/20"
-                                    )} />
+    // Monthly Trends
+    const monthlyTrends: Record<string, { month: string, spending: number, usage: number }> = {};
+    (sessionsData || []).forEach(s => {
+      const date = new Date(s.date);
+      const monthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+      const monthName = date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+      if (!monthlyTrends[monthKey]) {
+        monthlyTrends[monthKey] = { month: monthName, spending: 0, usage: 0 };
+      }
+    });
 
-                                    <Link href={`/${mode}/players/${player.id}`} className="min-w-0 flex-1 group/link">
-                                        <div className="flex flex-col">
-                                            <p className="font-black text-slate-100 text-sm uppercase tracking-tight truncate group-hover/link:text-sky-400 transition-colors">
-                                                {player.name}
-                                            </p>
-                                            <p className="text-[9px] text-slate-500 font-mono tracking-tighter uppercase mt-0.5">
-                                                ID: {player.id.slice(0, 8)} {" // "} {isSettled ? "Settled" : isDebt ? "Owed" : "Credit"}
-                                            </p>
-                                        </div>
-                                    </Link>
-                                </div>
+    (sessionUsageData || []).forEach(su => {
+      const s = (sessionsData || []).find(sess => sess.id === su.session_id);
+      if (!s) return;
+      const date = new Date(s.date);
+      const monthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+      const purchase = Array.isArray(su.purchases) ? su.purchases[0] : su.purchases;
+      const price_per_cock = Number(purchase?.price_per_cock || 0);
+      const qty = Number(su.quantity_used || 0);
+      if (monthlyTrends[monthKey]) {
+        monthlyTrends[monthKey].spending += (price_per_cock * qty);
+        monthlyTrends[monthKey].usage += qty;
+      }
+    });
 
-                                <div className="flex items-center gap-6 z-10">
-                                    <div className="text-right flex flex-col items-end">
-                                        <p className={clsx(
-                                            "font-mono text-sm font-black tracking-tighter transition-all",
-                                            isSettled ? "text-slate-600" : isDebt ? "text-rose-400" : "text-emerald-400"
-                                        )}>
-                                            {isDebt ? "-" : isSettled ? "" : "+"}RM {Math.abs(player.balance).toFixed(2)}
-                                        </p>
-                                        <p className="text-[9px] text-slate-600 font-bold uppercase tracking-wider mt-0.5">
-                                            {isSettled ? "Balanced" : isDebt ? "Debt" : "Available"}
-                                        </p>
-                                    </div>
-                                    
-                                    {isDebt && (
-                                        <div className="shrink-0">
-                                            <SettleButton
-                                                playerId={player.id}
-                                                playerName={player.name}
-                                                amount={Math.abs(player.balance)}
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            )}
-        </div>
-    );
+    const computedTrendData = Object.entries(monthlyTrends)
+      .sort(([aKey], [bKey]) => aKey.localeCompare(bKey))
+      .map(([, val]) => val)
+      .slice(-6);
+
+    // Balances
+    const playerBalances: Record<string, any> = {};
+    (playersData || []).forEach(p => {
+      playerBalances[p.id] = { id: p.id, name: p.name, totalShares: 0, totalPayments: 0, balance: 0 };
+    });
+
+    (paymentsData || []).forEach(p => {
+      if (playerBalances[p.player_id]) {
+        playerBalances[p.player_id].totalPayments += Number(p.amount || 0);
+      }
+    });
+
+    const sessionCosts: Record<string, number> = {};
+    (sessionUsageData || []).forEach(su => {
+      const sId = su.session_id;
+      const purchase = Array.isArray(su.purchases) ? su.purchases[0] : su.purchases;
+      const price_per_cock = Number(purchase?.price_per_cock || 0);
+      sessionCosts[sId] = (sessionCosts[sId] || 0) + (price_per_cock * Number(su.quantity_used || 0));
+    });
+
+    (sessionsData || []).forEach(s => {
+      const cost = sessionCosts[s.id] || 0;
+      const attendees = s.session_players || [];
+      if (attendees.length > 0) {
+        const share = cost / attendees.length;
+        attendees.forEach((ap: { player_id: string }) => {
+          if (playerBalances[ap.player_id]) {
+            playerBalances[ap.player_id].totalShares += share;
+          }
+        });
+      }
+    });
+
+    const computedPlayers = Object.values(playerBalances).map((stats: any) => ({
+      ...stats,
+      balance: stats.totalPayments - stats.totalShares,
+      elo: globalElo[stats.id] || 1200,
+      placementMatchesPlayed: coreStats[stats.id]?.placementMatchesPlayed || 0
+    })).sort((a: any, b: any) => a.balance - b.balance);
+
+    const totalOwed = computedPlayers.filter((p: any) => p.balance < 0).reduce((acc: number, p: any) => acc + Math.abs(p.balance), 0);
+    const totalShuttles = (purchasesData || []).reduce((acc: number, curr: any) => acc + Number(curr.remaining_quantity || 0), 0);
+    const totalShuttlesUsed = (sessionUsageData || []).reduce((acc: number, curr: any) => acc + Number(curr.quantity_used || 0), 0);
+    const totalSessions = (sessionsData || []).length;
+
+    const sProps = {
+      totalOwed,
+      totalShuttlesUsed,
+      totalSessions,
+      inventory: totalShuttles
+    };
+
+    const mStatsProps = {
+      ...sProps,
+      totalPoolBalance: computedPlayers.reduce((acc: number, p: any) => acc + p.balance, 0),
+      inventory: {
+          totalTubes: (purchasesData || []).filter((p: any) => (p.remaining_quantity || 0) > 0).length,
+          totalShuttles: totalShuttles,
+          remainingTubes: (purchasesData || []).filter((p: any) => (p.remaining_quantity || 0) > 0).length
+      }
+    };
+
+    return {
+      leaderboard: computedLeaderboard,
+      insights: computedInsights,
+      players: computedPlayers,
+      statsProps: sProps,
+      mobileStatsProps: mStatsProps,
+      trendData: computedTrendData
+    };
+  }, [matches, playersData, paymentsData, purchasesData, sessionsData, sessionUsageData]);
+
+  return (
+    <>
+      <div className="block lg:hidden">
+        <MobileDashboard 
+          stats={mobileStatsProps} 
+          players={players} 
+          insights={insights} 
+          trendData={trendData} 
+          leaderboard={leaderboard} 
+          isLiveUpdate={isLiveUpdate}
+          lastUpdatedPlayerIds={lastUpdatedPlayerIds}
+        />
+      </div>
+      <div className="hidden lg:block">
+        <DesktopDashboard 
+          stats={statsProps} 
+          players={players} 
+          isAdmin={isAdmin} 
+          insights={insights} 
+          trendData={trendData} 
+          leaderboard={leaderboard} 
+          isLiveUpdate={isLiveUpdate}
+          lastUpdatedPlayerIds={lastUpdatedPlayerIds}
+        />
+      </div>
+    </>
+  );
 }

@@ -21,7 +21,7 @@ import {
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useRole } from '@/context/AuthContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AnalyticsClient } from '@/components/AnalyticsClient';
 import clsx from 'clsx';
 import { getCockRank } from '@/lib/analytics/rank';
@@ -76,9 +76,11 @@ interface DashboardProps {
     previousRank?: number;
     rankChange?: number;
   }[];
+  isLiveUpdate?: boolean;
+  lastUpdatedPlayerIds?: string[];
 }
 
-export default function MobileDashboard({ stats, players, upcomingSession, insights, trendData, leaderboard }: DashboardProps) {
+export default function MobileDashboard({ stats, players, upcomingSession, insights, trendData, leaderboard, isLiveUpdate, lastUpdatedPlayerIds }: DashboardProps) {
   const router = useRouter();
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
@@ -100,6 +102,22 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
     }
     return [...leaderboard].sort((a, b) => b.wins - a.wins);
   }, [leaderboard, leaderboardMode]);
+
+  // Track previous rank mapping for animations within the same view
+  const [prevViewRankMap, setPrevViewRankMap] = useState<Record<string, number>>({});
+  
+  useEffect(() => {
+    const currentMap = Object.fromEntries(sortedLeaderboard.map((p, i) => [p.id, i + 1]));
+    setPrevViewRankMap(currentMap);
+  }, [leaderboardMode]); // Only update map when mode changes, or...
+  
+  // Actually we need to capture the map JUST BEFORE the leaderboard updates
+  const prevRanksRef = React.useRef<Record<string, number>>({});
+  useEffect(() => {
+    return () => {
+      prevRanksRef.current = Object.fromEntries(sortedLeaderboard.map((p, i) => [p.id, i + 1]));
+    };
+  }, [sortedLeaderboard]);
 
   return (
     <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-100 min-h-screen antialiased overflow-x-hidden">
@@ -241,6 +259,12 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
                     const entry = leaderboard?.find(p => p.id === player.id);
                     const rankChange = entry?.rankChange ?? 0;
 
+                    const prevRankInView = prevRanksRef.current[player.id];
+                    const hasRankChanged = prevRankInView !== undefined && prevRankInView !== displayRank;
+                    const isPromoted = hasRankChanged && displayRank < prevRankInView;
+                    const isDemoted = hasRankChanged && displayRank > prevRankInView;
+                    const isDirectlyAffected = lastUpdatedPlayerIds?.includes(player.id);
+
                     return (
                     <div 
                       key={player.id} 
@@ -249,7 +273,11 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
                         isTop3 && displayRank === 1 && "rank-1-glow animate-glowPulse text-slate-950",
                         isTop3 && displayRank === 2 && "rank-2-glow animate-glowPulse text-slate-950",
                         isTop3 && displayRank === 3 && "rank-3-glow animate-glowPulse text-slate-950",
-                        !isTop3 && "bg-slate-900/40 border border-slate-800/50"
+                        !isTop3 && "bg-slate-900/40 border border-slate-800/50",
+                        // Animations
+                        isPromoted && "animate-moveUp animate-promotionFlash",
+                        isDemoted && "animate-moveDown animate-demotionFlash",
+                        !hasRankChanged && isDirectlyAffected && "animate-promotionFlash"
                       )}
                     >
                       <div className="flex items-center gap-3">

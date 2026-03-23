@@ -55,19 +55,28 @@ export const viewport: Viewport = {
   userScalable: false,
 };
 
-export default function RootLayout({
+import { ClientProviders } from "@/components/ClientProviders";
+import { supabase } from "@/lib/supabase";
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Fetch initial matches once for the entire app session
+  const { data: initialMatches } = await supabase
+    .from('matches')
+    .select('*')
+    .order('created_at', { ascending: true });
+
   return (
     <html lang="en" className="dark scroll-smooth">
       <body
         className={`${inter.variable} ${outfit.variable} font-sans antialiased bg-slate-900 text-slate-100 min-h-screen selection:bg-emerald-500/30`}
       >
-        <AuthProvider>
+        <ClientProviders initialMatches={initialMatches || []}>
           {children}
-        </AuthProvider>
+        </ClientProviders>
       </body>
     </html>
   );

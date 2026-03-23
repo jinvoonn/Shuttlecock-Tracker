@@ -5,6 +5,7 @@ import { addMatch, updateMatch, deleteMatch } from "@/lib/actions/matches";
 import { PlusCircle, X, Check, Trash2, Swords, Users, Edit3, Activity } from "lucide-react";
 import clsx from "clsx";
 import { useRole } from "@/context/AuthContext";
+import { useMatches } from "@/context/MatchesContext";
 
 interface SessionPlayer {
     players: { id: string, name: string } | null;
@@ -24,6 +25,7 @@ interface Match {
 
 export function SessionMatches({ sessionId, sessionPlayers, matches }: { sessionId: string, sessionPlayers: SessionPlayer[], matches: Match[] }) {
     const { isAdmin } = useRole();
+    const { addOptimisticMatch } = useMatches();
     const [isAdding, setIsAdding] = useState(false);
     const [editingMatchId, setEditingMatchId] = useState<string | null>(null);
 
@@ -86,6 +88,18 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
             scoreA: parseInt(scoreA) || 0,
             scoreB: parseInt(scoreB) || 0
         };
+
+        if (!editingMatchId) {
+            addOptimisticMatch({
+                session_id: sessionId,
+                team_a_player1: teamAIds[0],
+                team_a_player2: teamAIds[1] || null,
+                team_b_player1: teamBIds[0],
+                team_b_player2: teamBIds[1] || null,
+                team_a_score: payload.scoreA,
+                team_b_score: payload.scoreB
+            });
+        }
 
         try {
             const result = editingMatchId 

@@ -66,9 +66,11 @@ interface DashboardProps {
     previousRank?: number;
     rankChange?: number;
   }[];
+  isLiveUpdate?: boolean;
+  lastUpdatedPlayerIds?: string[];
 }
 
-export default function DesktopDashboard({ stats, players, upcomingSession, insights, trendData, leaderboard }: DashboardProps) {
+export default function DesktopDashboard({ stats, players, upcomingSession, insights, trendData, leaderboard, isLiveUpdate, lastUpdatedPlayerIds }: DashboardProps) {
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
@@ -87,6 +89,13 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
     }
     return [...leaderboard].sort((a, b) => b.wins - a.wins);
   }, [leaderboard, leaderboardMode]);
+
+  const prevRanksRef = React.useRef<Record<string, number>>({});
+  React.useEffect(() => {
+    return () => {
+      prevRanksRef.current = Object.fromEntries(sortedLeaderboard.map((p, i) => [p.id, i + 1]));
+    };
+  }, [sortedLeaderboard]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#020617] text-slate-100 font-['Lexend',_sans-serif]">
@@ -282,6 +291,12 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
                   const entry = leaderboard?.find(p => p.id === player.id);
                   const rankChange = entry?.rankChange ?? 0;
 
+                  const prevRankInView = prevRanksRef.current[player.id];
+                  const hasRankChanged = prevRankInView !== undefined && prevRankInView !== displayRank;
+                  const isPromoted = hasRankChanged && displayRank < prevRankInView;
+                  const isDemoted = hasRankChanged && displayRank > prevRankInView;
+                  const isDirectlyAffected = lastUpdatedPlayerIds?.includes(player.id);
+
                   return (
                   <div 
                     key={player.id} 
@@ -290,9 +305,13 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
                       isTop3 && displayRank === 1 && "rank-1-glow animate-glowPulse text-slate-950",
                       isTop3 && displayRank === 2 && "rank-2-glow animate-glowPulse text-slate-950",
                       isTop3 && displayRank === 3 && "rank-3-glow animate-glowPulse text-slate-950",
-                      !isTop3 && "bg-slate-950/40 border border-slate-800 hover:border-emerald-500/30 hover:bg-slate-900/80"
+                      !isTop3 && "bg-slate-950/40 border border-slate-800 hover:border-emerald-500/30 hover:bg-slate-900/80",
+                      // Animations
+                      isPromoted && "animate-moveUp animate-promotionFlash",
+                      isDemoted && "animate-moveDown animate-demotionFlash",
+                      !hasRankChanged && isDirectlyAffected && "animate-promotionFlash"
                     )}
-                    style={{ animationDelay: `${(index * 50) + 100}ms` }}
+                    style={{ animationDelay: isLiveUpdate ? '0ms' : `${(index * 50) + 100}ms` }}
                   >
                     <div className="flex items-center gap-6">
                       <span className={clsx(

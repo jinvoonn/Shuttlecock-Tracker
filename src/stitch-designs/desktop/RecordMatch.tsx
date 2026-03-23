@@ -15,6 +15,7 @@ import { addMatch } from "@/lib/actions/matches";
 import clsx from 'clsx';
 import PlayerName from "@/components/ui/PlayerName";
 import Link from 'next/link';
+import { useMatches } from "@/context/MatchesContext";
 
 interface Player {
   id: string;
@@ -32,6 +33,7 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
+  const { addOptimisticMatch } = useMatches();
 
   const [playerTeams, setPlayerTeams] = useState<Record<string, number>>({});
   // 0 = unselected, 1 = Team A, 2 = Team B
@@ -67,6 +69,17 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
         teamBIds,
         scoreA,
         scoreB
+      });
+
+      // Optimistic Update
+      addOptimisticMatch({
+        session_id: sessionId,
+        team_a_player1: teamAIds[0],
+        team_a_player2: teamAIds[1] || null,
+        team_b_player1: teamBIds[0],
+        team_b_player2: teamBIds[1] || null,
+        team_a_score: scoreA,
+        team_b_score: scoreB
       });
       const result = await addMatch(payload);
       if (result.success) {
