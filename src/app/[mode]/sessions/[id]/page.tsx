@@ -135,7 +135,7 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
   const normalizedSessionMatches = normalizeMatches(matchesData || [], playerMap);
   const coreSessionStats = getPlayerStats(normalizedSessionMatches, playerMap);
   const shuttlesUsedCount = getTotalShuttleUsed(normalizedSessionMatches);
-
+  
   const sessionMeta = {
     id: session.id,
     name: `Session ${sessionNum}`,
