@@ -5,6 +5,7 @@ import clsx from 'clsx';
 interface PlayerNameProps {
   name: string;
   elo: number;
+  placementMatchesPlayed?: number;
   showRankName?: boolean;
   className?: string;
   nameClassName?: string;
@@ -18,6 +19,7 @@ interface PlayerNameProps {
 export default function PlayerName({ 
   name, 
   elo, 
+  placementMatchesPlayed = 5,
   showRankName = false, 
   className,
   nameClassName,
@@ -33,7 +35,7 @@ export default function PlayerName({
           <span className="text-slate-700 font-light leading-none opacity-40">|</span>
         </>
       )}
-      <RankBadge elo={elo} compact={!showRankName} />
+      <RankBadge elo={elo} placementMatchesPlayed={placementMatchesPlayed} compact={!showRankName} />
     </div>
   );
 }

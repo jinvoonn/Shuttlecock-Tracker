@@ -10,6 +10,7 @@ import { getPlayerEloHistory } from "@/lib/analytics/eloTrend";
 import EloTrendChart from "./EloTrendChart";
 import EloRatingCard from "./EloRatingCard";
 import { getBestPartner, getWorstPartner, getPartnerStats } from "@/lib/analytics/partner";
+import { getCockRank } from "@/lib/analytics/rank";
 import RankBadge from "@/components/ui/RankBadge";
 import PlayerName from "@/components/ui/PlayerName";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -104,7 +105,11 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
 
     // --- ANALYTICS ENGINE INTEGRATION ---
     const normalizedMatches = normalizeMatches(matches || [], playerMap);
-    const { elo: globalElo, eloHistory } = aggregatePlayerStats(normalizedMatches, Object.fromEntries(Object.keys(playerMap).map(k => [k, playerMap[k]])));
+    const { stats: allStats, elo: globalElo, eloHistory } = aggregatePlayerStats(normalizedMatches, Object.fromEntries(Object.keys(playerMap).map(k => [k, playerMap[k]])));
+    const currentPlayerStats = allStats[id];
+    const placementMatchesPlayed = currentPlayerStats?.placementMatchesPlayed ?? 0;
+    const isUnranked = placementMatchesPlayed < 5;
+    
     const profileStats = getPlayerProfileStats(matches || [], playerMap, id);
     const allPartnersStats = getPartnerStats(normalizedMatches);
     const playerPartnerStats = allPartnersStats[id] || {};
@@ -120,23 +125,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
     
     // ELO Settings
     const playerElo = Math.round(globalElo[id] || 1200);
-    let eloLabel = "Elite";
-    let eloColor = "text-emerald-400";
-    let eloBg = "bg-emerald-500/5 border-emerald-500/20";
-    
-    if (playerElo < 1000) {
-        eloLabel = "Below Average";
-        eloColor = "text-rose-400";
-        eloBg = "bg-rose-500/5 border-rose-500/20";
-    } else if (playerElo < 1300) {
-        eloLabel = "Average";
-        eloColor = "text-slate-300";
-        eloBg = "bg-slate-800 border-slate-700";
-    } else if (playerElo < 1600) {
-        eloLabel = "Strong";
-        eloColor = "text-sky-400";
-        eloBg = "bg-sky-500/5 border-sky-500/20";
-    }
+    const rank = getCockRank(playerElo, placementMatchesPlayed);
 
     // Map matches for backward compatibility with UI
     const formattedMatches = normalizedMatches.map((m: any) => {
@@ -278,6 +267,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                             <PlayerName 
                                 name={player.name} 
                                 elo={playerElo} 
+                                placementMatchesPlayed={placementMatchesPlayed}
                                 showRankName={true} 
                                 nameClassName="text-3xl"
                             />
@@ -290,7 +280,14 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                                         </p>
                                     </div>
                                 )}
-                                <span className="text-[10px] text-slate-600 uppercase font-bold tracking-widest px-1">Player Profile</span>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[10px] text-slate-600 uppercase font-bold tracking-widest px-1">Player Profile</span>
+                                    {isUnranked && (
+                                        <span className="text-[10px] text-amber-500/80 font-black uppercase tracking-tighter">
+                                            • Placement {placementMatchesPlayed}/5
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </header>
@@ -299,9 +296,10 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
             <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8 text-center pt-2 animate-fade-in-up" style={{ animationDelay: "150ms" }}>
                 <EloRatingCard 
                     playerElo={playerElo} 
-                    eloLabel={eloLabel} 
-                    eloColor={eloColor} 
-                    eloBg={eloBg} 
+                    placementMatchesPlayed={placementMatchesPlayed}
+                    eloLabel={rank.name} 
+                    eloColor={rank.color} 
+                    eloBg={rank.color} 
                 />
                 <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-lg relative overflow-hidden text-left hover:-translate-y-1 hover:border-emerald-500/30 hover:shadow-emerald-500/5 transition-all duration-300 cursor-default group">
                     <div className="absolute top-0 right-0 p-3 opacity-10"><Activity className="w-12 h-12" /></div>

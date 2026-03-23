@@ -19,6 +19,8 @@ export type PlayerStats = {
   streak: number;
   maxStreak: number;
   lastResults: ("W" | "L" | "D")[];
+  placementMatchesPlayed: number;
+  isRanked: boolean;
 };
 
 export type LeaderboardEntry = PlayerStats & {

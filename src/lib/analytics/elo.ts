@@ -11,9 +11,11 @@ const K_VETERAN = 16;
  * - Veterans experience smaller, more stable swings.
  */
 function getPlayerK(gamesPlayed: number): number {
-  if (gamesPlayed < 20) return K_NEW_PLAYER;
-  if (gamesPlayed > 100) return K_VETERAN;
-  return K_BASE;
+  if (gamesPlayed < 5) {
+    // Dynamic K-factor for placement: 40 -> 35 -> 30 -> 25 -> 20
+    return 20 + (4 - gamesPlayed) * 5;
+  }
+  return 20; // Standard K-factor
 }
 
 /**

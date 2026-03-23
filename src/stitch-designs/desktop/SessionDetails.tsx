@@ -44,8 +44,8 @@ interface Match {
   id: string;
   teamA: string;
   teamB: string;
-  teamAPlayers?: { id: string; name: string; elo: number }[];
-  teamBPlayers?: { id: string; name: string; elo: number }[];
+  teamAPlayers?: { id: string; name: string; elo: number; placementMatchesPlayed?: number }[];
+  teamBPlayers?: { id: string; name: string; elo: number; placementMatchesPlayed?: number }[];
   scoreA: number;
   scoreB: number;
   team_a_player1: string;
@@ -64,6 +64,7 @@ interface Attendee {
   fee: number;
   paid: boolean;
   elo?: number;
+  placementMatchesPlayed?: number;
 }
 
 interface Player { id: string; name: string; }
@@ -78,8 +79,8 @@ interface DesktopSessionDetailsProps {
   allPurchases: Purchase[];
   initialData: InitialData;
   sessionStats?: {
-    mostWins: { id: string; name: string; value: number; suffix?: string; elo?: number }[];
-    winRate: { id: string; name: string; value: number; suffix?: string; elo?: number }[];
+    mostWins: { id: string; name: string; value: number; suffix?: string; elo?: number; placementMatchesPlayed?: number }[];
+    winRate: { id: string; name: string; value: number; suffix?: string; elo?: number; placementMatchesPlayed?: number }[];
   }
 }
 
@@ -277,7 +278,7 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                           {p.name}
                         </span>
                         <span className="text-slate-800 font-light text-sm">|</span>
-                        <RankBadge elo={p.elo || 1200} compact />
+                        <RankBadge elo={p.elo || 1200} placementMatchesPlayed={p.placementMatchesPlayed} compact />
                       </div>
                     </div>
                     <div className="font-mono font-black italic text-emerald-400 bg-emerald-400/5 px-4 py-1.5 rounded-lg text-lg">
@@ -316,6 +317,7 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                           <PlayerName 
                             name={attendee.name} 
                             elo={attendee.elo || 1200} 
+                            placementMatchesPlayed={attendee.placementMatchesPlayed}
                             showRankName={false} 
                             nameClassName="text-sm"
                           />
@@ -395,7 +397,7 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                     <div className="col-span-3 text-right">
                       <div className="flex flex-col items-end gap-1.5">
                         {match.teamAPlayers?.map(p => (
-                          <PlayerName key={p.id} name={p.name} elo={p.elo} showRankName={false} nameClassName="text-sm" />
+                          <PlayerName key={p.id} name={p.name} elo={p.elo} placementMatchesPlayed={p.placementMatchesPlayed} showRankName={false} nameClassName="text-sm" />
                         )) || <p className="text-sm font-black italic">{match.teamA}</p>}
                       </div>
                       <p className="text-[10px] text-slate-500 font-bold tracking-widest mt-1">TEAM A</p>
@@ -422,7 +424,7 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                     <div className="col-span-3 text-left">
                       <div className="flex flex-col items-start gap-1.5">
                         {match.teamBPlayers?.map(p => (
-                          <PlayerName key={p.id} name={p.name} elo={p.elo} showRankName={false} nameClassName="text-sm" />
+                          <PlayerName key={p.id} name={p.name} elo={p.elo} placementMatchesPlayed={p.placementMatchesPlayed} showRankName={false} nameClassName="text-sm" />
                         )) || <p className="text-sm font-black italic">{match.teamB}</p>}
                       </div>
                       <p className="text-[10px] text-slate-500 font-bold tracking-widest mt-1">TEAM B</p>

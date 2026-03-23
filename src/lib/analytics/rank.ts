@@ -68,9 +68,22 @@ export const RANK_TIERS: CockRank[] = [
 
 /**
  * Pure function mapping any player ELO to its exact tier bounds.
+ * If the player has not completed 5 placement matches, returns "Unranked".
  */
-export function getCockRank(elo: number): CockRank {
-  // Ensure we don't crash on strangely negative ELO edge cases
+export function getCockRank(elo: number, placementMatchesPlayed: number = 5): CockRank & { nextRank?: string | null } {
+  // 1. Handle Unranked (Placement) state
+  if (placementMatchesPlayed < 5) {
+    return {
+      name: "Unranked",
+      color: "#6b7280", // gray-500
+      icon: "🐣",
+      minElo: 0,
+      maxElo: 1200, // Show progress towards "Feather" or similar? No, standard start.
+      nextRank: null
+    };
+  }
+
+  // 2. Handle Ranked tiers
   const clampedElo = Math.max(0, elo);
 
   for (const tier of RANK_TIERS) {

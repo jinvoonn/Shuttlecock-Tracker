@@ -7,17 +7,22 @@ import { getCockRank } from '@/lib/analytics/rank';
 
 interface EloRatingCardProps {
     playerElo: number;
+    placementMatchesPlayed?: number;
     eloLabel: string;
     eloColor: string;
     eloBg: string;
 }
 
-export default function EloRatingCard({ playerElo, eloLabel, eloColor, eloBg }: EloRatingCardProps) {
+export default function EloRatingCard({ playerElo, placementMatchesPlayed = 5, eloLabel, eloColor, eloBg }: EloRatingCardProps) {
     const [isOpen, setIsOpen] = useState(false);
     
-    const rank = getCockRank(playerElo);
+    const rank = getCockRank(playerElo, placementMatchesPlayed);
+    const isUnranked = placementMatchesPlayed < 5;
+    
     let progress = 100;
-    if (rank.maxElo !== null) {
+    if (isUnranked) {
+      progress = (placementMatchesPlayed / 5) * 100;
+    } else if (rank.maxElo !== null) {
       progress = Math.max(0, Math.min(100, ((playerElo - rank.minElo) / (rank.maxElo - rank.minElo)) * 100));
     }
 
@@ -60,10 +65,10 @@ export default function EloRatingCard({ playerElo, eloLabel, eloColor, eloBg }: 
                         </div>
                         <div className="flex justify-between items-center px-0.5">
                             <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest group-hover:text-slate-400 transition-colors">
-                                {rank.minElo}
+                                {isUnranked ? 'Start' : rank.minElo}
                             </span>
                             <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest group-hover:text-slate-400 transition-colors">
-                                {rank.nextRank ? rank.maxElo : 'MAX'}
+                                {isUnranked ? 'Ranked' : (rank.nextRank ? rank.maxElo : 'MAX')}
                             </span>
                         </div>
                     </div>

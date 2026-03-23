@@ -27,6 +27,7 @@ interface PlayerStat {
   totalPayments: number;
   balance: number;
   elo?: number;
+  placementMatchesPlayed?: number;
 }
 
 interface DashboardProps {
@@ -60,6 +61,7 @@ interface DashboardProps {
     total: number;
     winRate: number;
     elo: number;
+    placementMatchesPlayed?: number;
   }[];
 }
 
@@ -266,7 +268,7 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
               
               <div className="max-h-[400px] overflow-y-auto pr-2 custom-scrollbar space-y-3">
                 {sortedLeaderboard.map((player, index) => {
-                  const rank = getCockRank(player.elo);
+                  const rank = getCockRank(player.elo, player.placementMatchesPlayed);
                   return (
                   <div 
                     key={player.id} 
@@ -283,6 +285,7 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
                       <PlayerName 
                         name={player.name} 
                         elo={player.elo} 
+                        placementMatchesPlayed={player.placementMatchesPlayed}
                         showRankName={false} 
                         nameClassName="text-lg"
                       />
@@ -390,6 +393,7 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
                                 <PlayerName 
                                   name={player.name} 
                                   elo={player.elo || 1200} 
+                                  placementMatchesPlayed={player.placementMatchesPlayed}
                                   showRankName={false} 
                                   nameClassName="text-sm font-black uppercase italic tracking-tight"
                                 />

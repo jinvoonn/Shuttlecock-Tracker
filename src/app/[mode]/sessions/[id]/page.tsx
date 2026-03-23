@@ -112,7 +112,7 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
 
   // 6.5 Calculate Global ELO
   const normalizedGlobalMatches = normalizeMatches(allMatchesData || [], playerMap);
-  const { elo: globalElo } = aggregatePlayerStats(normalizedGlobalMatches, playerMap);
+  const { stats: coreStats, elo: globalElo } = aggregatePlayerStats(normalizedGlobalMatches, playerMap);
 
   const attendeesList = (sessionPlayers || []).map((sp: { players: { id: string, name: string } | null }) => {
     const pId = sp.players?.id || "";
@@ -124,7 +124,8 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
       role: "Player",
       fee: currentSessionTotalCost / (sessionPlayers?.length || 1),
       paid: balance >= -0.01, // Use a small epsilon for float precision
-      elo: globalElo[pId] || 1200
+      elo: globalElo[pId] || 1200,
+      placementMatchesPlayed: coreStats[pId]?.placementMatchesPlayed ?? 0
     };
   });
 
@@ -150,13 +151,13 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
       const p4 = m.team_b_player2;
 
       const teamAPlayers = [
-        { id: p1, name: playerMap[p1] || "Unknown", elo: globalElo[p1] || 1200 },
-        { id: p2, name: playerMap[p2] || "Unknown", elo: globalElo[p2] || 1200 }
+        { id: p1, name: playerMap[p1] || "Unknown", elo: globalElo[p1] || 1200, placementMatchesPlayed: coreStats[p1]?.placementMatchesPlayed ?? 0 },
+        { id: p2, name: playerMap[p2] || "Unknown", elo: globalElo[p2] || 1200, placementMatchesPlayed: coreStats[p2]?.placementMatchesPlayed ?? 0 }
       ].filter(p => p.id);
 
       const teamBPlayers = [
-        { id: p3, name: playerMap[p3] || "Unknown", elo: globalElo[p3] || 1200 },
-        { id: p4, name: playerMap[p4] || "Unknown", elo: globalElo[p4] || 1200 }
+        { id: p3, name: playerMap[p3] || "Unknown", elo: globalElo[p3] || 1200, placementMatchesPlayed: coreStats[p3]?.placementMatchesPlayed ?? 0 },
+        { id: p4, name: playerMap[p4] || "Unknown", elo: globalElo[p4] || 1200, placementMatchesPlayed: coreStats[p4]?.placementMatchesPlayed ?? 0 }
       ].filter(p => p.id);
 
       return {
@@ -220,13 +221,15 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
       name: s.name,
       value: s.wins,
       suffix: s.wins === 1 ? "win" : "wins",
-      elo: globalElo[s.id] || 1200
+      elo: globalElo[s.id] || 1200,
+      placementMatchesPlayed: coreStats[s.id]?.placementMatchesPlayed ?? 0
     })),
     winRate: winRateLeaderboard.map(s => ({
       id: s.id,
       name: s.name,
       value: s.winRate,
-      elo: globalElo[s.id] || 1200
+      elo: globalElo[s.id] || 1200,
+      placementMatchesPlayed: coreStats[s.id]?.placementMatchesPlayed ?? 0
     }))
   };
 

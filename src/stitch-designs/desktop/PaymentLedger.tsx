@@ -27,6 +27,7 @@ interface PaymentRecord {
   date: string;
   note: string;
   elo?: number;
+  placementMatchesPlayed?: number;
 }
 
 interface DesktopPaymentLedgerProps {
@@ -202,6 +203,7 @@ export default function DesktopPaymentLedger({ payments }: DesktopPaymentLedgerP
                             <PlayerName 
                               name={p.playerName} 
                               elo={p.elo || 1200} 
+                              placementMatchesPlayed={p.placementMatchesPlayed}
                               showRankName={false} 
                               nameClassName="text-sm"
                             />

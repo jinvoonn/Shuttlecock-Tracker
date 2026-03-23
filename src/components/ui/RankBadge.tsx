@@ -4,18 +4,19 @@ import clsx from 'clsx';
 
 interface RankBadgeProps {
   elo: number;
+  placementMatchesPlayed?: number;
   className?: string;
   compact?: boolean;
 }
 
-export default function RankBadge({ elo, className, compact = false }: RankBadgeProps) {
-  const rank = getCockRank(elo);
+export default function RankBadge({ elo, placementMatchesPlayed = 5, className, compact = false }: RankBadgeProps) {
+  const rank = getCockRank(elo, placementMatchesPlayed);
 
   return (
     <div 
       className={clsx(
         "inline-flex items-center justify-center rounded-lg font-black tracking-wider leading-none border shadow-sm whitespace-nowrap transition-all",
-        compact ? "w-7 h-7 text-[14px]" : "px-2.5 py-1 text-[10px] uppercase gap-1.5 rounded-full",
+        compact ? "w-7 h-7 text-[14px]" : "px-3 py-1.5 text-[10px] uppercase gap-2 rounded-full",
         className
       )}
       style={{ 
@@ -25,7 +26,16 @@ export default function RankBadge({ elo, className, compact = false }: RankBadge
       }}
     >
       <span className={clsx(compact ? "drop-shadow-sm" : "text-xs")}>{rank.icon}</span>
-      {!compact && <span className="italic">{rank.name}</span>}
+      {!compact && (
+        <span className="italic flex items-center gap-1.5">
+          {rank.name}
+          {placementMatchesPlayed < 5 && (
+            <span className="text-[8px] opacity-70 font-mono tracking-tighter">
+              {placementMatchesPlayed}/5
+            </span>
+          )}
+        </span>
+      )}
     </div>
   );
 }

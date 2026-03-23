@@ -24,6 +24,8 @@ export function getPlayerStats(
         streak: 0,
         maxStreak: 0,
         lastResults: [],
+        placementMatchesPlayed: 0,
+        isRanked: false,
       };
     }
   };
@@ -84,6 +86,8 @@ export function getPlayerStats(
     if (s.totalGames > 0) {
       s.winRate = s.wins / s.totalGames;
     }
+    s.placementMatchesPlayed = Math.min(s.totalGames, 5);
+    s.isRanked = s.totalGames >= 5;
     s.lastResults = s.lastResults.slice(-5).reverse(); // Most recent first
   });
 

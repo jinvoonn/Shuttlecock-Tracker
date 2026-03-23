@@ -46,8 +46,8 @@ interface Match {
   id: string;
   teamA: string;
   teamB: string;
-  teamAPlayers?: { id: string; name: string; elo: number }[];
-  teamBPlayers?: { id: string; name: string; elo: number }[];
+  teamAPlayers?: { id: string; name: string; elo: number; placementMatchesPlayed?: number }[];
+  teamBPlayers?: { id: string; name: string; elo: number; placementMatchesPlayed?: number }[];
   scoreA: number;
   scoreB: number;
   type: string;
@@ -66,6 +66,7 @@ interface Attendee {
   fee: number;
   paid: boolean;
   elo?: number;
+  placementMatchesPlayed?: number;
 }
 
 interface SessionPlayer {
@@ -86,8 +87,8 @@ interface MobileSessionDetailsProps {
   allPurchases: Purchase[];
   initialData: InitialData;
   sessionStats?: {
-    mostWins: { id: string; name: string; value: number; suffix?: string; elo?: number }[];
-    winRate: { id: string; name: string; value: number; suffix?: string; elo?: number }[];
+    mostWins: { id: string; name: string; value: number; suffix?: string; elo?: number; placementMatchesPlayed?: number }[];
+    winRate: { id: string; name: string; value: number; suffix?: string; elo?: number; placementMatchesPlayed?: number }[];
   }
 }
 
@@ -307,7 +308,10 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                     <div key={p.id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
                       <div className="flex items-center gap-4">
                         <span className={clsx("text-xs font-black italic w-4", idx === 0 ? "text-emerald-400" : "text-slate-500")}>#{idx + 1}</span>
-                        <span className="text-sm font-black italic uppercase tracking-tight text-slate-100">{p.name}</span>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-black italic uppercase tracking-tight text-slate-100">{p.name}</span>
+                          <RankBadge elo={p.elo || 1200} placementMatchesPlayed={p.placementMatchesPlayed} compact />
+                        </div>
                       </div>
                       <span className="font-mono text-[10px] font-black italic bg-emerald-400/10 text-emerald-400 px-2 py-1 rounded">
                         {leaderboardMode === "wins" 
@@ -338,6 +342,7 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                         <PlayerName 
                           name={person.name} 
                           elo={person.elo || 1200} 
+                          placementMatchesPlayed={person.placementMatchesPlayed}
                           showRankName={false} 
                           nameClassName="text-sm"
                         />
@@ -401,7 +406,7 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                           <div className="flex justify-between items-center">
                             <div className="flex flex-col gap-1.5">
                               {match.teamAPlayers?.map(p => (
-                                <PlayerName key={p.id} name={p.name} elo={p.elo} showRankName={false} nameClassName="text-xs" />
+                                <PlayerName key={p.id} name={p.name} elo={p.elo} placementMatchesPlayed={p.placementMatchesPlayed} showRankName={false} nameClassName="text-xs" />
                               )) || <span className="text-sm font-black text-slate-300 uppercase tracking-tight truncate max-w-[160px] italic">{match.teamA}</span>}
                             </div>
                             <span className={`text-3xl font-black italic leading-none tabular-nums ${match.scoreA >= match.scoreB && match.status === 'Completed' ? 'text-emerald-400' : 'text-slate-700'}`}>{match.scoreA}</span>
@@ -409,7 +414,7 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                           <div className="flex justify-between items-center">
                             <div className="flex flex-col gap-1.5">
                               {match.teamBPlayers?.map(p => (
-                                <PlayerName key={p.id} name={p.name} elo={p.elo} showRankName={false} nameClassName="text-xs" />
+                                <PlayerName key={p.id} name={p.name} elo={p.elo} placementMatchesPlayed={p.placementMatchesPlayed} showRankName={false} nameClassName="text-xs" />
                               )) || <span className="text-sm font-bold text-slate-500 uppercase tracking-tight truncate max-w-[160px] italic">{match.teamB}</span>}
                             </div>
                             <span className={`text-3xl font-black italic leading-none tabular-nums ${match.scoreB >= match.scoreA && match.status === 'Completed' ? 'text-emerald-400' : 'text-slate-700'}`}>{match.scoreB}</span>

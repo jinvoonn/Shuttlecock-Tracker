@@ -55,7 +55,7 @@ export default async function SessionsPage({ params }: { params: Promise<{ mode:
   const { data: allPlayersData } = await supabase.from("players").select("id, name");
   const playerMap = Object.fromEntries((allPlayersData || []).map(p => [p.id, p.name]));
   const normalizedMatches = normalizeMatches(matchesData || [], playerMap);
-  const { elo: globalElo } = aggregatePlayerStats(normalizedMatches, playerMap);
+  const { stats: coreStats, elo: globalElo } = aggregatePlayerStats(normalizedMatches, playerMap);
 
   if (sessionsError) {
     return (
@@ -103,7 +103,8 @@ export default async function SessionsPage({ params }: { params: Promise<{ mode:
       attendees: (session.session_players?.map((sp) => ({
         id: sp.players?.id || "",
         name: sp.players?.name || "Unknown",
-        elo: globalElo[sp.players?.id || ""] || 1200
+        elo: globalElo[sp.players?.id || ""] || 1200,
+        placementMatchesPlayed: coreStats[sp.players?.id || ""]?.placementMatchesPlayed ?? 0
       })) || []),
       playerIds,
       usageMap,
@@ -114,7 +115,8 @@ export default async function SessionsPage({ params }: { params: Promise<{ mode:
   const allPlayers = (playersData || []).map(p => ({
     id: p.id,
     name: p.name,
-    elo: globalElo[p.id] || 1200
+    elo: globalElo[p.id] || 1200,
+    placementMatchesPlayed: coreStats[p.id]?.placementMatchesPlayed ?? 0
   }));
 
   const sortedPurchases = (purchasesData || []).map(p => ({

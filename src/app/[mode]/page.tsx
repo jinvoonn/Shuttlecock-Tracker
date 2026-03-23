@@ -101,7 +101,8 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
     wins: s.wins,
     total: s.totalGames,
     winRate: s.winRate,
-    elo: Math.round(globalElo[s.id] || 1200)
+    elo: Math.round(globalElo[s.id] || 1200),
+    placementMatchesPlayed: s.placementMatchesPlayed
   }));
 
   console.log("Analytics Stats:", coreStats);
@@ -183,7 +184,8 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
   const players = Object.values(playerBalances).map(stats => ({
     ...stats,
     balance: stats.totalPayments - stats.totalShares,
-    elo: globalElo[stats.id] || 1200
+    elo: globalElo[stats.id] || 1200,
+    placementMatchesPlayed: coreStats[stats.id]?.placementMatchesPlayed || 0
   })).sort((a, b) => a.balance - b.balance);
 
   const totalOwed = players.filter(p => p.balance < 0).reduce((acc, p) => acc + Math.abs(p.balance), 0);

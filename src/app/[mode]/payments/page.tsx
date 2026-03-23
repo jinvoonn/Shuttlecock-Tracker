@@ -19,7 +19,7 @@ export default async function PaymentsPage({ params }: { params: Promise<{ mode:
   const { data: allPlayers } = await supabase.from("players").select("id, name");
   const playerMap = Object.fromEntries((allPlayers || []).map(p => [p.id, p.name]));
   const normalizedMatches = normalizeMatches(matchesData || [], playerMap);
-  const { elo: globalElo } = aggregatePlayerStats(normalizedMatches, playerMap);
+  const { stats: coreStats, elo: globalElo } = aggregatePlayerStats(normalizedMatches, playerMap);
 
   if (paymentsError) {
     return (
@@ -38,7 +38,8 @@ export default async function PaymentsPage({ params }: { params: Promise<{ mode:
       note: p.note || "",
       playerName: player?.name || "Unknown",
       playerId: player?.id || "",
-      elo: globalElo[player?.id || ""] || 1200
+      elo: globalElo[player?.id || ""] || 1200,
+      placementMatchesPlayed: coreStats[player?.id || ""]?.placementMatchesPlayed ?? 0
     };
   });
 
