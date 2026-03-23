@@ -153,6 +153,16 @@
 *   [x] **Guide Page**: Updated "ELO-Based Logic" and "ELO Bound" to "CockRating Logic" and "Rating Range".
 *   [x] **Charts**: Standardized tooltip labels to show "CR" instead of "elo" using name props.
 
+## Phase 71 — CockRating Tier Renaming (Complete)
+*   [x] **Config**: Renamed `RANK_TIERS` in `rank.ts` to new tier names (Soft Chick, Rising Chick, Hard Hitter, Big Cock, Battle Cock, Alpha Cock).
+*   [x] **Propagation**: Because the entire application uses `getCockRank` and maps over `RANK_TIERS`, updating `rank.ts` automatically applies changes consistently down to the Dashboard, Player Profile, Sessions, and CockRating Guide.
+
+## Phase 72 — Rank Badge Icons (Complete)
+*   [x] **Component Design**: Created `/components/ui/RankIcon.tsx` rendering Lucide-based icons with premium gradient/glow backgrounds, supporting standard sizes (`small`, `normal`, `large`).
+*   [x] **System Update**: Removed legacy `icon` strings from `CockRank` structure in `rank.ts`.
+*   [x] **Component Integration**: Updated `RankBadge.tsx`, `EloRatingCard.tsx`, and `cockrating/page.tsx` to mount `<RankIcon>` mapped by `rank.name`. Legacy emoji sizes dynamically translated into `RankIcon` sizing.
+*   [x] **UI Polish**: Resolved badge vertical alignment by modifying compact badge padding and using 20px (`w-5 h-5`) dimension for `RankIcon` small size.
+
 ## Current State
 
 The app is highly stable, featuring a **Centralized Analytics Engine** and a dedicated **CockRating Guide** system. All UI bugs related to modal layering have been resolved by moving to page-based education. Rankings are globally consistent across Dashboard and Profiles. Zero lint errors.

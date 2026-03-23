@@ -15,8 +15,8 @@ export function formatPlayerName(
   const rank = getCockRank(elo);
   const separator = " | ";
   const rankPart = options?.showRankName 
-    ? `${rank.icon} ${rank.name}` 
-    : rank.icon;
+    ? rank.name 
+    : "";
   
-  return `${name}${separator}${rankPart}`;
+  return rankPart ? `${name}${separator}${rankPart}` : name;
 }

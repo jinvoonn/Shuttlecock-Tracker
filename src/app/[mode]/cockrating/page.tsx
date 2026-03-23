@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { RANK_TIERS } from "@/lib/analytics/rank";
 import RankBadge from "@/components/ui/RankBadge";
+import RankIcon from "@/components/ui/RankIcon";
 
 export default function CockRatingPage() {
   const { mode } = useParams();
@@ -178,7 +179,7 @@ export default function CockRatingPage() {
               {RANK_TIERS.map((tier, index) => (
                 <div key={index} className="grid grid-cols-5 items-center p-4 hover:bg-slate-700/20 transition-colors group">
                   <div className="col-span-3 flex items-center gap-3">
-                    <span className="text-xl group-hover:scale-125 transition-transform duration-300">{tier.icon}</span>
+                    <RankIcon rank={tier.name} size="normal" className="group-hover:scale-110 transition-transform duration-300" />
                     <span className="text-sm font-black uppercase tracking-widest italic drop-shadow-sm" style={{ color: tier.color }}>
                       {tier.name}
                     </span>
