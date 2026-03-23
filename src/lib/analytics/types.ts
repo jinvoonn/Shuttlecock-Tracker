@@ -26,6 +26,9 @@ export type PlayerStats = {
 
 export type LeaderboardEntry = PlayerStats & {
   rank: number;
+  elo: number;
+  previousRank?: number;
+  rankChange?: number;
 };
 
 export type GlobalInsights = {

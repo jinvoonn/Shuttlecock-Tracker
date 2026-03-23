@@ -215,8 +215,8 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
     tube_number: p.tube_number
   }));
 
-  const winsLeaderboard = getLeaderboard(coreSessionStats, { sortBy: "wins" });
-  const winRateLeaderboard = getLeaderboard(coreSessionStats, { sortBy: "winRate", minGames: 1 });
+  const winsLeaderboard = getLeaderboard(coreSessionStats, globalElo, { sortBy: "wins" });
+  const winRateLeaderboard = getLeaderboard(coreSessionStats, globalElo, { sortBy: "winRate", minGames: 1 });
 
   const sessionStats = {
     mostWins: winsLeaderboard.map(s => ({

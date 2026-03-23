@@ -59,7 +59,7 @@ interface DashboardProps {
     id: string;
     name: string;
     wins: number;
-    total: number;
+    totalGames: number;
     winRate: number;
     elo: number;
     placementMatchesPlayed?: number;
@@ -82,7 +82,7 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
     }
     if (leaderboardMode === "winRate") {
       return [...leaderboard]
-        .filter(p => p.total >= 3)
+        .filter(p => p.totalGames >= 3)
         .sort((a, b) => b.winRate - a.winRate);
     }
     return [...leaderboard].sort((a, b) => b.wins - a.wins);
@@ -270,9 +270,13 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
               </div>
               
               <div className="max-h-[500px] overflow-y-auto pr-2 custom-scrollbar space-y-4 py-2">
+                {(() => {
+                  console.log(`Leaderboard type: ${leaderboardMode}`);
+                  console.log("Top 3 players:", sortedLeaderboard.slice(0, 3).map(p => p.name));
+                  return null;
+                })()}
                 {sortedLeaderboard.map((player, index) => {
-                  const eloRank = leaderboard?.findIndex(p => p.id === player.id) ?? index;
-                  const displayRank = eloRank + 1;
+                  const displayRank = index + 1;
                   const isTop3 = displayRank <= 3;
                   
                   const entry = leaderboard?.find(p => p.id === player.id);

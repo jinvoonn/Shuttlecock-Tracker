@@ -123,18 +123,12 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
   const currRankMap: Record<string, number> = {};
   currentEloLeaderboard.forEach((item, idx) => { currRankMap[item.id] = idx + 1; });
 
-  const leaderboard = getLeaderboard(coreStats, { sortBy: "wins" }).map(s => {
+  const leaderboard = getLeaderboard(coreStats, globalElo, { sortBy: "wins" }).map(s => {
     const currentRank = currRankMap[s.id] || 99;
     const previousRank = prevRankMap[s.id] || 99;
     
     return {
-      id: s.id,
-      name: s.name,
-      wins: s.wins,
-      total: s.totalGames,
-      winRate: s.winRate,
-      elo: Math.round(globalElo[s.id] || 1200),
-      placementMatchesPlayed: s.placementMatchesPlayed,
+      ...s,
       previousRank,
       rankChange: previousRank - currentRank
     };

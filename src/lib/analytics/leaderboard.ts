@@ -5,8 +5,9 @@ import { PlayerStats, LeaderboardEntry } from "./types";
  */
 export function getLeaderboard(
   playerStats: Record<string, PlayerStats>,
+  eloMap: Record<string, number>,
   options: {
-    sortBy: "wins" | "winRate";
+    sortBy: "wins" | "winRate" | "elo";
     minGames?: number;
   } = { sortBy: "wins", minGames: 0 }
 ): LeaderboardEntry[] {
@@ -18,11 +19,15 @@ export function getLeaderboard(
       if (sortBy === "winRate") {
         return b.winRate - a.winRate || b.totalGames - a.totalGames;
       }
+      if (sortBy === "elo") {
+        return (eloMap[b.id] || 0) - (eloMap[a.id] || 0);
+      }
       return b.wins - a.wins || b.winRate - a.winRate;
     })
     .map((s, index) => ({
       ...s,
       rank: index + 1,
+      elo: Math.round(eloMap[s.id] || 1200)
     }));
 }
 
