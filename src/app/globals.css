@@ -102,6 +102,60 @@ body::before {
   .delay-150 { animation-delay: 150ms; }
   .delay-200 { animation-delay: 200ms; }
   .delay-300 { animation-delay: 300ms; }
+  /* Premium Rank Badge Animations */
+  .animate-badge-pulse {
+    animation: badge-pulse 2.5s ease-in-out infinite;
+    will-change: transform;
+  }
+  
+  .animate-badge-glow {
+    animation: badge-glow 3s ease-in-out infinite;
+  }
+  
+  .animate-badge-shine {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .animate-badge-shine::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      45deg,
+      transparent 45%,
+      rgba(255, 255, 255, 0.1) 48%,
+      rgba(255, 255, 255, 0.4) 50%,
+      rgba(255, 255, 255, 0.1) 52%,
+      transparent 55%
+    );
+    transform: rotate(25deg);
+    animation: badge-shine-sweep 4s ease-in-out infinite;
+    pointer-events: none;
+  }
+}
+
+@keyframes badge-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes badge-pulse-emphasized {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+@keyframes badge-glow {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.1)); }
+  50% { filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4)); }
+}
+
+@keyframes badge-shine-sweep {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(25deg); }
+  20%, 100% { transform: translateX(100%) translateY(100%) rotate(25deg); }
 }
 
 @keyframes fadeInUp {
