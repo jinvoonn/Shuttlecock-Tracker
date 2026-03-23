@@ -158,6 +158,34 @@ body::before {
   20%, 100% { transform: translateX(100%) translateY(100%) rotate(25deg); }
 }
 
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(255, 255, 255, 0.2); }
+  50% { box-shadow: 0 0 14px rgba(255, 255, 255, 0.5); }
+}
+
+.animate-glowPulse {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+/* Rank Highlights */
+.rank-1-glow {
+  background: linear-gradient(to right, #fbbf24, #d97706); /* yellow-400 to yellow-600 */
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+  border: 1px solid #fcd34d; /* yellow-300 */
+}
+
+.rank-2-glow {
+  background: linear-gradient(to right, #cbd5e1, #94a3b8); /* slate-300 to slate-400 */
+  box-shadow: 0 0 10px rgba(200, 200, 200, 0.6);
+  border: 1px solid #cbd5e1; /* slate-300 */
+}
+
+.rank-3-glow {
+  background: linear-gradient(to right, #fb923c, #f97316); /* orange-400 to orange-500 */
+  box-shadow: 0 0 10px rgba(255, 140, 0, 0.6);
+  border: 1px solid #fdba74; /* orange-300 */
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;

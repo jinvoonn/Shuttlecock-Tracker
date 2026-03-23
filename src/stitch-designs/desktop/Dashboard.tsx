@@ -9,6 +9,7 @@ import {
   Activity,
   TrendingUp,
   TrendingDown,
+  Minus,
   Feather
 } from 'lucide-react';
 import clsx from 'clsx';
@@ -62,6 +63,8 @@ interface DashboardProps {
     winRate: number;
     elo: number;
     placementMatchesPlayed?: number;
+    previousRank?: number;
+    rankChange?: number;
   }[];
 }
 
@@ -266,31 +269,68 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
                 </div>
               </div>
               
-              <div className="max-h-[400px] overflow-y-auto pr-2 custom-scrollbar space-y-3">
+              <div className="max-h-[500px] overflow-y-auto pr-2 custom-scrollbar space-y-4 py-2">
                 {sortedLeaderboard.map((player, index) => {
-                  const rank = getCockRank(player.elo, player.placementMatchesPlayed);
+                  const eloRank = leaderboard?.findIndex(p => p.id === player.id) ?? index;
+                  const displayRank = eloRank + 1;
+                  const isTop3 = displayRank <= 3;
+                  
+                  const entry = leaderboard?.find(p => p.id === player.id);
+                  const rankChange = entry?.rankChange ?? 0;
+
                   return (
                   <div 
                     key={player.id} 
-                    className="flex items-center justify-between p-5 rounded-2xl bg-slate-950/40 border border-slate-800 hover:border-emerald-500/30 hover:-translate-y-0.5 hover:shadow-lg hover:bg-slate-900/80 transition-all duration-300 group opacity-0 animate-fade-in-up"
+                    className={clsx(
+                      "flex items-center justify-between p-5 rounded-2xl transition-all duration-300 animate-fade-in-up",
+                      isTop3 && displayRank === 1 && "rank-1-glow animate-glowPulse text-slate-950",
+                      isTop3 && displayRank === 2 && "rank-2-glow animate-glowPulse text-slate-950",
+                      isTop3 && displayRank === 3 && "rank-3-glow animate-glowPulse text-slate-950",
+                      !isTop3 && "bg-slate-950/40 border border-slate-800 hover:border-emerald-500/30 hover:bg-slate-900/80"
+                    )}
                     style={{ animationDelay: `${(index * 50) + 100}ms` }}
                   >
-                    <div className="flex items-center gap-5">
+                    <div className="flex items-center gap-6">
                       <span className={clsx(
-                        "text-xl font-black italic w-10",
-                        index === 0 ? "text-emerald-400" : "text-slate-600"
+                        "text-2xl font-black italic w-12",
+                        isTop3 ? "text-slate-900" : "text-slate-600"
                       )}>
-                        #{index + 1}
+                        #{displayRank}
                       </span>
-                      <PlayerName 
-                        name={player.name} 
-                        elo={player.elo} 
-                        placementMatchesPlayed={player.placementMatchesPlayed}
-                        showRankName={false} 
-                        nameClassName="text-lg"
-                      />
+                      <div className="flex flex-col">
+                        <PlayerName 
+                          name={player.name} 
+                          elo={player.elo} 
+                          placementMatchesPlayed={player.placementMatchesPlayed}
+                          showRankName={false} 
+                          nameClassName={clsx("text-xl font-black italic", isTop3 ? "text-slate-950" : "text-slate-100")}
+                        />
+                        {entry?.previousRank && entry.previousRank !== 99 && (
+                          <div className="flex items-center gap-2 mt-1">
+                            {rankChange > 0 ? (
+                              <>
+                                <TrendingUp className={clsx("size-4", isTop3 ? "text-slate-900" : "text-emerald-400")} />
+                                <span className={clsx("text-[11px] font-black uppercase tracking-wider", isTop3 ? "text-slate-800" : "text-emerald-400")}>+{rankChange} POSITIONS UP</span>
+                              </>
+                            ) : rankChange < 0 ? (
+                              <>
+                                <TrendingDown className={clsx("size-4", isTop3 ? "text-slate-800" : "text-rose-500")} />
+                                <span className={clsx("text-[11px] font-black uppercase tracking-wider", isTop3 ? "text-slate-800" : "text-rose-500")}>{rankChange} POSITIONS DOWN</span>
+                              </>
+                            ) : (
+                               <>
+                                <Minus className={clsx("size-4", isTop3 ? "text-slate-800" : "text-slate-500")} />
+                                <span className={clsx("text-[11px] font-black uppercase tracking-wider", isTop3 ? "text-slate-800" : "text-slate-500")}>NO CHANGE</span>
+                               </>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="font-mono font-black italic text-[#13ec80] bg-emerald-500/5 px-4 py-1.5 rounded-lg text-lg">
+                    <div className={clsx(
+                      "font-mono font-black italic px-5 py-2 rounded-xl text-xl",
+                      isTop3 ? "bg-black/10 text-slate-900" : "text-[#13ec80] bg-emerald-500/5"
+                    )}>
                       {leaderboardMode === "wins" 
                         ? `${player.wins} WINS` 
                         : leaderboardMode === "winRate"

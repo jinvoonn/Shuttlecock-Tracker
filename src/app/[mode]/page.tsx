@@ -58,7 +58,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
   const playerMap = Object.fromEntries((playersData || []).map(p => [p.id, p.name]));
 
   const normalizedMatches = normalizeMatches(matchesData || [], playerMap);
-  const { stats: coreStats, elo: globalElo } = aggregatePlayerStats(normalizedMatches, playerMap);
+  const { stats: coreStats, elo: globalElo, eloHistory } = aggregatePlayerStats(normalizedMatches, playerMap);
 
   // Still need to calculate session participation as it's not in match data
   (sessionsData || []).forEach(s => {
@@ -95,15 +95,50 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
   ];
 
   // Leaderboard using the engine
-  const leaderboard = getLeaderboard(coreStats, { sortBy: "wins" }).map(s => ({
-    id: s.id,
-    name: s.name,
-    wins: s.wins,
-    total: s.totalGames,
-    winRate: s.winRate,
-    elo: Math.round(globalElo[s.id] || 1200),
-    placementMatchesPlayed: s.placementMatchesPlayed
-  }));
+
+  // Calculate previous rankings to show movement indicators
+  const previousElo: Record<string, number> = {};
+  Object.keys(globalElo).forEach(pid => {
+    const history = eloHistory[pid] || [];
+    if (history.length > 1) {
+      // Find the Elo before the current match day/session if possible, 
+      // but "previous match" is a standard and robust baseline.
+      previousElo[pid] = history[history.length - 2].elo;
+    } else {
+      previousElo[pid] = 1200; // Starting point
+    }
+  });
+
+  const previousEloLeaderboard = Object.entries(previousElo)
+    .map(([id, elo]) => ({ id, elo }))
+    .sort((a, b) => b.elo - a.elo);
+  
+  const currentEloLeaderboard = Object.entries(globalElo)
+    .map(([id, elo]) => ({ id, elo }))
+    .sort((a, b) => b.elo - a.elo);
+
+  const prevRankMap: Record<string, number> = {};
+  previousEloLeaderboard.forEach((item, idx) => { prevRankMap[item.id] = idx + 1; });
+
+  const currRankMap: Record<string, number> = {};
+  currentEloLeaderboard.forEach((item, idx) => { currRankMap[item.id] = idx + 1; });
+
+  const leaderboard = getLeaderboard(coreStats, { sortBy: "wins" }).map(s => {
+    const currentRank = currRankMap[s.id] || 99;
+    const previousRank = prevRankMap[s.id] || 99;
+    
+    return {
+      id: s.id,
+      name: s.name,
+      wins: s.wins,
+      total: s.totalGames,
+      winRate: s.winRate,
+      elo: Math.round(globalElo[s.id] || 1200),
+      placementMatchesPlayed: s.placementMatchesPlayed,
+      previousRank,
+      rankChange: previousRank - currentRank
+    };
+  });
 
   console.log("Analytics Stats:", coreStats);
   console.log("Leaderboard:", leaderboard);
