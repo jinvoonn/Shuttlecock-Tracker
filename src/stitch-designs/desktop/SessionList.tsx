@@ -165,9 +165,6 @@ export default function SessionListUI({ sessions, allPlayers, allPurchases }: De
                       {session.attendees.slice(0, 4).map((att, i) => (
                         <div key={i} className="flex size-10 items-center justify-center rounded-full border-2 border-[#0f172a] bg-slate-800 text-[10px] font-black uppercase text-slate-400 group/att relative">
                           {att.name.slice(0, 2)}
-                          <div className="absolute -top-1 -right-1 scale-50 origin-bottom-left transition-transform group-hover/att:scale-75">
-                             <PlayerName name="" elo={att.elo} placementMatchesPlayed={att.placementMatchesPlayed} showRankName={false} hideName={true} />
-                          </div>
                         </div>
                       ))}
                       {session.attendees.length > 4 && (

@@ -175,9 +175,6 @@ export default function MobileSessions({ sessions, allPlayers, allPurchases }: M
                   {session.attendees.slice(0, 3).map((att, i) => (
                     <div key={i} className="size-10 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center text-[10px] font-black text-slate-400 uppercase shadow-sm relative group/att">
                       {att.name.slice(0, 2)}
-                      <div className="absolute -top-1 -right-1 scale-50 origin-bottom-left transition-transform group-hover/att:scale-75">
-                         <PlayerName name="" elo={att.elo} placementMatchesPlayed={att.placementMatchesPlayed} showRankName={false} hideName={true} />
-                      </div>
                     </div>
                   ))}
                   {session.attendees.length > 3 && (
