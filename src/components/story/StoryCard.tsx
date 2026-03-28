@@ -108,7 +108,7 @@ export const StoryCard = forwardRef<HTMLDivElement, StoryCardProps>(
                <span className="text-[8px] font-black uppercase tracking-widest text-slate-500 mt-1">Shuttles Sweated</span>
              </div>
              <div className="text-[7px] font-black text-slate-600 uppercase tracking-[0.2em] italic mb-1">
-               shuttle-tracker.vercel.app
+               cockcount.vercel.app
              </div>
            </div>
         </div>
