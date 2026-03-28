@@ -40,11 +40,11 @@ export const StoryCard = forwardRef<HTMLDivElement, StoryCardProps>(
         <div className="relative z-20 flex flex-col h-full p-8 text-slate-100">
            {/* Header Logo */}
            <div className="flex items-center justify-center gap-2 mb-10 mt-4 w-full">
-              <div className="size-8 rounded-lg bg-[#13ec80] flex items-center justify-center">
-                <Feather className="size-5 text-slate-950 transform rotate-45" />
+              <div className="size-8 rounded-lg bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-md shadow-sky-500/20">
+                <Feather className="size-5 text-white transform rotate-45" />
               </div>
-              <h1 className="text-xl font-black tracking-tighter italic uppercase text-slate-50">
-                Cock<span className="text-[#13ec80]">Count</span>
+              <h1 className="text-2xl font-black text-slate-50 tracking-tighter">
+                Cock<span className="text-sky-400">Count</span>
               </h1>
            </div>
 
