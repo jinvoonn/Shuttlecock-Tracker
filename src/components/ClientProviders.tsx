@@ -2,6 +2,8 @@
 
 import { AuthProvider } from "@/context/AuthContext";
 import { MatchesProvider } from "@/context/MatchesContext";
+import { LoadingProvider } from "@/context/LoadingContext";
+import GlobalLoader from "@/components/ui/GlobalLoader";
 
 export function ClientProviders({ 
   children, 
@@ -11,10 +13,13 @@ export function ClientProviders({
   initialMatches: any[] 
 }) {
   return (
-    <AuthProvider>
-      <MatchesProvider initialMatches={initialMatches}>
-        {children}
-      </MatchesProvider>
-    </AuthProvider>
+    <LoadingProvider>
+      <AuthProvider>
+        <MatchesProvider initialMatches={initialMatches}>
+          {children}
+        </MatchesProvider>
+      </AuthProvider>
+      <GlobalLoader />
+    </LoadingProvider>
   );
 }

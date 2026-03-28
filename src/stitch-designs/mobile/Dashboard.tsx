@@ -28,6 +28,8 @@ import { getCockRank } from '@/lib/analytics/rank';
 import RankBadge from '@/components/ui/RankBadge';
 import PlayerName from '@/components/ui/PlayerName';
 import { computeRankDelta, SnapshotRow } from '@/lib/analytics/rankDelta';
+import { useRouteLoading } from '@/hooks/useRouteLoading';
+import { useLoading } from '@/context/LoadingContext';
 
 interface PlayerStat {
   id: string;
@@ -90,6 +92,8 @@ export default function MobileDashboard({ stats, players, isAdmin, upcomingSessi
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
   const { canEdit } = useRole();
+  const { startLoading } = useRouteLoading();
+  const { setLoading } = useLoading();
   const [settlingId, setSettlingId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'spending' | 'usage'>('spending');
   const [leaderboardMode, setLeaderboardMode] = useState<"wins" | "winRate" | "elo">("elo");
@@ -217,11 +221,14 @@ export default function MobileDashboard({ stats, players, isAdmin, upcomingSessi
                       <button 
                         onClick={async () => {
                           try {
+                            setLoading(true);
                             const { createWeeklySnapshot } = await import("@/lib/actions/snapshots");
                             const res = await createWeeklySnapshot();
                             alert(res.message);
                           } catch (e: any) {
                             alert(e.message);
+                          } finally {
+                            setLoading(false);
                           }
                         }}
                         className="ml-2 text-[8px] font-black uppercase tracking-widest bg-slate-900 border border-slate-700 text-slate-400 hover:text-emerald-400 px-2 py-1 rounded-md transition-all active:scale-95"
@@ -287,6 +294,7 @@ export default function MobileDashboard({ stats, players, isAdmin, upcomingSessi
 
                     return (
                     <Link 
+                      onClick={startLoading}
                       href={`${basePath}/players/${player.id}`}
                       key={player.id} 
                       className={clsx(
@@ -421,7 +429,7 @@ export default function MobileDashboard({ stats, players, isAdmin, upcomingSessi
               {players.map((player) => (
                 <div key={player.id} className="bg-slate-800 rounded-[2rem] p-6 border border-slate-700 shadow-sm group hover:border-emerald-400/30 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex flex-col gap-4">
                   <div className="flex items-center justify-between">
-                    <Link href={`${basePath}/players/${player.id}`} className="flex flex-col gap-1 flex-1">
+                    <Link onClick={startLoading} href={`${basePath}/players/${player.id}`} className="flex flex-col gap-1 flex-1">
                       <PlayerName 
                         name={player.name} 
                         elo={player.elo || 1200} 
@@ -439,6 +447,7 @@ export default function MobileDashboard({ stats, players, isAdmin, upcomingSessi
                   </div>
                   <div className="flex gap-2">
                     <Link 
+                      onClick={startLoading}
                       href={`${basePath}/players/${player.id}`}
                       className="flex-1 h-11 rounded-xl bg-slate-900 text-slate-400 font-black text-[10px] uppercase tracking-widest flex items-center justify-center border border-slate-700 active:scale-95 transition-all"
                     >
@@ -450,6 +459,7 @@ export default function MobileDashboard({ stats, players, isAdmin, upcomingSessi
                           if (player.balance === 0) return;
                           setSettlingId(player.id);
                           try {
+                            setLoading(true);
                             const { quickSettle } = await import("@/lib/actions/payments");
                             await quickSettle(player.id, -player.balance, currentMode);
                             router.refresh();
@@ -457,6 +467,7 @@ export default function MobileDashboard({ stats, players, isAdmin, upcomingSessi
                             alert("Failed to settle balance");
                           } finally {
                             setSettlingId(null);
+                            setLoading(false);
                           }
                         }}
                         disabled={player.balance === 0 || settlingId === player.id}
@@ -486,21 +497,21 @@ export default function MobileDashboard({ stats, players, isAdmin, upcomingSessi
               <div className="absolute bottom-3 size-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(19,236,128,0.8)]"></div>
             </button>
             <button 
-              onClick={() => router.push(`${basePath}/sessions`)}
+              onClick={() => { startLoading(); router.push(`${basePath}/sessions`); }}
               className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-emerald-400 transition-colors group"
             >
               <HistoryIcon className="size-6 transition-transform group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.15em] leading-none mt-1">Sessions</span>
             </button>
             <button 
-              onClick={() => router.push(`${basePath}/purchases`)}
+              onClick={() => { startLoading(); router.push(`${basePath}/purchases`); }}
               className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-emerald-400 transition-colors group"
             >
               <Package className="size-6 transition-transform group-active:scale-90" />
               <span className="text-[9px] font-black uppercase tracking-[0.15em] leading-none mt-1">Stock</span>
             </button>
             <button 
-              onClick={() => router.push(`${basePath}/payments`)}
+              onClick={() => { startLoading(); router.push(`${basePath}/payments`); }}
               className="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 hover:text-emerald-400 transition-colors group"
             >
               <Banknote className="size-6 transition-transform group-active:scale-90" />

@@ -21,6 +21,8 @@ import { getCockRank } from '@/lib/analytics/rank';
 import RankBadge from '@/components/ui/RankBadge';
 import PlayerName from '@/components/ui/PlayerName';
 import { computeRankDelta, SnapshotRow } from '@/lib/analytics/rankDelta';
+import { useRouteLoading } from '@/hooks/useRouteLoading';
+import { useLoading } from '@/context/LoadingContext';
 
 interface PlayerStat {
   id: string;
@@ -77,6 +79,8 @@ export default function DesktopDashboard({ stats, players, isAdmin, upcomingSess
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
   const { canEdit } = useRole();
+  const { startLoading } = useRouteLoading();
+  const { setLoading } = useLoading();
   const [leaderboardMode, setLeaderboardMode] = React.useState<"wins" | "winRate" | "elo">("elo");
 
   const sortedLeaderboard = React.useMemo(() => {
@@ -130,19 +134,19 @@ export default function DesktopDashboard({ stats, players, isAdmin, upcomingSess
         </div>
         
         <nav className="flex-1 px-4 space-y-2 mt-4">
-          <Link href={`${basePath}`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-[#13ec80] text-slate-950 font-black transition-all shadow-lg shadow-[#13ec80]/10">
+          <Link onClick={startLoading} href={`${basePath}`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-[#13ec80] text-slate-950 font-black transition-all shadow-lg shadow-[#13ec80]/10">
             <LayoutDashboard className="size-5" />
             <span className="text-sm tracking-wide uppercase">DASHBOARD</span>
           </Link>
-          <Link href={`${basePath}/sessions`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+          <Link onClick={startLoading} href={`${basePath}/sessions`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
             <CalendarDays className="size-5" />
             <span className="text-sm font-bold tracking-wide uppercase">SESSIONS</span>
           </Link>
-          <Link href={`${basePath}/purchases`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+          <Link onClick={startLoading} href={`${basePath}/purchases`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
             <Package className="size-5" />
             <span className="text-sm font-bold tracking-wide uppercase">STOCK</span>
           </Link>
-          <Link href={`${basePath}/payments`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+          <Link onClick={startLoading} href={`${basePath}/payments`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
             <Wallet className="size-5" />
             <span className="text-sm font-bold tracking-wide uppercase">PAYMENTS</span>
           </Link>
@@ -247,11 +251,14 @@ export default function DesktopDashboard({ stats, players, isAdmin, upcomingSess
                     <button 
                       onClick={async () => {
                         try {
+                          setLoading(true);
                           const { createWeeklySnapshot } = await import("@/lib/actions/snapshots");
                           const res = await createWeeklySnapshot();
                           alert(res.message);
                         } catch (e: any) {
                           alert(e.message);
+                        } finally {
+                          setLoading(false);
                         }
                       }}
                       className="ml-4 text-[10px] font-black uppercase tracking-widest bg-slate-800 hover:bg-emerald-500/20 text-slate-400 hover:text-emerald-400 border border-slate-700 hover:border-emerald-500/50 px-3 py-1.5 rounded-lg transition-all active:scale-95"
@@ -317,6 +324,7 @@ export default function DesktopDashboard({ stats, players, isAdmin, upcomingSess
 
                   return (
                   <Link 
+                    onClick={startLoading}
                     href={`${basePath}/players/${player.id}`}
                     key={player.id} 
                     className={clsx(
@@ -440,7 +448,7 @@ export default function DesktopDashboard({ stats, players, isAdmin, upcomingSess
                       {new Date(upcomingSession.date).toLocaleDateString('en-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                     </p>
                     <div className="flex gap-4">
-                      <Link href={`${basePath}/sessions`} className="bg-[#13ec80] text-slate-950 font-black text-xs uppercase px-8 py-3 rounded-2xl hover:scale-105 transition-all active:scale-95 shadow-lg shadow-[#13ec80]/20 flex items-center justify-center">
+                      <Link onClick={startLoading} href={`${basePath}/sessions`} className="bg-[#13ec80] text-slate-950 font-black text-xs uppercase px-8 py-3 rounded-2xl hover:scale-105 transition-all active:scale-95 shadow-lg shadow-[#13ec80]/20 flex items-center justify-center">
                         View Sessions
                       </Link>
                     </div>
@@ -471,6 +479,7 @@ export default function DesktopDashboard({ stats, players, isAdmin, upcomingSess
                                 {player.name.charAt(0).toUpperCase()}
                               </div>
                               <Link 
+                                onClick={startLoading}
                                 href={`${basePath}/players/${player.id}`}
                                 className="font-black text-slate-100 text-sm hover:text-[#13ec80] transition-colors uppercase italic tracking-tight"
                               >
@@ -498,8 +507,13 @@ export default function DesktopDashboard({ stats, players, isAdmin, upcomingSess
                                 <button 
                                   onClick={async () => {
                                     if (confirm(`Quick Settle RM ${Math.abs(player.balance).toFixed(2)} for ${player.name}?`)) {
-                                      const { quickSettle } = await import("@/lib/actions/payments");
-                                      await quickSettle(player.id, Math.abs(player.balance), currentMode);
+                                      try {
+                                        setLoading(true);
+                                        const { quickSettle } = await import("@/lib/actions/payments");
+                                        await quickSettle(player.id, Math.abs(player.balance), currentMode);
+                                      } finally {
+                                        setLoading(false);
+                                      }
                                     }
                                   }}
                                   className="bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-emerald-500/20 transition-all active:scale-95"
@@ -508,6 +522,7 @@ export default function DesktopDashboard({ stats, players, isAdmin, upcomingSess
                                 </button>
                               )}
                               <Link 
+                                onClick={startLoading}
                                 href={`${basePath}/players/${player.id}`}
                                 className="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-slate-700 transition-all active:scale-95"
                               >
