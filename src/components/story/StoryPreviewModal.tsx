@@ -4,6 +4,7 @@ import React, { useRef, useState } from 'react';
 import { X, Download } from 'lucide-react';
 import { StoryCard } from './StoryCard';
 import { toPng } from 'html-to-image';
+import clsx from 'clsx';
 
 interface Match {
   status: string;
@@ -31,6 +32,7 @@ interface StoryPreviewModalProps {
 export function StoryPreviewModal({ isOpen, onClose, session, matches, sessionStats }: StoryPreviewModalProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [isTransparent, setIsTransparent] = useState(false);
 
   if (!isOpen) return null;
 
@@ -114,7 +116,7 @@ export function StoryPreviewModal({ isOpen, onClose, session, matches, sessionSt
 
       <div className="flex flex-col items-center gap-8 w-full max-w-sm px-4">
         {/* We use scale property specifically to fit smaller mobile screens without compromising the actual 1080x1920 ratio geometry the html-to-canvas engine sees */}
-        <div className="shadow-2xl shadow-[#13ec80]/10 rounded-3xl overflow-hidden border border-slate-800 scale-[0.80] sm:scale-100 origin-center transition-all bg-[#020617]">
+        <div className={`shadow-2xl shadow-[#13ec80]/10 rounded-3xl overflow-hidden border ${isTransparent ? 'border-dashed border-slate-600 bg-black/20 backdrop-blur-sm' : 'border-slate-800 bg-[#020617]'}  scale-[0.80] sm:scale-100 origin-center transition-all`}>
           <StoryCard 
             ref={cardRef} 
             sessionName={session.name}
@@ -124,23 +126,38 @@ export function StoryPreviewModal({ isOpen, onClose, session, matches, sessionSt
             mvp={mvp}
             streak={maxStreak >= 2 ? { name: streakName, streak: maxStreak } : undefined}
             cursed={maxLosses >= 2 ? { name: cursedName, losses: maxLosses } : undefined}
+            isTransparent={isTransparent}
           />
         </div>
 
-        <button 
-          onClick={handleDownload}
-          disabled={isExporting}
-          className="w-full max-w-[320px] bg-[#13ec80] hover:bg-[#10c86e] text-slate-950 font-black italic uppercase tracking-widest py-4 rounded-xl flex items-center justify-center gap-3 active:scale-95 transition-all shadow-lg shadow-[#13ec80]/20 disabled:opacity-50"
-        >
-          {isExporting ? (
-            'EXPORTING HIGH-RES...'
-          ) : (
-            <>
-              <Download className="size-5" />
-              DOWNLOAD STORY
-            </>
-          )}
-        </button>
+        <div className="flex w-full max-w-[320px] gap-2 font-['Lexend',_sans-serif]">
+            <button
+              onClick={() => setIsTransparent(!isTransparent)}
+              className={clsx(
+                "flex-shrink-0 font-bold uppercase tracking-widest px-4 rounded-xl flex flex-col items-center justify-center transition-all shadow-md active:scale-95 border",
+                isTransparent 
+                  ? "bg-sky-500/20 text-sky-400 border-sky-400/50" 
+                  : "bg-slate-800 hover:bg-slate-700 text-slate-400 border-slate-700"
+              )}
+            >
+              <span className="text-[10px] leading-none mb-1">Sticker</span>
+              <span className="text-xs font-black">{isTransparent ? 'ON' : 'OFF'}</span>
+            </button>
+            <button 
+              onClick={handleDownload}
+              disabled={isExporting}
+              className="flex-1 bg-[#13ec80] hover:bg-[#10c86e] text-slate-950 font-black italic uppercase tracking-widest py-4 rounded-xl flex items-center justify-center gap-3 active:scale-95 transition-all shadow-lg shadow-[#13ec80]/20 disabled:opacity-50"
+            >
+              {isExporting ? (
+                'EXPORTING...'
+              ) : (
+                <>
+                  <Download className="size-5" />
+                  DOWNLOAD
+                </>
+              )}
+            </button>
+        </div>
       </div>
     </div>
   );

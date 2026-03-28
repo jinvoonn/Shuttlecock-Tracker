@@ -9,33 +9,38 @@ interface StoryCardProps {
   mvp?: { name: string; wins: number };
   streak?: { name: string; streak: number };
   cursed?: { name: string; losses: number };
+  isTransparent?: boolean;
 }
 
 export const StoryCard = forwardRef<HTMLDivElement, StoryCardProps>(
-  ({ sessionName, location, date, shuttlesUsed, mvp, streak, cursed }, ref) => {
+  ({ sessionName, location, date, shuttlesUsed, mvp, streak, cursed, isTransparent = false }, ref) => {
     return (
       <div 
         ref={ref}
-        className="w-[360px] h-[640px] bg-[#020617] relative overflow-hidden flex flex-col font-['Lexend',_sans-serif]"
+        className={`w-[360px] h-[640px] relative overflow-hidden flex flex-col font-['Lexend',_sans-serif] ${!isTransparent ? 'bg-[#020617]' : ''}`}
         style={{
           boxSizing: 'border-box'
         }}
       >
-        {/* Absolute pitch black base to ensure contrast */}
-        <div className="absolute inset-0 bg-black pointer-events-none z-0"></div>
+        {!isTransparent && (
+          <>
+            {/* Absolute pitch black base to ensure contrast */}
+            <div className="absolute inset-0 bg-black pointer-events-none z-0"></div>
 
-        {/* Minimal Noise/Texture Overlay */}
-        <div 
-          className="absolute inset-0 opacity-15 pointer-events-none z-0" 
-          style={{ 
-            backgroundImage: "url('/badminton-bg.png')", 
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}
-        ></div>
-        
-        {/* Subtle vignette gradient to keep focus on center content */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/90 pointer-events-none z-10"></div>
+            {/* Minimal Noise/Texture Overlay */}
+            <div 
+              className="absolute inset-0 opacity-15 pointer-events-none z-0" 
+              style={{ 
+                backgroundImage: "url('/badminton-bg.png')", 
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}
+            ></div>
+            
+            {/* Subtle vignette gradient to keep focus on center content */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/90 pointer-events-none z-10"></div>
+          </>
+        )}
 
         <div className="relative z-20 flex flex-col h-full p-8 text-slate-100">
            {/* Header Logo */}
