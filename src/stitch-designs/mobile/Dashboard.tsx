@@ -50,6 +50,7 @@ interface DashboardProps {
     };
   };
   players: PlayerStat[];
+  isAdmin?: boolean;
   upcomingSession?: {
     location: string;
     date: string;
@@ -80,7 +81,7 @@ interface DashboardProps {
   lastUpdatedPlayerIds?: string[];
 }
 
-export default function MobileDashboard({ stats, players, upcomingSession, insights, trendData, leaderboard, isLiveUpdate, lastUpdatedPlayerIds }: DashboardProps) {
+export default function MobileDashboard({ stats, players, isAdmin, upcomingSession, insights, trendData, leaderboard, isLiveUpdate, lastUpdatedPlayerIds }: DashboardProps) {
   const router = useRouter();
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
@@ -208,6 +209,22 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-black italic uppercase tracking-tight flex items-center gap-2 text-white">
                     🏆 Leaderboard
+                    {isAdmin && (
+                      <button 
+                        onClick={async () => {
+                          try {
+                            const { createWeeklySnapshot } = await import("@/lib/actions/snapshots");
+                            const res = await createWeeklySnapshot();
+                            alert(res.message);
+                          } catch (e: any) {
+                            alert(e.message);
+                          }
+                        }}
+                        className="ml-2 text-[8px] font-black uppercase tracking-widest bg-slate-900 border border-slate-700 text-slate-400 hover:text-emerald-400 px-2 py-1 rounded-md transition-all active:scale-95"
+                      >
+                        SNAP
+                      </button>
+                    )}
                   </h3>
                   <div className="flex bg-slate-900/50 rounded-xl p-1 border border-white/5">
                     <button

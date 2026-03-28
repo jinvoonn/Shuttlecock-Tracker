@@ -70,7 +70,7 @@ interface DashboardProps {
   lastUpdatedPlayerIds?: string[];
 }
 
-export default function DesktopDashboard({ stats, players, upcomingSession, insights, trendData, leaderboard, isLiveUpdate, lastUpdatedPlayerIds }: DashboardProps) {
+export default function DesktopDashboard({ stats, players, isAdmin, upcomingSession, insights, trendData, leaderboard, isLiveUpdate, lastUpdatedPlayerIds }: DashboardProps) {
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
@@ -240,6 +240,22 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
                 <h3 className="text-2xl font-black italic uppercase tracking-tighter flex items-center gap-3 text-slate-100">
                   <Activity className="size-6 text-[#13ec80]" />
                   🏆 Leaderboard
+                  {isAdmin && (
+                    <button 
+                      onClick={async () => {
+                        try {
+                          const { createWeeklySnapshot } = await import("@/lib/actions/snapshots");
+                          const res = await createWeeklySnapshot();
+                          alert(res.message);
+                        } catch (e: any) {
+                          alert(e.message);
+                        }
+                      }}
+                      className="ml-4 text-[10px] font-black uppercase tracking-widest bg-slate-800 hover:bg-emerald-500/20 text-slate-400 hover:text-emerald-400 border border-slate-700 hover:border-emerald-500/50 px-3 py-1.5 rounded-lg transition-all active:scale-95"
+                    >
+                      SNAP
+                    </button>
+                  )}
                 </h3>
                 <div className="flex bg-slate-800 border border-slate-700 rounded-xl p-1 shadow-inner">
                   <button

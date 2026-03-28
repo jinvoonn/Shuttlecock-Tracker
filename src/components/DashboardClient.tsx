@@ -235,6 +235,7 @@ export default function DashboardClient({
           leaderboard={leaderboard} 
           isLiveUpdate={isLiveUpdate}
           lastUpdatedPlayerIds={lastUpdatedPlayerIds}
+          isAdmin={isAdmin}
         />
       </div>
       <div className="hidden lg:block">

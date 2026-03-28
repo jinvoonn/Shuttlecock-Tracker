@@ -107,3 +107,28 @@ create table public.matches (
 -- RLS for Matches
 alter table public.matches enable row level security;
 create policy "Allow all operations on matches" on public.matches for all using (true) with check (true);
+
+-- 9. Leaderboard Snapshots Table
+create table if not exists public.leaderboard_snapshots (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamp with time zone default now(),
+  period_start date not null,
+  period_end date not null,
+  type text default 'global',
+  player_id uuid references public.players(id) on delete cascade,
+  rank int not null,
+  wins int,
+  win_rate float,
+  cock_rating int,
+  -- prevent duplicate snapshots for same player + period
+  unique (player_id, period_start, period_end, type)
+);
+
+create index if not exists idx_snapshots_period 
+on public.leaderboard_snapshots(period_start, period_end);
+
+create index if not exists idx_snapshots_player 
+on public.leaderboard_snapshots(player_id);
+
+alter table public.leaderboard_snapshots enable row level security;
+create policy "Allow all operations on snapshots" on public.leaderboard_snapshots for all using (true) with check (true);
