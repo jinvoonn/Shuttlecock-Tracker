@@ -26,6 +26,7 @@ import { AnalyticsClient } from '@/components/AnalyticsClient';
 import clsx from 'clsx';
 import { getCockRank } from '@/lib/analytics/rank';
 import RankBadge from '@/components/ui/RankBadge';
+import RankBadgeIcon from '@/components/ui/RankBadgeIcon';
 import PlayerName from '@/components/ui/PlayerName';
 import { computeRankDelta, SnapshotRow } from '@/lib/analytics/rankDelta';
 import { useRouteLoading } from '@/hooks/useRouteLoading';
@@ -298,65 +299,105 @@ export default function MobileDashboard({ stats, players, isAdmin, upcomingSessi
                       href={`${basePath}/players/${player.id}`}
                       key={player.id} 
                       className={clsx(
-                        "flex items-center justify-between p-3 rounded-2xl transition-all duration-300 active:scale-95",
-                        isTop3 && displayRank === 1 && "rank-1-glow animate-glowPulse text-slate-950",
-                        isTop3 && displayRank === 2 && "rank-2-glow animate-glowPulse text-slate-950",
-                        isTop3 && displayRank === 3 && "rank-3-glow animate-glowPulse text-slate-950",
-                        !isTop3 && "bg-slate-900/40 border border-slate-800/50",
+                        "flex items-center justify-between p-3 rounded-3xl transition-all duration-300 active:scale-[0.98]",
+                        isTop3 && displayRank === 1 && "rank-1-glow animate-glowPulse",
+                        isTop3 && displayRank === 2 && "rank-2-glow animate-glowPulse",
+                        isTop3 && displayRank === 3 && "rank-3-glow animate-glowPulse",
+                        !isTop3 && "bg-slate-900/60 border border-slate-800/50 hover:bg-slate-900",
                         // Animations
                         isPromoted && "animate-moveUp animate-promotionFlash",
                         isDemoted && "animate-moveDown animate-demotionFlash",
                         !hasRankChanged && isDirectlyAffected && "animate-promotionFlash"
                       )}
                     >
+                      {/* Left Section: Avatar & Info */}
                       <div className="flex items-center gap-3">
-                        <span className={clsx(
-                          "text-xs font-black italic w-6",
-                          isTop3 ? "text-slate-900" : "text-slate-500"
+                        {/* Avatar */}
+                        <div className={clsx(
+                          "size-10 rounded-xl flex items-center justify-center font-black text-lg border shadow-inner shrink-0",
+                          isTop3 ? "bg-white/20 border-white/30 text-slate-950" : "bg-slate-800 border-slate-700 text-slate-400"
                         )}>
-                          #{displayRank}
-                        </span>
+                          {player.name.charAt(0).toUpperCase()}
+                        </div>
                         
+                        {/* Name & Subtitle */}
                         <div className="flex flex-col">
-                          <PlayerName 
-                            name={player.name} 
-                            elo={player.elo} 
-                            placementMatchesPlayed={player.placementMatchesPlayed}
-                            showRankName={true} 
-                            nameClassName={clsx("text-sm font-black italic", isTop3 ? "text-slate-950" : "text-slate-100")}
-                            className="max-w-[150px] flex-wrap"
-                          />
-                          <div className="flex items-center gap-1 mt-0.5">
-                              {rankChange === null ? (
-                                <span className={clsx("text-[9px] font-black tracking-widest uppercase", isTop3 ? "text-sky-600" : "text-sky-400")}>
-                                  ✨ NEW
+                          <span className={clsx("text-sm font-black italic tracking-tight leading-tight line-clamp-1", isTop3 ? "text-slate-950" : "text-slate-100")}>
+                            {player.name}
+                          </span>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            {(() => {
+                              const rankDetail = getCockRank(player.elo || 1200, player.placementMatchesPlayed);
+                              return (
+                                <span 
+                                  className="text-[8px] font-black uppercase tracking-widest"
+                                  style={{ color: isTop3 ? 'rgba(0,0,0,0.6)' : rankDetail.color }}
+                                >
+                                  {rankDetail.name}
                                 </span>
-                              ) : rankChange > 0 ? (
-                                <>
-                                  <TrendingUp className={clsx("size-3", isTop3 ? "text-slate-900" : "text-emerald-400")} />
-                                  <span className={clsx("text-[9px] font-bold uppercase", isTop3 ? "text-slate-800" : "text-emerald-500/80")}>+{rankChange}</span>
-                                </>
-                              ) : rankChange < 0 ? (
-                                <>
-                                  <TrendingDown className={clsx("size-3", isTop3 ? "text-slate-800" : "text-rose-500")} />
-                                  <span className={clsx("text-[9px] font-bold uppercase", isTop3 ? "text-slate-800" : "text-rose-500/80")}>{rankChange}</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Minus className={clsx("size-3", isTop3 ? "text-slate-800" : "text-slate-500")} />
-                                  <span className={clsx("text-[9px] font-bold uppercase", isTop3 ? "text-slate-800" : "text-slate-500")}>—</span>
-                                </>
-                              )}
-                            </div>
+                              );
+                            })()}
+                            
+                            <span className={clsx("opacity-40 text-[10px]", isTop3 ? "text-slate-900" : "text-slate-600")}>|</span>
+
+                            {/* Delta */}
+                            {rankChange === null ? (
+                              <span className={clsx("text-[8px] font-black uppercase tracking-widest", isTop3 ? "text-slate-800" : "text-sky-400")}>
+                                ✨ NEW
+                              </span>
+                            ) : rankChange > 0 ? (
+                              <div className="flex items-center gap-0.5">
+                                <TrendingUp className={clsx("size-3", isTop3 ? "text-slate-900" : "text-emerald-400")} />
+                                <span className={clsx("text-[8px] font-bold uppercase tracking-wider", isTop3 ? "text-slate-800" : "text-emerald-500/80")}>+{rankChange}</span>
+                              </div>
+                            ) : rankChange < 0 ? (
+                              <div className="flex items-center gap-0.5">
+                                <TrendingDown className={clsx("size-3", isTop3 ? "text-slate-800" : "text-rose-500")} />
+                                <span className={clsx("text-[8px] font-bold uppercase tracking-wider", isTop3 ? "text-slate-800" : "text-rose-500/80")}>{rankChange}</span>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-0.5">
+                                <Minus className={clsx("size-3", isTop3 ? "text-slate-800" : "text-slate-500")} />
+                                <span className={clsx("text-[8px] font-bold uppercase tracking-wider", isTop3 ? "text-slate-800" : "text-slate-500")}>—</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className={clsx(
-                          "font-mono text-xs font-black italic px-2 py-1 rounded",
-                          isTop3 ? "bg-black/10 text-slate-900" : "text-emerald-400 bg-emerald-400/5"
-                        )}>
-                          {leaderboardMode === "wins" ? player.wins : leaderboardMode === "winRate" ? `${(player.winRate * 100).toFixed(1)}%` : player.elo}
-                        </span>
+
+                      {/* Right Section: Score Pill & Rank Icon */}
+                      <div className="flex items-center gap-2">
+                        {/* Black Score Pill */}
+                        <div className="flex items-center bg-black rounded-full overflow-hidden shadow-xl border border-white/5 h-8 shrink-0">
+                          <div className="flex items-center justify-center bg-white/10 px-2.5 h-full">
+                            <span className="text-white font-black italic text-sm leading-none shrink-0">
+                              {displayRank}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-center px-2.5 h-full">
+                            <span className="text-white font-black italic text-[10px] tracking-tight leading-none whitespace-nowrap pt-0.5">
+                              {leaderboardMode === "wins" 
+                                ? `${player.wins} WINS` 
+                                : leaderboardMode === "winRate"
+                                   ? `${(player.winRate * 100).toFixed(1)}%`
+                                   : `${player.elo} CR`
+                              }
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Rank Trophy/Icon */}
+                        <div className="flex flex-col items-center justify-center w-8 shrink-0 drop-shadow-md">
+                          {(() => {
+                             const rankDetail = getCockRank(player.elo || 1200, player.placementMatchesPlayed);
+                             return <RankBadgeIcon rank={rankDetail.name} size="small" className="scale-110" />;
+                          })()}
+                          {isTop3 && (
+                            <span className="text-[6px] font-black text-slate-900 uppercase tracking-[0.2em] mt-0.5 opacity-80 leading-none">
+                              {displayRank === 1 ? '1ST' : displayRank === 2 ? '2ND' : '3RD'}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </Link>
                   )})}
