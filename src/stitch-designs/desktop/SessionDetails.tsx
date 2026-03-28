@@ -15,11 +15,13 @@ import {
   CheckCircle2,
   Feather,
   TrendingUp,
-  Activity
+  Activity,
+  Camera
 } from 'lucide-react';
 import Link from 'next/link';
 import clsx from 'clsx';
 import RankBadge from '@/components/ui/RankBadge';
+import { StoryPreviewModal } from '@/components/story/StoryPreviewModal';
 import { usePathname, useRouter } from 'next/navigation';
 import AddMatchModal from "@/components/AddMatchModal";
 import PlayerName from "@/components/ui/PlayerName";
@@ -92,6 +94,7 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMatch, setEditingMatch] = useState<Match | null>(null);
   const [isEditingSession, setIsEditingSession] = useState(false);
+  const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
   const [leaderboardMode, setLeaderboardMode] = useState<"wins" | "winRate">("wins");
   const { isAdmin } = useRole();
 
@@ -155,13 +158,22 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
           </div>
           <div className="flex gap-3">
              {isAdmin && (
-               <button 
-                 onClick={() => setIsEditingSession(true)}
-                 className="bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 px-6 py-3 rounded font-bold text-sm uppercase transition-all flex items-center gap-2 relative z-50"
-               >
-                 <Pencil className="size-5" />
-                 Edit Session
-               </button>
+               <>
+                 <button 
+                   onClick={() => setIsStoryModalOpen(true)}
+                   className="bg-slate-800 hover:bg-slate-700 text-[#13ec80] px-4 py-3 rounded font-black text-sm uppercase transition-all flex items-center gap-2 border border-[#13ec80]/30 shadow-lg"
+                 >
+                   <Camera className="size-5" />
+                   Story
+                 </button>
+                 <button 
+                   onClick={() => setIsEditingSession(true)}
+                   className="bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 px-6 py-3 rounded font-bold text-sm uppercase transition-all flex items-center gap-2 relative z-50"
+                 >
+                   <Pencil className="size-5" />
+                   Edit
+                 </button>
+               </>
              )}
              <button 
                onClick={() => setIsModalOpen(true)}
@@ -451,6 +463,15 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
           </div>
         </div>
       )}
+
+      {/* Story Export Modal */}
+      <StoryPreviewModal
+        isOpen={isStoryModalOpen}
+        onClose={() => setIsStoryModalOpen(false)}
+        session={session}
+        matches={matches}
+        sessionStats={sessionStats || { mostWins: [] }}
+      />
     </div>
   );
 }

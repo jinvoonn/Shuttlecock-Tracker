@@ -18,7 +18,8 @@ import {
   Check,
   X,
   Feather,
-  Trophy
+  Trophy,
+  Camera
 } from 'lucide-react';
 import { useRouter, usePathname } from "next/navigation";
 import PlayerName from "@/components/ui/PlayerName";
@@ -29,6 +30,7 @@ import Link from 'next/link';
 import { useRole } from "@/context/AuthContext";
 import { useEffect } from 'react';
 import { SessionForm } from '@/app/[mode]/sessions/SessionForm';
+import { StoryPreviewModal } from '@/components/story/StoryPreviewModal';
 
 interface SessionMeta {
   id: string;
@@ -104,6 +106,7 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
   const [editScoreB, setEditScoreB] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isEditingSession, setIsEditingSession] = useState(false);
+  const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
   const [leaderboardMode, setLeaderboardMode] = React.useState<"wins" | "winRate">("wins");
   const { isAdmin } = useRole();
 
@@ -229,13 +232,22 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                     <div className="size-1.5 rounded-full bg-emerald-400 animate-pulse"></div>
                   </div>
                   {isAdmin && (
+                    <div className="flex z-50 gap-2 relative">
+                      <button 
+                        onClick={() => setIsStoryModalOpen(true)}
+                        className="bg-slate-800/80 backdrop-blur-md text-[#13ec80] border border-[#13ec80]/30 px-3 py-1.5 rounded-lg flex items-center gap-1.5 active:scale-95 transition-transform"
+                      >
+                        <Camera className="size-3.5" />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Story</span>
+                      </button>
                       <button 
                         onClick={() => setIsEditingSession(true)}
-                        className="relative z-50 bg-slate-800/80 backdrop-blur-md text-emerald-400 border border-emerald-400/20 px-3 py-1.5 rounded-lg flex items-center gap-1.5 active:scale-95 transition-transform"
+                        className="bg-slate-800/80 backdrop-blur-md text-emerald-400 border border-emerald-400/20 px-3 py-1.5 rounded-lg flex items-center gap-1.5 active:scale-95 transition-transform"
                       >
                         <Pencil className="size-3.5" />
                         <span className="text-[10px] font-black uppercase tracking-widest">Edit</span>
                       </button>
+                    </div>
                   )}
                 </div>
                 <h2 className="text-white text-3xl font-black italic uppercase leading-tight tracking-tighter mt-1">{session.name}</h2>
@@ -548,6 +560,15 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
           </div>
         </div>
       )}
+
+      {/* Story Export Modal */}
+      <StoryPreviewModal
+        isOpen={isStoryModalOpen}
+        onClose={() => setIsStoryModalOpen(false)}
+        session={session}
+        matches={matches}
+        sessionStats={sessionStats || { mostWins: [] }}
+      />
     </div>
   );
 }
