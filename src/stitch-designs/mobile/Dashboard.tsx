@@ -310,14 +310,14 @@ export default function MobileDashboard({ stats, players, isAdmin, upcomingSessi
                         !hasRankChanged && isDirectlyAffected && "animate-promotionFlash"
                       )}
                     >
-                      {/* Left Section: Avatar & Info */}
+                      {/* Left Section: Rank Number & Info */}
                       <div className="flex items-center gap-3">
-                        {/* Avatar */}
+                        {/* Rank Numbering Box */}
                         <div className={clsx(
-                          "size-10 rounded-xl flex items-center justify-center font-black text-lg border shadow-inner shrink-0",
+                          "size-10 rounded-xl flex items-center justify-center font-black text-xl italic border shadow-inner shrink-0 leading-none",
                           isTop3 ? "bg-white/20 border-white/30 text-slate-950" : "bg-slate-800 border-slate-700 text-slate-400"
                         )}>
-                          {player.name.charAt(0).toUpperCase()}
+                          {displayRank}
                         </div>
                         
                         {/* Name & Subtitle */}
@@ -367,23 +367,16 @@ export default function MobileDashboard({ stats, players, isAdmin, upcomingSessi
 
                       {/* Right Section: Score Pill & Rank Icon */}
                       <div className="flex items-center gap-2">
-                        {/* Black Score Pill */}
-                        <div className="flex items-center bg-black rounded-full overflow-hidden shadow-xl border border-white/5 h-8 shrink-0">
-                          <div className="flex items-center justify-center bg-white/10 px-2.5 h-full">
-                            <span className="text-white font-black italic text-sm leading-none shrink-0">
-                              {displayRank}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-center px-2.5 h-full">
-                            <span className="text-white font-black italic text-[10px] tracking-tight leading-none whitespace-nowrap pt-0.5">
-                              {leaderboardMode === "wins" 
-                                ? `${player.wins} WINS` 
-                                : leaderboardMode === "winRate"
-                                   ? `${(player.winRate * 100).toFixed(1)}%`
-                                   : `${player.elo} CR`
-                              }
-                            </span>
-                          </div>
+                        {/* Black Score Pill (Fixed Width) */}
+                        <div className="flex items-center justify-center bg-black rounded-lg overflow-hidden shadow-xl border border-white/5 h-8 w-20 shrink-0">
+                          <span className="text-white font-black italic text-[9px] tracking-widest leading-none whitespace-nowrap pt-0.5">
+                            {leaderboardMode === "wins" 
+                              ? `${player.wins} WINS` 
+                              : leaderboardMode === "winRate"
+                                 ? `${(player.winRate * 100).toFixed(1)}%`
+                                 : `${player.elo} CR`
+                            }
+                          </span>
                         </div>
 
                         {/* Rank Trophy/Icon */}
