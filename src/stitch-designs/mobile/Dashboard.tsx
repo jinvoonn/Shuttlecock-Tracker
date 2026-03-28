@@ -356,9 +356,8 @@ export default function MobileDashboard({ stats, players, isAdmin, upcomingSessi
                                 <span className={clsx("text-[8px] font-bold uppercase tracking-wider", isTop3 ? "text-slate-800" : "text-rose-500/80")}>{rankChange}</span>
                               </div>
                             ) : (
-                              <div className="flex items-center gap-0.5">
+                              <div className="flex items-center gap-0.5 text-slate-500 opacity-60">
                                 <Minus className={clsx("size-3", isTop3 ? "text-slate-800" : "text-slate-500")} />
-                                <span className={clsx("text-[8px] font-bold uppercase tracking-wider", isTop3 ? "text-slate-800" : "text-slate-500")}>—</span>
                               </div>
                             )}
                           </div>
