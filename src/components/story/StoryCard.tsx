@@ -10,10 +10,11 @@ interface StoryCardProps {
   streak?: { name: string; streak: number };
   cursed?: { name: string; losses: number };
   isTransparent?: boolean;
+  showWatermark?: boolean;
 }
 
 export const StoryCard = forwardRef<HTMLDivElement, StoryCardProps>(
-  ({ sessionName, location, date, shuttlesUsed, mvp, streak, cursed, isTransparent = false }, ref) => {
+  ({ sessionName, location, date, shuttlesUsed, mvp, streak, cursed, isTransparent = false, showWatermark = true }, ref) => {
     return (
       <div 
         ref={ref}
@@ -107,9 +108,11 @@ export const StoryCard = forwardRef<HTMLDivElement, StoryCardProps>(
                <span className="text-3xl font-black italic leading-none">{shuttlesUsed}</span>
                <span className="text-[8px] font-black uppercase tracking-widest text-slate-500 mt-1">Shuttles Sweated</span>
              </div>
-             <div className="text-[7px] font-black text-slate-600 uppercase tracking-[0.2em] italic mb-1">
-               cockcount.vercel.app
-             </div>
+             {showWatermark && (
+               <div className="text-[7px] font-black text-slate-600 uppercase tracking-[0.2em] italic mb-1">
+                 cockcount.vercel.app
+               </div>
+             )}
            </div>
         </div>
       </div>

@@ -157,23 +157,21 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
             </div>
           </div>
           <div className="flex gap-3">
+             <button 
+               onClick={() => setIsStoryModalOpen(true)}
+               className="bg-slate-800 hover:bg-slate-700 text-[#13ec80] px-4 py-3 rounded font-black text-sm uppercase transition-all flex items-center gap-2 border border-[#13ec80]/30 shadow-lg"
+             >
+               <Camera className="size-5" />
+               Story
+             </button>
              {isAdmin && (
-               <>
-                 <button 
-                   onClick={() => setIsStoryModalOpen(true)}
-                   className="bg-slate-800 hover:bg-slate-700 text-[#13ec80] px-4 py-3 rounded font-black text-sm uppercase transition-all flex items-center gap-2 border border-[#13ec80]/30 shadow-lg"
-                 >
-                   <Camera className="size-5" />
-                   Story
-                 </button>
-                 <button 
-                   onClick={() => setIsEditingSession(true)}
-                   className="bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 px-6 py-3 rounded font-bold text-sm uppercase transition-all flex items-center gap-2 relative z-50"
-                 >
-                   <Pencil className="size-5" />
-                   Edit
-                 </button>
-               </>
+               <button 
+                 onClick={() => setIsEditingSession(true)}
+                 className="bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 px-6 py-3 rounded font-bold text-sm uppercase transition-all flex items-center gap-2 relative z-50"
+               >
+                 <Pencil className="size-5" />
+                 Edit
+               </button>
              )}
              <button 
                onClick={() => setIsModalOpen(true)}
@@ -471,6 +469,7 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
         session={session}
         matches={matches}
         sessionStats={sessionStats || { mostWins: [] }}
+        isAdmin={isAdmin}
       />
     </div>
   );

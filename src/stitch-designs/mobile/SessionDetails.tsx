@@ -231,15 +231,15 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                     <span className="text-emerald-400 text-[10px] font-black tracking-[0.2em] uppercase bg-emerald-400/10 backdrop-blur-md px-2 py-1 rounded">{session.division}</span>
                     <div className="size-1.5 rounded-full bg-emerald-400 animate-pulse"></div>
                   </div>
-                  {isAdmin && (
-                    <div className="flex z-50 gap-2 relative">
-                      <button 
-                        onClick={() => setIsStoryModalOpen(true)}
-                        className="bg-slate-800/80 backdrop-blur-md text-[#13ec80] border border-[#13ec80]/30 px-3 py-1.5 rounded-lg flex items-center gap-1.5 active:scale-95 transition-transform"
-                      >
-                        <Camera className="size-3.5" />
-                        <span className="text-[10px] font-black uppercase tracking-widest">Story</span>
-                      </button>
+                  <div className="flex z-50 gap-2 relative">
+                    <button 
+                      onClick={() => setIsStoryModalOpen(true)}
+                      className="bg-slate-800/80 backdrop-blur-md text-[#13ec80] border border-[#13ec80]/30 px-3 py-1.5 rounded-lg flex items-center gap-1.5 active:scale-95 transition-transform"
+                    >
+                      <Camera className="size-3.5" />
+                      <span className="text-[10px] font-black uppercase tracking-widest">Story</span>
+                    </button>
+                    {isAdmin && (
                       <button 
                         onClick={() => setIsEditingSession(true)}
                         className="bg-slate-800/80 backdrop-blur-md text-emerald-400 border border-emerald-400/20 px-3 py-1.5 rounded-lg flex items-center gap-1.5 active:scale-95 transition-transform"
@@ -247,8 +247,8 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                         <Pencil className="size-3.5" />
                         <span className="text-[10px] font-black uppercase tracking-widest">Edit</span>
                       </button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
                 <h2 className="text-white text-3xl font-black italic uppercase leading-tight tracking-tighter mt-1">{session.name}</h2>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-slate-300 text-xs mt-3 font-medium">
@@ -568,6 +568,7 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
         session={session}
         matches={matches}
         sessionStats={sessionStats || { mostWins: [] }}
+        isAdmin={isAdmin}
       />
     </div>
   );

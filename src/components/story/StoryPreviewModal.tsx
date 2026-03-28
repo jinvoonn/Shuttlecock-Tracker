@@ -27,9 +27,10 @@ interface StoryPreviewModalProps {
   sessionStats: {
     mostWins: { id: string; name: string; value: number }[];
   };
+  isAdmin?: boolean;
 }
 
-export function StoryPreviewModal({ isOpen, onClose, session, matches, sessionStats }: StoryPreviewModalProps) {
+export function StoryPreviewModal({ isOpen, onClose, session, matches, sessionStats, isAdmin = true }: StoryPreviewModalProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [isTransparent, setIsTransparent] = useState(false);
@@ -127,6 +128,7 @@ export function StoryPreviewModal({ isOpen, onClose, session, matches, sessionSt
             streak={maxStreak >= 2 ? { name: streakName, streak: maxStreak } : undefined}
             cursed={maxLosses >= 2 ? { name: cursedName, losses: maxLosses } : undefined}
             isTransparent={isTransparent}
+            showWatermark={isAdmin}
           />
         </div>
 
