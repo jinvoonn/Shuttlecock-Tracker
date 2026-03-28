@@ -31,17 +31,19 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
     { data: paymentsData, error: paymentsError },
     { data: purchasesData, error: purchasesError },
     { data: sessionsData, error: sessionsError },
-    { data: sessionUsageData, error: sessionUsageError }
+    { data: sessionUsageData, error: sessionUsageError },
+    { data: snapshotsData, error: snapshotsError }
   ] = await Promise.all([
     supabase.from("players").select("id, name"),
     supabase.from("payments").select("amount, player_id"),
     supabase.from("purchases").select("price_per_tube, initial_quantity, remaining_quantity, brands(name)"),
     supabase.from("sessions").select(`id, date, session_players ( player_id )`),
-    supabase.from("session_usage").select("session_id, quantity_used, purchases(price_per_cock)")
+    supabase.from("session_usage").select("session_id, quantity_used, purchases(price_per_cock)"),
+    supabase.from("leaderboard_snapshots").select("player_id, rank, period_end, wins, win_rate, cock_rating").order("period_end", { ascending: false })
   ]);
 
-  if (playersError || paymentsError || purchasesError || sessionsError || sessionUsageError) {
-    console.error("Dashboard Fetch Error:", { playersError, paymentsError, purchasesError, sessionsError, sessionUsageError });
+  if (playersError || paymentsError || purchasesError || sessionsError || sessionUsageError || snapshotsError) {
+    console.error("Dashboard Fetch Error:", { playersError, paymentsError, purchasesError, sessionsError, sessionUsageError, snapshotsError });
     return (
       <div className="p-8 flex flex-col items-center justify-center min-h-screen text-rose-500 bg-[#020617]">
         <p className="font-black italic uppercase text-2xl tracking-tighter">Failed to fetch data</p>
@@ -63,6 +65,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
       purchasesData={purchasesData || []}
       sessionsData={sessionsData || []}
       sessionUsageData={sessionUsageData || []}
+      snapshotsData={snapshotsData || []}
       isAdmin={isAdminUser}
       basePath={basePath}
     />

@@ -21,6 +21,7 @@ interface DashboardClientProps {
   purchasesData: any[];
   sessionsData: any[];
   sessionUsageData: any[];
+  snapshotsData: any[];
   isAdmin: boolean;
   basePath: string;
 }
@@ -31,6 +32,7 @@ export default function DashboardClient({
   purchasesData,
   sessionsData,
   sessionUsageData,
+  snapshotsData,
   isAdmin,
   basePath
 }: DashboardClientProps) {
@@ -86,41 +88,7 @@ export default function DashboardClient({
       }
     ];
 
-    // Rank Movement
-    const previousElo: Record<string, number> = {};
-    Object.keys(globalElo).forEach(pid => {
-      const history = eloHistory[pid] || [];
-      if (history.length > 1) {
-        previousElo[pid] = history[history.length - 2].elo;
-      } else {
-        previousElo[pid] = 1200;
-      }
-    });
-
-    const previousEloLeaderboard = Object.entries(previousElo)
-      .map(([id, elo]) => ({ id, elo }))
-      .sort((a, b) => b.elo - a.elo);
-    
-    const currentEloLeaderboard = Object.entries(globalElo)
-      .map(([id, elo]) => ({ id, elo }))
-      .sort((a, b) => b.elo - a.elo);
-
-    const prevRankMap: Record<string, number> = {};
-    previousEloLeaderboard.forEach((item, idx) => { prevRankMap[item.id] = idx + 1; });
-
-    const currRankMap: Record<string, number> = {};
-    currentEloLeaderboard.forEach((item, idx) => { currRankMap[item.id] = idx + 1; });
-
-    const computedLeaderboard = getLeaderboard(coreStats, globalElo, { sortBy: "wins" }).map(s => {
-      const currentRank = currRankMap[s.id] || 99;
-      const previousRank = prevRankMap[s.id] || 99;
-      
-      return {
-        ...s,
-        previousRank,
-        rankChange: previousRank - currentRank
-      };
-    });
+    const computedLeaderboard = getLeaderboard(coreStats, globalElo, { sortBy: "elo" });
 
     // Monthly Trends
     const monthlyTrends: Record<string, { month: string, spending: number, usage: number }> = {};
@@ -236,6 +204,7 @@ export default function DashboardClient({
           isLiveUpdate={isLiveUpdate}
           lastUpdatedPlayerIds={lastUpdatedPlayerIds}
           isAdmin={isAdmin}
+          snapshots={snapshotsData || []}
         />
       </div>
       <div className="hidden lg:block">
@@ -248,6 +217,7 @@ export default function DashboardClient({
           leaderboard={leaderboard} 
           isLiveUpdate={isLiveUpdate}
           lastUpdatedPlayerIds={lastUpdatedPlayerIds}
+          snapshots={snapshotsData || []}
         />
       </div>
     </>

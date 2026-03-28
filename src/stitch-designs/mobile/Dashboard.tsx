@@ -27,6 +27,7 @@ import clsx from 'clsx';
 import { getCockRank } from '@/lib/analytics/rank';
 import RankBadge from '@/components/ui/RankBadge';
 import PlayerName from '@/components/ui/PlayerName';
+import { computeRankDelta, SnapshotRow } from '@/lib/analytics/rankDelta';
 
 interface PlayerStat {
   id: string;
@@ -69,6 +70,7 @@ interface DashboardProps {
   leaderboard?: {
     id: string;
     name: string;
+    rank?: number;
     wins: number;
     totalGames: number;
     winRate: number;
@@ -79,9 +81,10 @@ interface DashboardProps {
   }[];
   isLiveUpdate?: boolean;
   lastUpdatedPlayerIds?: string[];
+  snapshots?: SnapshotRow[];
 }
 
-export default function MobileDashboard({ stats, players, isAdmin, upcomingSession, insights, trendData, leaderboard, isLiveUpdate, lastUpdatedPlayerIds }: DashboardProps) {
+export default function MobileDashboard({ stats, players, isAdmin, upcomingSession, insights, trendData, leaderboard, isLiveUpdate, lastUpdatedPlayerIds, snapshots }: DashboardProps) {
   const router = useRouter();
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
@@ -93,16 +96,17 @@ export default function MobileDashboard({ stats, players, isAdmin, upcomingSessi
 
   const sortedLeaderboard = React.useMemo(() => {
     if (!leaderboard) return [];
+    let sorted = [...leaderboard];
     if (leaderboardMode === "elo") {
-      return [...leaderboard].sort((a, b) => b.elo - a.elo);
+      sorted.sort((a, b) => b.elo - a.elo);
+    } else if (leaderboardMode === "winRate") {
+      sorted = sorted.filter(p => p.totalGames >= 3).sort((a, b) => b.winRate - a.winRate);
+    } else {
+      sorted.sort((a, b) => b.wins - a.wins);
     }
-    if (leaderboardMode === "winRate") {
-      return [...leaderboard]
-        .filter(p => p.totalGames >= 3)
-        .sort((a, b) => b.winRate - a.winRate);
-    }
-    return [...leaderboard].sort((a, b) => b.wins - a.wins);
-  }, [leaderboard, leaderboardMode]);
+
+    return computeRankDelta(sorted, snapshots || [], leaderboardMode);
+  }, [leaderboard, leaderboardMode, snapshots]);
 
   // Track previous rank mapping for animations within the same view
   const [prevViewRankMap, setPrevViewRankMap] = useState<Record<string, number>>({});
@@ -273,8 +277,7 @@ export default function MobileDashboard({ stats, players, isAdmin, upcomingSessi
                     const isTop3 = displayRank <= 3;
                     
                     // Rank change is still relative to overall Elo rank for competitive feedback
-                    const entry = leaderboard?.find(p => p.id === player.id);
-                    const rankChange = entry?.rankChange ?? 0;
+                    const rankChange = player.rankDelta;
 
                     const prevRankInView = prevRanksRef.current[player.id];
                     const hasRankChanged = prevRankInView !== undefined && prevRankInView !== displayRank;
@@ -315,9 +318,12 @@ export default function MobileDashboard({ stats, players, isAdmin, upcomingSessi
                             nameClassName={clsx("text-sm font-black italic", isTop3 ? "text-slate-950" : "text-slate-100")}
                             className="max-w-[150px] flex-wrap"
                           />
-                          {entry?.previousRank && entry.previousRank !== 99 && (
-                            <div className="flex items-center gap-1 mt-0.5">
-                              {rankChange > 0 ? (
+                          <div className="flex items-center gap-1 mt-0.5">
+                              {rankChange === null ? (
+                                <span className={clsx("text-[9px] font-black tracking-widest uppercase", isTop3 ? "text-sky-600" : "text-sky-400")}>
+                                  ✨ NEW
+                                </span>
+                              ) : rankChange > 0 ? (
                                 <>
                                   <TrendingUp className={clsx("size-3", isTop3 ? "text-slate-900" : "text-emerald-400")} />
                                   <span className={clsx("text-[9px] font-bold uppercase", isTop3 ? "text-slate-800" : "text-emerald-500/80")}>+{rankChange}</span>
@@ -330,11 +336,10 @@ export default function MobileDashboard({ stats, players, isAdmin, upcomingSessi
                               ) : (
                                 <>
                                   <Minus className={clsx("size-3", isTop3 ? "text-slate-800" : "text-slate-500")} />
-                                  <span className={clsx("text-[9px] font-bold uppercase", isTop3 ? "text-slate-800" : "text-slate-500")}>-no change</span>
+                                  <span className={clsx("text-[9px] font-bold uppercase", isTop3 ? "text-slate-800" : "text-slate-500")}>—</span>
                                 </>
                               )}
                             </div>
-                          )}
                         </div>
                       </div>
                       <div className="flex items-center gap-3">

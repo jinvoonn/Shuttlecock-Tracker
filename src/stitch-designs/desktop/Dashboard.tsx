@@ -20,6 +20,7 @@ import { AnalyticsClient } from '@/components/AnalyticsClient';
 import { getCockRank } from '@/lib/analytics/rank';
 import RankBadge from '@/components/ui/RankBadge';
 import PlayerName from '@/components/ui/PlayerName';
+import { computeRankDelta, SnapshotRow } from '@/lib/analytics/rankDelta';
 
 interface PlayerStat {
   id: string;
@@ -68,9 +69,10 @@ interface DashboardProps {
   }[];
   isLiveUpdate?: boolean;
   lastUpdatedPlayerIds?: string[];
+  snapshots?: SnapshotRow[];
 }
 
-export default function DesktopDashboard({ stats, players, isAdmin, upcomingSession, insights, trendData, leaderboard, isLiveUpdate, lastUpdatedPlayerIds }: DashboardProps) {
+export default function DesktopDashboard({ stats, players, isAdmin, upcomingSession, insights, trendData, leaderboard, isLiveUpdate, lastUpdatedPlayerIds, snapshots }: DashboardProps) {
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
@@ -79,16 +81,17 @@ export default function DesktopDashboard({ stats, players, isAdmin, upcomingSess
 
   const sortedLeaderboard = React.useMemo(() => {
     if (!leaderboard) return [];
+    let sorted = [...leaderboard];
     if (leaderboardMode === "elo") {
-      return [...leaderboard].sort((a, b) => b.elo - a.elo);
+      sorted.sort((a, b) => b.elo - a.elo);
+    } else if (leaderboardMode === "winRate") {
+      sorted = sorted.filter(p => p.totalGames >= 3).sort((a, b) => b.winRate - a.winRate);
+    } else {
+      sorted.sort((a, b) => b.wins - a.wins);
     }
-    if (leaderboardMode === "winRate") {
-      return [...leaderboard]
-        .filter(p => p.totalGames >= 3)
-        .sort((a, b) => b.winRate - a.winRate);
-    }
-    return [...leaderboard].sort((a, b) => b.wins - a.wins);
-  }, [leaderboard, leaderboardMode]);
+    
+    return computeRankDelta(sorted, snapshots || [], leaderboardMode);
+  }, [leaderboard, leaderboardMode, snapshots]);
 
   const prevRanksRef = React.useRef<Record<string, number>>({});
   React.useEffect(() => {
@@ -304,8 +307,7 @@ export default function DesktopDashboard({ stats, players, isAdmin, upcomingSess
                   const displayRank = index + 1;
                   const isTop3 = displayRank <= 3;
                   
-                  const entry = leaderboard?.find(p => p.id === player.id);
-                  const rankChange = entry?.rankChange ?? 0;
+                  const rankChange = player.rankDelta;
 
                   const prevRankInView = prevRanksRef.current[player.id];
                   const hasRankChanged = prevRankInView !== undefined && prevRankInView !== displayRank;
@@ -345,26 +347,28 @@ export default function DesktopDashboard({ stats, players, isAdmin, upcomingSess
                           showRankName={true} 
                           nameClassName={clsx("text-xl font-black italic", isTop3 ? "text-slate-950" : "text-slate-100")}
                         />
-                        {entry && entry.previousRank !== 99 && (
-                          <div className="flex items-center gap-2 mt-1">
-                            {rankChange > 0 ? (
-                              <>
-                                <TrendingUp className={clsx("size-4", isTop3 ? "text-slate-900" : "text-emerald-400")} />
-                                <span className={clsx("text-[11px] font-black uppercase tracking-wider", isTop3 ? "text-slate-800" : "text-emerald-400")}>+{rankChange}</span>
-                              </>
-                            ) : rankChange < 0 ? (
-                              <>
-                                <TrendingDown className={clsx("size-4", isTop3 ? "text-slate-800" : "text-rose-500")} />
-                                <span className={clsx("text-[11px] font-black uppercase tracking-wider", isTop3 ? "text-slate-800" : "text-rose-500")}>{rankChange}</span>
-                              </>
-                            ) : (
-                              <>
-                                <Minus className={clsx("size-4", isTop3 ? "text-slate-800" : "text-slate-500")} />
-                                <span className={clsx("text-[11px] font-black uppercase tracking-wider", isTop3 ? "text-slate-800" : "text-slate-500")}>-no change</span>
-                              </>
-                            )}
-                          </div>
-                        )}
+                        <div className="flex items-center gap-2 mt-1">
+                          {rankChange === null ? (
+                            <span className={clsx("text-[11px] font-black uppercase tracking-widest", isTop3 ? "text-sky-600" : "text-sky-400")}>
+                              ✨ NEW
+                            </span>
+                          ) : rankChange > 0 ? (
+                            <>
+                              <TrendingUp className={clsx("size-4", isTop3 ? "text-slate-900" : "text-emerald-400")} />
+                              <span className={clsx("text-[11px] font-black uppercase tracking-wider", isTop3 ? "text-slate-800" : "text-emerald-400")}>+{rankChange}</span>
+                            </>
+                          ) : rankChange < 0 ? (
+                            <>
+                              <TrendingDown className={clsx("size-4", isTop3 ? "text-slate-800" : "text-rose-500")} />
+                              <span className={clsx("text-[11px] font-black uppercase tracking-wider", isTop3 ? "text-slate-800" : "text-rose-500")}>{rankChange}</span>
+                            </>
+                          ) : (
+                            <>
+                              <Minus className={clsx("size-4", isTop3 ? "text-slate-800" : "text-slate-500")} />
+                              <span className={clsx("text-[11px] font-black uppercase tracking-wider", isTop3 ? "text-slate-800" : "text-slate-500")}>—</span>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <div className={clsx(
