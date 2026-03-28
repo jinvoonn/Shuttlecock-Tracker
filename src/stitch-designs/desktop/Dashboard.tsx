@@ -298,10 +298,11 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
                   const isDirectlyAffected = lastUpdatedPlayerIds?.includes(player.id);
 
                   return (
-                  <div 
+                  <Link 
+                    href={`${basePath}/players/${player.id}`}
                     key={player.id} 
                     className={clsx(
-                      "flex items-center justify-between p-5 rounded-2xl transition-all duration-300 animate-fade-in-up",
+                      "flex items-center justify-between p-5 rounded-2xl transition-all duration-300 animate-fade-in-up hover:scale-[1.01] active:scale-[0.99] cursor-pointer",
                       isTop3 && displayRank === 1 && "rank-1-glow animate-glowPulse text-slate-950",
                       isTop3 && displayRank === 2 && "rank-2-glow animate-glowPulse text-slate-950",
                       isTop3 && displayRank === 3 && "rank-3-glow animate-glowPulse text-slate-950",
@@ -325,26 +326,26 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
                           name={player.name} 
                           elo={player.elo} 
                           placementMatchesPlayed={player.placementMatchesPlayed}
-                          showRankName={false} 
+                          showRankName={true} 
                           nameClassName={clsx("text-xl font-black italic", isTop3 ? "text-slate-950" : "text-slate-100")}
                         />
-                        {entry?.previousRank && entry.previousRank !== 99 && (
+                        {entry && entry.previousRank !== 99 && (
                           <div className="flex items-center gap-2 mt-1">
                             {rankChange > 0 ? (
                               <>
                                 <TrendingUp className={clsx("size-4", isTop3 ? "text-slate-900" : "text-emerald-400")} />
-                                <span className={clsx("text-[11px] font-black uppercase tracking-wider", isTop3 ? "text-slate-800" : "text-emerald-400")}>+{rankChange} POSITIONS UP</span>
+                                <span className={clsx("text-[11px] font-black uppercase tracking-wider", isTop3 ? "text-slate-800" : "text-emerald-400")}>+{rankChange}</span>
                               </>
                             ) : rankChange < 0 ? (
                               <>
                                 <TrendingDown className={clsx("size-4", isTop3 ? "text-slate-800" : "text-rose-500")} />
-                                <span className={clsx("text-[11px] font-black uppercase tracking-wider", isTop3 ? "text-slate-800" : "text-rose-500")}>{rankChange} POSITIONS DOWN</span>
+                                <span className={clsx("text-[11px] font-black uppercase tracking-wider", isTop3 ? "text-slate-800" : "text-rose-500")}>{rankChange}</span>
                               </>
                             ) : (
-                               <>
+                              <>
                                 <Minus className={clsx("size-4", isTop3 ? "text-slate-800" : "text-slate-500")} />
-                                <span className={clsx("text-[11px] font-black uppercase tracking-wider", isTop3 ? "text-slate-800" : "text-slate-500")}>NO CHANGE</span>
-                               </>
+                                <span className={clsx("text-[11px] font-black uppercase tracking-wider", isTop3 ? "text-slate-800" : "text-slate-500")}>-no change</span>
+                              </>
                             )}
                           </div>
                         )}
@@ -361,7 +362,7 @@ export default function DesktopDashboard({ stats, players, upcomingSession, insi
                            : `${player.elo} CR`
                       }
                     </div>
-                  </div>
+                  </Link>
                 )})}
               </div>
             </div>

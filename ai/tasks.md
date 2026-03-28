@@ -162,20 +162,32 @@
 *   [x] **Component Teardown**: Deleted the `RankIcon.tsx` component to enforce simplicity and resolve complex dependencies.
 *   [x] **System Integration**: Rewired `RankBadge.tsx`, `EloRatingCard.tsx`, and `cockrating/page.tsx` to mount standard `<span>{getRankEmoji(rank.name)}</span>` across both full and compact views.
 
+## Phase 73 — Live Leaderboard Updates & Animations (Today, 23 Mar 2026)
+*   [x] **CSS Animations**: Added `moveUp`, `moveDown`, `promotionFlash`, and `demotionFlash` keyframes to `globals.css` for cinematic rank movement.
+*   [x] **Global Sync**: Implemented `MatchesContext.tsx` and `ClientProviders.tsx` to provide real-time Supabase match subscriptions across the entire app.
+*   [x] **Optimistic UI**: Updated `SessionMatches.tsx` and `RecordMatch.tsx` to use `addOptimisticMatch`, updating the leaderboard instantly before DB confirmation.
+*   [x] **Dashboard Reactivity**: Created `DashboardClient.tsx` to handle live recomputation of ELO, win rates, and rank changes without page refreshes.
+
+## Phase 74 — Deployment & Build Optimization (Today, 23 Mar 2026)
+*   [x] **Server-side Safety**: Removed blocking database fetches from `RootLayout` and `DashboardPage` to prevent Vercel build hangs; added `force-dynamic` to layout.
+*   [x] **Client-side Hydration**: Shifted initial match fetching to `MatchesProvider` `useEffect` to ensure a lightweight, static-friendly build shell.
+*   [x] **Code Splitting**: Implemented `next/dynamic` for `MobileDashboard` and `DesktopDashboard` to reduce memory pressure during production builds.
+
 ## Current State
 
-The app is highly stable, featuring a **Centralized Analytics Engine** and a dedicated **CockRating Guide** system. All UI bugs related to modal layering have been resolved by moving to page-based education. Rankings are globally consistent across Dashboard and Profiles. Zero lint errors.
+The app features a **Real-Time Analytics Engine** with cinematic rank animations and **Optimistic UI** for match logging. Build stability is secured via client-side hydration for match data and dynamic component loading.
 
 ## Known Issues / Backlog
 
 *   **Environment Variables**: `.env.local` requires real Supabase keys for public distribution.
+*   **Static Pre-rendering**: Some pages might benefit from partial pre-rendering (PPR) if Next.js version allows.
 
 ## Roadmap & Next Steps
 
 1.  **Placement Match System**: (Complete) Dynamic K-factor and Unranked state implemented.
-2.  **Auto-Grouping**: Smart team generation based on skill ratings and partner history.
-3.  **Settle Tracking**: Auto-suggest who pays what based on complex debt chains.
-4.  **Performance**: Move heavy analytics to Supabase SQL Views for faster dashboard loads.
+2.  **Live Updates**: (Complete) Real-time leaderboard and animations.
+3.  **Auto-Grouping**: Smart team generation based on skill ratings and partner history.
+4.  **Settle Tracking**: Auto-suggest who pays what based on complex debt chains.
 
 
 ## Agent Tips

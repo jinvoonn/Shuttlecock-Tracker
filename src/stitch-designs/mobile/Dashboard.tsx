@@ -266,10 +266,11 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
                     const isDirectlyAffected = lastUpdatedPlayerIds?.includes(player.id);
 
                     return (
-                    <div 
+                    <Link 
+                      href={`${basePath}/players/${player.id}`}
                       key={player.id} 
                       className={clsx(
-                        "flex items-center justify-between p-3 rounded-2xl transition-all duration-300",
+                        "flex items-center justify-between p-3 rounded-2xl transition-all duration-300 active:scale-95",
                         isTop3 && displayRank === 1 && "rank-1-glow animate-glowPulse text-slate-950",
                         isTop3 && displayRank === 2 && "rank-2-glow animate-glowPulse text-slate-950",
                         isTop3 && displayRank === 3 && "rank-3-glow animate-glowPulse text-slate-950",
@@ -293,22 +294,28 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
                             name={player.name} 
                             elo={player.elo} 
                             placementMatchesPlayed={player.placementMatchesPlayed}
-                            showRankName={false} 
+                            showRankName={true} 
                             nameClassName={clsx("text-sm font-black italic", isTop3 ? "text-slate-950" : "text-slate-100")}
+                            className="max-w-[150px] flex-wrap"
                           />
                           {entry?.previousRank && entry.previousRank !== 99 && (
                             <div className="flex items-center gap-1 mt-0.5">
                               {rankChange > 0 ? (
                                 <>
                                   <TrendingUp className={clsx("size-3", isTop3 ? "text-slate-900" : "text-emerald-400")} />
-                                  <span className={clsx("text-[9px] font-bold uppercase", isTop3 ? "text-slate-800" : "text-emerald-500/80")}>+{rankChange} UP</span>
+                                  <span className={clsx("text-[9px] font-bold uppercase", isTop3 ? "text-slate-800" : "text-emerald-500/80")}>+{rankChange}</span>
                                 </>
                               ) : rankChange < 0 ? (
                                 <>
                                   <TrendingDown className={clsx("size-3", isTop3 ? "text-slate-800" : "text-rose-500")} />
-                                  <span className={clsx("text-[9px] font-bold uppercase", isTop3 ? "text-slate-800" : "text-rose-500/80")}>{rankChange} DOWN</span>
+                                  <span className={clsx("text-[9px] font-bold uppercase", isTop3 ? "text-slate-800" : "text-rose-500/80")}>{rankChange}</span>
                                 </>
-                              ) : null}
+                              ) : (
+                                <>
+                                  <Minus className={clsx("size-3", isTop3 ? "text-slate-800" : "text-slate-500")} />
+                                  <span className={clsx("text-[9px] font-bold uppercase", isTop3 ? "text-slate-800" : "text-slate-500")}>-no change</span>
+                                </>
+                              )}
                             </div>
                           )}
                         </div>
@@ -321,7 +328,7 @@ export default function MobileDashboard({ stats, players, upcomingSession, insig
                           {leaderboardMode === "wins" ? player.wins : leaderboardMode === "winRate" ? `${(player.winRate * 100).toFixed(1)}%` : player.elo}
                         </span>
                       </div>
-                    </div>
+                    </Link>
                   )})}
                 </div>
               </div>

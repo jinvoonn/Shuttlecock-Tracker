@@ -4,32 +4,30 @@
 CockCount is a premium **Dark Mode Only** web app to track badminton group costs — shuttlecock usage, session attendance, player payments, and match results. It replaces Excel sheets with a streamlined real-time interface.
 
 ## Main Features
-*   **Balance Dashboard**: Real-time debt/credit status for all players.
+*   **Live Leaderboard**: Real-time rank animations and optimistic updates using `MatchesContext`.
+*   **Balance Dashboard**: Debt/credit status for all players.
 *   **Session Management**: Log sessions, track shuttlecock usage per purchase.
-*   **Match Logging**: Record match results (Team A vs Team B) within sessions with player cycle selection.
+*   **Match Logging**: Record results with instant UI feedback (Optimistic UI).
 *   **Auto-Grouping System**: (Planned) Smart balanced team generation.
 *   **Player Profiles**: Win rates, H2H records, best partner analytics, and win streaks.
-*   **Analytics Dashboard**: Monthly spending and usage trends visualized with `recharts`.
-*   **Centralized Analytics Engine**: Unified logic for all match stats, win rates, and leaderboards under `src/lib/analytics/`.
-*   **Leaderboards**: Global and Session-level leaderboard with toggleable (Wins vs Win Rate) segmented controls.
-*   **Direct Settle**: One-tap settlement of player balances from the mobile dashboard.
-*   **Admin Access**: Secret path (`/admin-92Kf8s`) required for ALL mutations except Match logging/editing. Sessions/Payments are Admin-only for edit/delete.
+*   **Centralized Analytics Engine**: Unified logic for all match stats in `src/lib/analytics/`.
+*   **Leaderboards**: Global and Session-level leaderboard with toggleable segmented controls.
+*   **Direct Settle**: One-tap settlement from the mobile dashboard.
 
 ## Tech Stack
 *   **Framework**: Next.js 16+ (App Router)
 *   **Language**: TypeScript
 *   **Backend**: Supabase (PostgreSQL)
+*   **State Management**: React Context (`MatchesProvider`, `AuthProvider`)
 *   **Styling**: Tailwind CSS v4
 *   **Icons**: Lucide React
 *   **Utilities**: `clsx`, `date-fns`
 
 ## Architecture Rules
-*   Server Components fetch data (no `useState`/`useEffect` for data)
-*   Client Components handle UI interactions
-*   Server Actions handle all mutations (in `src/lib/actions/`)
-*   Do NOT modify the database schema
-*   Do NOT introduce new libraries
-*   Always call `revalidatePath` after mutations
+*   **Global Match State**: ALL match-related UI must consume `matches` from `useMatches()` to ensure real-time synchronization.
+*   **Optimistic UI**: Any match mutation should call `addOptimisticMatch` to provide instant feedback.
+*   **Build Stability**: Server components should avoid blocking `await` on external databases during the build phase; use client-side hydration for large datasets where necessary.
+*   **Dynamic Components**: Heavy UI blocks (like the Dashboard) use `next/dynamic` with `ssr: false` to optimize build memory.
 *   **Dark Mode Only**: All UI must adhere to the Slate-900/800 background and Emerald-400 accent palette. Light mode is not supported.
 *   **FAB Pattern**: Mobile creation buttons (Sessions, Payments) use a standardized Floating Action Button at `fixed bottom-32 right-8` with `bg-emerald-400`.
 
@@ -83,6 +81,6 @@ All match actions in `src/lib/actions/matches.ts` expect:
 The action maps `teamAIds[0]` → `team_a_player1`, `teamAIds[1]` → `team_a_player2`, etc.
 
 ## Current Project Status
-**Phase 69 complete (23 Mar 2026).** App features a robust **Centralized Analytics Engine**, consistent global rankings, and a dedicated **CockRating Guide**. UI is a **Dark Mode Only** premium experience verified for production stability.
+**Phase 74 complete (23 Mar 2026).** App features **Live Leaderboard Updates**, cinematic animations, and a decoupled fetching strategy for production build stability on Vercel.
 
 *"Because Shuttlecocks Aren't Free."*

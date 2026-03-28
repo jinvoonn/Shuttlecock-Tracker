@@ -16,8 +16,8 @@ export default function RankBadge({ elo, placementMatchesPlayed = 5, className, 
   return (
     <div 
       className={clsx(
-        "inline-flex items-center justify-center rounded-lg font-black tracking-wider leading-none border shadow-sm whitespace-nowrap transition-all",
-        compact ? "w-8 h-8 p-0" : "px-3 py-1.5 text-[10px] uppercase gap-2 rounded-full",
+        "inline-flex items-center justify-center font-black tracking-wider leading-none border shadow-sm whitespace-nowrap transition-all",
+        compact ? "w-8 h-8 p-0 rounded-lg" : "px-3 py-1.5 text-[9px] uppercase gap-1.5 rounded-full",
         className
       )}
       style={{ 
@@ -26,12 +26,12 @@ export default function RankBadge({ elo, placementMatchesPlayed = 5, className, 
         borderColor: `${rank.color}30`
       }}
     >
-      <RankBadgeIcon rank={rank.name} size={compact ? "small" : "small"} className={compact ? "" : "scale-75"} />
+      <RankBadgeIcon rank={rank.name} size="small" className={compact ? "" : "scale-75 -ml-1"} />
       {!compact && (
-        <span className="italic flex items-center gap-1.5">
+        <span className="italic flex items-center gap-1">
           {rank.name}
           {placementMatchesPlayed < 5 && (
-            <span className="text-[8px] opacity-70 font-mono tracking-tighter">
+            <span className="text-[8px] opacity-70 font-bold tracking-tighter">
               {placementMatchesPlayed}/5
             </span>
           )}
