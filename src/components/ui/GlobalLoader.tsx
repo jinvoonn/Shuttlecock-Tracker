@@ -1,28 +1,59 @@
 "use client";
 
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { useLoading } from "@/context/LoadingContext";
 import { Feather } from "lucide-react";
 
 export default function GlobalLoader() {
-  const { loading } = useLoading();
+  const { loading, setLoading } = useLoading();
+  const pathname = usePathname();
+
+  // Listen globally to path changes to immediately kill the loading screen
+  // Since GlobalLoader sits at root, this is never unmounted during navigation
+  useEffect(() => {
+    setLoading(false);
+  }, [pathname, setLoading]);
 
   if (!loading) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-slate-900/80 backdrop-blur-md flex items-center justify-center animate-in fade-in duration-200">
-      <div className="flex flex-col items-center gap-4">
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-950 animate-in fade-in duration-300">
+      <div className="relative mb-8">
         {/* Glow effect */}
-        <div className="absolute bg-emerald-500/10 blur-2xl rounded-full w-32 h-32 animate-pulse" />
+        <div className="absolute inset-0 bg-sky-500/20 blur-2xl rounded-full scale-150 animate-pulse" />
         
         {/* Animated Icon */}
-        <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/50 flex items-center justify-center shadow-2xl shadow-emerald-500/20 animate-bounce transition-all duration-700">
-          <Feather className="w-8 h-8 text-emerald-400 transform rotate-45" />
-        </div>
-        
-        <div className="text-emerald-400 text-sm font-black tracking-widest uppercase animate-pulse">
-          Loading...
+        <div className="relative w-24 h-24 rounded-3xl bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-2xl shadow-sky-500/40 animate-bounce transition-all duration-1000">
+          <Feather className="w-12 h-12 text-white transform rotate-45" />
         </div>
       </div>
+
+      <div className="text-center space-y-2">
+        <h1 className="text-4xl font-black text-slate-50 tracking-tighter">
+          Cock<span className="text-sky-400">Count</span>
+        </h1>
+        <p className="text-slate-500 font-bold text-xs uppercase tracking-[0.2em]">
+          {"Because Shuttlecocks Aren't Free."}
+        </p>
+      </div>
+
+      {/* Loading Indicator */}
+      <div className="mt-12 flex flex-col items-center gap-4">
+        <div className="w-48 h-1 bg-slate-900 rounded-full overflow-hidden border border-slate-800/50">
+          <div className="h-full bg-gradient-to-r from-indigo-500 to-sky-400 w-1/3 rounded-full animate-[loading_1.5s_infinite_ease-in-out]" />
+        </div>
+        <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest animate-pulse">
+          INITIALIZING SYSTEM
+        </span>
+      </div>
+
+      <style jsx>{`
+        @keyframes loading {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(200%); }
+        }
+      `}</style>
     </div>
   );
 }
