@@ -20,6 +20,9 @@ interface Match {
     team_a_player2: string;
     team_b_player1: string;
     team_b_player2: string;
+    team_a_ids?: string[];
+    team_b_ids?: string[];
+    played_at?: string;
     created_at: string;
 }
 
@@ -33,6 +36,7 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
     // 0 = unselected, 1 = Team A, 2 = Team B
     const [scoreA, setScoreA] = useState<string>("");
     const [scoreB, setScoreB] = useState<string>("");
+    const [playedAt, setPlayedAt] = useState<string>(new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }));
 
     const availablePlayers = sessionPlayers.map((sp: SessionPlayer) => ({
         id: sp.players?.id || sp.player_id,
@@ -54,16 +58,19 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
     const teamAIds = Object.entries(playerTeams).filter(([, v]) => v === 1).map(([k]) => k);
     const teamBIds = Object.entries(playerTeams).filter(([, v]) => v === 2).map(([k]) => k);
 
-    const startEdit = (match: { id: string, team_a_ids?: string[], team_b_ids?: string[], team_a_player1?: string, team_a_player2?: string, team_b_player1?: string, team_b_player2?: string, team_a_score: number, team_b_score: number }) => {
+    const startEdit = (match: Match) => {
         setEditingMatchId(match.id);
         const aIds = match.team_a_ids || [match.team_a_player1, match.team_a_player2].filter((p): p is string => !!p);
         const bIds = match.team_b_ids || [match.team_b_player1, match.team_b_player2].filter((p): p is string => !!p);
         const teams: Record<string, number> = {};
-        aIds.forEach(id => { teams[id] = 1; });
-        bIds.forEach(id => { teams[id] = 2; });
+        aIds.forEach((id: string) => { teams[id] = 1; });
+        bIds.forEach((id: string) => { teams[id] = 2; });
         setPlayerTeams(teams);
         setScoreA(match.team_a_score.toString());
         setScoreB(match.team_b_score.toString());
+        if (match.played_at) {
+            setPlayedAt(new Date(match.played_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }));
+        }
         setIsAdding(true);
     };
 
@@ -73,6 +80,7 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
         setPlayerTeams({});
         setScoreA("");
         setScoreB("");
+        setPlayedAt(new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }));
     };
 
     const handleSave = async () => {
@@ -86,7 +94,8 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
             teamAIds,
             teamBIds,
             scoreA: parseInt(scoreA) || 0,
-            scoreB: parseInt(scoreB) || 0
+            scoreB: parseInt(scoreB) || 0,
+            playedAt: playedAt ? `${new Date().toISOString().split('T')[0]}T${playedAt}:00Z` : undefined
         };
 
         if (!editingMatchId) {
@@ -97,7 +106,8 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
                 team_b_player1: teamBIds[0],
                 team_b_player2: teamBIds[1] || null,
                 team_a_score: payload.scoreA,
-                team_b_score: payload.scoreB
+                team_b_score: payload.scoreB,
+                played_at: payload.playedAt || new Date().toISOString()
             });
         }
 
@@ -117,7 +127,11 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
         }
     };
 
-    const sortedMatches = (matches || []).sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    const sortedMatches = (matches || []).sort((a, b) => {
+        const timeA = new Date(a.played_at || a.created_at).getTime();
+        const timeB = new Date(b.played_at || b.created_at).getTime();
+        return timeA - timeB;
+    });
 
     return (
         <div className="mt-4 pt-4 border-t border-white/5 space-y-4">
@@ -211,6 +225,17 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
                                 </div>
                             </div>
                         </div>
+
+                        {/* Time Selection */}
+                        <div className="bg-slate-900/40 p-4 rounded-xl border border-white/5 space-y-3">
+                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Match Time</span>
+                            <input 
+                                type="time" 
+                                value={playedAt}
+                                onChange={(e) => setPlayedAt(e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-slate-100 font-bold focus:border-emerald-400/50 outline-none transition-all"
+                            />
+                        </div>
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-3 pt-2">
@@ -231,7 +256,7 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                {sortedMatches.map((m: { id: string, team_a_score: number, team_b_score: number, team_a_player1: string, team_a_player2: string, team_b_player1: string, team_b_player2: string }, idx: number) => {
+                {sortedMatches.map((m: Match, idx: number) => {
                     const isAWin = m.team_a_score > m.team_b_score;
                     const isBWin = m.team_b_score > m.team_a_score;
                     
@@ -259,7 +284,14 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
                                 )}
                             </div>
 
-                            <div className="text-[9px] uppercase font-bold text-slate-600 mb-2 absolute top-2 left-3.5">Match {idx + 1}</div>
+                            <div className="flex justify-between items-center mb-2 px-0.5">
+                                <div className="text-[9px] uppercase font-bold text-slate-600">Match {idx + 1}</div>
+                                {m.played_at && (
+                                    <div className="text-[9px] font-bold text-[#13ec80] font-mono tabular-nums">
+                                        {new Date(m.played_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                                    </div>
+                                )}
+                            </div>
 
                             <div className="flex items-center justify-between gap-4 mt-6">
                                 <div className={clsx("flex-1 text-right text-xs", isAWin ? "text-slate-100 font-bold" : "text-slate-500")}>

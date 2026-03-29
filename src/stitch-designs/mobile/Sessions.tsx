@@ -30,6 +30,7 @@ interface SessionData {
   id: string;
   displayNumber: number;
   date: string;
+  startTime?: string | null;
   location: string;
   notes?: string;
   status: 'Completed' | 'Outstanding' | 'Archived';
@@ -259,6 +260,7 @@ export default function MobileSessions({ sessions, allPlayers, allPurchases }: M
               initialData={{
                 id: editingSession.id,
                 date: editingSession.date,
+                startTime: editingSession.startTime || undefined,
                 location: editingSession.location,
                 notes: editingSession.notes || "",
                 players: editingSession.playerIds,

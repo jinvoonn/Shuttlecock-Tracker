@@ -6,6 +6,8 @@ export type NormalizedMatch = {
   scoreA: number;
   scoreB: number;
   winner: "A" | "B" | "Draw";
+  playedAt: string;
+  createdAt?: string;
   shuttleUsed?: number;
 };
 

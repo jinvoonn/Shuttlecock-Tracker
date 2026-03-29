@@ -59,6 +59,7 @@ interface Match {
   team_a_player2?: string;
   team_b_player1?: string;
   team_b_player2?: string;
+  played_at: string;
 }
 
 interface Attendee {
@@ -164,6 +165,7 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
         teamBIds,
         scoreA: parseInt(editScoreA) || 0,
         scoreB: parseInt(editScoreB) || 0,
+        playedAt: matches.find(m => m.id === editingMatchId)?.played_at
       });
       const result = await updateMatch(editingMatchId, payload);
       if (result && !result.success) {
@@ -395,7 +397,7 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                       <div className="flex justify-between items-start mb-4">
                         <div className="flex items-center gap-2">
                           {match.status === 'Completed' ? <TrendingUp className="size-3 text-emerald-400" /> : <Activity className="size-3 text-amber-500" />}
-                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">{match.type}</span>
+                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">{match.type} • {new Date(match.played_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
                         </div>
                         {/* Action Buttons */}
                         <div className="flex items-center gap-1">

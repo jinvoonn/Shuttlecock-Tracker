@@ -12,6 +12,8 @@ CockCount is a premium **Dark Mode Only** web app to track badminton group costs
 *   **Player Profiles**: Win rates, H2H records, best partner analytics, and win streaks.
 *   **Centralized Analytics Engine**: Unified logic for all match stats in `src/lib/analytics/`.
 *   **Leaderboards**: Global and Session-level leaderboard with toggleable segmented controls.
+*   **Premium Gaming UI**: High-contrast "Obsidian" score pills, rank trophy icons, and player avatars.
+*   **Session Story Card Generator**: 9:16 IG-ready shareable cards with high-res PNG/Sticker export.
 *   **Direct Settle**: One-tap settlement from the mobile dashboard.
 
 ## Tech Stack
@@ -32,8 +34,8 @@ CockCount is a premium **Dark Mode Only** web app to track badminton group costs
 *   **FAB Pattern**: Mobile creation buttons (Sessions, Payments) use a standardized Floating Action Button at `fixed bottom-32 right-8` with `bg-emerald-400`.
 
 ## Database Schema (Key Tables)
-*   **`matches`**: `id`, `session_id`, `team_a_player1`, `team_a_player2`, `team_b_player1`, `team_b_player2`, `team_a_score`, `team_b_score`, `created_at`
-*   **`sessions`**: `id`, `date`, `location`, `created_at`
+*   **`matches`**: `id`, `session_id`, `team_a_player1`, `team_a_player2`, `team_b_player1`, `team_b_player2`, `team_a_score`, `team_b_score`, `played_at`, `created_at`
+*   **`sessions`**: `id`, `date`, `start_time`, `location`, `created_at`
 *   **`players`**: `id`, `name`
 *   **`session_players`**: `session_id`, `player_id`, joins with `players(id, name)`
 *   **`purchases`**, **`session_usage`**, **`brands`** for shuttlecock cost tracking
@@ -75,12 +77,13 @@ All match actions in `src/lib/actions/matches.ts` expect:
   teamBIds: string[];
   scoreA: number;
   scoreB: number;
+  playedAt?: string; // ISO timestamp
 }
 ```
 
 The action maps `teamAIds[0]` → `team_a_player1`, `teamAIds[1]` → `team_a_player2`, etc.
 
 ## Current Project Status
-**Phase 74 complete (23 Mar 2026).** App features **Live Leaderboard Updates**, cinematic animations, and a decoupled fetching strategy for production build stability on Vercel.
+**Phase 81 complete (29 Mar 2026).** App features **Explicit Time Tracking**, **Live Leaderboard Updates**, **Premium Gaming UI**, and **Public IG Story Generation**. Fully audited for time-series consistency and streak accuracy.
 
 *"Because Shuttlecocks Aren't Free."*

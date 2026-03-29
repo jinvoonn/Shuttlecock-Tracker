@@ -14,6 +14,9 @@ export default async function RecordMatchPage({ params }: { params: Promise<{ mo
     .select("players(id, name)")
     .eq("session_id", id);
 
+  const { data: session } = await supabase.from("sessions").select("date").eq("id", id).single();
+  const sessionDate = session?.date || new Date().toISOString().split('T')[0];
+
   if (playersError) {
     return (
       <div className="p-8 text-rose-500 font-black italic uppercase flex items-center justify-center min-h-screen bg-[#020617]">
@@ -43,10 +46,10 @@ export default async function RecordMatchPage({ params }: { params: Promise<{ mo
   return (
     <>
       <div className="block lg:hidden">
-        <MobileRecordMatch sessionId={id} players={players} />
+        <MobileRecordMatch sessionId={id} players={players} sessionDate={sessionDate} />
       </div>
       <div className="hidden lg:block">
-        <DesktopRecordMatch sessionId={id} players={players} />
+        <DesktopRecordMatch sessionId={id} players={players} sessionDate={sessionDate} />
       </div>
     </>
   );

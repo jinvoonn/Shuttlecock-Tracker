@@ -26,6 +26,7 @@ interface InitialData {
     date: string;
     location: string;
     notes: string;
+    startTime?: string;
     players: string[]; // ids
     usage: Record<string, number>;
 }
@@ -47,6 +48,11 @@ export function SessionForm({
     const [date, setDate] = useState<string>(initialData?.date || new Date().toISOString().split('T')[0]);
     const [location, setLocation] = useState(initialData?.location || "");
     const [notes, setNotes] = useState(initialData?.notes || "");
+    const [startTime, setStartTime] = useState<string>(
+        initialData?.startTime 
+            ? new Date(initialData.startTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+            : new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+    );
 
     const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>(initialData?.players || []);
     const [newPlayerName, setNewPlayerName] = useState("");
@@ -84,6 +90,7 @@ export function SessionForm({
 
         const payload = {
             date,
+            startTime: startTime ? `${date}T${startTime}:00Z` : undefined,
             location,
             notes,
             playerIds: selectedPlayerIds,
@@ -141,9 +148,20 @@ export function SessionForm({
 
             <form onSubmit={handleSubmit} className="space-y-6 text-sm">
                 <div className="space-y-4">
-                    <div>
-                        <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1 ml-1">Date</label>
-                        <DatePicker name="date" defaultValue={date} onChange={setDate} />
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1 ml-1">Date</label>
+                            <DatePicker name="date" defaultValue={date} onChange={setDate} />
+                        </div>
+                        <div>
+                            <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1 ml-1">Start Time</label>
+                            <input 
+                                type="time" 
+                                value={startTime} 
+                                onChange={(e) => setStartTime(e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500/50 h-[42px]"
+                            />
+                        </div>
                     </div>
 
                     <div>

@@ -188,6 +188,7 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
   const initialData = {
     id: session.id,
     date: session.date,
+    startTime: session.start_time,
     location: session.location || "",
     notes: session.notes || "",
     players: (sessionPlayers as any[] || []).map(sp => sp.players?.id).filter(Boolean),

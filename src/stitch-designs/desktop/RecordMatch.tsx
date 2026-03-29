@@ -26,9 +26,10 @@ interface Player {
 interface DesktopRecordMatchProps {
   sessionId: string;
   players: Player[];
+  sessionDate: string;
 }
 
-export default function DesktopRecordMatch({ sessionId, players }: DesktopRecordMatchProps) {
+export default function DesktopRecordMatch({ sessionId, players, sessionDate }: DesktopRecordMatchProps) {
   const router = useRouter();
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
@@ -41,6 +42,7 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
   const [scoreB, setScoreB] = useState(19);
   const [matchType, setMatchType] = useState("Men's Doubles");
   const [court, setCourt] = useState("1");
+  const [playedAt, setPlayedAt] = useState(new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }));
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Cycle: None (0) → Team A (1) → Team B (2) → None (0)
@@ -63,12 +65,19 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
 
     setIsSubmitting(true);
     try {
+      // Combine session date with matches time
+      const timeDate = new Date(sessionDate);
+      const [hours, minutes] = playedAt.split(':');
+      timeDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      const isoPlayedAt = timeDate.toISOString(); 
+      
       const payload = JSON.stringify({
         sessionId,
         teamAIds,
         teamBIds,
         scoreA,
-        scoreB
+        scoreB,
+        playedAt: isoPlayedAt
       });
 
       // Optimistic Update
@@ -79,7 +88,8 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
         team_b_player1: teamBIds[0],
         team_b_player2: teamBIds[1] || null,
         team_a_score: scoreA,
-        team_b_score: scoreB
+        team_b_score: scoreB,
+        played_at: isoPlayedAt
       });
       const result = await addMatch(payload);
       if (result.success) {
@@ -226,6 +236,17 @@ export default function DesktopRecordMatch({ sessionId, players }: DesktopRecord
                     </button>
                   ))}
                 </div>
+              </section>
+
+              {/* Time Selection */}
+              <section className="bg-slate-900/60 p-6 rounded-xl border border-slate-800 shadow-sm">
+                <h3 className="text-xs font-black uppercase text-slate-500 mb-4 tracking-widest">Match Time</h3>
+                <input 
+                  type="time" 
+                  value={playedAt}
+                  onChange={(e) => setPlayedAt(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-slate-100 font-bold focus:border-emerald-400/50 outline-none transition-all"
+                />
               </section>
             </div>
 

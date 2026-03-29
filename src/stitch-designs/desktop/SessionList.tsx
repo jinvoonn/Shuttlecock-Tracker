@@ -16,7 +16,7 @@ import { SessionForm } from '@/app/[mode]/sessions/SessionForm';
 interface Player { id: string; name: string; }
 interface Purchase { id: string; remaining_quantity: number; tube_number: number; brands: { name: string } | null; price_per_tube: number; price_per_cock: number; }
 interface SessionData {
-  id: string; date: string; location: string; notes?: string; displayNumber?: number;
+  id: string; date: string; startTime?: string | null; location: string; notes?: string; displayNumber?: number;
   status: 'Completed' | 'Outstanding' | 'Archived';
   shuttleUsed: { name: string; quantity: number; };
   costPerPerson: number; attendees: { id: string; name: string; elo: number; placementMatchesPlayed?: number }[]; playerIds: string[];
@@ -235,6 +235,7 @@ export default function SessionListUI({ sessions, allPlayers, allPurchases }: De
               initialData={{
                 id: editingSession.id,
                 date: editingSession.date,
+                startTime: editingSession.startTime || undefined,
                 location: editingSession.location,
                 notes: editingSession.notes || "",
                 players: editingSession.playerIds,

@@ -13,6 +13,7 @@ interface SessionPlayer {
 interface Session {
   id: string;
   date: string;
+  start_time: string | null;
   location: string | null;
   notes: string | null;
   session_players: SessionPlayer[];
@@ -92,6 +93,7 @@ export default async function SessionsPage({ params }: { params: Promise<{ mode:
       id: session.id,
       displayNumber: index + 1,
       date: session.date,
+      startTime: session.start_time,
       location: session.location || "Default Court",
       notes: session.notes || "",
       status: "Completed" as const,

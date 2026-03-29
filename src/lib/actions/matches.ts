@@ -9,13 +9,14 @@ interface MatchPayload {
     teamBIds: string[];
     scoreA: number;
     scoreB: number;
+    playedAt?: string;
 }
 
 export async function addMatch(payloadJson: string) {
     try {
         const payload: MatchPayload = JSON.parse(payloadJson);
 
-        const { teamAIds, teamBIds, scoreA, scoreB, sessionId } = payload;
+        const { teamAIds, teamBIds, scoreA, scoreB, sessionId, playedAt } = payload;
 
         // Validation
         if (!teamAIds?.length || !teamBIds?.length) {
@@ -29,17 +30,23 @@ export async function addMatch(payloadJson: string) {
         }
 
         // Map arrays → fixed columns (schema has team_a_player1, team_a_player2, team_b_player1, team_b_player2)
+        const insertData: any = {
+            session_id: sessionId,
+            team_a_player1: teamAIds[0] ?? null,
+            team_a_player2: teamAIds[1] ?? null,
+            team_b_player1: teamBIds[0] ?? null,
+            team_b_player2: teamBIds[1] ?? null,
+            team_a_score: scoreA,
+            team_b_score: scoreB
+        };
+
+        if (playedAt) {
+            insertData.played_at = playedAt;
+        }
+
         const { data: match, error: matchError } = await supabase
             .from("matches")
-            .insert([{
-                session_id: sessionId,
-                team_a_player1: teamAIds[0] ?? null,
-                team_a_player2: teamAIds[1] ?? null,
-                team_b_player1: teamBIds[0] ?? null,
-                team_b_player2: teamBIds[1] ?? null,
-                team_a_score: scoreA,
-                team_b_score: scoreB
-            }])
+            .insert([insertData])
             .select()
             .single();
 
@@ -62,7 +69,7 @@ export async function updateMatch(id: string, payloadJson: string) {
     try {
         const payload: Partial<MatchPayload> = JSON.parse(payloadJson);
 
-        const { teamAIds, teamBIds, scoreA, scoreB } = payload;
+        const { teamAIds, teamBIds, scoreA, scoreB, playedAt } = payload;
 
         // Build update object — always overwrite all 4 player columns so old data doesn't linger
         const updateData: Record<string, string | number | null> = {};
@@ -77,6 +84,7 @@ export async function updateMatch(id: string, payloadJson: string) {
         }
         if (scoreA !== undefined) updateData.team_a_score = scoreA;
         if (scoreB !== undefined) updateData.team_b_score = scoreB;
+        if (playedAt !== undefined) updateData.played_at = playedAt;
 
         const { error } = await supabase
             .from("matches")

@@ -57,6 +57,7 @@ interface Match {
   type: string;
   court: string;
   status: 'Completed' | 'Live';
+  played_at: string;
 }
 
 interface Attendee {
@@ -202,7 +203,8 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                 team_b_player1: editingMatch.team_b_player1,
                 team_b_player2: editingMatch.team_b_player2,
                 team_a_score: editingMatch.scoreA,
-                team_b_score: editingMatch.scoreB
+                team_b_score: editingMatch.scoreB,
+                played_at: editingMatch.played_at
             } : undefined}
           />
         )}
@@ -369,7 +371,7 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                 )}>
                   <div className="p-4 border-b border-slate-300 dark:border-[#1e293b] bg-slate-300/30 dark:bg-slate-800/30 flex justify-between items-center">
                     <span className="text-[10px] font-black italic uppercase tracking-widest text-slate-500">
-                      {match.type} • {match.court}
+                      {match.type} • Court {match.court} • {new Date(match.played_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                     </span>
                     <div className="flex items-center gap-3">
                       {match.status === 'Completed' ? (

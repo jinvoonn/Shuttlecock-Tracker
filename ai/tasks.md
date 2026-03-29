@@ -173,14 +173,48 @@
 *   [x] **Client-side Hydration**: Shifted initial match fetching to `MatchesProvider` `useEffect` to ensure a lightweight, static-friendly build shell.
 *   [x] **Code Splitting**: Implemented `next/dynamic` for `MobileDashboard` and `DesktopDashboard` to reduce memory pressure during production builds.
 
-## Current State
+## Phase 75 — Global Loading System & Stuck Loader Fix (28 Mar 2026)
+*   [x] **Bug Fix**: Moved the `setIsLoading(false)` listener to the root `GlobalLoader` component, ensuring navigation always kills the loader.
+*   [x] **UI**: Updated the loading screen to a premium dark design with a centered animated feather logo and progress bar.
 
-The app features a **Real-Time Analytics Engine** with cinematic rank animations and **Optimistic UI** for match logging. Build stability is secured via client-side hydration for match data and dynamic component loading.
+## Phase 76 — Premium Leaderboard UI Overhaul
+*   [x] **Layout**: Restructured leaderboard rows to feature a Rank Number box on the left and a scaled "Trophy" `RankBadgeIcon` on the far right.
+*   [x] **Visuals**: Implemented the "Obsidian" Score Pill — a high-contrast black capsule with fixed width for perfect vertical alignment of stats (CR, Wins, Rate).
+*   [x] **Avatars**: Added initial-based player avatars next to usernames for a personalized gaming feel.
+
+## Phase 77 — Rank Delta & Snapshot System
+*   [x] **Logic**: Verified and standardized the weekly `leaderboard_snapshots` comparison logic.
+*   [x] **UI**: Integrated rank change indicators (Promotion 🔼, Demotion 🔻, New ✨) directly into the new leaderboard row layout.
+*   [x] **Animations**: Synchronized `animate-moveUp` and `animate-promotionFlash` with real-time match results.
+
+## Phase 78 — Session Story Card Generator (Sticker Mode)
+*   [x] **Design**: Developed a minimalistic Strava-inspired IG Story (9:16) card with large, bold metrics.
+*   [x] **Logic**: Automated calculation of Session MVP, Longest Win Streak, and "Most Cursed" player.
+*   [x] **Feature**: Implemented "Sticker Mode" toggle for transparent PNG exports, allowing users to layer stats over court photos.
+*   [x] **RBAC**: Implemented conditional watermarking — `cockcount.vercel.app` URL only appears on Admin-generated stories; Viewers get a clean sticker.
+*   [x] **Public Access**: Opened the Story generator to all users (Admins + Viewers) while maintaining role-based watermark logic.
+*   [x] **Tech**: Integrated `html-to-image` for high-res (3x pixel ratio) mobile exports.
+
+## Phase 79 — Branding & Domain Migration
+*   [x] **SEO**: Updated `src/lib/seo.ts` to reflect the new production domain `cockcount.vercel.app`.
+*   [x] **Branding**: Updated Story Card footer and global watermarks to the new domain.
+
+## Phase 81 — Match & Session Time Tracking & Win Streak Fix (29 Mar 2026)
+*   [x] **Database Schema**: Updated `matches` to include `played_at` (timestamptz) and `sessions` to include `start_time` (timestamptz).
+*   [x] **Server Actions**: Updated `addMatch`, `updateMatch`, `addSession`, and `editSession` to handle explicit timestamps.
+*   [x] **Analytics**: Refactored `src/lib/analytics/core.ts` to sort matches by `playedAt` instead of `createdAt`, fixing win streak inaccuracies for out-of-order logging.
+*   [x] **UI/UX**: Added time selection (HTML5 time input) to `RecordMatch` (Desktop/Mobile) and `SessionForm` (Session Log/Edit).
+*   [x] **Data Flow**: Ensured `played_at` and `start_time` are fetched and passed through all relevant page and component layers.
+
+## Current Project Status
+
+The app now supports **Explicit Time Tracking** for matches and sessions, ensuring chronological accuracy for streaks and history even when data is logged late. The system is fully audited for time-series consistency.
 
 ## Known Issues / Backlog
 
 *   **Environment Variables**: `.env.local` requires real Supabase keys for public distribution.
 *   **Static Pre-rendering**: Some pages might benefit from partial pre-rendering (PPR) if Next.js version allows.
+
 
 ## Roadmap & Next Steps
 

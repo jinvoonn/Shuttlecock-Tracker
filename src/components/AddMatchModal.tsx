@@ -23,6 +23,7 @@ interface MatchModalProps {
     team_b_player2: string;
     team_a_score: number;
     team_b_score: number;
+    played_at?: string;
   };
 }
 
@@ -40,6 +41,11 @@ export default function AddMatchModal({ sessionId, players, onClose, onSuccess, 
 
   const [scoreA, setScoreA] = useState<number>(isEdit ? initialMatch.team_a_score : 0);
   const [scoreB, setScoreB] = useState<number>(isEdit ? initialMatch.team_b_score : 0);
+  const [playedAt, setPlayedAt] = useState<string>(
+    initialMatch?.played_at 
+      ? new Date(initialMatch.played_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+      : new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -71,7 +77,8 @@ export default function AddMatchModal({ sessionId, players, onClose, onSuccess, 
         teamAIds,
         teamBIds,
         scoreA,
-        scoreB
+        scoreB,
+        playedAt: playedAt ? `${new Date().toISOString().split('T')[0]}T${playedAt}:00Z` : undefined
       });
       
       const result = (isEdit && initialMatch?.id)
@@ -140,6 +147,18 @@ export default function AddMatchModal({ sessionId, players, onClose, onSuccess, 
               {error}
             </div>
           )}
+          
+          <div className="bg-slate-950/30 p-6 rounded-2xl border border-slate-800 space-y-4">
+            <div className="flex items-center justify-between">
+              <h4 className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Match Time</h4>
+              <input 
+                type="time" 
+                value={playedAt}
+                onChange={(e) => setPlayedAt(e.target.value)}
+                className="bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-100 font-bold focus:border-emerald-400/50 outline-none"
+              />
+            </div>
+          </div>
 
           <div className="space-y-4">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Tap to cycle: A → B → Out</p>

@@ -9,7 +9,7 @@ export async function addSession(payloadStr: string) {
     if (role !== "admin") throw new Error("Only admins can add sessions");
 
     const payload = JSON.parse(payloadStr);
-    const { date, location, notes, playerIds, newPlayerNames, usage } = payload;
+    const { date, startTime, location, notes, playerIds, newPlayerNames, usage } = payload;
 
     if (!date || (playerIds.length === 0 && newPlayerNames.length === 0)) {
         throw new Error("Date and at least one player are required");
@@ -57,11 +57,14 @@ export async function addSession(payloadStr: string) {
     }
 
     // 3. Insert session
-    const { data: session, error: sessionError } = await supabase.from("sessions").insert([{
+    const insertData: any = {
         date,
         location,
         notes
-    }]).select().single();
+    };
+    if (startTime) insertData.start_time = startTime;
+
+    const { data: session, error: sessionError } = await supabase.from("sessions").insert([insertData]).select().single();
 
     if (sessionError || !session) {
         throw new Error("Failed to create session: " + sessionError?.message);
@@ -115,7 +118,7 @@ export async function editSession(id: string, payloadStr: string) {
     if (role !== "admin") throw new Error("Only admins can edit sessions");
 
     const payload = JSON.parse(payloadStr);
-    const { date, location, notes, playerIds, newPlayerNames, usage } = payload;
+    const { date, startTime, location, notes, playerIds, newPlayerNames, usage } = payload;
 
     if (!date || (playerIds.length === 0 && newPlayerNames.length === 0)) {
         throw new Error("Date and at least one player are required");
@@ -137,7 +140,9 @@ export async function editSession(id: string, payloadStr: string) {
     await supabase.from("session_usage").delete().eq("session_id", id);
 
     // 3. Update session metadata
-    await supabase.from("sessions").update({ date, location, notes }).eq("id", id);
+    const updateData: any = { date, location, notes };
+    if (startTime) updateData.start_time = startTime;
+    await supabase.from("sessions").update(updateData).eq("id", id);
 
     // 4. Resolve players (same logic as addSession - could be refactored if needed)
     const finalPlayerIds = new Set<string>(playerIds);
@@ -216,12 +221,16 @@ export async function updateSessionMetadata(id: string, formData: FormData) {
 
     const date = formData.get("date") as string;
     const location = formData.get("location") as string;
+    const startTime = formData.get("startTime") as string;
 
     if (!date || !location) {
         throw new Error("Date and location are required");
     }
 
-    const { error } = await supabase.from("sessions").update({ date, location }).eq("id", id);
+    const updateData: any = { date, location };
+    if (startTime) updateData.start_time = startTime;
+
+    const { error } = await supabase.from("sessions").update(updateData).eq("id", id);
     if (error) {
         throw new Error("Failed to update session: " + error.message);
     }

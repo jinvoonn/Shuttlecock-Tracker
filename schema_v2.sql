@@ -41,6 +41,7 @@ create table public.sessions (
   date date not null,
   location text,
   notes text,
+  start_time timestamptz default now(),
   created_at timestamptz default now()
 );
 
@@ -101,6 +102,7 @@ create table public.matches (
   team_b_player2 uuid references public.players(id) on delete restrict not null,
   team_a_score integer not null default 0,
   team_b_score integer not null default 0,
+  played_at timestamptz default now(),
   created_at timestamptz default now()
 );
 

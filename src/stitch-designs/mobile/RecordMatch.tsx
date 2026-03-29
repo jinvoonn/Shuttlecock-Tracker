@@ -25,6 +25,7 @@ interface Player {
 interface MobileRecordMatchProps {
   sessionId: string;
   players: Player[];
+  sessionDate: string;
 }
 
 import { useState } from 'react';
@@ -32,12 +33,13 @@ import { addMatch } from "@/lib/actions/matches";
 import { useRouter } from "next/navigation";
 import PlayerName from "@/components/ui/PlayerName";
 
-export default function MobileRecordMatch({ sessionId, players }: MobileRecordMatchProps) {
+export default function MobileRecordMatch({ sessionId, players, sessionDate }: MobileRecordMatchProps) {
   const router = useRouter();
   const [playerTeams, setPlayerTeams] = useState<Record<string, number>>({});
   // 0 = unselected, 1 = Team A, 2 = Team B
   const [scoreA, setScoreA] = useState(21);
   const [scoreB, setScoreB] = useState(19);
+  const [playedAt, setPlayedAt] = useState(new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }));
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Cycle: None (0) → Team A (1) → Team B (2) → None (0)
@@ -59,13 +61,19 @@ export default function MobileRecordMatch({ sessionId, players }: MobileRecordMa
     }
     setIsSubmitting(true);
     try {
+      const timeDate = new Date(sessionDate);
+      const [hours, minutes] = playedAt.split(':');
+      timeDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      const isoPlayedAt = timeDate.toISOString(); 
+
       const payload = JSON.stringify({
         sessionId,
-        teamIds: [...teamAIds, ...teamBIds], // This matches the expected backend structure for flexible teams if evolved, but let's stick to what actions expect:
+        teamIds: [...teamAIds, ...teamBIds], 
         teamAIds,
         teamBIds,
         scoreA,
-        scoreB
+        scoreB,
+        playedAt: isoPlayedAt
       });
       const result = await addMatch(payload);
       if (result.success) {
@@ -158,8 +166,21 @@ export default function MobileRecordMatch({ sessionId, players }: MobileRecordMa
             </div>
           </div>
 
+          {/* Match Time Section */}
+          <div className="mt-8 px-6">
+            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4 ml-1">Match Time</h3>
+            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-4 shadow-lg">
+              <input 
+                type="time" 
+                value={playedAt}
+                onChange={(e) => setPlayedAt(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-slate-100 font-bold focus:border-emerald-400/50 outline-none transition-all"
+              />
+            </div>
+          </div>
+
           {/* Final Score Section */}
-          <div className="mt-4 px-6">
+          <div className="mt-8 px-6">
             <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4 ml-1">Final Score</h3>
             <div className="flex items-center justify-center gap-6 bg-slate-800 border border-slate-700 rounded-[2.5rem] py-10 shadow-lg relative overflow-hidden">
                <div className="absolute top-0 right-0 size-48 bg-emerald-400/5 rounded-full -translate-y-24 translate-x-24 blur-3xl"></div>

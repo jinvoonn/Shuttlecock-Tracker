@@ -15,7 +15,20 @@ export function MatchesProvider({ children, initialMatches }: { children: React.
   const [matches, setMatchesState] = useState(initialMatches);
 
   const addOptimisticMatch = useCallback((newMatch: any) => {
-    setMatchesState(prev => [...prev, { ...newMatch, id: `temp-${Date.now()}`, created_at: new Date().toISOString() }]);
+    setMatchesState(prev => {
+      const matchWithTime = { 
+        ...newMatch, 
+        id: `temp-${Date.now()}`, 
+        created_at: new Date().toISOString(),
+        played_at: newMatch.played_at || new Date().toISOString()
+      };
+      const next = [...prev, matchWithTime];
+      // Keep optimistic matches sorted for consistent UI
+      return next.sort((a, b) => 
+        new Date(a.played_at || a.created_at).getTime() - 
+        new Date(b.played_at || b.created_at).getTime()
+      );
+    });
   }, []);
 
   const setMatches = useCallback((newMatches: any[]) => {
@@ -30,6 +43,7 @@ export function MatchesProvider({ children, initialMatches }: { children: React.
       const { data } = await supabase
         .from('matches')
         .select('*')
+        .order('played_at', { ascending: true })
         .order('created_at', { ascending: true });
       
       if (data) setMatchesState(data);
