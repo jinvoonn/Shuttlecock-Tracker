@@ -135,7 +135,7 @@ export function SessionMatches({ sessionId, sessionDate, sessionPlayers, matches
     const sortedMatches = (matches || []).sort((a, b) => {
         const timeA = new Date(a.played_at || a.created_at).getTime();
         const timeB = new Date(b.played_at || b.created_at).getTime();
-        return timeA - timeB;
+        return timeB - timeA;
     });
 
     return (

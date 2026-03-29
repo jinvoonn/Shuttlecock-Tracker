@@ -185,6 +185,10 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
         played_at: m.played_at || null,
         created_at: m.created_at || new Date().toISOString()
       };
+  }).sort((a, b: any) => {
+    const timeA = new Date(a.played_at || a.created_at).getTime();
+    const timeB = new Date(b.played_at || b.created_at).getTime();
+    return timeB - timeA;
   });
 
   const initialData = {
