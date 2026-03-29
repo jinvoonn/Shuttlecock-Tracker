@@ -13,6 +13,7 @@ import { getBestPartner, getWorstPartner, getPartnerStats } from "@/lib/analytic
 import { getCockRank } from "@/lib/analytics/rank";
 import RankBadge from "@/components/ui/RankBadge";
 import PlayerName from "@/components/ui/PlayerName";
+import PlayerCard from "@/components/player/PlayerCard";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import clsx from "clsx";
 
@@ -263,36 +264,61 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                         <ArrowLeft className="w-4 h-4" /> Back to Dashboard
                     </Link>
 
-                    <header className="mb-8 flex items-center gap-4">
-                        <div className="h-20 w-20 flex-shrink-0 bg-slate-800 rounded-2xl flex flex-col items-center justify-center border border-slate-700 shadow-xl overflow-hidden relative">
-                            <User className="w-8 h-8 text-slate-400 absolute" />
-                            <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/20 to-transparent"></div>
+                    <header className="mb-10 flex flex-col md:flex-row items-center md:items-start gap-8">
+                        {/* THE HERO CARD */}
+                        <div className="flex-shrink-0 animate-in slide-in-from-left duration-700">
+                             <PlayerCard 
+                                player={{ id, name: player.name }}
+                                stats={{
+                                    elo: playerElo,
+                                    winRate,
+                                    wins,
+                                    streak: winStreak,
+                                    placementMatchesPlayed
+                                }}
+                             />
                         </div>
-                        <div>
-                            <PlayerName 
-                                name={player.name} 
-                                elo={playerElo} 
-                                placementMatchesPlayed={placementMatchesPlayed}
-                                showRankName={true} 
-                                nameClassName="text-3xl"
-                            />
-                            <div className="flex flex-col mt-2">
-                                {bestPartner && (
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <Target className="w-3.5 h-3.5 text-emerald-400" />
-                                        <p className="text-xs font-bold text-slate-300">
-                                            Best Partner: <span className="text-emerald-400">{bestPartner.name}</span>
-                                        </p>
+
+                        {/* Profile Info Overlay (Desktop only side car) */}
+                        <div className="flex-1 space-y-6 py-4">
+                            <div>
+                                <h1 className="text-sm font-black text-slate-500 uppercase tracking-[0.4em] mb-4">Official Bio</h1>
+                                <PlayerName 
+                                    name={player.name} 
+                                    elo={playerElo} 
+                                    placementMatchesPlayed={placementMatchesPlayed}
+                                    showRankName={true} 
+                                    nameClassName="text-4xl"
+                                />
+                                <div className="flex items-center gap-3 mt-3">
+                                    <div className="px-3 py-1 bg-slate-800 rounded-lg border border-slate-700">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">ID: {id.slice(0,8)}</p>
                                     </div>
-                                )}
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[10px] text-slate-600 uppercase font-bold tracking-widest px-1">Player Profile</span>
                                     {isUnranked && (
                                         <span className="text-[10px] text-amber-500/80 font-black uppercase tracking-tighter">
                                             • Placement {placementMatchesPlayed}/5
                                         </span>
                                     )}
                                 </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-4 max-w-xs">
+                                {bestPartner && (
+                                    <div className="flex items-center gap-3 p-3 bg-emerald-500/5 rounded-xl border border-emerald-500/10">
+                                        <Target className="w-4 h-4 text-emerald-400" />
+                                        <div>
+                                            <p className="text-[9px] font-bold text-slate-500 uppercase">Best Synergy</p>
+                                            <p className="text-xs font-bold text-slate-300">
+                                                <span className="text-emerald-400">{bestPartner.name}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex flex-wrap gap-2 pt-2">
+                                <span className="px-3 py-1 bg-slate-800/50 rounded-full border border-slate-700 text-[9px] font-bold text-slate-500 uppercase tracking-widest">Season 1 Active</span>
+                                <span className="px-3 py-1 bg-slate-800/50 rounded-full border border-slate-700 text-[9px] font-bold text-slate-500 uppercase tracking-widest">Global Ranking</span>
                             </div>
                         </div>
                     </header>
