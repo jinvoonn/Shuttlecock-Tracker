@@ -20,6 +20,7 @@ interface Match {
     team_a_player2: string;
     team_b_player1: string;
     team_b_player2: string;
+    played_at?: string;
     created_at: string;
 }
 

@@ -181,7 +181,8 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
         team_b_player2: p4,
         type: "Doubles",
         court: "Any",
-        status: (m.team_a_score > 0 || m.team_b_score > 0) ? "Completed" as const : "Live" as const
+        status: (m.team_a_score > 0 || m.team_b_score > 0) ? "Completed" as const : "Live" as const,
+        played_at: m.played_at || m.created_at || new Date().toISOString()
       };
   });
 
