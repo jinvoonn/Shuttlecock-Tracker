@@ -12,6 +12,7 @@ interface Player {
 
 interface MatchModalProps {
   sessionId: string;
+  sessionDate: string;
   players: Player[];
   onClose: () => void;
   onSuccess: () => void;
@@ -23,11 +24,11 @@ interface MatchModalProps {
     team_b_player2: string;
     team_a_score: number;
     team_b_score: number;
-    played_at?: string;
+    played_at?: string | null;
   };
 }
 
-export default function AddMatchModal({ sessionId, players, onClose, onSuccess, initialMatch }: MatchModalProps) {
+export default function AddMatchModal({ sessionId, sessionDate, players, onClose, onSuccess, initialMatch }: MatchModalProps) {
   const isEdit = !!initialMatch;
   const [playerTeams, setPlayerTeams] = useState<Record<string, number>>(() => {
     if (!initialMatch) return {};
@@ -78,7 +79,12 @@ export default function AddMatchModal({ sessionId, players, onClose, onSuccess, 
         teamBIds,
         scoreA,
         scoreB,
-        playedAt: playedAt ? `${new Date().toISOString().split('T')[0]}T${playedAt}:00Z` : undefined
+        playedAt: playedAt ? (() => {
+          const [hours, minutes] = playedAt.split(':');
+          const date = new Date(sessionDate);
+          date.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+          return date.toISOString();
+        })() : undefined
       });
       
       const result = (isEdit && initialMatch?.id)

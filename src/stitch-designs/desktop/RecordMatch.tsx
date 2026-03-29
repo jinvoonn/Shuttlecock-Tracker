@@ -66,8 +66,8 @@ export default function DesktopRecordMatch({ sessionId, players, sessionDate }: 
     setIsSubmitting(true);
     try {
       // Combine session date with matches time
-      const timeDate = new Date(sessionDate);
       const [hours, minutes] = playedAt.split(':');
+      const timeDate = new Date(`${sessionDate}T00:00:00`);
       timeDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
       const isoPlayedAt = timeDate.toISOString(); 
       

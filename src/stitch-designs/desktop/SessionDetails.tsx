@@ -57,7 +57,8 @@ interface Match {
   type: string;
   court: string;
   status: 'Completed' | 'Live';
-  played_at: string;
+  played_at: string | null;
+  created_at: string;
 }
 
 interface Attendee {
@@ -187,6 +188,7 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
         {(isModalOpen || editingMatch) && (
           <AddMatchModal 
             sessionId={session.id}
+            sessionDate={session.date}
             players={attendees.map(a => ({ id: a.id, name: a.name }))}
             onClose={() => {
                 setIsModalOpen(false);
@@ -371,7 +373,7 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                 )}>
                   <div className="p-4 border-b border-slate-300 dark:border-[#1e293b] bg-slate-300/30 dark:bg-slate-800/30 flex justify-between items-center">
                     <span className="text-[10px] font-black italic uppercase tracking-widest text-slate-500">
-                      {match.type} • Court {match.court} • {new Date(match.played_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+                      {match.type} • Court {match.court} • {new Date(match.played_at || match.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                     </span>
                     <div className="flex items-center gap-3">
                       {match.status === 'Completed' ? (

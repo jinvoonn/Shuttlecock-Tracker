@@ -61,8 +61,8 @@ export default function MobileRecordMatch({ sessionId, players, sessionDate }: M
     }
     setIsSubmitting(true);
     try {
-      const timeDate = new Date(sessionDate);
       const [hours, minutes] = playedAt.split(':');
+      const timeDate = new Date(`${sessionDate}T00:00:00`);
       timeDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
       const isoPlayedAt = timeDate.toISOString(); 
 

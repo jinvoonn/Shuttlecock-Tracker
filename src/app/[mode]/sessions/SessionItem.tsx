@@ -20,7 +20,7 @@ interface Match {
     team_a_player2: string;
     team_b_player1: string;
     team_b_player2: string;
-    played_at?: string;
+    played_at?: string | null;
     created_at: string;
 }
 
@@ -181,6 +181,7 @@ export function SessionItem({ session, allPlayers, allPurchases }: SessionItemPr
             <div className="mt-2">
                 <SessionMatches 
                     sessionId={session.id} 
+                    sessionDate={session.date}
                     sessionPlayers={session.session_players || []} 
                     matches={session.matches || []} 
                 />

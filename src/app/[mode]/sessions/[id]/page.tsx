@@ -142,7 +142,7 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
     id: session.id,
     name: `Session ${sessionNum}`,
     date: sessionDate.toLocaleDateString(),
-    time: sessionDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    time: new Date(session.start_time || session.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     location: session.location || "Default Court",
     division: "Social Play",
     shuttlesUsed: shuttlesUsedCount,
@@ -182,7 +182,8 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
         type: "Doubles",
         court: "Any",
         status: (m.team_a_score > 0 || m.team_b_score > 0) ? "Completed" as const : "Live" as const,
-        played_at: m.played_at || m.created_at || new Date().toISOString()
+        played_at: m.played_at || null,
+        created_at: m.created_at || new Date().toISOString()
       };
   });
 

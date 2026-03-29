@@ -22,11 +22,11 @@ interface Match {
     team_b_player2: string;
     team_a_ids?: string[];
     team_b_ids?: string[];
-    played_at?: string;
+    played_at?: string | null;
     created_at: string;
 }
 
-export function SessionMatches({ sessionId, sessionPlayers, matches }: { sessionId: string, sessionPlayers: SessionPlayer[], matches: Match[] }) {
+export function SessionMatches({ sessionId, sessionDate, sessionPlayers, matches }: { sessionId: string, sessionDate: string, sessionPlayers: SessionPlayer[], matches: Match[] }) {
     const { isAdmin } = useRole();
     const { addOptimisticMatch } = useMatches();
     const [isAdding, setIsAdding] = useState(false);
@@ -95,7 +95,12 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
             teamBIds,
             scoreA: parseInt(scoreA) || 0,
             scoreB: parseInt(scoreB) || 0,
-            playedAt: playedAt ? `${new Date().toISOString().split('T')[0]}T${playedAt}:00Z` : undefined
+            playedAt: playedAt ? (() => {
+                const [hours, minutes] = playedAt.split(':');
+                const date = new Date(sessionDate);
+                date.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+                return date.toISOString();
+            })() : undefined
         };
 
         if (!editingMatchId) {
@@ -288,7 +293,7 @@ export function SessionMatches({ sessionId, sessionPlayers, matches }: { session
                                 <div className="text-[9px] uppercase font-bold text-slate-600">Match {idx + 1}</div>
                                 {m.played_at && (
                                     <div className="text-[9px] font-bold text-[#13ec80] font-mono tabular-nums">
-                                        {new Date(m.played_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                                        {new Date(m.played_at || m.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
                                     </div>
                                 )}
                             </div>
