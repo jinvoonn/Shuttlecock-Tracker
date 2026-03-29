@@ -60,12 +60,15 @@ export function calculateEloRatings(matches: NormalizedMatch[]): { current: EloM
   // Sort matches chronologically to assure ELO accuracy.
   // Primary sort by playedAt, secondary by createdAt
   const sortedMatches = [...matches].sort((a, b) => {
-    const timeDiff = new Date(a.playedAt).getTime() - new Date(b.playedAt).getTime();
+    const getTimeSafe = (d?: string) => {
+      if (!d) return 0;
+      const t = new Date(d).getTime();
+      return isNaN(t) ? 0 : t;
+    };
+    
+    const timeDiff = getTimeSafe(a.playedAt) - getTimeSafe(b.playedAt);
     if (timeDiff !== 0) return timeDiff;
-    if (a.createdAt && b.createdAt) {
-      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-    }
-    return 0;
+    return getTimeSafe(a.createdAt) - getTimeSafe(b.createdAt);
   });
 
   // Initialize all players seen natively

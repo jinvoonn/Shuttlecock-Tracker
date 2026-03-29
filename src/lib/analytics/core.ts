@@ -33,14 +33,17 @@ export function getPlayerStats(
   // Process matches in chronological order to calculate streaks
   // Primary sort by played_at, secondary by created_at
   const sortedMatches = [...matches].sort((a, b) => {
-    const timeDiff = new Date(a.playedAt).getTime() - new Date(b.playedAt).getTime();
+    const getTimeSafe = (d?: string) => {
+      if (!d) return 0;
+      const t = new Date(d).getTime();
+      return isNaN(t) ? 0 : t;
+    };
+
+    const timeDiff = getTimeSafe(a.playedAt) - getTimeSafe(b.playedAt);
     if (timeDiff !== 0) return timeDiff;
     
     // Fallback to createdAt if playedAt is identical
-    if (a.createdAt && b.createdAt) {
-      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-    }
-    return 0;
+    return getTimeSafe(a.createdAt) - getTimeSafe(b.createdAt);
   });
 
   sortedMatches.forEach((match) => {

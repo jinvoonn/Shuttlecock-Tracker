@@ -1,4 +1,5 @@
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { AlertCircle } from "lucide-react";
 import DesktopRecordMatch from "@/stitch-designs/desktop/RecordMatch";
 import MobileRecordMatch from "@/stitch-designs/mobile/RecordMatch";
 import { normalizeMatches } from "@/lib/analytics/normalize";
@@ -8,6 +9,18 @@ export const revalidate = 0;
 
 export default async function RecordMatchPage({ params }: { params: Promise<{ mode: string, id: string }> }) {
   const { mode, id } = await params;
+  
+  if (!isSupabaseConfigured) {
+    return (
+      <div className="p-8 flex flex-col items-center justify-center min-h-screen text-amber-500 bg-[#020617] text-center max-w-md mx-auto">
+        <AlertCircle className="size-12 mb-4" />
+        <p className="font-black italic uppercase text-2xl tracking-tighter">Configuration Required</p>
+        <p className="text-sm text-slate-400 mt-2 font-bold tracking-tight">
+          Vercel Environment Variables are missing.
+        </p>
+      </div>
+    );
+  }
 
   const { data: sessionPlayers, error: playersError } = await supabase
     .from("session_players")

@@ -1,4 +1,5 @@
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { AlertCircle } from "lucide-react";
 import DesktopSessions from "@/stitch-designs/desktop/Sessions";
 import MobileLogSessions from "@/stitch-designs/mobile/LogSessions";
 import { normalizeMatches } from "@/lib/analytics/normalize";
@@ -7,7 +8,19 @@ import { aggregatePlayerStats } from "@/lib/analytics/core";
 export const revalidate = 0;
 
 export default async function LogSessionPage({ params }: { params: Promise<{ mode: string }> }) {
-  await params;
+  const { mode } = await params;
+  
+  if (!isSupabaseConfigured) {
+    return (
+      <div className="p-8 flex flex-col items-center justify-center min-h-screen text-amber-500 bg-[#020617] text-center max-w-md mx-auto">
+        <AlertCircle className="size-12 mb-4" />
+        <p className="font-black italic uppercase text-2xl tracking-tighter">Configuration Required</p>
+        <p className="text-sm text-slate-400 mt-2 font-bold tracking-tight">
+          Vercel Environment Variables are missing.
+        </p>
+      </div>
+    );
+  }
   
   const [
     { data: playersData, error: playersError },
