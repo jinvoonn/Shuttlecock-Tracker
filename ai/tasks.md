@@ -206,9 +206,42 @@
 *   [x] **UI/UX**: Added time selection (HTML5 time input) to `RecordMatch` (Desktop/Mobile) and `SessionForm` (Session Log/Edit).
 *   [x] **Data Flow**: Ensured `played_at` and `start_time` are fetched and passed through all relevant page and component layers.
 
+## Phase 82 — Match Sorting & Timezone Fix (29 Mar 2026)
+*   [x] **Bug Fix**: Fixed timezone shift bug in `RecordMatch` (Desktop & Mobile) and `AddMatchModal` — time inputs were incorrectly treating local time as UTC, causing an 8-hour shift in stored timestamps.
+*   [x] **Time Construction**: Refactored all recording components to build timestamps using `${sessionDate}T00:00:00` + `setHours()` to preserve local time as the correct UTC value.
+*   [x] **Match Sorting**: Implemented latest-first descending sort (`timeB - timeA`) on the matches array in `src/app/[mode]/sessions/[id]/page.tsx` and `SessionMatches.tsx` using `played_at || created_at` as fallback.
+*   [x] **Session Header**: Updated Session Details header to display `start_time` with fallback to `created_at` instead of a generic "12:00 AM".
+*   [x] **TypeScript**: Added `created_at` to the match mapping object in `page.tsx` to resolve build-time type error.
+
+## Phase 83 — FIFA-Style Player Card System (29 Mar 2026)
+*   [x] **Component**: Created `src/components/player/PlayerCard.tsx` — a premium collectible-style identity card with 4 visual tiers (Bronze / Silver / Gold / Elite) auto-selected by CR score.
+*   [x] **Tier Logic**: Maps player elo to rank tiers consistent with `rank.ts` — Soft Chick / Rising Chick / Hard Hitter / Big Cock / Battle Cock / Alpha Cock / CockMaster.
+*   [x] **Visual Effects**: Tier-specific glow, holographic shine animation, glassmorphism gradients, and `Lexend` typography.
+*   [x] **Future-Proof**: Includes an `avatar_url` prop and stylized placeholder (User icon + styled cutout) ready for future hero image support without schema changes.
+*   [x] **Integration**: Replaced the generic profile header in `src/app/[mode]/players/[id]/page.tsx` with the Player Card as the hero element. Maintained "Official Bio", Best Synergy badge, and Season tags as the companion sidebar.
+*   [x] **Responsive**: Card is centered on mobile (portrait), side-by-side with bio on desktop.
+
+## Phase 84 — Multi-Card Story System: Design Phase (29 Mar 2026, In Progress)
+*   [x] **Concept**: Designed a second story card — a **Podium Card** — for the session story share feature showcasing Top 3 players by wins.
+*   [x] **3 Podium Concepts Explored**: Classic Podium (elevated #1), Card Stack (vertical ranked rows), and Minimal Premium (typographic standings).
+*   [x] **Strava-Inspired Redesign**: Redesigned both a Light and Dark variant using Strava's activity-card language — signature orange `#FC4C02`, clean 2-zone layout (MVP hero stat + segment podium), Instagram Story 9:16 ratio.
+*   [ ] **PodiumCard Component**: Create `src/components/story/PodiumCard.tsx` (pending user design approval).
+*   [ ] **Carousel Integration**: Update `StoryPreviewModal.tsx` to horizontal snap-scroll carousel (`overflow-x-auto snap-x snap-mandatory`).
+*   [ ] **Download UX**: Implement per-card download buttons so each card in the story can be saved individually.
+
+## Phase 85 — CockCount Ranking Architecture Overhaul (23 May 2026, In Progress)
+*   [x] **Critical Redesign Audit**: Audited legacy zero-sum Elo engine (`src/lib/analytics/elo.ts`) and identified critical closed-pool pitfalls (Elo deflated point traps, same-opponent farming, inactive inflation, severe close-match deuce punishment).
+*   [x] **Formulate Proposals**: Engineered 4 design approaches balancing professional skill metrics with casual gaming motivation (Glicko-Lite, Seasonal RP + floors, Diminishing H2H, and XP Progression).
+*   [x] **Database & Replay Simulation**: Programmed a Node.js simulator replaying all 18 players and 95 chronological matches from Supabase.
+*   [x] **Consistency Streak System**: Designed a soft-decay attendance streak system ($+1$ for attending, $-2$ for missing sessions) to scale progression XP.
+*   [x] **Floor Protected MMR**: Designed a Glicko-Lite background MMR system with a hard skill floor of `1000`, leveraging accumulated consistency XP to lift low-tier players above the floor (rescuing Jang Zhe and Huai Zhou).
+*   [x] **Close-Match Protection**: Designed 70% MMR dampening on deuces/close margins ($\le 2$).
+*   [ ] **Ranking Engine Integration**: Implement `src/lib/analytics/rankingEngine.ts` containing the unified floor-protected Glicko-Lite + Streak XP logic.
+*   [ ] **Integrate Core Analytics**: Wire `rankingEngine.ts` into `src/lib/analytics/core.ts` and standard page controllers.
+
 ## Current Project Status
 
-The app now supports **Explicit Time Tracking** for matches and sessions, ensuring chronological accuracy for streaks and history even when data is logged late. The system is fully audited for time-series consistency.
+The app now has **Explicit Time Tracking**, a **FIFA-Style Player Card** identity system, and a **Multi-Card Story System** design. We have finalized the architecture and simulated the new **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking system. Recalculation is 100% simulated and ready for codebase integration.
 
 ## Known Issues / Backlog
 
@@ -220,8 +253,9 @@ The app now supports **Explicit Time Tracking** for matches and sessions, ensuri
 
 1.  **Placement Match System**: (Complete) Dynamic K-factor and Unranked state implemented.
 2.  **Live Updates**: (Complete) Real-time leaderboard and animations.
-3.  **Auto-Grouping**: Smart team generation based on skill ratings and partner history.
-4.  **Settle Tracking**: Auto-suggest who pays what based on complex debt chains.
+3.  **Ranking Architecture Overhaul**: (In Progress) Deploying floor-protected Glicko-Lite + Attendance Streak XP engine.
+4.  **Auto-Grouping**: Smart team generation based on skill ratings and partner history.
+5.  **Settle Tracking**: Auto-suggest who pays what based on complex debt chains.
 
 
 ## Agent Tips

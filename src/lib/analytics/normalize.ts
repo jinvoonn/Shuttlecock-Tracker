@@ -35,6 +35,7 @@ export function normalizeMatch(raw: any, playerMap: Record<string, string>): Nor
     playedAt: raw.played_at || raw.created_at || new Date().toISOString(),
     createdAt: raw.created_at || new Date().toISOString(),
     shuttleUsed: Number(raw.shuttle_used || raw.stats?.shuttleUsed || 0),
+    sessionId: raw.session_id,
   };
 }
 

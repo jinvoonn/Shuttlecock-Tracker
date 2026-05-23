@@ -104,8 +104,8 @@ export function getPlayerStats(
   return stats;
 }
 
-// Ensure calculateEloRatings is imported at the top
-import { calculateEloRatings } from "./elo";
+// Ensure calculateGlickoHybridRatings is imported
+import { calculateGlickoHybridRatings } from "./rankingEngine";
 import { EloMap } from "./types";
 
 /**
@@ -114,6 +114,6 @@ import { EloMap } from "./types";
  */
 export function aggregatePlayerStats(matches: NormalizedMatch[], playerMap: Record<string, string>) {
   const stats = getPlayerStats(matches, playerMap);
-  const { current: elo, history: eloHistory } = calculateEloRatings(matches);
+  const { current: elo, history: eloHistory } = calculateGlickoHybridRatings(matches);
   return { stats, elo, eloHistory };
 }

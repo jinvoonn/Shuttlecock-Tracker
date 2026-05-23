@@ -9,6 +9,7 @@ export type NormalizedMatch = {
   playedAt: string;
   createdAt?: string;
   shuttleUsed?: number;
+  sessionId?: string;
 };
 
 export type PlayerStats = {
