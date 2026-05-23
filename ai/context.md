@@ -132,6 +132,6 @@ Badge colours: emerald (`+`), rose (`-`), slate (`±0`).
 - `deltas?.[matchId]?.[playerId]` is the safe-access pattern to read a player's rating change for any given match.
 
 ## Current Project Status
-**Phases 85, 86, 87, & 88 complete (23 May 2026).** App features **Explicit Time Tracking**, **Live Leaderboard Updates**, **Premium Gaming UI**, **FIFA-Style Player Cards**, **Public IG Story Generation**, a fully live **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Match-by-Match Rating Delta Indicators**, a surgical **Underdog Bonus** modifier (+20% on wins with <30% expected probability), and a **Synchronized User Guide** built with simplified gamer terminology (MMR, Certainty Meters, deuce damping). Production build is fully verified (Exit code: 0) and ready for deployment!
+**Phases 85, 86, 87, & 88 complete (23 May 2026).** App features **Explicit Time Tracking**, **Live Leaderboard Updates**, **Premium Gaming UI**, **FIFA-Style Player Cards**, **Public IG Story Generation**, a fully live **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Match-by-Match Rating Delta Indicators**, a surgical **Underdog Bonus** modifier (+20% on wins with <30% expected probability), and a **Synchronized User Guide & Scenario Walkthrough** built with simplified gamer terminology (MMR, Certainty Volatility, deuce damping, and realistic match scenario calculations). Production build is fully verified (Exit code: 0) and ready for deployment!
 
 *"Because Shuttlecocks Aren't Free."*

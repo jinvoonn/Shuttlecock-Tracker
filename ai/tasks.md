@@ -268,11 +268,12 @@
 *   [x] **Align Documentation**: Overhauled the user guide page (`cockrating/page.tsx`) to match actual codebase behavior perfectly.
 *   [x] **Terminology Simplification**: Refactored the copy to utilize simple "MMR" instead of complex "Glicko-Lite MMR" and dynamic "Certainty/Volatility" indicators rather than fixed linear K-factor tables.
 *   [x] **Insulate Social Modifiers**: Documented the actual active modifiers (Underdog + Streak XP) while explicitly omitting carry modifiers, ensuring 100% security alignment.
+*   [x] **Interactive Scenario Board**: Integrated a walk-through section containing 4 high-fidelity gaming scenarios (Balanced Battle, Nail-Biter deuce damping, Underdog Giant Slayer boost, and Attendance Streak XP cushions) to give players a concrete, realistic understanding of ELO shifts.
 *   [x] **Production Build Verified**: Confirmed successful static compile of `/cockrating` route and entire site with `Exit code: 0`.
 
 ## Current Project Status
 
-The app now has **Explicit Time Tracking**, a **FIFA-Style Player Card** identity system, a **Multi-Card Story System** design, a fully live **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Match-by-Match Rating Delta Indicators**, a surgical **Underdog Bonus** modifier, and a fully synchronized **User Guide / Walkthrough Page** explaining MMR and social modifiers with simplified terminology. Production build is verified and ready for deployment.
+The app now has **Explicit Time Tracking**, a **FIFA-Style Player Card** identity system, a **Multi-Card Story System** design, a fully live **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Match-by-Match Rating Delta Indicators**, a surgical **Underdog Bonus** modifier, and a fully synchronized **User Guide / Scenario Walkthrough Page** explaining MMR and social modifiers with simplified terminology and visual scenario cards. Production build is verified and ready for deployment.
 
 ## Known Issues / Backlog
 
