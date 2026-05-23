@@ -10,7 +10,8 @@ import {
   TrendingUp, 
   Activity,
   Flame,
-  Award
+  Award,
+  Info
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { RANK_TIERS } from "@/lib/analytics/rank";
@@ -222,6 +223,87 @@ export default function CockRatingPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Section 6: Real-World Scenarios */}
+        <section className="space-y-6">
+          <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
+            <Info className="w-4 h-4 text-emerald-400" /> Interactive Scenarios
+          </h3>
+
+          <div className="grid gap-4">
+            {/* Scenario 1 */}
+            <div className="bg-slate-800/40 border border-slate-700/50 p-6 rounded-2xl hover:bg-slate-800/60 transition-colors">
+              <div className="flex justify-between items-start gap-4 mb-3">
+                <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                  Standard Match
+                </span>
+                <span className="font-mono text-xs font-bold text-slate-400">Score: 21-15</span>
+              </div>
+              <h4 className="text-sm font-black uppercase italic text-slate-200 mb-1">Scenario A: The Balanced Battle</h4>
+              <p className="text-xs text-slate-400 mb-4 leading-relaxed italic font-light">
+                Two evenly matched teams play. The expected probability is a coin toss.
+              </p>
+              <div className="flex justify-between items-center bg-slate-900/60 rounded-xl px-4 py-3 border border-slate-800/50 font-mono text-xs">
+                <span className="text-slate-400 font-medium">Rating Shift</span>
+                <span className="text-emerald-400 font-bold font-mono">+15 MMR / -15 MMR</span>
+              </div>
+            </div>
+
+            {/* Scenario 2 */}
+            <div className="bg-slate-800/40 border border-slate-700/50 p-6 rounded-2xl hover:bg-slate-800/60 transition-colors">
+              <div className="flex justify-between items-start gap-4 mb-3">
+                <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                  Deuce Protection
+                </span>
+                <span className="font-mono text-xs font-bold text-slate-400">Score: 21-19</span>
+              </div>
+              <h4 className="text-sm font-black uppercase italic text-slate-200 mb-1">Scenario B: The Nail-Biter</h4>
+              <p className="text-xs text-slate-400 mb-4 leading-relaxed italic font-light">
+                A hard-fought game ending in a margin of 2 points or fewer. Close Match Protection reduces ratings swings by 70%.
+              </p>
+              <div className="flex justify-between items-center bg-slate-900/60 rounded-xl px-4 py-3 border border-slate-800/50 font-mono text-xs">
+                <span className="text-slate-400 font-medium">Dampened Shift</span>
+                <span className="text-emerald-400/80 font-bold font-mono">+4 MMR / -4 MMR</span>
+              </div>
+            </div>
+
+            {/* Scenario 3 */}
+            <div className="bg-slate-800/40 border border-slate-700/50 p-6 rounded-2xl hover:bg-slate-800/60 transition-colors">
+              <div className="flex justify-between items-start gap-4 mb-3">
+                <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  Underdog Bonus
+                </span>
+                <span className="font-mono text-xs font-bold text-slate-400">Score: 21-12</span>
+              </div>
+              <h4 className="text-sm font-black uppercase italic text-slate-200 mb-1">Scenario C: The Giant Slayer</h4>
+              <p className="text-xs text-slate-400 mb-4 leading-relaxed italic font-light">
+                A team with less than 30% expected chance of winning pulls off an upset, triggering the +20% Underdog multiplier.
+              </p>
+              <div className="flex justify-between items-center bg-slate-900/60 rounded-xl px-4 py-3 border border-slate-800/50 font-mono text-xs">
+                <span className="text-slate-400 font-medium">Upset Boost</span>
+                <span className="text-emerald-400 font-bold font-mono">+30 MMR <span className="text-[10px] text-slate-500">(Up from +25)</span></span>
+              </div>
+            </div>
+
+            {/* Scenario 4 */}
+            <div className="bg-slate-800/40 border border-slate-700/50 p-6 rounded-2xl hover:bg-slate-800/60 transition-colors">
+              <div className="flex justify-between items-start gap-4 mb-3">
+                <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                  Streak XP
+                </span>
+                <span className="font-mono text-xs font-bold text-slate-400">5-Session Streak</span>
+              </div>
+              <h4 className="text-sm font-black uppercase italic text-slate-200 mb-1">Scenario D: The Iron Man</h4>
+              <p className="text-xs text-slate-400 mb-4 leading-relaxed italic font-light">
+                A highly consistent player loses a game, but their high attendance streak earns separate XP that offsets visual rating loss.
+              </p>
+              <div className="flex justify-between items-center bg-slate-900/60 rounded-xl px-4 py-3 border border-slate-800/50 font-mono text-xs">
+                <span className="text-slate-400 font-medium">Net Visible Change</span>
+                <span className="text-rose-400/90 font-bold font-mono">-10.5 visible CR <span className="text-[10px] text-slate-500">(XP softened)</span></span>
+              </div>
             </div>
           </div>
         </section>
