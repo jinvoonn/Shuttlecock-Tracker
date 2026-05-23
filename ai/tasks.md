@@ -253,9 +253,15 @@
 *   [x] **Badge Design**: `+N` = emerald green, `-N` = rose red, `±0` = muted grey. Consistent `font-mono` formatting across all views.
 *   [x] **Production Build Verified**: Full `npm run build` passed (Exit code: 0, all 17 routes compiled).
 
+## Phase 87 — Light Social Adjustments (23 May 2026, Complete)
+*   [x] **Underdog Modifier**: Surgically injected a +20% rating gain multiplier (ΔR * 1.2) for unexpected match victories where calculated win probability is < 30%.
+*   [x] **Mentor Carry Modifier**: Removed based on user review to maintain pure underdog focus and eliminate teammate farming vectors.
+*   [x] **System Insulation**: Enforced that these modifiers do not touch confidence (RD), database schemas, or the attendance streak XP system.
+*   [x] **Production Build Verified**: Full `npm run build` passed cleanly (Exit code: 0).
+
 ## Current Project Status
 
-The app now has **Explicit Time Tracking**, a **FIFA-Style Player Card** identity system, a **Multi-Card Story System** design, a fully live **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, and **Match-by-Match Rating Delta Indicators** on all session and player profile match logs. Production build is verified and deployed.
+The app now has **Explicit Time Tracking**, a **FIFA-Style Player Card** identity system, a **Multi-Card Story System** design, a fully live **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Match-by-Match Rating Delta Indicators** on all session and player profile match logs, and a surgical **Underdog Bonus** modifier. Production build is verified and deployed.
 
 ## Known Issues / Backlog
 
@@ -269,8 +275,9 @@ The app now has **Explicit Time Tracking**, a **FIFA-Style Player Card** identit
 2.  **Live Updates**: (Complete) Real-time leaderboard and animations.
 3.  **Ranking Architecture Overhaul**: (Complete) Floor-protected Glicko-Lite + Attendance Streak XP engine live.
 4.  **Rating Deltas on Match Logs**: (Complete) Per-match `+/-` rating change badges on all session and profile pages.
-5.  **Auto-Grouping**: Smart team generation based on skill ratings and partner history.
-6.  **Settle Tracking**: Auto-suggest who pays what based on complex debt chains.
+5.  **Light Social Adjustments**: (Complete) Surgical underdog bonus live.
+6.  **Auto-Grouping**: Smart team generation based on skill ratings and partner history.
+7.  **Settle Tracking**: Auto-suggest who pays what based on complex debt chains.
 
 
 ## Agent Tips

@@ -12,6 +12,7 @@ CockCount is a premium **Dark Mode Only** web app to track badminton group costs
 *   **Centralized Analytics Engine**: Unified logic for all match stats in `src/lib/analytics/`.
 *   **Glicko-Lite Ranking Engine**: Floor-protected Glicko-Lite + Attendance Streak XP hybrid replaces the legacy zero-sum Elo system. Skill floor = 1000, close-match 70% damping, soft streak decay.
 *   **Match Rating Delta Indicators**: Every match log shows a per-player `+N` / `-N` CockRating change badge in emerald/rose/grey, rendered on session pages (desktop + mobile) and player profile match history.
+*   **Light Social Adjustments**: Surgically injected Underdog win bonuses (+20% for wins with probability < 30%) to reward underdogs for high-impact upset victories.
 *   **Leaderboards**: Global and Session-level leaderboard with toggleable segmented controls.
 *   **Premium Gaming UI**: High-contrast "Obsidian" score pills, rank trophy icons, and player avatars.
 *   **FIFA-Style Player Card**: Collectible identity card on each player's profile with 4 visual tiers (Bronze/Silver/Gold/Elite) mapped to CR score. Future-proofed for hero images via `avatar_url`.
@@ -114,6 +115,6 @@ Badge colours: emerald (`+`), rose (`-`), slate (`±0`).
 - `deltas?.[matchId]?.[playerId]` is the safe-access pattern to read a player's rating change for any given match.
 
 ## Current Project Status
-**Phases 85 & 86 complete (23 May 2026).** App features **Explicit Time Tracking**, **Live Leaderboard Updates**, **Premium Gaming UI**, **FIFA-Style Player Cards**, **Public IG Story Generation**, a fully live **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, and **Match-by-Match Rating Delta Indicators** on all session and player profile match logs. Production build verified (Exit code: 0).
+**Phases 85, 86, & 87 complete (23 May 2026).** App features **Explicit Time Tracking**, **Live Leaderboard Updates**, **Premium Gaming UI**, **FIFA-Style Player Cards**, **Public IG Story Generation**, a fully live **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Match-by-Match Rating Delta Indicators**, and a surgical **Underdog Bonus** modifier. Production build is fully verified (Exit code: 0) and ready for Vercel deployment!
 
 *"Because Shuttlecocks Aren't Free."*

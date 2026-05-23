@@ -156,8 +156,17 @@ export function calculateGlickoHybridRatings(matches: NormalizedMatch[]): {
         let delta = (q / ((1 / (playerRD * playerRD)) + (1 / dSq))) * gOpp * (outcomeA - expected);
         if (isCloseMatch) delta *= 0.3;
 
+        // Apply Underdog Modifier to delta if they won
+        let finalDelta = delta;
+        if (outcomeA === 1) {
+          // A) Underdog Bonus (+20%)
+          if (expected < 0.3) {
+            finalDelta *= 1.2;
+          }
+        }
+
         // Apply Skill Floor
-        R[p] = Math.max(MMR_FLOOR, playerR + delta);
+        R[p] = Math.max(MMR_FLOOR, playerR + finalDelta);
 
         const newRD = Math.sqrt(1 / ((1 / (playerRD * playerRD)) + (1 / dSq)));
         RD[p] = isCloseMatch ? (playerRD - (playerRD - newRD) * 0.3) : newRD;
@@ -194,8 +203,17 @@ export function calculateGlickoHybridRatings(matches: NormalizedMatch[]): {
         let delta = (q / ((1 / (playerRD * playerRD)) + (1 / dSq))) * gOpp * (outcomeB - expected);
         if (isCloseMatch) delta *= 0.3;
 
+        // Apply Underdog Modifier to delta if they won
+        let finalDelta = delta;
+        if (outcomeB === 1) {
+          // A) Underdog Bonus (+20%)
+          if (expected < 0.3) {
+            finalDelta *= 1.2;
+          }
+        }
+
         // Apply Skill Floor
-        R[p] = Math.max(MMR_FLOOR, playerR + delta);
+        R[p] = Math.max(MMR_FLOOR, playerR + finalDelta);
 
         const newRD = Math.sqrt(1 / ((1 / (playerRD * playerRD)) + (1 / dSq)));
         RD[p] = isCloseMatch ? (playerRD - (playerRD - newRD) * 0.3) : newRD;
