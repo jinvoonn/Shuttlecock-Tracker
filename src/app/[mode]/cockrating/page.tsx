@@ -9,13 +9,11 @@ import {
   Zap, 
   TrendingUp, 
   Activity,
-  ChevronRight,
-  Info
+  Flame,
+  Award
 } from "lucide-react";
-import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { RANK_TIERS } from "@/lib/analytics/rank";
-import RankBadge from "@/components/ui/RankBadge";
 import RankBadgeIcon from "@/components/ui/RankBadgeIcon";
 
 export default function CockRatingPage() {
@@ -72,15 +70,15 @@ export default function CockRatingPage() {
             Because Shuttlecocks Aren't Free.
           </p>
           <p className="text-sm text-slate-500 mt-6 leading-relaxed max-w-md mx-auto">
-            CockRating is a comprehensive skill-based system designed to track performance, 
-            fairness, and progress within the CockCount ecosystem.
+            CockRating (CR) is a state-of-the-art hybrid skill rating system built on a professional matchmaking 
+            engine and augmented with casual social engagement modifiers.
           </p>
         </section>
 
-        {/* Section 2: How It Works */}
+        {/* Section 2: Core Rating Elements */}
         <section className="space-y-4">
           <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 flex items-center gap-2 mb-6">
-            <Activity className="w-4 h-4 text-sky-400" /> How It Works
+            <Activity className="w-4 h-4 text-sky-400" /> How Ratings Move
           </h3>
 
           <div className="grid gap-4">
@@ -90,10 +88,9 @@ export default function CockRatingPage() {
                   <TrendingUp className="w-5 h-5 text-sky-400" />
                 </div>
                 <div>
-                  <h4 className="font-black italic uppercase text-slate-200 tracking-tighter mb-1">CockRating Logic</h4>
+                  <h4 className="font-black italic uppercase text-slate-200 tracking-tighter mb-1">MMR Logic</h4>
                   <p className="text-sm text-slate-400 leading-relaxed italic font-light">
-                    Your rating is a dynamic number that fluctuates based on match outcomes. 
-                    Victory increases your score, while defeat lowers it.
+                    Your visible CockRating is a combination of your core Matchmaking Rating (MMR) and consistency bonuses. Core rating only updates based on match outcomes—wins add points, losses subtract points.
                   </p>
                 </div>
               </div>
@@ -105,10 +102,9 @@ export default function CockRatingPage() {
                   <Shield className="w-5 h-5 text-rose-400" />
                 </div>
                 <div>
-                  <h4 className="font-black italic uppercase text-slate-200 tracking-tighter mb-1">Opponent Strength</h4>
+                  <h4 className="font-black italic uppercase text-slate-200 tracking-tighter mb-1">Match Predictability</h4>
                   <p className="text-sm text-slate-400 leading-relaxed italic font-light">
-                    Gains and losses aren't flat. Beating a stronger team rewards more points. 
-                    Losing to a weaker team results in a heavier penalty.
+                    Beating players higher-rated than you awards substantial rating points, while losing to lower-rated players inflicts a steeper penalty. Expected outcomes yield smaller rating changes.
                   </p>
                 </div>
               </div>
@@ -120,10 +116,9 @@ export default function CockRatingPage() {
                   <Target className="w-5 h-5 text-amber-400" />
                 </div>
                 <div>
-                  <h4 className="font-black italic uppercase text-slate-200 tracking-tighter mb-1">Score Difference</h4>
+                  <h4 className="font-black italic uppercase text-slate-200 tracking-tighter mb-1">Close Match Protection</h4>
                   <p className="text-sm text-slate-400 leading-relaxed italic font-light">
-                    Winning by a landslide (blowout) boosts your rating more than a close game. 
-                    Every point matters in calculating your final skill impact.
+                    To respect hard-fought games, matches ending in a score margin of 2 points or fewer (e.g., 21-19, 23-21) are treated as close call deuces. Rating gains and losses are dampened by 70% to prevent wild rating swings.
                   </p>
                 </div>
               </div>
@@ -131,39 +126,75 @@ export default function CockRatingPage() {
           </div>
         </section>
 
-        {/* Section 3: Placement Matches */}
+        {/* Section 3: Volatility & Calibrating */}
         <section className="bg-gradient-to-br from-indigo-500/10 to-sky-500/5 border border-indigo-500/20 p-8 rounded-3xl relative overflow-hidden">
           <div className="absolute top-0 right-0 p-8 opacity-5">
             <Zap className="w-24 h-24 text-indigo-400" />
           </div>
           
           <h3 className="text-xl font-black italic uppercase tracking-tighter text-indigo-400 mb-4 flex items-center gap-3">
-            <RankBadgeIcon rank="Unranked" size="default" /> Placement System
+            <RankBadgeIcon rank="Unranked" size="default" /> Certainty & Volatility (Placement)
           </h3>
           <p className="text-sm text-slate-300 leading-relaxed mb-6 italic font-light">
-            New players are marked as <span className="text-white font-bold">Unranked</span> for their first 5 matches. 
-            During this phase, the system uses a <span className="text-white font-bold">Dynamic K-Factor</span> to calibrate your skill quickly.
+            New players start with <span className="text-white font-bold">Unranked</span> status for their first 5 placement matches. 
+            The engine uses an uncertainty Certainty Meter to increase rating mobility initially so you land at your correct rank rapidly.
           </p>
 
           <div className="bg-slate-900/50 rounded-2xl p-6 border border-indigo-500/10">
-            <h4 className="text-[10px] font-black uppercase text-slate-500 tracking-[0.2em] mb-4 text-center">Calibrating Volatility</h4>
-            <div className="grid grid-cols-5 gap-2">
-              {[1, 2, 3, 4, 5].map(i => (
-                <div key={i} className="text-center">
-                  <div className="text-[9px] font-bold text-slate-600 mb-2">Match {i}</div>
-                  <div className="bg-slate-800 py-3 rounded-lg border border-slate-700 text-xs font-mono font-black text-indigo-400">
-                    K-{45 - (i * 5)}
-                  </div>
-                </div>
-              ))}
+            <h4 className="text-[10px] font-black uppercase text-slate-500 tracking-[0.2em] mb-4 text-center">Certainty Calibrator</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-slate-800 p-4 rounded-xl border border-slate-700/50 text-center">
+                <span className="text-[10px] font-black uppercase text-slate-500 block mb-1">High Volatility (First 5 Games)</span>
+                <span className="text-lg font-black text-indigo-400 font-mono">Rapid Swings</span>
+                <span className="text-[9px] text-slate-500 block mt-2">Enables fast upward/downward mobility</span>
+              </div>
+              <div className="bg-slate-800 p-4 rounded-xl border border-slate-700/50 text-center">
+                <span className="text-[10px] font-black uppercase text-slate-500 block mb-1">Low Volatility (Established)</span>
+                <span className="text-lg font-black text-emerald-400 font-mono">Stable & Precise</span>
+                <span className="text-[9px] text-slate-500 block mt-2">Protects rating from sudden bad sessions</span>
+              </div>
             </div>
-            <p className="text-[9px] text-slate-500 mt-4 text-center uppercase tracking-widest font-bold">
-              Higher K = Faster Rating Movement
-            </p>
           </div>
         </section>
 
-        {/* Section 4: Rank System */}
+        {/* Section 4: Light Social Adjustments */}
+        <section className="space-y-4">
+          <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 flex items-center gap-2 mb-6">
+            <Award className="w-4 h-4 text-emerald-400" /> Light Social Adjustments
+          </h3>
+
+          <div className="grid gap-4">
+            <div className="bg-slate-800/40 border border-slate-700/50 p-6 rounded-2xl hover:bg-slate-800/60 transition-colors group">
+              <div className="flex gap-4 items-start">
+                <div className="size-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0 border border-emerald-500/20 group-hover:scale-110 transition-transform">
+                  <Zap className="w-5 h-5 text-emerald-400" />
+                </div>
+                <div>
+                  <h4 className="font-black italic uppercase text-slate-200 tracking-tighter mb-1">Underdog Upset Bonus</h4>
+                  <p className="text-sm text-slate-400 leading-relaxed italic font-light">
+                    If your team is calculated to have an expected win probability of **less than 30%** based on matchup history, securing a victory triggers an **Underdog Upset Bonus**, granting you a **+20% bonus multiplier** to your rating gains.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-slate-800/40 border border-slate-700/50 p-6 rounded-2xl hover:bg-slate-800/60 transition-colors group">
+              <div className="flex gap-4 items-start">
+                <div className="size-10 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0 border border-orange-500/20 group-hover:scale-110 transition-transform">
+                  <Flame className="w-5 h-5 text-orange-400" />
+                </div>
+                <div>
+                  <h4 className="font-black italic uppercase text-slate-200 tracking-tighter mb-1">Attendance Streak XP</h4>
+                  <p className="text-sm text-slate-400 leading-relaxed italic font-light">
+                    Playing matches consistently maintains your session attendance streak. Streaks earn you separate **Activity XP** (independent of your skill rating) that boosts your visible rank. Attendance XP also creates a baseline cushion so players are protected at a skill floor of `1000`.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 5: Rank Tiers */}
         <section className="space-y-6">
           <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
             <Trophy className="w-4 h-4 text-amber-400" /> Rank Tiers
@@ -192,39 +223,6 @@ export default function CockRatingPage() {
                 </div>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* Section 5: Example Scenarios */}
-        <section className="space-y-6">
-          <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
-            <Info className="w-4 h-4 text-emerald-400" /> Impact Scenarios
-          </h3>
-
-          <div className="grid gap-3">
-             <div className="flex items-center justify-between p-4 bg-slate-800/40 rounded-2xl border border-slate-700/50">
-                <div className="flex flex-col">
-                  <span className="text-xs font-black uppercase text-slate-100 italic tracking-tighter">Big Victory</span>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">21-5 vs Stronger Team</span>
-                </div>
-                <div className="text-emerald-400 font-black text-lg font-mono italic tracking-tighter">+32-40 pts</div>
-             </div>
-
-             <div className="flex items-center justify-between p-4 bg-slate-800/40 rounded-2xl border border-slate-700/50">
-                <div className="flex flex-col">
-                  <span className="text-xs font-black uppercase text-slate-100 italic tracking-tighter">Close Call</span>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">21-19 vs Even Team</span>
-                </div>
-                <div className="text-emerald-400/60 font-black text-lg font-mono italic tracking-tighter">+8-12 pts</div>
-             </div>
-
-             <div className="flex items-center justify-between p-4 bg-slate-800/40 rounded-2xl border border-slate-700/50">
-                <div className="flex flex-col">
-                  <span className="text-xs font-black uppercase text-slate-100 italic tracking-tighter">Heavy Loss</span>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">5-21 vs Weaker Team</span>
-                </div>
-                <div className="text-rose-500 font-black text-lg font-mono italic tracking-tighter">-35-45 pts</div>
-             </div>
           </div>
         </section>
 

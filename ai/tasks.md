@@ -254,14 +254,25 @@
 *   [x] **Production Build Verified**: Full `npm run build` passed (Exit code: 0, all 17 routes compiled).
 
 ## Phase 87 — Light Social Adjustments (23 May 2026, Complete)
-*   [x] **Underdog Modifier**: Surgically injected a +20% rating gain multiplier (ΔR * 1.2) for unexpected match victories where calculated win probability is < 30%.
-*   [x] **Mentor Carry Modifier**: Removed based on user review to maintain pure underdog focus and eliminate teammate farming vectors.
-*   [x] **System Insulation**: Enforced that these modifiers do not touch confidence (RD), database schemas, or the attendance streak XP system.
+*   [x] **Mismatch Fairness Analysis**: Conducted a deep mathematical analysis of how forced mismatches in a small recurring 8-person pool over-penalise strong players (asymmetric risk/reward trap where a single upset wipes out 10–15 expected wins).
+*   [x] **Design Proposals**: Authored a research report evaluating 4 alternative approaches: Dynamic K-Factor, Score-Margin Dampening, Adaptive Win/Loss Clamps, and the full Hype Hybrid.
+*   [x] **Simulation Harness**: Built multiple Node.js simulation scripts replaying all historical Supabase matches chronologically to compare Baseline vs. proposed systems.
+*   [x] **Mentor Carry Modifier (Evaluated & Removed)**: Implemented and simulated a +10% carry bonus for strong players paired with weaker teammates (gap > 150). Included anti-farming safeguards (session-scoped partner + opponent tracking Sets). Removed after user review to keep the system minimal and eliminate teammate farming vectors.
+*   [x] **Underdog Modifier (Shipped)**: Surgically injected a +20% rating gain multiplier (ΔR × 1.2) for unexpected match victories where Glicko-calculated win probability is < 30%. Applied after base delta calculation and close-match dampening, before skill floor enforcement.
+*   [x] **System Insulation**: Verified that the modifier does not touch confidence (RD), database schemas, or the attendance streak XP system.
+*   [x] **Historical Replay Validation**: Confirmed 23 underdog triggers across all historical matches, with top-player rating shifts of only +19 to +24 (non-inflationary) and high-impact upset players like Yuzhi gaining +63 (correctly rewarded).
 *   [x] **Production Build Verified**: Full `npm run build` passed cleanly (Exit code: 0).
+
+## Phase 88 — System Consistency & Guide Synchronization (23 May 2026, Complete)
+*   [x] **Audit Engine codebase**: Audited the live `rankingEngine.ts` to map exactly what social adjustments and scaling elements are mathematically functional (MMR, dynamic uncertainty $RD$, close-match deuce damping, Streak XP, and Underdog wins).
+*   [x] **Align Documentation**: Overhauled the user guide page (`cockrating/page.tsx`) to match actual codebase behavior perfectly.
+*   [x] **Terminology Simplification**: Refactored the copy to utilize simple "MMR" instead of complex "Glicko-Lite MMR" and dynamic "Certainty/Volatility" indicators rather than fixed linear K-factor tables.
+*   [x] **Insulate Social Modifiers**: Documented the actual active modifiers (Underdog + Streak XP) while explicitly omitting carry modifiers, ensuring 100% security alignment.
+*   [x] **Production Build Verified**: Confirmed successful static compile of `/cockrating` route and entire site with `Exit code: 0`.
 
 ## Current Project Status
 
-The app now has **Explicit Time Tracking**, a **FIFA-Style Player Card** identity system, a **Multi-Card Story System** design, a fully live **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Match-by-Match Rating Delta Indicators** on all session and player profile match logs, and a surgical **Underdog Bonus** modifier. Production build is verified and deployed.
+The app now has **Explicit Time Tracking**, a **FIFA-Style Player Card** identity system, a **Multi-Card Story System** design, a fully live **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Match-by-Match Rating Delta Indicators**, a surgical **Underdog Bonus** modifier, and a fully synchronized **User Guide / Walkthrough Page** explaining MMR and social modifiers with simplified terminology. Production build is verified and ready for deployment.
 
 ## Known Issues / Backlog
 

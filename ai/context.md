@@ -97,6 +97,23 @@ Key constants: `DEFAULT_RATING = 1200`, `DEFAULT_RD = 350`, `MMR_FLOOR = 1000`.
 
 The engine is called via `aggregatePlayerStats()` in `core.ts`, which re-exports all three maps plus `stats`.
 
+## Light Social Adjustments (Underdog Bonus)
+A single surgical modifier applied inside `calculateGlickoHybridRatings` after the base Glicko delta and close-match dampening, before skill floor enforcement:
+
+```ts
+// Applied only on wins
+let finalDelta = delta;
+if (outcome === 1 && expected < 0.3) {
+  finalDelta *= 1.2; // +20% underdog bonus
+}
+R[p] = Math.max(MMR_FLOOR, playerR + finalDelta);
+```
+
+- **Trigger**: Player wins a match where Glicko-calculated expected win probability is < 30%
+- **Effect**: ΔR × 1.2 (hard-capped at +20%, no stacking)
+- **Does NOT affect**: RD (uncertainty), XP/streak system, database schema, or losing players
+- **Historical validation**: 23 triggers across 95 matches; top-player shifts +19 to +24 (non-inflationary)
+
 ## Rating Delta Badges
 Delta badges are injected at the **page (server) level** and rendered in:
 - `DesktopSessionDetails.tsx` — left of Team A name, right of Team B name
@@ -115,6 +132,6 @@ Badge colours: emerald (`+`), rose (`-`), slate (`±0`).
 - `deltas?.[matchId]?.[playerId]` is the safe-access pattern to read a player's rating change for any given match.
 
 ## Current Project Status
-**Phases 85, 86, & 87 complete (23 May 2026).** App features **Explicit Time Tracking**, **Live Leaderboard Updates**, **Premium Gaming UI**, **FIFA-Style Player Cards**, **Public IG Story Generation**, a fully live **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Match-by-Match Rating Delta Indicators**, and a surgical **Underdog Bonus** modifier. Production build is fully verified (Exit code: 0) and ready for Vercel deployment!
+**Phases 85, 86, 87, & 88 complete (23 May 2026).** App features **Explicit Time Tracking**, **Live Leaderboard Updates**, **Premium Gaming UI**, **FIFA-Style Player Cards**, **Public IG Story Generation**, a fully live **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Match-by-Match Rating Delta Indicators**, a surgical **Underdog Bonus** modifier (+20% on wins with <30% expected probability), and a **Synchronized User Guide** built with simplified gamer terminology (MMR, Certainty Meters, deuce damping). Production build is fully verified (Exit code: 0) and ready for deployment!
 
 *"Because Shuttlecocks Aren't Free."*
