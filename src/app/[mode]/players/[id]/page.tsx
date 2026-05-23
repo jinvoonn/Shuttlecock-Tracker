@@ -107,7 +107,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
 
     // --- ANALYTICS ENGINE INTEGRATION ---
     const normalizedMatches = normalizeMatches(matches || [], playerMap);
-    const { stats: allStats, elo: globalElo, eloHistory } = aggregatePlayerStats(normalizedMatches, playerMap);
+    const { stats: allStats, elo: globalElo, eloHistory, deltas } = aggregatePlayerStats(normalizedMatches, playerMap);
     const currentPlayerStats = allStats[id];
     
     // Explicitly derive placement status
@@ -151,6 +151,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
             isDraw,
             myScore,
             oppScore,
+            ratingDelta: deltas?.[m.id]?.[id],
             partners: myPartnerIds.map((pid: string) => ({
                 id: pid,
                 name: playerMap[pid] || "Unknown",

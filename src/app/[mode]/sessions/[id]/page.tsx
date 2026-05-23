@@ -114,7 +114,7 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
 
   // 6.5 Calculate Global ELO
   const normalizedGlobalMatches = normalizeMatches(allMatchesData || [], playerMap);
-  const { stats: coreStats, elo: globalElo } = aggregatePlayerStats(normalizedGlobalMatches, playerMap);
+  const { stats: coreStats, elo: globalElo, deltas: globalDeltas } = aggregatePlayerStats(normalizedGlobalMatches, playerMap);
 
   const attendeesList = (sessionPlayers || []).map((sp: { players: { id: string, name: string } | null }) => {
     const pId = sp.players?.id || "";
@@ -158,13 +158,13 @@ export default async function SessionDetailsPage({ params }: { params: Promise<{
       const p4 = m.team_b_player2;
 
       const teamAPlayers = [
-        { id: p1, name: playerMap[p1] || "Unknown", elo: globalElo[p1] || 1200, placementMatchesPlayed: coreStats[p1]?.placementMatchesPlayed ?? 0 },
-        { id: p2, name: playerMap[p2] || "Unknown", elo: globalElo[p2] || 1200, placementMatchesPlayed: coreStats[p2]?.placementMatchesPlayed ?? 0 }
+        { id: p1, name: playerMap[p1] || "Unknown", elo: globalElo[p1] || 1200, placementMatchesPlayed: coreStats[p1]?.placementMatchesPlayed ?? 0, ratingDelta: globalDeltas?.[m.id]?.[p1] },
+        { id: p2, name: playerMap[p2] || "Unknown", elo: globalElo[p2] || 1200, placementMatchesPlayed: coreStats[p2]?.placementMatchesPlayed ?? 0, ratingDelta: globalDeltas?.[m.id]?.[p2] }
       ].filter(p => p.id);
 
       const teamBPlayers = [
-        { id: p3, name: playerMap[p3] || "Unknown", elo: globalElo[p3] || 1200, placementMatchesPlayed: coreStats[p3]?.placementMatchesPlayed ?? 0 },
-        { id: p4, name: playerMap[p4] || "Unknown", elo: globalElo[p4] || 1200, placementMatchesPlayed: coreStats[p4]?.placementMatchesPlayed ?? 0 }
+        { id: p3, name: playerMap[p3] || "Unknown", elo: globalElo[p3] || 1200, placementMatchesPlayed: coreStats[p3]?.placementMatchesPlayed ?? 0, ratingDelta: globalDeltas?.[m.id]?.[p3] },
+        { id: p4, name: playerMap[p4] || "Unknown", elo: globalElo[p4] || 1200, placementMatchesPlayed: coreStats[p4]?.placementMatchesPlayed ?? 0, ratingDelta: globalDeltas?.[m.id]?.[p4] }
       ].filter(p => p.id);
 
       return {

@@ -114,6 +114,6 @@ import { EloMap } from "./types";
  */
 export function aggregatePlayerStats(matches: NormalizedMatch[], playerMap: Record<string, string>) {
   const stats = getPlayerStats(matches, playerMap);
-  const { current: elo, history: eloHistory } = calculateGlickoHybridRatings(matches);
-  return { stats, elo, eloHistory };
+  const { current: elo, history: eloHistory, deltas } = calculateGlickoHybridRatings(matches);
+  return { stats, elo, eloHistory, deltas };
 }

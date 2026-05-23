@@ -50,12 +50,14 @@ function computeGlickoTeamRating(
 export function calculateGlickoHybridRatings(matches: NormalizedMatch[]): {
   current: EloMap;
   history: EloHistoryMap;
+  deltas: Record<string, Record<string, number>>;
 } {
   const R: Record<string, number> = {};
   const RD: Record<string, number> = {};
   const XP: Record<string, number> = {};
   const streak: Record<string, number> = {};
   const gamesCount: Record<string, number> = {};
+  const deltas: Record<string, Record<string, number>> = {};
 
   const current: EloMap = {};
   const history: EloHistoryMap = {};
@@ -142,6 +144,8 @@ export function calculateGlickoHybridRatings(matches: NormalizedMatch[]): {
 
       // Update Team A Players
       teamA.forEach(p => {
+        const oldDisplay = Math.round((R[p] ?? DEFAULT_RATING) + (XP[p] ?? 0));
+
         const playerR = R[p] ?? DEFAULT_RATING;
         const playerRD = RD[p] ?? DEFAULT_RD;
 
@@ -164,14 +168,22 @@ export function calculateGlickoHybridRatings(matches: NormalizedMatch[]): {
         XP[p] = (XP[p] || 0) + xpEarned;
         gamesCount[p] = (gamesCount[p] || 0) + 1;
 
+        const newDisplay = Math.round(R[p] + XP[p]);
+        if (!deltas[m.id]) {
+          deltas[m.id] = {};
+        }
+        deltas[m.id][p] = newDisplay - oldDisplay;
+
         history[p].push({
           date: m.date,
-          elo: Math.round(R[p] + XP[p])
+          elo: newDisplay
         });
       });
 
       // Update Team B Players
       teamB.forEach(p => {
+        const oldDisplay = Math.round((R[p] ?? DEFAULT_RATING) + (XP[p] ?? 0));
+
         const playerR = R[p] ?? DEFAULT_RATING;
         const playerRD = RD[p] ?? DEFAULT_RD;
 
@@ -194,9 +206,15 @@ export function calculateGlickoHybridRatings(matches: NormalizedMatch[]): {
         XP[p] = (XP[p] || 0) + xpEarned;
         gamesCount[p] = (gamesCount[p] || 0) + 1;
 
+        const newDisplay = Math.round(R[p] + XP[p]);
+        if (!deltas[m.id]) {
+          deltas[m.id] = {};
+        }
+        deltas[m.id][p] = newDisplay - oldDisplay;
+
         history[p].push({
           date: m.date,
-          elo: Math.round(R[p] + XP[p])
+          elo: newDisplay
         });
       });
     }
@@ -207,5 +225,5 @@ export function calculateGlickoHybridRatings(matches: NormalizedMatch[]): {
     current[player] = Math.round(R[player] + XP[player]);
   });
 
-  return { current, history };
+  return { current, history, deltas };
 }

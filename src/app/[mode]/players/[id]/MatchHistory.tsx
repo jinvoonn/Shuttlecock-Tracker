@@ -18,6 +18,7 @@ interface Match {
   isDraw: boolean;
   myScore: number;
   oppScore: number;
+  ratingDelta?: number;
   partners: MatchPlayer[];
   opponents: MatchPlayer[];
 }
@@ -51,13 +52,27 @@ export function MatchHistory({ matches }: MatchHistoryProps) {
                   <span className="text-[8px] font-bold uppercase text-slate-600 leading-none">{new Date(m.date).toLocaleString('default', { month: 'short' })}</span>
                 </div>
                 <div>
-                  {m.isWin ? (
-                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-emerald-400/10 text-emerald-400 uppercase italic border border-emerald-400/20">Win</span>
-                  ) : m.isDraw ? (
-                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-400 uppercase italic border border-slate-500/20">Draw</span>
-                  ) : (
-                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 uppercase italic border border-rose-500/20">Loss</span>
-                  )}
+                  <div className="flex items-center gap-1.5">
+                    {m.isWin ? (
+                      <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-emerald-400/10 text-emerald-400 uppercase italic border border-emerald-400/20">Win</span>
+                    ) : m.isDraw ? (
+                      <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-slate-500/10 text-slate-400 uppercase italic border border-slate-500/20">Draw</span>
+                    ) : (
+                      <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 uppercase italic border border-rose-500/20">Loss</span>
+                    )}
+                    {m.ratingDelta !== undefined && (
+                      <span className={clsx(
+                        "text-[9px] font-black px-1.5 py-0.5 rounded uppercase italic border font-mono",
+                        m.ratingDelta > 0
+                          ? "bg-emerald-400/10 text-emerald-400 border-emerald-400/20"
+                          : m.ratingDelta < 0
+                          ? "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                          : "bg-slate-800 text-slate-500 border-slate-700"
+                      )}>
+                        {m.ratingDelta > 0 ? `+${m.ratingDelta}` : m.ratingDelta === 0 ? "±0" : `${m.ratingDelta}`}
+                      </span>
+                    )}
+                  </div>
                   <div className="flex items-center gap-1.5 mt-1 font-mono text-[10px] tracking-tight">
                     <span className={clsx("font-bold", m.isWin ? "text-emerald-400" : "text-slate-300")}>{m.myScore}</span>
                     <span className="text-slate-600">-</span>

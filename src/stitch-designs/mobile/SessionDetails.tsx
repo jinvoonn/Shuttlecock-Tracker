@@ -48,8 +48,8 @@ interface Match {
   id: string;
   teamA: string;
   teamB: string;
-  teamAPlayers?: { id: string; name: string; elo: number; placementMatchesPlayed?: number }[];
-  teamBPlayers?: { id: string; name: string; elo: number; placementMatchesPlayed?: number }[];
+  teamAPlayers?: { id: string; name: string; elo: number; placementMatchesPlayed?: number; ratingDelta?: number }[];
+  teamBPlayers?: { id: string; name: string; elo: number; placementMatchesPlayed?: number; ratingDelta?: number }[];
   scoreA: number;
   scoreB: number;
   type: string;
@@ -421,7 +421,19 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                           <div className="flex justify-between items-center">
                             <div className="flex flex-col gap-1.5">
                               {match.teamAPlayers?.map(p => (
-                                <PlayerName key={p.id} name={p.name} elo={p.elo} placementMatchesPlayed={p.placementMatchesPlayed} showRankName={false} nameClassName="text-xs" />
+                                <div key={p.id} className="flex items-center gap-1.5">
+                                  <PlayerName name={p.name} elo={p.elo} placementMatchesPlayed={p.placementMatchesPlayed} showRankName={false} nameClassName="text-xs" />
+                                  {p.ratingDelta !== undefined && (
+                                    <span className={clsx(
+                                      "text-[9px] font-black px-1.5 py-0.5 rounded border font-mono shrink-0",
+                                      p.ratingDelta > 0 ? "bg-emerald-400/10 text-emerald-400 border-emerald-400/20" :
+                                      p.ratingDelta < 0 ? "bg-rose-500/10 text-rose-400 border-rose-500/20" :
+                                      "bg-slate-800 text-slate-500 border-slate-700"
+                                    )}>
+                                      {p.ratingDelta > 0 ? `+${p.ratingDelta}` : p.ratingDelta === 0 ? "±0" : `${p.ratingDelta}`}
+                                    </span>
+                                  )}
+                                </div>
                               )) || <span className="text-sm font-black text-slate-300 uppercase tracking-tight truncate max-w-[160px] italic">{match.teamA}</span>}
                             </div>
                             <span className={`text-3xl font-black italic leading-none tabular-nums ${match.scoreA >= match.scoreB && match.status === 'Completed' ? 'text-emerald-400' : 'text-slate-700'}`}>{match.scoreA}</span>
@@ -429,7 +441,19 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                           <div className="flex justify-between items-center">
                             <div className="flex flex-col gap-1.5">
                               {match.teamBPlayers?.map(p => (
-                                <PlayerName key={p.id} name={p.name} elo={p.elo} placementMatchesPlayed={p.placementMatchesPlayed} showRankName={false} nameClassName="text-xs" />
+                                <div key={p.id} className="flex items-center gap-1.5">
+                                  <PlayerName name={p.name} elo={p.elo} placementMatchesPlayed={p.placementMatchesPlayed} showRankName={false} nameClassName="text-xs" />
+                                  {p.ratingDelta !== undefined && (
+                                    <span className={clsx(
+                                      "text-[9px] font-black px-1.5 py-0.5 rounded border font-mono shrink-0",
+                                      p.ratingDelta > 0 ? "bg-emerald-400/10 text-emerald-400 border-emerald-400/20" :
+                                      p.ratingDelta < 0 ? "bg-rose-500/10 text-rose-400 border-rose-500/20" :
+                                      "bg-slate-800 text-slate-500 border-slate-700"
+                                    )}>
+                                      {p.ratingDelta > 0 ? `+${p.ratingDelta}` : p.ratingDelta === 0 ? "±0" : `${p.ratingDelta}`}
+                                    </span>
+                                  )}
+                                </div>
                               )) || <span className="text-sm font-bold text-slate-500 uppercase tracking-tight truncate max-w-[160px] italic">{match.teamB}</span>}
                             </div>
                             <span className={`text-3xl font-black italic leading-none tabular-nums ${match.scoreB >= match.scoreA && match.status === 'Completed' ? 'text-emerald-400' : 'text-slate-700'}`}>{match.scoreB}</span>

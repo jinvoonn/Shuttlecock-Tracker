@@ -46,8 +46,8 @@ interface Match {
   id: string;
   teamA: string;
   teamB: string;
-  teamAPlayers?: { id: string; name: string; elo: number; placementMatchesPlayed?: number }[];
-  teamBPlayers?: { id: string; name: string; elo: number; placementMatchesPlayed?: number }[];
+  teamAPlayers?: { id: string; name: string; elo: number; placementMatchesPlayed?: number; ratingDelta?: number }[];
+  teamBPlayers?: { id: string; name: string; elo: number; placementMatchesPlayed?: number; ratingDelta?: number }[];
   scoreA: number;
   scoreB: number;
   team_a_player1: string;
@@ -411,7 +411,19 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                     <div className="col-span-3 text-right">
                       <div className="flex flex-col items-end gap-1.5">
                         {match.teamAPlayers?.map(p => (
-                          <PlayerName key={p.id} name={p.name} elo={p.elo} placementMatchesPlayed={p.placementMatchesPlayed} showRankName={false} nameClassName="text-sm" />
+                          <div key={p.id} className="flex items-center justify-end gap-1.5">
+                            {p.ratingDelta !== undefined && (
+                              <span className={clsx(
+                                "text-[9px] font-black px-1.5 py-0.5 rounded border font-mono shrink-0",
+                                p.ratingDelta > 0 ? "bg-emerald-400/10 text-emerald-400 border-emerald-400/20" :
+                                p.ratingDelta < 0 ? "bg-rose-500/10 text-rose-400 border-rose-500/20" :
+                                "bg-slate-800 text-slate-500 border-slate-700"
+                              )}>
+                                {p.ratingDelta > 0 ? `+${p.ratingDelta}` : p.ratingDelta === 0 ? "±0" : `${p.ratingDelta}`}
+                              </span>
+                            )}
+                            <PlayerName name={p.name} elo={p.elo} placementMatchesPlayed={p.placementMatchesPlayed} showRankName={false} nameClassName="text-sm" />
+                          </div>
                         )) || <p className="text-sm font-black italic">{match.teamA}</p>}
                       </div>
                       <p className="text-[10px] text-slate-500 font-bold tracking-widest mt-1">TEAM A</p>
@@ -438,7 +450,19 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                     <div className="col-span-3 text-left">
                       <div className="flex flex-col items-start gap-1.5">
                         {match.teamBPlayers?.map(p => (
-                          <PlayerName key={p.id} name={p.name} elo={p.elo} placementMatchesPlayed={p.placementMatchesPlayed} showRankName={false} nameClassName="text-sm" />
+                          <div key={p.id} className="flex items-center justify-start gap-1.5">
+                            <PlayerName name={p.name} elo={p.elo} placementMatchesPlayed={p.placementMatchesPlayed} showRankName={false} nameClassName="text-sm" />
+                            {p.ratingDelta !== undefined && (
+                              <span className={clsx(
+                                "text-[9px] font-black px-1.5 py-0.5 rounded border font-mono shrink-0",
+                                p.ratingDelta > 0 ? "bg-emerald-400/10 text-emerald-400 border-emerald-400/20" :
+                                p.ratingDelta < 0 ? "bg-rose-500/10 text-rose-400 border-rose-500/20" :
+                                "bg-slate-800 text-slate-500 border-slate-700"
+                              )}>
+                                {p.ratingDelta > 0 ? `+${p.ratingDelta}` : p.ratingDelta === 0 ? "±0" : `${p.ratingDelta}`}
+                              </span>
+                            )}
+                          </div>
                         )) || <p className="text-sm font-black italic">{match.teamB}</p>}
                       </div>
                       <p className="text-[10px] text-slate-500 font-bold tracking-widest mt-1">TEAM B</p>

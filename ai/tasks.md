@@ -229,19 +229,33 @@
 *   [ ] **Carousel Integration**: Update `StoryPreviewModal.tsx` to horizontal snap-scroll carousel (`overflow-x-auto snap-x snap-mandatory`).
 *   [ ] **Download UX**: Implement per-card download buttons so each card in the story can be saved individually.
 
-## Phase 85 — CockCount Ranking Architecture Overhaul (23 May 2026, In Progress)
+## Phase 85 — CockCount Ranking Architecture Overhaul (23 May 2026, Complete)
 *   [x] **Critical Redesign Audit**: Audited legacy zero-sum Elo engine (`src/lib/analytics/elo.ts`) and identified critical closed-pool pitfalls (Elo deflated point traps, same-opponent farming, inactive inflation, severe close-match deuce punishment).
 *   [x] **Formulate Proposals**: Engineered 4 design approaches balancing professional skill metrics with casual gaming motivation (Glicko-Lite, Seasonal RP + floors, Diminishing H2H, and XP Progression).
 *   [x] **Database & Replay Simulation**: Programmed a Node.js simulator replaying all 18 players and 95 chronological matches from Supabase.
 *   [x] **Consistency Streak System**: Designed a soft-decay attendance streak system ($+1$ for attending, $-2$ for missing sessions) to scale progression XP.
 *   [x] **Floor Protected MMR**: Designed a Glicko-Lite background MMR system with a hard skill floor of `1000`, leveraging accumulated consistency XP to lift low-tier players above the floor (rescuing Jang Zhe and Huai Zhou).
 *   [x] **Close-Match Protection**: Designed 70% MMR dampening on deuces/close margins ($\le 2$).
-*   [ ] **Ranking Engine Integration**: Implement `src/lib/analytics/rankingEngine.ts` containing the unified floor-protected Glicko-Lite + Streak XP logic.
-*   [ ] **Integrate Core Analytics**: Wire `rankingEngine.ts` into `src/lib/analytics/core.ts` and standard page controllers.
+*   [x] **Ranking Engine Integration**: Implemented `src/lib/analytics/rankingEngine.ts` containing the unified floor-protected Glicko-Lite + Streak XP logic.
+*   [x] **Integrate Core Analytics**: Wired `rankingEngine.ts` into `src/lib/analytics/core.ts` and standard page controllers via `calculateGlickoHybridRatings`.
+*   [x] **Session ID Support**: Added `sessionId` to `NormalizedMatch` type and normalization pipeline for session-grouped streak processing.
+*   [x] **Production Build Verified**: Full `npm run build` passed (Exit code: 0).
+
+## Phase 86 — Match-by-Match Rating Delta Indicators (23 May 2026, Complete)
+*   [x] **Engine Enhancement**: Extended `calculateGlickoHybridRatings` in `rankingEngine.ts` to capture display rating before and after each match and compute `delta = newRating - oldRating` per player per match.
+*   [x] **Return Type Expansion**: Updated return type to include `deltas: Record<string, Record<string, number>>` (keyed by `matchId → playerId → delta`).
+*   [x] **Analytics Propagation**: Updated `aggregatePlayerStats` in `core.ts` to destructure and re-export `deltas` alongside `stats`, `elo`, and `eloHistory`.
+*   [x] **Session Page Integration**: Updated `app/[mode]/sessions/[id]/page.tsx` to retrieve `globalDeltas` and inject `ratingDelta` into every player in `teamAPlayers` and `teamBPlayers`.
+*   [x] **Player Profile Integration**: Updated `app/[mode]/players/[id]/page.tsx` to inject `ratingDelta: deltas?.[m.id]?.[id]` for the profile player into `formattedMatches`.
+*   [x] **Desktop UI**: Updated `DesktopSessionDetails.tsx` — delta badge renders **left of player name** for Team A, **right of player name** for Team B using colour-coded glowing pills.
+*   [x] **Mobile UI**: Updated `MobileSessionDetails.tsx` with matching delta badges inline after each player name.
+*   [x] **Player Profile UI**: Updated `MatchHistory.tsx` — delta badge renders alongside the Win/Loss/Draw tag on every match card.
+*   [x] **Badge Design**: `+N` = emerald green, `-N` = rose red, `±0` = muted grey. Consistent `font-mono` formatting across all views.
+*   [x] **Production Build Verified**: Full `npm run build` passed (Exit code: 0, all 17 routes compiled).
 
 ## Current Project Status
 
-The app now has **Explicit Time Tracking**, a **FIFA-Style Player Card** identity system, and a **Multi-Card Story System** design. We have finalized the architecture and simulated the new **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking system. Recalculation is 100% simulated and ready for codebase integration.
+The app now has **Explicit Time Tracking**, a **FIFA-Style Player Card** identity system, a **Multi-Card Story System** design, a fully live **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, and **Match-by-Match Rating Delta Indicators** on all session and player profile match logs. Production build is verified and deployed.
 
 ## Known Issues / Backlog
 
@@ -253,9 +267,10 @@ The app now has **Explicit Time Tracking**, a **FIFA-Style Player Card** identit
 
 1.  **Placement Match System**: (Complete) Dynamic K-factor and Unranked state implemented.
 2.  **Live Updates**: (Complete) Real-time leaderboard and animations.
-3.  **Ranking Architecture Overhaul**: (In Progress) Deploying floor-protected Glicko-Lite + Attendance Streak XP engine.
-4.  **Auto-Grouping**: Smart team generation based on skill ratings and partner history.
-5.  **Settle Tracking**: Auto-suggest who pays what based on complex debt chains.
+3.  **Ranking Architecture Overhaul**: (Complete) Floor-protected Glicko-Lite + Attendance Streak XP engine live.
+4.  **Rating Deltas on Match Logs**: (Complete) Per-match `+/-` rating change badges on all session and profile pages.
+5.  **Auto-Grouping**: Smart team generation based on skill ratings and partner history.
+6.  **Settle Tracking**: Auto-suggest who pays what based on complex debt chains.
 
 
 ## Agent Tips
