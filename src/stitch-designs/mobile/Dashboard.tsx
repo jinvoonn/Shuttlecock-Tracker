@@ -236,90 +236,85 @@ export default function MobileDashboard({
             </div>
 
             {/* Leaderboard Card */}
-            {leaderboard && leaderboard.length > 0 && (
-              <div className="flex flex-col gap-4 rounded-3xl bg-slate-800 p-6 border border-slate-700 shadow-xl mt-2">
-                
-                {/* Top Row: Title + Admin Action */}
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-black italic uppercase tracking-tight flex items-center gap-2 text-white">
-                    🏆 Leaderboard
-                  </h3>
+            <div className="flex flex-col gap-4 rounded-3xl bg-slate-800 p-6 border border-slate-700 shadow-xl mt-2">
+              
+              {/* Top Row: Title + Admin Action */}
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-black italic uppercase tracking-tight flex items-center gap-2 text-white">
+                  🏆 Leaderboard
+                </h3>
 
-                  {isAdmin && onOpenSeasonModal && (
-                    <button
-                      onClick={onOpenSeasonModal}
-                      className="text-[9px] font-black uppercase tracking-widest bg-gradient-to-r from-amber-500/10 to-emerald-500/10 hover:from-amber-500/20 hover:to-emerald-500/20 text-amber-400 hover:text-emerald-300 border border-amber-500/30 hover:border-emerald-500/50 px-2.5 py-1 rounded-lg transition-all active:scale-95 flex items-center gap-1"
-                    >
-                      <Trophy className="size-3" />
-                      <span>Season Settings</span>
-                    </button>
-                  )}
-                </div>
+                {isAdmin && onOpenSeasonModal && (
+                  <button
+                    onClick={onOpenSeasonModal}
+                    className="text-[9px] font-black uppercase tracking-widest bg-gradient-to-r from-amber-500/10 to-emerald-500/10 hover:from-amber-500/20 hover:to-emerald-500/20 text-amber-400 hover:text-emerald-300 border border-amber-500/30 hover:border-emerald-500/50 px-2.5 py-1 rounded-lg transition-all active:scale-95 flex items-center gap-1 cursor-pointer shadow-sm"
+                  >
+                    <Trophy className="size-3" />
+                    <span>Season Settings</span>
+                  </button>
+                )}
+              </div>
 
-                {/* Season Selector & View Mode Row */}
-                <div className="flex items-center justify-between gap-2">
-                  {/* Season Dropdown */}
-                  {seasons && seasons.length > 0 && (
-                    <select
-                      value={selectedSeasonId || activeSeason?.id || "fallback-season-1"}
-                      onChange={(e) => onSelectSeason && onSelectSeason(e.target.value)}
-                      className="bg-slate-900 border border-slate-700 text-[10px] font-black uppercase tracking-wider text-slate-200 rounded-xl px-2.5 py-1.5 outline-none focus:border-emerald-500 transition-all flex-1 max-w-[170px]"
-                    >
-                      {seasons.map((s: any) => (
-                        <option key={s.id} value={s.id} className="bg-slate-900 text-white font-sans normal-case">
-                          {s.name} {s.status === 'active' ? '(Current)' : '(Final)'}
-                        </option>
-                      ))}
-                      <option value="all-time" className="bg-slate-900 text-white font-sans normal-case">
-                        All-Time (Career)
+              {/* Season Selector & View Mode Row */}
+              <div className="flex items-center justify-between gap-2">
+                {/* Season Dropdown */}
+                {seasons && seasons.length > 0 && (
+                  <select
+                    value={selectedSeasonId || activeSeason?.id || "fallback-season-1"}
+                    onChange={(e) => onSelectSeason && onSelectSeason(e.target.value)}
+                    className="bg-slate-900 border border-slate-700 text-[10px] font-black uppercase tracking-wider text-slate-200 rounded-xl px-2.5 py-1.5 outline-none focus:border-emerald-500 transition-all flex-1 max-w-[170px]"
+                  >
+                    {seasons.map((s: any) => (
+                      <option key={s.id} value={s.id} className="bg-slate-900 text-white font-sans normal-case">
+                        {s.name} {s.status === 'active' ? '(Current)' : '(Final)'}
                       </option>
-                    </select>
-                  )}
+                    ))}
+                    <option value="all-time" className="bg-slate-900 text-white font-sans normal-case">
+                      All-Time (Career)
+                    </option>
+                  </select>
+                )}
 
-                  {/* Mode Pills */}
-                  <div className="flex bg-slate-900/50 rounded-xl p-1 border border-white/5 shrink-0">
-                    <button
-                      onClick={() => setLeaderboardMode("wins")}
-                      className={clsx(
-                        "px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all duration-200 active:scale-95",
-                        leaderboardMode === "wins"
-                          ? "bg-emerald-400 text-white shadow-sm"
-                          : "text-slate-500"
-                      )}
-                    >
-                      Wins
-                    </button>
-                    <button
-                      onClick={() => setLeaderboardMode("winRate")}
-                      className={clsx(
-                        "px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all duration-200 active:scale-95",
-                        leaderboardMode === "winRate"
-                          ? "bg-emerald-400 text-white shadow-sm"
-                          : "text-slate-500"
-                      )}
-                    >
-                      Rate
-                    </button>
-                    <button
-                      onClick={() => setLeaderboardMode("elo")}
-                      className={clsx(
-                        "px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all duration-200 active:scale-95",
-                        leaderboardMode === "elo"
-                          ? "bg-emerald-400 text-white shadow-sm"
-                          : "text-slate-500"
-                      )}
-                    >
-                      CR
-                    </button>
-                  </div>
+                {/* Mode Pills */}
+                <div className="flex bg-slate-900/50 rounded-xl p-1 border border-white/5 shrink-0">
+                  <button
+                    onClick={() => setLeaderboardMode("wins")}
+                    className={clsx(
+                      "px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all duration-200 active:scale-95",
+                      leaderboardMode === "wins"
+                        ? "bg-emerald-400 text-white shadow-sm"
+                        : "text-slate-500"
+                    )}
+                  >
+                    Wins
+                  </button>
+                  <button
+                    onClick={() => setLeaderboardMode("winRate")}
+                    className={clsx(
+                      "px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all duration-200 active:scale-95",
+                      leaderboardMode === "winRate"
+                        ? "bg-emerald-400 text-white shadow-sm"
+                        : "text-slate-500"
+                    )}
+                  >
+                    Rate
+                  </button>
+                  <button
+                    onClick={() => setLeaderboardMode("elo")}
+                    className={clsx(
+                      "px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all duration-200 active:scale-95",
+                      leaderboardMode === "elo"
+                        ? "bg-emerald-400 text-white shadow-sm"
+                        : "text-slate-500"
+                    )}
+                  >
+                    CR
+                  </button>
                 </div>
+              </div>
 
+              {sortedLeaderboard && sortedLeaderboard.length > 0 ? (
                 <div className="flex flex-col gap-3 max-h-[400px] overflow-y-auto scrollbar-hide py-2">
-                  {(() => {
-                    console.log(`Leaderboard type: ${leaderboardMode}`);
-                    console.log("Top 3 players:", sortedLeaderboard.slice(0, 3).map(p => p.name));
-                    return null;
-                  })()}
                   {sortedLeaderboard.map((player, index) => {
                     const displayRank = index + 1;
                     const isTop3 = displayRank <= 3;
@@ -434,8 +429,14 @@ export default function MobileDashboard({
                     </Link>
                   )})}
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="py-8 flex flex-col items-center justify-center text-center bg-slate-900/40 rounded-2xl border border-slate-700/50">
+                  <Trophy className="size-6 text-slate-600 mb-2" />
+                  <p className="text-xs font-black italic uppercase tracking-wider text-slate-300">No matches recorded this season</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">Record matches to see seasonal standings.</p>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Next Session Card */}
