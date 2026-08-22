@@ -271,9 +271,27 @@
 *   [x] **Interactive Scenario Board**: Integrated a walk-through section containing 4 high-fidelity gaming scenarios (Balanced Battle, Nail-Biter deuce damping, Underdog Giant Slayer boost, and Attendance Streak XP cushions) to give players a concrete, realistic understanding of ELO shifts.
 *   [x] **Production Build Verified**: Confirmed successful static compile of `/cockrating` route and entire site with `Exit code: 0`.
 
+## Phase 89 — Robust Season System (22 Aug 2026, Complete)
+
+*   [x] **Database Migration**: Created `public.seasons` (`id`, `season_number`, `name`, `status`, `start_date`, `end_date`, `config`) and `public.season_player_results` (immutable end-of-season snapshots with unique constraint `(season_id, player_id)`). Added `season_id` FK to `public.matches`. Migrations stored in `season_schema.sql` and `schema_v2.sql`.
+*   [x] **Season Analytics Module** (`src/lib/analytics/season.ts`): Defined `Season`, `SeasonPlayerResult`, `SeasonConfig` interfaces. `DEFAULT_SEASON_CONFIG`: `BASE_MMR = 1200`, `RESET_FACTOR = 0.50`, `RD_INCREMENT = 75`, `MAX_RD = 350`, `MMR_FLOOR = 1000`. Pure `calculateSoftResetRatings` function (no side effects).
+*   [x] **Ranking Engine Updates** (`rankingEngine.ts`, `core.ts`, `normalize.ts`, `types.ts`): Added `seasonId` to `NormalizedMatch`. `calculateGlickoHybridRatings` and `aggregatePlayerStats` accept optional `initialRatings` (seeded from previous season's soft reset).
+*   [x] **Server Actions** (`src/lib/actions/seasons.ts`): `getActiveSeason()` (auto-seeds Season 1 fallback), `getAllSeasons()`, `getSeasonPlayerResults(seasonId)`, and atomic `endAndStartNewSeason()` (snapshots → completes season → creates Season N+1, zero financial touch). Updated `addMatch` in `matches.ts` to tag new matches with `season_id`.
+*   [x] **Admin Season Modal** (`src/components/admin/SeasonAdminModal.tsx`): Double-confirmation workflow, active season stats, soft reset preview (1800→1500, 1600→1400 examples), financial isolation guarantee. "Season Settings" amber button in leaderboard header.
+*   [x] **Desktop Dashboard** (`stitch-designs/desktop/Dashboard.tsx`): Season selector `<select>` dropdown with `(Current)` / `(Final Standings)` / `All-Time (Career)` options. "Season Settings" admin button (Trophy icon, amber styling). Added season props (`seasons`, `activeSeason`, `selectedSeasonId`, `onSelectSeason`, `onOpenSeasonModal`).
+*   [x] **Mobile Dashboard** (`stitch-designs/mobile/Dashboard.tsx`): Same season props. Two-row leaderboard header: title + admin button on top row; compact season dropdown + mode pills on second row.
+*   [x] **DashboardClient** (`src/components/DashboardClient.tsx`): Handles season selection state, seeds initial MMR from previous season's soft reset for Season > 1, filters active-season matches, mounts `SeasonAdminModal`.
+*   [x] **Dashboard Page** (`src/app/[mode]/page.tsx`): Fetches `seasons` and `season_player_results` server-side and passes to `DashboardClient`.
+*   [x] **PlayerCard** (`src/components/player/PlayerCard.tsx`): Added `seasonEdition?: string` prop (defaults to `"Season 1 Edition"`). Footer renders the prop dynamically.
+*   [x] **Player Profile Page** (`app/[mode]/players/[id]/page.tsx`): Fetches active season from DB with graceful fallback. Passes `seasonEdition` to `PlayerCard`. "Season N Active" badge is now dynamic.
+*   [x] **Soft Reset Formula**: `NEW_MMR = 1200 + (OLD_MMR − 1200) × 0.50`, `NEW_RD = min(OLD_RD + 75, 350)`. Base = 1200 per user specification.
+*   [x] **Financial Isolation**: Money owed, payments, purchases, session costs — 100% untouched by season transitions.
+*   [x] **Snapshot Immutability**: Historical seasons render frozen rows from `season_player_results` directly; ranks never shift after a season closes.
+*   [x] **Production Build Verified**: Full `npm run build` passed cleanly (Exit code: 0, all 16 routes compiled).
+
 ## Current Project Status
 
-The app now has **Explicit Time Tracking**, a **FIFA-Style Player Card** identity system, a **Multi-Card Story System** design, a fully live **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Match-by-Match Rating Delta Indicators**, a surgical **Underdog Bonus** modifier, and a fully synchronized **User Guide / Scenario Walkthrough Page** explaining MMR and social modifiers with simplified terminology and visual scenario cards. Production build is verified and ready for deployment.
+The app now has a **full competitive Season System** with soft MMR resets, immutable historical snapshots, season-scoped leaderboards (Current / Final Standings / All-Time Career), and an Admin Season Management modal for atomic season transitions — all with complete financial isolation. Player Cards and profile badges update dynamically per active season. Combined with the existing **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Underdog Bonus**, **Match Rating Deltas**, **FIFA-Style Player Cards**, and the **Synchronized User Guide**, CockCount is now a feature-complete competitive badminton tracking platform. Production build verified.
 
 ## Known Issues / Backlog
 

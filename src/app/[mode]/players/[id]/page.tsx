@@ -105,6 +105,22 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
 
     const currentBalance = totalOwed - totalPayments;
 
+    // --- SEASON DATA ---
+    // Fetch active season for dynamic season badge
+    let activeSeason: { season_number: number; name: string; status: string } | null = null;
+    try {
+        const { data: seasonData } = await supabase
+            .from("seasons")
+            .select("season_number, name, status")
+            .eq("status", "active")
+            .maybeSingle();
+        activeSeason = seasonData;
+    } catch {
+        // Seasons table may not exist yet, fallback gracefully
+    }
+    const seasonNumber = activeSeason?.season_number ?? 1;
+    const seasonEdition = `Season ${seasonNumber} Edition`;
+
     // --- ANALYTICS ENGINE INTEGRATION ---
     const normalizedMatches = normalizeMatches(matches || [], playerMap);
     const { stats: allStats, elo: globalElo, eloHistory, deltas } = aggregatePlayerStats(normalizedMatches, playerMap);
@@ -277,6 +293,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                                     streak: winStreak,
                                     placementMatchesPlayed
                                 }}
+                                seasonEdition={seasonEdition}
                              />
                         </div>
 
@@ -318,7 +335,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                             </div>
 
                             <div className="flex flex-wrap gap-2 pt-2">
-                                <span className="px-3 py-1 bg-slate-800/50 rounded-full border border-slate-700 text-[9px] font-bold text-slate-500 uppercase tracking-widest">Season 1 Active</span>
+                                <span className="px-3 py-1 bg-slate-800/50 rounded-full border border-slate-700 text-[9px] font-bold text-slate-500 uppercase tracking-widest">Season {seasonNumber} Active</span>
                                 <span className="px-3 py-1 bg-slate-800/50 rounded-full border border-slate-700 text-[9px] font-bold text-slate-500 uppercase tracking-widest">Global Ranking</span>
                             </div>
                         </div>

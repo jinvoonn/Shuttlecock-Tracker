@@ -47,10 +47,14 @@ function computeGlickoTeamRating(
 /**
  * Calculates Glicko-Lite + Attendance Streak XP ratings chronologically.
  */
-export function calculateGlickoHybridRatings(matches: NormalizedMatch[]): {
+export function calculateGlickoHybridRatings(
+  matches: NormalizedMatch[],
+  initialRatings?: Record<string, { r: number; rd: number; xp?: number }>
+): {
   current: EloMap;
   history: EloHistoryMap;
   deltas: Record<string, Record<string, number>>;
+  detailed: Record<string, { r: number; rd: number; xp: number }>;
 } {
   const R: Record<string, number> = {};
   const RD: Record<string, number> = {};
@@ -61,6 +65,19 @@ export function calculateGlickoHybridRatings(matches: NormalizedMatch[]): {
 
   const current: EloMap = {};
   const history: EloHistoryMap = {};
+  const detailed: Record<string, { r: number; rd: number; xp: number }> = {};
+
+  // If initial seeded ratings were provided (e.g. from previous season soft reset), initialize them
+  if (initialRatings) {
+    Object.entries(initialRatings).forEach(([player, seed]) => {
+      R[player] = seed.r ?? DEFAULT_RATING;
+      RD[player] = seed.rd ?? DEFAULT_RD;
+      XP[player] = seed.xp ?? 0;
+      streak[player] = 0;
+      gamesCount[player] = 0;
+      history[player] = [];
+    });
+  }
 
   // Sort matches chronologically to ensure ranking accuracy.
   const sortedMatches = [...matches].sort((a, b) => {
@@ -75,14 +92,15 @@ export function calculateGlickoHybridRatings(matches: NormalizedMatch[]): {
     return getTimeSafe(a.createdAt) - getTimeSafe(b.createdAt);
   });
 
-  // Initialize all players seen in history
+  // Initialize any remaining players seen in history
   for (const match of sortedMatches) {
     const allPlayers = [...match.teamA, ...match.teamB];
     for (const player of allPlayers) {
       if (!(player in R)) {
-        R[player] = DEFAULT_RATING;
-        RD[player] = DEFAULT_RD;
-        XP[player] = 0;
+        const seed = initialRatings?.[player];
+        R[player] = seed?.r ?? DEFAULT_RATING;
+        RD[player] = seed?.rd ?? DEFAULT_RD;
+        XP[player] = seed?.xp ?? 0;
         streak[player] = 0;
         gamesCount[player] = 0;
         history[player] = [];
@@ -241,7 +259,12 @@ export function calculateGlickoHybridRatings(matches: NormalizedMatch[]): {
   // Compile final ratings
   Object.keys(R).forEach(player => {
     current[player] = Math.round(R[player] + XP[player]);
+    detailed[player] = {
+      r: R[player],
+      rd: RD[player],
+      xp: XP[player]
+    };
   });
 
-  return { current, history, deltas };
+  return { current, history, deltas, detailed };
 }

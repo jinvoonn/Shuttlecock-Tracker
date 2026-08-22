@@ -16,7 +16,8 @@ import {
   Feather,
   TrendingUp,
   TrendingDown,
-  Minus
+  Minus,
+  Trophy
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
@@ -47,6 +48,7 @@ interface DashboardProps {
     totalOwed: number;
     totalShuttlesUsed: number;
     totalSessions: number;
+    totalPoolBalance: number;
     inventory: {
       totalTubes: number;
       remainingTubes: number;
@@ -85,9 +87,30 @@ interface DashboardProps {
   isLiveUpdate?: boolean;
   lastUpdatedPlayerIds?: string[];
   snapshots?: SnapshotRow[];
+  seasons?: any[];
+  activeSeason?: any;
+  selectedSeasonId?: string;
+  onSelectSeason?: (id: string) => void;
+  onOpenSeasonModal?: () => void;
 }
 
-export default function MobileDashboard({ stats, players, isAdmin, upcomingSession, insights, trendData, leaderboard, isLiveUpdate, lastUpdatedPlayerIds, snapshots }: DashboardProps) {
+export default function MobileDashboard({ 
+  stats, 
+  players, 
+  isAdmin, 
+  upcomingSession, 
+  insights, 
+  trendData, 
+  leaderboard, 
+  isLiveUpdate, 
+  lastUpdatedPlayerIds, 
+  snapshots,
+  seasons = [],
+  activeSeason,
+  selectedSeasonId,
+  onSelectSeason,
+  onOpenSeasonModal
+}: DashboardProps) {
   const router = useRouter();
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
@@ -215,34 +238,50 @@ export default function MobileDashboard({ stats, players, isAdmin, upcomingSessi
             {/* Leaderboard Card */}
             {leaderboard && leaderboard.length > 0 && (
               <div className="flex flex-col gap-4 rounded-3xl bg-slate-800 p-6 border border-slate-700 shadow-xl mt-2">
+                
+                {/* Top Row: Title + Admin Action */}
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-black italic uppercase tracking-tight flex items-center gap-2 text-white">
                     🏆 Leaderboard
-                    {isAdmin && (
-                      <button 
-                        onClick={async () => {
-                          try {
-                            setLoading(true);
-                            const { createWeeklySnapshot } = await import("@/lib/actions/snapshots");
-                            const res = await createWeeklySnapshot();
-                            alert(res.message);
-                          } catch (e: any) {
-                            alert(e.message);
-                          } finally {
-                            setLoading(false);
-                          }
-                        }}
-                        className="ml-2 text-[8px] font-black uppercase tracking-widest bg-slate-900 border border-slate-700 text-slate-400 hover:text-emerald-400 px-2 py-1 rounded-md transition-all active:scale-95"
-                      >
-                        SNAP
-                      </button>
-                    )}
                   </h3>
-                  <div className="flex bg-slate-900/50 rounded-xl p-1 border border-white/5">
+
+                  {isAdmin && onOpenSeasonModal && (
+                    <button
+                      onClick={onOpenSeasonModal}
+                      className="text-[9px] font-black uppercase tracking-widest bg-gradient-to-r from-amber-500/10 to-emerald-500/10 hover:from-amber-500/20 hover:to-emerald-500/20 text-amber-400 hover:text-emerald-300 border border-amber-500/30 hover:border-emerald-500/50 px-2.5 py-1 rounded-lg transition-all active:scale-95 flex items-center gap-1"
+                    >
+                      <Trophy className="size-3" />
+                      <span>Season Settings</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* Season Selector & View Mode Row */}
+                <div className="flex items-center justify-between gap-2">
+                  {/* Season Dropdown */}
+                  {seasons && seasons.length > 0 && (
+                    <select
+                      value={selectedSeasonId || activeSeason?.id || "fallback-season-1"}
+                      onChange={(e) => onSelectSeason && onSelectSeason(e.target.value)}
+                      className="bg-slate-900 border border-slate-700 text-[10px] font-black uppercase tracking-wider text-slate-200 rounded-xl px-2.5 py-1.5 outline-none focus:border-emerald-500 transition-all flex-1 max-w-[170px]"
+                    >
+                      {seasons.map((s: any) => (
+                        <option key={s.id} value={s.id} className="bg-slate-900 text-white font-sans normal-case">
+                          {s.name} {s.status === 'active' ? '(Current)' : '(Final)'}
+                        </option>
+                      ))}
+                      <option value="all-time" className="bg-slate-900 text-white font-sans normal-case">
+                        All-Time (Career)
+                      </option>
+                    </select>
+                  )}
+
+                  {/* Mode Pills */}
+                  <div className="flex bg-slate-900/50 rounded-xl p-1 border border-white/5 shrink-0">
                     <button
                       onClick={() => setLeaderboardMode("wins")}
                       className={clsx(
-                        "px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all duration-200 active:scale-95",
+                        "px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all duration-200 active:scale-95",
                         leaderboardMode === "wins"
                           ? "bg-emerald-400 text-white shadow-sm"
                           : "text-slate-500"
@@ -253,7 +292,7 @@ export default function MobileDashboard({ stats, players, isAdmin, upcomingSessi
                     <button
                       onClick={() => setLeaderboardMode("winRate")}
                       className={clsx(
-                        "px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all duration-200 active:scale-95",
+                        "px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all duration-200 active:scale-95",
                         leaderboardMode === "winRate"
                           ? "bg-emerald-400 text-white shadow-sm"
                           : "text-slate-500"
@@ -264,7 +303,7 @@ export default function MobileDashboard({ stats, players, isAdmin, upcomingSessi
                     <button
                       onClick={() => setLeaderboardMode("elo")}
                       className={clsx(
-                        "px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all duration-200 active:scale-95",
+                        "px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all duration-200 active:scale-95",
                         leaderboardMode === "elo"
                           ? "bg-emerald-400 text-white shadow-sm"
                           : "text-slate-500"
@@ -274,6 +313,7 @@ export default function MobileDashboard({ stats, players, isAdmin, upcomingSessi
                     </button>
                   </div>
                 </div>
+
                 <div className="flex flex-col gap-3 max-h-[400px] overflow-y-auto scrollbar-hide py-2">
                   {(() => {
                     console.log(`Leaderboard type: ${leaderboardMode}`);

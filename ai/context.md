@@ -13,9 +13,10 @@ CockCount is a premium **Dark Mode Only** web app to track badminton group costs
 *   **Glicko-Lite Ranking Engine**: Floor-protected Glicko-Lite + Attendance Streak XP hybrid replaces the legacy zero-sum Elo system. Skill floor = 1000, close-match 70% damping, soft streak decay.
 *   **Match Rating Delta Indicators**: Every match log shows a per-player `+N` / `-N` CockRating change badge in emerald/rose/grey, rendered on session pages (desktop + mobile) and player profile match history.
 *   **Light Social Adjustments**: Surgically injected Underdog win bonuses (+20% for wins with probability < 30%) to reward underdogs for high-impact upset victories.
-*   **Leaderboards**: Global and Session-level leaderboard with toggleable segmented controls.
+*   **Season System**: Full competitive season management with soft MMR reset (base 1200, 50% compression), immutable historical snapshots in `season_player_results`, season-scoped leaderboards (Current / Final Standings / All-Time Career), and Admin "Season Settings" modal for atomic season transitions. Financial system is 100% isolated from seasons.
+*   **Leaderboards**: Global and Session-level leaderboard with toggleable segmented controls. Season selector dropdown to switch between current, historical, and all-time views.
 *   **Premium Gaming UI**: High-contrast "Obsidian" score pills, rank trophy icons, and player avatars.
-*   **FIFA-Style Player Card**: Collectible identity card on each player's profile with 4 visual tiers (Bronze/Silver/Gold/Elite) mapped to CR score. Future-proofed for hero images via `avatar_url`.
+*   **FIFA-Style Player Card**: Collectible identity card on each player's profile with 4 visual tiers (Bronze/Silver/Gold/Elite) mapped to CR score. Dynamic `seasonEdition` footer (e.g. "Season 2 Edition"). Future-proofed for hero images via `avatar_url`.
 *   **Session Story Card Generator**: 9:16 IG-ready shareable cards with high-res PNG/Sticker export. Multi-card Podium carousel system in design phase.
 *   **Direct Settle**: One-tap settlement from the mobile dashboard.
 *   **Auto-Grouping System**: (Planned) Smart balanced team generation.
@@ -36,12 +37,15 @@ CockCount is a premium **Dark Mode Only** web app to track badminton group costs
 *   **Dynamic Components**: Heavy UI blocks (like the Dashboard) use `next/dynamic` with `ssr: false` to optimize build memory.
 *   **Dark Mode Only**: All UI must adhere to the Slate-900/800 background and Emerald-400 accent palette. Light mode is not supported.
 *   **FAB Pattern**: Mobile creation buttons (Sessions, Payments) use a standardized Floating Action Button at `fixed bottom-32 right-8` with `bg-emerald-400`.
+*   **Financial Isolation**: The financial system (payments, session costs, balances) MUST remain completely independent of the season/MMR system. Never modify financial data during season transitions.
 
 ## Database Schema (Key Tables)
-*   **`matches`**: `id`, `session_id`, `team_a_player1`, `team_a_player2`, `team_b_player1`, `team_b_player2`, `team_a_score`, `team_b_score`, `played_at`, `created_at`
+*   **`matches`**: `id`, `session_id`, `season_id` (FK → seasons), `team_a_player1`, `team_a_player2`, `team_b_player1`, `team_b_player2`, `team_a_score`, `team_b_score`, `played_at`, `created_at`
 *   **`sessions`**: `id`, `date`, `start_time`, `location`, `created_at`
 *   **`players`**: `id`, `name` (future: `avatar_url` for Player Card hero images)
 *   **`session_players`**: `session_id`, `player_id`, joins with `players(id, name)`
+*   **`seasons`**: `id`, `season_number`, `name`, `status` ('active'|'completed'), `start_date`, `end_date`, `config` (JSONB: `base_mmr`, `reset_factor`, `rd_increment`, `max_rd`, `mmr_floor`)
+*   **`season_player_results`**: `id`, `season_id`, `player_id`, `final_mmr`, `final_rd`, `final_rank`, `season_wins`, `season_losses`, `season_games` — **immutable** end-of-season snapshot, unique `(season_id, player_id)`
 *   **`purchases`**, **`session_usage`**, **`brands`** for shuttlecock cost tracking
 
 ## Environment Variables
@@ -88,14 +92,15 @@ All match actions in `src/lib/actions/matches.ts` expect:
 The action maps `teamAIds[0]` → `team_a_player1`, `teamAIds[1]` → `team_a_player2`, etc.
 
 ## Ranking Engine (`src/lib/analytics/rankingEngine.ts`)
-The unified engine `calculateGlickoHybridRatings(matches)` returns:
+The unified engine `calculateGlickoHybridRatings(matches, options?)` returns:
 - `current: EloMap` — final display rating per player (`MMR + XP`)
 - `history: EloHistoryMap` — chronological rating history per player
 - `deltas: Record<matchId, Record<playerId, number>>` — display rating change per player per match
+- `detailed: Record<playerId, { r, rd, xp }>` — raw component breakdown
 
 Key constants: `DEFAULT_RATING = 1200`, `DEFAULT_RD = 350`, `MMR_FLOOR = 1000`.
 
-The engine is called via `aggregatePlayerStats()` in `core.ts`, which re-exports all three maps plus `stats`.
+The engine is called via `aggregatePlayerStats()` in `core.ts`, which accepts optional `{ initialRatings }` for seeded season starts and re-exports all maps plus `stats`.
 
 ## Light Social Adjustments (Underdog Bonus)
 A single surgical modifier applied inside `calculateGlickoHybridRatings` after the base Glicko delta and close-match dampening, before skill floor enforcement:
@@ -122,16 +127,27 @@ Delta badges are injected at the **page (server) level** and rendered in:
 
 Badge colours: emerald (`+`), rose (`-`), slate (`±0`).
 
+## Season System Design
+- **Soft Reset Formula**: `NEW_MMR = 1200 + (OLD_MMR − 1200) × 0.50`
+- **Uncertainty Increase**: `NEW_RD = min(OLD_RD + 75, 350)`
+- **Base MMR**: 1200 (user-specified)
+- **Season affects**: MMR, RD, season rank, season wins/losses/games, season leaderboard
+- **Season does NOT affect**: money owed, payments, purchases, session costs, balances
+- **Admin action**: `endAndStartNewSeason()` in `src/lib/actions/seasons.ts` — atomic, double-confirmed
+
 ## Agent Tips
 - `lib/actions/payments.ts` includes `quickSettle` for zero-click resolution of balances.
 - `src/components/AnalyticsClient.tsx` is the central component for all chart visualizations.
 - FABs on mobile are standardized at `fixed bottom-32 right-8`.
 - `basePath` is computed as `/${currentMode}` where `currentMode` is parsed from the first segment of the URL (either `admin-92Kf8s` or `view`).
-- `src/components/player/PlayerCard.tsx` is the Player Card component. Pass `player` (id, name, avatar_url?) and `stats` (elo, winRate, wins, streak, placementMatchesPlayed). Tier is auto-computed.
+- `src/components/player/PlayerCard.tsx` accepts `seasonEdition?: string` (e.g. `"Season 2 Edition"`) — defaults to `"Season 1 Edition"` if not passed.
 - Match timestamps use `played_at || created_at` fallback everywhere; sort descending (`timeB - timeA`) for latest-first display.
 - `deltas?.[matchId]?.[playerId]` is the safe-access pattern to read a player's rating change for any given match.
+- `src/lib/actions/seasons.ts` contains all season server actions. Never call `endAndStartNewSeason()` without the admin double-confirmation UI.
+- Season selector in dashboards: `"all-time"` ID = career stats, active season ID = current season, completed season ID = frozen snapshot from `season_player_results`.
+- **PowerShell build**: Always use `npm.cmd run build` not `npm run build` on Windows due to script execution policy.
 
 ## Current Project Status
-**Phases 85, 86, 87, & 88 complete (23 May 2026).** App features **Explicit Time Tracking**, **Live Leaderboard Updates**, **Premium Gaming UI**, **FIFA-Style Player Cards**, **Public IG Story Generation**, a fully live **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Match-by-Match Rating Delta Indicators**, a surgical **Underdog Bonus** modifier (+20% on wins with <30% expected probability), and a **Synchronized User Guide & Scenario Walkthrough** built with simplified gamer terminology (MMR, Certainty Volatility, deuce damping, and realistic match scenario calculations). Production build is fully verified (Exit code: 0) and ready for deployment!
+**Phase 89 complete (22 Aug 2026).** CockCount now features a **full competitive Season System** with soft MMR resets (base 1200, 50% compression), immutable historical snapshots, season-scoped leaderboards, and an Admin Season Management modal — all with complete financial isolation. Combined with the existing **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Underdog Bonus**, **Match Rating Deltas**, **FIFA-Style Player Cards** with dynamic season edition branding, and the **Synchronized User Guide**, CockCount is a feature-complete competitive badminton tracking platform. Production build verified (Exit code: 0, all 16 routes).
 
 *"Because Shuttlecocks Aren't Free."*

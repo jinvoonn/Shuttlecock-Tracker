@@ -6,6 +6,8 @@ import { normalizeMatches } from "@/lib/analytics/normalize";
 import { aggregatePlayerStats } from "@/lib/analytics/core";
 import { getLeaderboard, getGlobalInsights } from "@/lib/analytics/leaderboard";
 import dynamic from 'next/dynamic';
+import { Season, SeasonPlayerResult, calculateSoftResetRatings } from "@/lib/analytics/season";
+import SeasonAdminModal from "@/components/admin/SeasonAdminModal";
 
 const MobileDash = dynamic(() => import("@/stitch-designs/mobile/Dashboard"), { ssr: false }) as any;
 const DesktopDash = dynamic(() => import("@/stitch-designs/desktop/Dashboard"), { ssr: false }) as any;
@@ -14,14 +16,14 @@ import { LeaderboardEntry } from "@/lib/analytics/types";
 import { useMatches } from "@/context/MatchesContext";
 
 interface DashboardClientProps {
-  // initialMatches is now handled by MatchesProvider at root, 
-  // but we might still accept it as a fallback or starting point.
   playersData: any[];
   paymentsData: any[];
   purchasesData: any[];
   sessionsData: any[];
   sessionUsageData: any[];
   snapshotsData: any[];
+  seasonsData?: Season[];
+  seasonResultsData?: SeasonPlayerResult[];
   isAdmin: boolean;
   basePath: string;
 }
@@ -33,15 +35,37 @@ export default function DashboardClient({
   sessionsData,
   sessionUsageData,
   snapshotsData,
+  seasonsData = [],
+  seasonResultsData = [],
   isAdmin,
   basePath
 }: DashboardClientProps) {
   const { matches } = useMatches();
   const [lastUpdatedPlayerIds, setLastUpdatedPlayerIds] = useState<string[]>([]);
   const [isLiveUpdate, setIsLiveUpdate] = useState(false);
+  const [isSeasonModalOpen, setIsSeasonModalOpen] = useState(false);
 
-  // Still need to trigger lastUpdatedPlayerIds and isLiveUpdate when matches change
-  // We can use a ref to detect new matches
+  // Active Season
+  const activeSeason = useMemo(() => {
+    return seasonsData.find(s => s.status === 'active') || seasonsData[0] || {
+      id: "fallback-season-1",
+      season_number: 1,
+      name: "Season 1",
+      status: "active",
+      start_date: "2023-09-13"
+    };
+  }, [seasonsData]);
+
+  // Selected Season Filter (defaults to active season ID)
+  const [selectedSeasonId, setSelectedSeasonId] = useState<string>(activeSeason.id);
+
+  // Keep selectedSeasonId synchronized if activeSeason changes
+  useEffect(() => {
+    if (activeSeason?.id && (!selectedSeasonId || selectedSeasonId === "fallback-season-1")) {
+      setSelectedSeasonId(activeSeason.id);
+    }
+  }, [activeSeason?.id]);
+
   const prevMatchesLength = React.useRef(matches.length);
   
   useEffect(() => {
@@ -60,13 +84,74 @@ export default function DashboardClient({
     prevMatchesLength.current = matches.length;
   }, [matches]);
 
-  const { statsProps, mobileStatsProps, players, insights, trendData, leaderboard } = useMemo(() => {
+  const { statsProps, mobileStatsProps, players, insights, trendData, leaderboard, activeSeasonMatchesCount } = useMemo(() => {
     const playerMap = Object.fromEntries((playersData || []).map(p => [p.id, p.name]));
-    const normalizedMatches = normalizeMatches(matches, playerMap);
-    const { stats: coreStats, elo: globalElo, eloHistory } = aggregatePlayerStats(normalizedMatches, playerMap);
+    const allNormalizedMatches = normalizeMatches(matches, playerMap);
 
-    // Insights
-    const { mostWinsPlayer, bestWinRatePlayer, longestStreakPlayer } = getGlobalInsights(coreStats);
+    // 1. Determine active season matches
+    const activeSeasonMatches = allNormalizedMatches.filter(m => {
+      if (m.seasonId) return m.seasonId === activeSeason.id;
+      return activeSeason.season_number === 1; // Unassigned matches belong to Season 1
+    });
+
+    // 2. Compute Soft-Reset Initial Seeds for Active Season if Season > 1
+    let initialRatings: Record<string, { r: number; rd: number; xp?: number }> | undefined = undefined;
+    if (activeSeason.season_number > 1) {
+      const prevSeasonNumber = activeSeason.season_number - 1;
+      const prevSeason = seasonsData.find(s => s.season_number === prevSeasonNumber);
+      if (prevSeason) {
+        const prevResults = seasonResultsData.filter(r => r.season_id === prevSeason.id);
+        const prevSeedMap: Record<string, { r: number; rd: number; xp?: number }> = {};
+        prevResults.forEach(r => {
+          prevSeedMap[r.player_id] = { r: r.final_mmr, rd: r.final_rd, xp: 0 };
+        });
+        initialRatings = calculateSoftResetRatings(prevSeedMap, activeSeason.config);
+      }
+    }
+
+    // 3. Compute Leaderboard depending on selected season
+    let computedLeaderboard: LeaderboardEntry[] = [];
+    const isCompletedSeasonSelected = selectedSeasonId !== "all-time" && selectedSeasonId !== activeSeason.id;
+    const isAllTimeSelected = selectedSeasonId === "all-time";
+
+    if (isCompletedSeasonSelected) {
+      // Historical Season: Render the frozen snapshot directly!
+      const snapshots = seasonResultsData.filter(r => r.season_id === selectedSeasonId);
+      computedLeaderboard = snapshots
+        .sort((a, b) => a.final_rank - b.final_rank)
+        .map(r => ({
+          id: r.player_id,
+          name: playerMap[r.player_id] || r.player_name || "Unknown",
+          wins: r.wins,
+          losses: r.losses,
+          draws: r.draws,
+          totalGames: r.matches_played,
+          winRate: r.win_rate,
+          streak: r.streak,
+          maxStreak: r.max_streak,
+          lastResults: [],
+          placementMatchesPlayed: Math.min(r.matches_played, 5),
+          isRanked: r.matches_played >= 5,
+          rank: r.final_rank,
+          elo: r.final_cock_rating
+        }));
+    } else if (isAllTimeSelected) {
+      // All-Time / Career: Aggregate all historical matches
+      const { stats: careerStats, elo: careerElo } = aggregatePlayerStats(allNormalizedMatches, playerMap);
+      computedLeaderboard = getLeaderboard(careerStats, careerElo, { sortBy: "elo" });
+    } else {
+      // Active Season: Compute live seasonal ratings seeded from previous season
+      const { stats: seasonStats, elo: seasonElo } = aggregatePlayerStats(
+        activeSeasonMatches,
+        playerMap,
+        { initialRatings }
+      );
+      computedLeaderboard = getLeaderboard(seasonStats, seasonElo, { sortBy: "elo" });
+    }
+
+    // 4. Global Insights (calculated from active season or all-time)
+    const { stats: activeStats } = aggregatePlayerStats(activeSeasonMatches, playerMap, { initialRatings });
+    const { mostWinsPlayer, bestWinRatePlayer, longestStreakPlayer } = getGlobalInsights(activeStats);
     const computedInsights = [
       {
         title: "Most Wins",
@@ -88,9 +173,7 @@ export default function DashboardClient({
       }
     ];
 
-    const computedLeaderboard = getLeaderboard(coreStats, globalElo, { sortBy: "elo" });
-
-    // Monthly Trends
+    // 5. Monthly Trends (Lifetime financial/inventory data)
     const monthlyTrends: Record<string, { month: string, spending: number, usage: number }> = {};
     (sessionsData || []).forEach(s => {
       const date = new Date(s.date);
@@ -120,7 +203,7 @@ export default function DashboardClient({
       .map(([, val]) => val)
       .slice(-6);
 
-    // Balances
+    // 6. Balances (Strictly Lifetime Data - 100% Isolated from Seasons)
     const playerBalances: Record<string, any> = {};
     (playersData || []).forEach(p => {
       playerBalances[p.id] = { id: p.id, name: p.name, totalShares: 0, totalPayments: 0, balance: 0 };
@@ -153,11 +236,14 @@ export default function DashboardClient({
       }
     });
 
+    // Active season ratings for player balance cards
+    const { elo: currentEloMap } = aggregatePlayerStats(activeSeasonMatches, playerMap, { initialRatings });
+
     const computedPlayers = Object.values(playerBalances).map((stats: any) => ({
       ...stats,
       balance: stats.totalPayments - stats.totalShares,
-      elo: globalElo[stats.id] || 1200,
-      placementMatchesPlayed: coreStats[stats.id]?.placementMatchesPlayed || 0
+      elo: currentEloMap[stats.id] || 1200,
+      placementMatchesPlayed: activeStats[stats.id]?.placementMatchesPlayed || 0
     })).sort((a: any, b: any) => a.balance - b.balance);
 
     const totalOwed = computedPlayers.filter((p: any) => p.balance < 0).reduce((acc: number, p: any) => acc + Math.abs(p.balance), 0);
@@ -188,9 +274,10 @@ export default function DashboardClient({
       players: computedPlayers,
       statsProps: sProps,
       mobileStatsProps: mStatsProps,
-      trendData: computedTrendData
+      trendData: computedTrendData,
+      activeSeasonMatchesCount: activeSeasonMatches.length
     };
-  }, [matches, playersData, paymentsData, purchasesData, sessionsData, sessionUsageData]);
+  }, [matches, playersData, paymentsData, purchasesData, sessionsData, sessionUsageData, seasonsData, seasonResultsData, selectedSeasonId, activeSeason]);
 
   return (
     <>
@@ -205,6 +292,11 @@ export default function DashboardClient({
           lastUpdatedPlayerIds={lastUpdatedPlayerIds}
           isAdmin={isAdmin}
           snapshots={snapshotsData || []}
+          seasons={seasonsData}
+          activeSeason={activeSeason}
+          selectedSeasonId={selectedSeasonId}
+          onSelectSeason={setSelectedSeasonId}
+          onOpenSeasonModal={() => setIsSeasonModalOpen(true)}
         />
       </div>
       <div className="hidden lg:block">
@@ -218,8 +310,24 @@ export default function DashboardClient({
           isLiveUpdate={isLiveUpdate}
           lastUpdatedPlayerIds={lastUpdatedPlayerIds}
           snapshots={snapshotsData || []}
+          seasons={seasonsData}
+          activeSeason={activeSeason}
+          selectedSeasonId={selectedSeasonId}
+          onSelectSeason={setSelectedSeasonId}
+          onOpenSeasonModal={() => setIsSeasonModalOpen(true)}
         />
       </div>
+
+      {/* Admin Season Management Modal */}
+      {isAdmin && (
+        <SeasonAdminModal
+          isOpen={isSeasonModalOpen}
+          onClose={() => setIsSeasonModalOpen(false)}
+          activeSeason={activeSeason}
+          totalMatchesCount={activeSeasonMatchesCount}
+          activePlayersCount={players.length}
+        />
+      )}
     </>
   );
 }

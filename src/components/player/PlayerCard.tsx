@@ -17,9 +17,10 @@ interface PlayerCardProps {
         streak: number;
         placementMatchesPlayed: number;
     };
+    seasonEdition?: string;
 }
 
-export default function PlayerCard({ player, stats }: PlayerCardProps) {
+export default function PlayerCard({ player, stats, seasonEdition = "Season 1 Edition" }: PlayerCardProps) {
     const elo = Math.round(stats.elo);
     const winRate = Math.round(stats.winRate);
     
@@ -133,7 +134,7 @@ export default function PlayerCard({ player, stats }: PlayerCardProps) {
                 {/* Footer Branding */}
                 <div className="flex items-center justify-between opacity-30 text-[8px] font-black uppercase tracking-widest italic pt-2">
                     <span className="flex items-center gap-1">
-                        <Target className="size-2 text-rose-500" /> Season 1 Edition
+                        <Target className="size-2 text-rose-500" /> {seasonEdition}
                     </span>
                     <span className="tracking-[0.2em]">CockCount // Elite Series</span>
                 </div>

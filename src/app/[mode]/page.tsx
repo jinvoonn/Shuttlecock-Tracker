@@ -32,14 +32,18 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
     { data: purchasesData, error: purchasesError },
     { data: sessionsData, error: sessionsError },
     { data: sessionUsageData, error: sessionUsageError },
-    { data: snapshotsData, error: snapshotsError }
+    { data: snapshotsData, error: snapshotsError },
+    { data: seasonsData },
+    { data: seasonResultsData }
   ] = await Promise.all([
     supabase.from("players").select("id, name"),
     supabase.from("payments").select("amount, player_id"),
     supabase.from("purchases").select("price_per_tube, initial_quantity, remaining_quantity, brands(name)"),
     supabase.from("sessions").select(`id, date, session_players ( player_id )`),
     supabase.from("session_usage").select("session_id, quantity_used, purchases(price_per_cock)"),
-    supabase.from("leaderboard_snapshots").select("player_id, rank, period_end, wins, win_rate, cock_rating").order("period_end", { ascending: false })
+    supabase.from("leaderboard_snapshots").select("player_id, rank, period_end, wins, win_rate, cock_rating").order("period_end", { ascending: false }),
+    supabase.from("seasons").select("*").order("season_number", { ascending: false }),
+    supabase.from("season_player_results").select("*, players(name)")
   ]);
 
   if (playersError || paymentsError || purchasesError || sessionsError || sessionUsageError || snapshotsError) {
@@ -66,6 +70,8 @@ export default async function DashboardPage({ params }: { params: Promise<{ mode
       sessionsData={sessionsData || []}
       sessionUsageData={sessionUsageData || []}
       snapshotsData={snapshotsData || []}
+      seasonsData={seasonsData || []}
+      seasonResultsData={seasonResultsData || []}
       isAdmin={isAdminUser}
       basePath={basePath}
     />

@@ -29,6 +29,22 @@ export async function addMatch(payloadJson: string) {
             return { success: false, error: "Validation error: A player cannot be on both teams." };
         }
 
+        // Fetch active season ID if available
+        let activeSeasonId: string | null = null;
+        try {
+            const { data: seasonData } = await supabase
+                .from("seasons")
+                .select("id")
+                .eq("status", "active")
+                .order("season_number", { ascending: false })
+                .limit(1);
+            if (seasonData && seasonData.length > 0) {
+                activeSeasonId = seasonData[0].id;
+            }
+        } catch {
+            // Non-blocking fallback
+        }
+
         // Map arrays → fixed columns (schema has team_a_player1, team_a_player2, team_b_player1, team_b_player2)
         const insertData: any = {
             session_id: sessionId,
@@ -39,6 +55,10 @@ export async function addMatch(payloadJson: string) {
             team_a_score: scoreA,
             team_b_score: scoreB
         };
+
+        if (activeSeasonId) {
+            insertData.season_id = activeSeasonId;
+        }
 
         if (playedAt) {
             insertData.played_at = playedAt;

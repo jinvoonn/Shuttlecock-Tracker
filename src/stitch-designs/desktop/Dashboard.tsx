@@ -10,7 +10,8 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
-  Feather
+  Feather,
+  Trophy
 } from 'lucide-react';
 import clsx from 'clsx';
 import Link from 'next/link';
@@ -73,9 +74,30 @@ interface DashboardProps {
   isLiveUpdate?: boolean;
   lastUpdatedPlayerIds?: string[];
   snapshots?: SnapshotRow[];
+  seasons?: any[];
+  activeSeason?: any;
+  selectedSeasonId?: string;
+  onSelectSeason?: (id: string) => void;
+  onOpenSeasonModal?: () => void;
 }
 
-export default function DesktopDashboard({ stats, players, isAdmin, upcomingSession, insights, trendData, leaderboard, isLiveUpdate, lastUpdatedPlayerIds, snapshots }: DashboardProps) {
+export default function DesktopDashboard({ 
+  stats, 
+  players, 
+  isAdmin, 
+  upcomingSession, 
+  insights, 
+  trendData, 
+  leaderboard, 
+  isLiveUpdate, 
+  lastUpdatedPlayerIds, 
+  snapshots,
+  seasons = [],
+  activeSeason,
+  selectedSeasonId,
+  onSelectSeason,
+  onOpenSeasonModal
+}: DashboardProps) {
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
@@ -245,29 +267,44 @@ export default function DesktopDashboard({ stats, players, isAdmin, upcomingSess
           {leaderboard && leaderboard.length > 0 && (
             <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 rounded-2xl p-8 shadow-2xl">
               <div className="flex items-center justify-between mb-8">
-                <h3 className="text-2xl font-black italic uppercase tracking-tighter flex items-center gap-3 text-slate-100">
-                  <Activity className="size-6 text-[#13ec80]" />
-                  🏆 Leaderboard
-                  {isAdmin && (
-                    <button 
-                      onClick={async () => {
-                        try {
-                          setLoading(true);
-                          const { createWeeklySnapshot } = await import("@/lib/actions/snapshots");
-                          const res = await createWeeklySnapshot();
-                          alert(res.message);
-                        } catch (e: any) {
-                          alert(e.message);
-                        } finally {
-                          setLoading(false);
-                        }
-                      }}
-                      className="ml-4 text-[10px] font-black uppercase tracking-widest bg-slate-800 hover:bg-emerald-500/20 text-slate-400 hover:text-emerald-400 border border-slate-700 hover:border-emerald-500/50 px-3 py-1.5 rounded-lg transition-all active:scale-95"
+                <div className="flex items-center gap-4">
+                  <h3 className="text-2xl font-black italic uppercase tracking-tighter flex items-center gap-3 text-slate-100">
+                    <Activity className="size-6 text-[#13ec80]" />
+                    🏆 Leaderboard
+                  </h3>
+
+                  {/* Season Selector */}
+                  {seasons && seasons.length > 0 && (
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={selectedSeasonId || activeSeason?.id || "fallback-season-1"}
+                        onChange={(e) => onSelectSeason && onSelectSeason(e.target.value)}
+                        className="bg-slate-800/90 border border-slate-700 text-xs font-black uppercase tracking-wider text-slate-200 rounded-xl px-3 py-2 outline-none focus:border-emerald-500 transition-all cursor-pointer"
+                      >
+                        {seasons.map((s: any) => (
+                          <option key={s.id} value={s.id} className="bg-slate-900 text-white font-sans normal-case">
+                            {s.name} {s.status === 'active' ? '(Current)' : '(Final Standings)'}
+                          </option>
+                        ))}
+                        <option value="all-time" className="bg-slate-900 text-white font-sans normal-case">
+                          All-Time (Career)
+                        </option>
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Admin Season Button */}
+                  {isAdmin && onOpenSeasonModal && (
+                    <button
+                      onClick={onOpenSeasonModal}
+                      className="text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-amber-500/10 to-emerald-500/10 hover:from-amber-500/20 hover:to-emerald-500/20 text-amber-400 hover:text-emerald-300 border border-amber-500/30 hover:border-emerald-500/50 px-3 py-1.5 rounded-xl transition-all active:scale-95 flex items-center gap-1.5"
+                      title="Season Management & Reset"
                     >
-                      SNAP
+                      <Trophy className="size-3.5" />
+                      <span>Season Settings</span>
                     </button>
                   )}
-                </h3>
+                </div>
                 <div className="flex bg-slate-800 border border-slate-700 rounded-xl p-1 shadow-inner">
                   <button
                     onClick={() => setLeaderboardMode("wins")}

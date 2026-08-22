@@ -112,8 +112,17 @@ import { EloMap } from "./types";
  * Aggregates both standard player statistics and Team ELO ratings concurrently.
  * This extends outputs for UI consumption while preventing breaking changes to getPlayerStats.
  */
-export function aggregatePlayerStats(matches: NormalizedMatch[], playerMap: Record<string, string>) {
+export function aggregatePlayerStats(
+  matches: NormalizedMatch[],
+  playerMap: Record<string, string>,
+  options?: {
+    initialRatings?: Record<string, { r: number; rd: number; xp?: number }>;
+  }
+) {
   const stats = getPlayerStats(matches, playerMap);
-  const { current: elo, history: eloHistory, deltas } = calculateGlickoHybridRatings(matches);
-  return { stats, elo, eloHistory, deltas };
+  const { current: elo, history: eloHistory, deltas, detailed } = calculateGlickoHybridRatings(
+    matches,
+    options?.initialRatings
+  );
+  return { stats, elo, eloHistory, deltas, detailed };
 }

@@ -134,3 +134,48 @@ on public.leaderboard_snapshots(player_id);
 
 alter table public.leaderboard_snapshots enable row level security;
 create policy "Allow all operations on snapshots" on public.leaderboard_snapshots for all using (true) with check (true);
+
+-- 10. Seasons Table
+create table if not exists public.seasons (
+  id uuid primary key default gen_random_uuid(),
+  season_number integer not null unique,
+  name text not null,
+  status text not null check (status in ('active', 'completed')) default 'active',
+  start_date date not null default current_date,
+  end_date date,
+  created_at timestamptz default now(),
+  ended_at timestamptz,
+  config jsonb default '{"base_mmr": 1200, "reset_factor": 0.5, "rd_increment": 75, "max_rd": 350}'::jsonb
+);
+
+-- 11. Season Player Results Table (Immutable Historical Snapshots)
+create table if not exists public.season_player_results (
+  id uuid primary key default gen_random_uuid(),
+  season_id uuid references public.seasons(id) on delete cascade not null,
+  player_id uuid references public.players(id) on delete cascade not null,
+  final_mmr float not null,
+  final_rd float not null,
+  final_xp float not null default 0,
+  final_cock_rating integer not null,
+  final_rank integer not null,
+  wins integer not null default 0,
+  losses integer not null default 0,
+  draws integer not null default 0,
+  matches_played integer not null default 0,
+  win_rate float not null default 0,
+  streak integer not null default 0,
+  max_streak integer not null default 0,
+  created_at timestamptz default now(),
+  unique (season_id, player_id)
+);
+
+create index if not exists idx_seasons_status on public.seasons(status);
+create index if not exists idx_season_player_results_season_id on public.season_player_results(season_id);
+create index if not exists idx_season_player_results_player_id on public.season_player_results(player_id);
+
+alter table public.seasons enable row level security;
+create policy "Allow all operations on seasons" on public.seasons for all using (true) with check (true);
+
+alter table public.season_player_results enable row level security;
+create policy "Allow all operations on season_player_results" on public.season_player_results for all using (true) with check (true);
+
