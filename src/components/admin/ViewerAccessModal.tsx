@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { 
   X, 
   ShieldCheck, 
@@ -87,6 +88,12 @@ export function ViewerAccessModal({ isOpen, onClose }: ViewerAccessModalProps) {
   const [permError, setPermError] = useState<string | null>(null);
   const [permSuccess, setPermSuccess] = useState(false);
 
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     if (isOpen) {
       loadStatus();
@@ -106,7 +113,7 @@ export function ViewerAccessModal({ isOpen, onClose }: ViewerAccessModalProps) {
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const togglePermission = (key: ViewerPermission) => {
     setSelectedPermissions((prev) =>
@@ -170,8 +177,8 @@ export function ViewerAccessModal({ isOpen, onClose }: ViewerAccessModalProps) {
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
       <div 
         className="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-6 relative max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
@@ -258,35 +265,24 @@ export function ViewerAccessModal({ isOpen, onClose }: ViewerAccessModalProps) {
                             key={item.key}
                             onClick={() => togglePermission(item.key)}
                             className={clsx(
-                              "flex items-start gap-3 p-3 rounded-2xl border cursor-pointer transition-all",
+                              "p-3 rounded-2xl border transition-all cursor-pointer flex items-start gap-3 select-none",
                               isChecked
-                                ? "bg-emerald-500/5 border-emerald-500/30 text-slate-100"
+                                ? "bg-emerald-500/10 border-emerald-500/40 text-slate-100"
                                 : "bg-slate-950/60 border-slate-800/80 text-slate-400 hover:border-slate-700"
                             )}
                           >
-                            <button
-                              type="button"
-                              className={clsx(
-                                "mt-0.5 shrink-0 rounded text-base transition-colors",
-                                isChecked ? "text-emerald-400" : "text-slate-600"
-                              )}
-                            >
+                            <div className="pt-0.5 text-emerald-400">
                               {isChecked ? (
-                                <CheckSquare className="w-4 h-4" />
+                                <CheckSquare className="w-4 h-4 text-emerald-400" />
                               ) : (
-                                <Square className="w-4 h-4" />
+                                <Square className="w-4 h-4 text-slate-600" />
                               )}
-                            </button>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-xs font-bold text-slate-200 flex items-center gap-2">
-                                <span>{item.label}</span>
-                                {isChecked && (
-                                  <span className="text-[9px] font-mono uppercase bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded">
-                                    Unlocked
-                                  </span>
-                                )}
+                            </div>
+                            <div className="space-y-0.5">
+                              <div className={clsx("text-xs font-bold", isChecked ? "text-emerald-300" : "text-slate-300")}>
+                                {item.label}
                               </div>
-                              <div className="text-[11px] text-slate-500 leading-relaxed mt-0.5">
+                              <div className="text-[11px] text-slate-500">
                                 {item.description}
                               </div>
                             </div>
@@ -308,94 +304,106 @@ export function ViewerAccessModal({ isOpen, onClose }: ViewerAccessModalProps) {
               {permSuccess && (
                 <div className="flex items-center gap-2 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-xs font-bold">
                   <Check className="w-4 h-4 shrink-0" />
-                  <span>Permissions updated successfully!</span>
+                  <span>Permissions saved successfully!</span>
                 </div>
               )}
             </div>
           ) : (
-            <form onSubmit={handleSavePin} className="space-y-5">
+            <div className="space-y-5">
               <div className="p-3 bg-slate-950 border border-slate-800/80 rounded-2xl text-xs text-slate-400 space-y-1">
-                <span className="font-bold text-slate-200 block">Secure Hashing:</span>
-                PINs are never stored in plaintext or returned to the browser. They are salted and hashed with bcrypt on the server.
+                <span className="font-bold text-slate-200 block">Security Notes:</span>
+                • The Viewer PIN is securely hashed using bcrypt before storage.
+                <br />
+                • Plaintext PINs are never stored in the database or sent to client bundles.
+                <br />
+                • Viewers who unlock with this PIN receive a 60-minute signed session.
               </div>
 
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                    New Viewer PIN
-                  </label>
-                  <input
-                    type="password"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    maxLength={8}
-                    required
-                    placeholder="Enter at least 4 digits"
-                    value={newPin}
-                    onChange={(e) => {
-                      setNewPin(e.target.value);
-                      if (pinError) setPinError(null);
-                    }}
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 rounded-xl px-4 py-3 text-sm font-mono tracking-widest text-emerald-400 placeholder:text-slate-700 outline-none"
-                  />
+              <form onSubmit={handleSavePin} className="space-y-4">
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
+                      {isConfigured ? "New Viewer PIN (4-8 digits)" : "Set Viewer PIN (4-8 digits)"}
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="password"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        maxLength={8}
+                        disabled={pinLoading}
+                        value={newPin}
+                        onChange={(e) => {
+                          setNewPin(e.target.value);
+                          if (pinError) setPinError(null);
+                        }}
+                        placeholder="Enter 4 to 8 digits"
+                        className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 rounded-2xl px-4 py-3 text-sm font-mono tracking-widest text-emerald-400 placeholder:text-slate-700 outline-none transition-all disabled:opacity-50"
+                      />
+                      <KeyRound className="w-4 h-4 text-slate-600 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
+                      Confirm PIN
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="password"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        maxLength={8}
+                        disabled={pinLoading}
+                        value={confirmPin}
+                        onChange={(e) => {
+                          setConfirmPin(e.target.value);
+                          if (pinError) setPinError(null);
+                        }}
+                        placeholder="Re-enter same digits"
+                        className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 rounded-2xl px-4 py-3 text-sm font-mono tracking-widest text-emerald-400 placeholder:text-slate-700 outline-none transition-all disabled:opacity-50"
+                      />
+                      <Lock className="w-4 h-4 text-slate-600 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
+                  </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                    Confirm Viewer PIN
-                  </label>
-                  <input
-                    type="password"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    maxLength={8}
-                    required
-                    placeholder="Re-enter PIN"
-                    value={confirmPin}
-                    onChange={(e) => {
-                      setConfirmPin(e.target.value);
-                      if (pinError) setPinError(null);
-                    }}
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 rounded-xl px-4 py-3 text-sm font-mono tracking-widest text-emerald-400 placeholder:text-slate-700 outline-none"
-                  />
-                </div>
-              </div>
-
-              {pinError && (
-                <div className="flex items-center gap-2 p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-xs">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{pinError}</span>
-                </div>
-              )}
-
-              {pinSuccess && (
-                <div className="flex items-center gap-2 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-xs font-bold">
-                  <Check className="w-4 h-4 shrink-0" />
-                  <span>PIN successfully saved and hashed!</span>
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={pinLoading || !newPin || !confirmPin}
-                className="w-full px-4 py-3 bg-emerald-400 hover:bg-emerald-300 active:scale-98 text-slate-950 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-400/20 disabled:opacity-50"
-              >
-                {pinLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Saving PIN...
-                  </>
-                ) : (
-                  "Save New PIN"
+                {pinError && (
+                  <div className="flex items-center gap-2 p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-xs">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{pinError}</span>
+                  </div>
                 )}
-              </button>
-            </form>
+
+                {pinSuccess && (
+                  <div className="flex items-center gap-2 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-xs font-bold">
+                    <Check className="w-4 h-4 shrink-0" />
+                    <span>Viewer PIN updated and hashed successfully!</span>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={pinLoading || !newPin || !confirmPin}
+                  className="w-full px-4 py-3 bg-emerald-400 hover:bg-emerald-300 active:scale-98 text-slate-950 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-400/20 disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  {pinLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Saving PIN...
+                    </>
+                  ) : (
+                    "Save & Hash Viewer PIN"
+                  )}
+                </button>
+              </form>
+            </div>
           )}
         </div>
 
-        {/* Footer for Permissions Tab */}
+        {/* Footer */}
         {activeTab === "permissions" && (
-          <div className="pt-3 border-t border-slate-800 flex justify-end gap-3 shrink-0">
+          <div className="pt-3 border-t border-slate-800 flex items-center justify-between shrink-0">
             <button
               type="button"
               onClick={onClose}
@@ -421,6 +429,7 @@ export function ViewerAccessModal({ isOpen, onClose }: ViewerAccessModalProps) {
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, Lock, KeyRound, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { verifyViewerPin } from "@/lib/actions/viewerPin";
 import { useRole } from "@/context/AuthContext";
@@ -11,13 +12,18 @@ interface ViewerPinModalProps {
 }
 
 export function ViewerPinModal({ isOpen, onClose }: ViewerPinModalProps) {
+  const [mounted, setMounted] = useState(false);
   const [pin, setPin] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const { refreshViewerState } = useRole();
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!isOpen || !mounted) return null;
 
   const handleUnlock = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,10 +66,10 @@ export function ViewerPinModal({ isOpen, onClose }: ViewerPinModalProps) {
     onClose();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
       <div 
-        className="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-6 relative overflow-hidden"
+        className="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-6 relative overflow-hidden text-left"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Subtle glow accent */}
@@ -167,6 +173,7 @@ export function ViewerPinModal({ isOpen, onClose }: ViewerPinModalProps) {
           </span>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

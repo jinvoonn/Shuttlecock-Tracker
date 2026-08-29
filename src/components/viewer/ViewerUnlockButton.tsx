@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Lock, Unlock, LogOut, ShieldCheck, CheckCircle2, X } from "lucide-react";
 import clsx from "clsx";
 import { useRole } from "@/context/AuthContext";
@@ -17,10 +18,15 @@ export function ViewerUnlockButton({
   variant = "button",
   label 
 }: ViewerUnlockButtonProps) {
+  const [mounted, setMounted] = useState(false);
   const { isAdmin, viewerUnlocked, viewerPermissions, lockViewer } = useRole();
   const [pinModalOpen, setPinModalOpen] = useState(false);
   const [sessionModalOpen, setSessionModalOpen] = useState(false);
   const [locking, setLocking] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Admin already has full privileges; no viewer unlock needed
   if (isAdmin) return null;
@@ -183,8 +189,8 @@ export function ViewerUnlockButton({
       />
 
       {/* Centered Session Management & Lock Popup Modal */}
-      {sessionModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
+      {mounted && sessionModalOpen && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
           <div 
             className="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-6 relative overflow-hidden text-left"
             onClick={(e) => e.stopPropagation()}
@@ -252,7 +258,8 @@ export function ViewerUnlockButton({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
