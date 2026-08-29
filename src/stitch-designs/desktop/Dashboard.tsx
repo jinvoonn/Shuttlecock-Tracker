@@ -101,7 +101,7 @@ export default function DesktopDashboard({
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
-  const { canEdit } = useRole();
+  const { canEdit, isAdmin: roleIsAdmin } = useRole();
   const { startLoading } = useRouteLoading();
   const { setLoading } = useLoading();
   const [leaderboardMode, setLeaderboardMode] = React.useState<"wins" | "winRate" | "elo">("elo");
@@ -273,27 +273,25 @@ export default function DesktopDashboard({
                 </h3>
 
                 {/* Season Selector */}
-                {seasons && seasons.length > 0 && (
-                  <div className="flex items-center gap-2">
-                    <select
-                      value={selectedSeasonId || activeSeason?.id || "fallback-season-1"}
-                      onChange={(e) => onSelectSeason && onSelectSeason(e.target.value)}
-                      className="bg-slate-800/90 border border-slate-700 text-xs font-black uppercase tracking-wider text-slate-200 rounded-xl px-3 py-2 outline-none focus:border-emerald-500 transition-all cursor-pointer"
-                    >
-                      {seasons.map((s: any) => (
-                        <option key={s.id} value={s.id} className="bg-slate-900 text-white font-sans normal-case">
-                          {s.name} {s.status === 'active' ? '(Current)' : '(Final Standings)'}
-                        </option>
-                      ))}
-                      <option value="all-time" className="bg-slate-900 text-white font-sans normal-case">
-                        All-Time (Career)
+                <div className="flex items-center gap-2">
+                  <select
+                    value={selectedSeasonId || activeSeason?.id || "fallback-season-1"}
+                    onChange={(e) => onSelectSeason && onSelectSeason(e.target.value)}
+                    className="bg-slate-800/90 border border-slate-700 text-xs font-black uppercase tracking-wider text-slate-200 rounded-xl px-3 py-2 outline-none focus:border-emerald-500 transition-all cursor-pointer"
+                  >
+                    {(seasons && seasons.length > 0 ? seasons : [activeSeason]).filter(Boolean).map((s: any) => (
+                      <option key={s.id} value={s.id} className="bg-slate-900 text-white font-sans normal-case">
+                        {s.name} {s.status === 'active' ? '(Current)' : '(Final Standings)'}
                       </option>
-                    </select>
-                  </div>
-                )}
+                    ))}
+                    <option value="all-time" className="bg-slate-900 text-white font-sans normal-case">
+                      All-Time (Career)
+                    </option>
+                  </select>
+                </div>
 
                 {/* Admin Season Button */}
-                {isAdmin && onOpenSeasonModal && (
+                {(isAdmin || roleIsAdmin) && onOpenSeasonModal && (
                   <button
                     onClick={onOpenSeasonModal}
                     className="text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-amber-500/10 to-emerald-500/10 hover:from-amber-500/20 hover:to-emerald-500/20 text-amber-400 hover:text-emerald-300 border border-amber-500/30 hover:border-emerald-500/50 px-3 py-1.5 rounded-xl transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-sm"
