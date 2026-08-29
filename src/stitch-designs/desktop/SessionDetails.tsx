@@ -185,14 +185,16 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                  Edit
                </button>
              )}
-             {canLogMatch && (
+             {canLogMatch ? (
                <button 
                  onClick={() => setIsModalOpen(true)}
-                 className="bg-emerald-400 hover:bg-emerald-500 text-slate-950 px-6 py-3 rounded-xl font-black text-sm uppercase transition-all flex items-center gap-2 shadow-lg shadow-emerald-400/20 active:scale-95"
+                 className="bg-emerald-400 hover:bg-emerald-500 text-slate-950 px-6 py-3 rounded-xl font-black text-sm uppercase transition-all flex items-center gap-2 shadow-lg shadow-emerald-400/20 active:scale-95 cursor-pointer"
                >
                  <Plus className="size-5" />
                  Record Match
                </button>
+             ) : (
+               <ViewerUnlockButton variant="button" label="Unlock to Record Match" />
              )}
           </div>
         </section>

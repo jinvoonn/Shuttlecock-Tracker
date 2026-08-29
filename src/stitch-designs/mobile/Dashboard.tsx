@@ -173,9 +173,9 @@ export default function MobileDashboard({
              Because Shuttlecocks Aren't Free
           </p>
 
-          {/* Action on Header */}
-          <div className="absolute right-4 top-1/2 -translate-y-1/2">
-            {effectiveIsAdmin ? (
+          {/* Admin Viewer Access Settings Trigger */}
+          {effectiveIsAdmin && (
+            <div className="absolute right-4 top-1/2 -translate-y-1/2">
               <button
                 onClick={() => setIsViewerModalOpen(true)}
                 className="p-2 rounded-xl bg-slate-800 border border-slate-700 text-emerald-400 active:scale-95 transition-transform shadow-sm"
@@ -183,13 +183,16 @@ export default function MobileDashboard({
               >
                 <ShieldCheck className="size-4" />
               </button>
-            ) : (
-              <ViewerUnlockButton />
-            )}
-          </div>
+            </div>
+          )}
         </header>
 
         <main className="flex flex-col gap-6 p-6 flex-1 text-left">
+          {/* Centered Viewer Unlock / Status Banner (For Viewers) */}
+          {!effectiveIsAdmin && (
+            <ViewerUnlockButton variant="banner" />
+          )}
+
           {/* Dashboard Stats Row - Horizontal Scrollable */}
           {insights && insights.length > 0 && (
             <div className="overflow-x-auto scrollbar-hide pb-2 -mx-6 px-6">

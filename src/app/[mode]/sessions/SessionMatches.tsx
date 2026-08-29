@@ -7,6 +7,7 @@ import clsx from "clsx";
 import { useRole } from "@/context/AuthContext";
 import { useMatches } from "@/context/MatchesContext";
 import { VIEWER_PERMISSIONS } from "@/lib/constants";
+import { ViewerUnlockButton } from "@/components/viewer/ViewerUnlockButton";
 
 interface SessionPlayer {
     players: { id: string, name: string } | null;
@@ -149,13 +150,17 @@ export function SessionMatches({ sessionId, sessionDate, sessionPlayers, matches
                 <h4 className="text-[10px] font-bold uppercase text-slate-500 flex items-center gap-2">
                     <Swords className="w-4 h-4" /> Matches ({matches?.length || 0})
                 </h4>
-                {!isAdding && canLogMatch && (
-                    <button
-                        onClick={() => setIsAdding(true)}
-                        className="text-xs flex items-center gap-1 text-emerald-400 hover:text-emerald-300 transition-colors bg-emerald-500/10 px-2 py-1.5 rounded-lg border border-emerald-500/20"
-                    >
-                        <PlusCircle className="w-3.5 h-3.5" /> Log Match
-                    </button>
+                {!isAdding && (
+                    canLogMatch ? (
+                        <button
+                            onClick={() => setIsAdding(true)}
+                            className="text-xs flex items-center gap-1 text-emerald-400 hover:text-emerald-300 transition-colors bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20 active:scale-95 cursor-pointer"
+                        >
+                            <PlusCircle className="w-3.5 h-3.5" /> Log Match
+                        </button>
+                    ) : (
+                        <ViewerUnlockButton variant="inline" label="Unlock to Log Match" />
+                    )
                 )}
             </div>
 

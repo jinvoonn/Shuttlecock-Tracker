@@ -221,9 +221,6 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
           <button onClick={() => router.back()} className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center size-10 rounded-xl bg-slate-800 border border-slate-700 transition-all active:scale-95 shadow-sm">
             <ArrowLeft className="size-5 text-slate-100" />
           </button>
-          {!isAdmin && (
-            <ViewerUnlockButton className="absolute right-4 top-1/2 -translate-y-1/2" />
-          )}
         </header>
 
         <main className="flex-1 overflow-y-auto">
@@ -387,14 +384,19 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
             <section className="mb-4">
               <div className="flex items-center justify-between mb-4 px-1">
                 <h3 className="text-slate-900 dark:text-slate-100 text-sm font-black uppercase tracking-[0.15em] italic">Match Results</h3>
-                {canLogMatch && (
-                  <button 
-                    onClick={() => router.push(`${basePath}/sessions/${session.id}/record-match`)}
-                    className="text-emerald-400 flex items-center gap-1.5 active:scale-95 transition-transform bg-emerald-400/10 px-3 py-1.5 rounded-lg border border-emerald-400/20"
-                  >
-                    <PlusCircle className="size-4" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Log Result</span>
-                  </button>
+                {canLogMatch ? (
+                  <div className="flex items-center gap-2">
+                    {!isAdmin && <ViewerUnlockButton variant="inline" />}
+                    <button 
+                      onClick={() => router.push(`${basePath}/sessions/${session.id}/record-match`)}
+                      className="text-emerald-400 flex items-center gap-1.5 active:scale-95 transition-transform bg-emerald-400/10 px-3 py-1.5 rounded-lg border border-emerald-400/20"
+                    >
+                      <PlusCircle className="size-4" />
+                      <span className="text-[10px] font-black uppercase tracking-widest">Log Result</span>
+                    </button>
+                  </div>
+                ) : (
+                  <ViewerUnlockButton variant="inline" label="Unlock to Log Match" />
                 )}
               </div>
 

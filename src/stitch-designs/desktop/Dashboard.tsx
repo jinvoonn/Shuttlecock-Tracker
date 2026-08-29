@@ -204,6 +204,11 @@ export default function DesktopDashboard({
         </header>
 
         <div className="p-8 space-y-8 max-w-6xl mx-auto w-full">
+          {/* Centered Viewer Unlock Banner for Viewers */}
+          {!effectiveIsAdmin && (
+            <ViewerUnlockButton variant="banner" />
+          )}
+
           {/* Insights Row */}
           {insights && insights.length > 0 && (
             <div className="overflow-x-auto pb-4 scrollbar-hide">
