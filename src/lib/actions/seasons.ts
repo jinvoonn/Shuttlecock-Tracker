@@ -149,7 +149,7 @@ export async function getSeasonPlayerResults(seasonId: string): Promise<SeasonPl
  * 5. Create new season (`season_number = N + 1`, `status = 'active'`, `start_date = now()`).
  * 6. ZERO modifications to financial records (payments/balances).
  */
-export async function endAndStartNewSeason(): Promise<{
+export async function endAndStartNewSeason(startDate?: string): Promise<{
   success: boolean;
   message?: string;
   error?: string;
@@ -163,7 +163,7 @@ export async function endAndStartNewSeason(): Promise<{
     }
 
     const nowIso = new Date().toISOString();
-    const today = nowIso.slice(0, 10);
+    const seasonStartDate = startDate && startDate.trim() !== "" ? startDate.trim() : nowIso.slice(0, 10);
 
     // 2. Fetch matches and players
     const [
@@ -231,7 +231,7 @@ export async function endAndStartNewSeason(): Promise<{
       .from("seasons")
       .update({
         status: "completed",
-        end_date: today,
+        end_date: seasonStartDate,
         ended_at: nowIso
       })
       .eq("id", activeSeason.id);
@@ -250,7 +250,7 @@ export async function endAndStartNewSeason(): Promise<{
           season_number: newSeasonNumber,
           name: `Season ${newSeasonNumber}`,
           status: "active",
-          start_date: today,
+          start_date: seasonStartDate,
           config: DEFAULT_SEASON_CONFIG
         }
       ]);
@@ -275,5 +275,106 @@ export async function endAndStartNewSeason(): Promise<{
     const e = err as Error;
     console.error("endAndStartNewSeason error:", e);
     return { success: false, error: e.message || "An unexpected error occurred during season transition." };
+  }
+}
+
+/**
+ * Rollback / Revert Season Transition:
+ * Reverts the current active season back to the previous completed season.
+ * Safety rule:
+ * - Season must be Season > 1.
+ * - Current active season must have 0 matches recorded to avoid accidental data loss.
+ */
+export async function rollbackToPreviousSeason(): Promise<{
+  success: boolean;
+  message?: string;
+  error?: string;
+  revertedToSeasonNumber?: number;
+}> {
+  try {
+    const activeSeason = await getActiveSeason();
+    if (!activeSeason || activeSeason.id === "fallback-season-1") {
+      return { success: false, error: "No active season found to rollback." };
+    }
+
+    if (activeSeason.season_number <= 1) {
+      return { success: false, error: "Cannot rollback Season 1. Season 1 is the genesis season." };
+    }
+
+    // Check if any matches have been recorded in this active season
+    const { count: matchCount, error: countErr } = await supabase
+      .from("matches")
+      .select("id", { count: "exact", head: true })
+      .eq("season_id", activeSeason.id);
+
+    if (countErr) {
+      return { success: false, error: "Failed to verify matches in active season: " + countErr.message };
+    }
+
+    if (matchCount && matchCount > 0) {
+      return { 
+        success: false, 
+        error: `Cannot rollback Season ${activeSeason.season_number} because it already has ${matchCount} recorded match(es). Please delete or reassign matches before rolling back.` 
+      };
+    }
+
+    const previousSeasonNumber = activeSeason.season_number - 1;
+
+    // Fetch the previous season row
+    const { data: prevSeason, error: prevErr } = await supabase
+      .from("seasons")
+      .select("*")
+      .eq("season_number", previousSeasonNumber)
+      .single();
+
+    if (prevErr || !prevSeason) {
+      return { success: false, error: `Could not find Season ${previousSeasonNumber} in the database.` };
+    }
+
+    // 1. Delete current empty active season
+    const { error: deleteErr } = await supabase
+      .from("seasons")
+      .delete()
+      .eq("id", activeSeason.id);
+
+    if (deleteErr) {
+      return { success: false, error: "Failed to remove current season: " + deleteErr.message };
+    }
+
+    // 2. Re-open previous season as active
+    const { error: reopenErr } = await supabase
+      .from("seasons")
+      .update({
+        status: "active",
+        end_date: null,
+        ended_at: null
+      })
+      .eq("id", prevSeason.id);
+
+    if (reopenErr) {
+      return { success: false, error: "Failed to re-open previous season: " + reopenErr.message };
+    }
+
+    // 3. Clear snapshots of previous season since it's active again
+    await supabase
+      .from("season_player_results")
+      .delete()
+      .eq("season_id", prevSeason.id);
+
+    // 4. Revalidate cache
+    revalidatePath("/", "layout");
+    revalidatePath("/sessions");
+    revalidatePath("/players");
+    revalidatePath("/cockrating");
+
+    return {
+      success: true,
+      message: `Rolled back successfully! Season ${previousSeasonNumber} is now active again.`,
+      revertedToSeasonNumber: previousSeasonNumber
+    };
+  } catch (err: unknown) {
+    const e = err as Error;
+    console.error("rollbackToPreviousSeason error:", e);
+    return { success: false, error: e.message || "An unexpected error occurred during season rollback." };
   }
 }

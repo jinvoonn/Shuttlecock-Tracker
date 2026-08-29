@@ -289,13 +289,19 @@
 *   [x] **Snapshot Immutability**: Historical seasons render frozen rows from `season_player_results` directly; ranks never shift after a season closes.
 *   [x] **Production Build Verified**: Full `npm run build` passed cleanly (Exit code: 0, all 16 routes compiled).
 
-## Phase 90 — Season UI Resiliency & Admin Access Enhancements (29 Aug 2026, Complete)
+## Phase 91 — Asymmetric Season Soft Reset, Custom Date & Safe Rollback (29 Aug 2026, Complete)
 
-*   [x] **Unconditional Leaderboard Header Rendering**: Removed the outer `leaderboard && leaderboard.length > 0` condition from both desktop and mobile dashboards so the Leaderboard card and Season management tools always display, even when an active season has 0 recorded matches.
-*   [x] **Empty State UI**: Added a dedicated, styled empty-state card (*"No matches recorded this season"*) with trophy icon and guidance text on both desktop and mobile views.
-*   [x] **Fallback-Safe Season Selector**: Updated the `<select>` dropdown to always render fallback options (`[activeSeason]` + `All-Time (Career)`) even if the remote Supabase `seasons` table is unpopulated or returns an empty array.
-*   [x] **Dual-Layer Admin Role Detection**: Integrated client-side `useRole()` (`roleIsAdmin`) alongside server-passed `isAdmin` prop (`isAdmin || roleIsAdmin`) on both desktop and mobile dashboards to guarantee the amber "Season Settings" button is immediately visible upon navigating to `/admin-92Kf8s`.
-*   [x] **Production Build Verified**: Confirmed successful Next.js 16 build (`Exit code: 0`, all 16 routes statically optimized and verified).
+*   [x] **Asymmetric Soft Reset Formula**: Updated `calculateSoftResetRatings` in `src/lib/analytics/season.ts`:
+    *   $\text{MMR} > 1200$: Softly compressed towards 1200 with 50% retention ($\max(1200, 1200 + (\text{Old MMR} - 1200) \times 0.50)$).
+    *   $\text{MMR} \le 1200$: Locked exactly at their earned rating (no free bailouts or rating drops).
+    *   $\text{RD}$: Elevated ($+75\text{ RD}$, max 350) for fast recalibration and mobility on early season wins.
+*   [x] **Custom Season Start Date**: Added an official date picker to the `SeasonAdminModal` enabling admins to specify any starting date for Season $N+1$ rather than forcing instantaneous execution.
+*   [x] **One-Click Season Rollback (`rollbackToPreviousSeason`)**:
+    *   Implemented safety-guarded rollback server action in `src/lib/actions/seasons.ts`.
+    *   Appears when an active season has $0$ matches recorded (e.g. test transition or mistake).
+    *   Deletes empty new season row and cleanly re-opens Season $N-1$ as `active`.
+*   [x] **Historical Season Finish Badges**: Added dynamic achievement pills on the Player Profile bio header (`src/app/[mode]/players/[id]/page.tsx`) derived from immutable `season_player_results` (🥇 S1 Champion, 🥈 S1 Runner-Up, 🥉 S1 3rd Place, S1 Top 5).
+*   [x] **Production Build Verified**: Full `npm run build` passed cleanly (`Exit code: 0`, all 16 routes verified).
 
 ## Current Project Status
 

@@ -58,9 +58,10 @@ export interface PlayerRatingSeed {
 
 /**
  * Computes the Soft MMR and RD reset for transitioning between seasons.
- * Formula:
- *   NEW_MMR = BASE_MMR + (OLD_MMR - BASE_MMR) * RESET_FACTOR
- *   NEW_RD  = min(OLD_RD + RD_INCREMENT, MAX_RD)
+ * Asymmetric Formula:
+ *   - If OLD_MMR > BASE_MMR: NEW_MMR = max(BASE_MMR, BASE_MMR + (OLD_MMR - BASE_MMR) * RESET_FACTOR)
+ *   - If OLD_MMR <= BASE_MMR: NEW_MMR = OLD_MMR (no free lifts or drops)
+ *   - NEW_RD = min(OLD_RD + RD_INCREMENT, MAX_RD)
  */
 export function calculateSoftResetRatings(
   finalRatings: Record<string, { r: number; rd: number; xp?: number }>,
@@ -73,15 +74,22 @@ export function calculateSoftResetRatings(
     const oldMMR = rating.r ?? cfg.DEFAULT_START_MMR;
     const oldRD = rating.rd ?? cfg.DEFAULT_START_RD;
 
-    // Apply Soft Reset Formula
-    const newMMR = cfg.BASE_MMR + (oldMMR - cfg.BASE_MMR) * cfg.RESET_FACTOR;
-    const clampedMMR = Math.max(cfg.MMR_FLOOR, Math.round(newMMR * 100) / 100);
+    // Apply Asymmetric Soft Reset:
+    // Players > 1200 compress towards 1200 (clamped to at least 1200).
+    // Players <= 1200 keep their exact MMR (earned points preserved, no free bailout).
+    let newMMR: number;
+    if (oldMMR > cfg.BASE_MMR) {
+      const compressed = cfg.BASE_MMR + (oldMMR - cfg.BASE_MMR) * cfg.RESET_FACTOR;
+      newMMR = Math.max(cfg.BASE_MMR, Math.round(compressed * 100) / 100);
+    } else {
+      newMMR = Math.max(cfg.MMR_FLOOR, Math.round(oldMMR * 100) / 100);
+    }
 
-    // Increase Uncertainty (RD)
+    // Increase Uncertainty (RD) to give fast mobility in early season matches
     const newRD = Math.min(cfg.MAX_RD, Math.round((oldRD + cfg.RD_INCREMENT) * 100) / 100);
 
     resetRatings[playerId] = {
-      r: clampedMMR,
+      r: newMMR,
       rd: newRD,
       xp: 0 // XP reset for new season's competitive counter, lifetime XP is tracked separately
     };

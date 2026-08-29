@@ -128,9 +128,12 @@ Delta badges are injected at the **page (server) level** and rendered in:
 Badge colours: emerald (`+`), rose (`-`), slate (`±0`).
 
 ## Season System Design
-- **Soft Reset Formula**: `NEW_MMR = 1200 + (OLD_MMR − 1200) × 0.50`
-- **Uncertainty Increase**: `NEW_RD = min(OLD_RD + 75, 350)`
+- **Asymmetric Soft Reset Formula**:
+  - If $\text{OLD\_MMR} > 1200$: $\text{NEW\_MMR} = \max(1200, 1200 + (\text{OLD\_MMR} - 1200) \times 0.50)$
+  - If $\text{OLD\_MMR} \le 1200$: $\text{NEW\_MMR} = \text{OLD\_MMR}$ (no free lifts or drops)
+- **Uncertainty Increase**: $\text{NEW\_RD} = \min(\text{OLD\_RD} + 75, 350)$ (allows fast mobility with early season wins)
 - **Base MMR**: 1200 (user-specified)
+- **Historical Season Badges**: Displayed dynamically on player bio headers from immutable `season_player_results` (🥇 S1 Champion, 🥈 S1 Runner-Up, 🥉 S1 3rd Place, S1 Top 5).
 - **Season affects**: MMR, RD, season rank, season wins/losses/games, season leaderboard
 - **Season does NOT affect**: money owed, payments, purchases, session costs, balances
 - **Admin action**: `endAndStartNewSeason()` in `src/lib/actions/seasons.ts` — atomic, double-confirmed
@@ -149,6 +152,6 @@ Badge colours: emerald (`+`), rose (`-`), slate (`±0`).
 - **PowerShell build**: Always use `npm.cmd run build` not `npm run build` on Windows due to script execution policy.
 
 ## Current Project Status
-**Phase 90 complete (29 Aug 2026).** CockCount now features a **resilient competitive Season System** with soft MMR resets (base 1200, 50% compression), immutable historical snapshots, season-scoped leaderboards, fallback-safe season dropdowns, dual-layer admin detection, and an Admin Season Management modal — all with complete financial isolation. Combined with the existing **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Underdog Bonus**, **Match Rating Deltas**, **FIFA-Style Player Cards** with dynamic season edition branding, and the **Synchronized User Guide**, CockCount is a feature-complete competitive badminton tracking platform. Production build verified (Exit code: 0, all 16 routes).
+**Phase 91 complete (29 Aug 2026).** CockCount features an **Asymmetric Soft Reset Season System** ($\text{MMR} > 1200$ compresses towards 1200, $\text{MMR} \le 1200$ preserved), historical Season Finish Badges on player profiles, immutable snapshots, season-scoped leaderboards, and an Admin Season Management modal — all with complete financial isolation. Combined with the existing **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Underdog Bonus**, **Match Rating Deltas**, and **FIFA-Style Player Cards**, CockCount is a feature-complete competitive badminton tracking platform. Production build verified (Exit code: 0, all 16 routes).
 
 *"Because Shuttlecocks Aren't Free."*

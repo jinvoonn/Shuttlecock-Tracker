@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { User, Swords, Activity, ArrowLeft, Target, LayoutDashboard, CalendarDays, Package, Wallet, Feather, TrendingUp } from "lucide-react";
+import { User, Swords, Activity, ArrowLeft, Target, LayoutDashboard, CalendarDays, Package, Wallet, Feather, TrendingUp, Trophy, Medal, Award } from "lucide-react";
 import Link from "next/link";
 import { SkillRatingEditor } from "@/components/SkillRatingEditor";
 import { MatchHistory } from "./MatchHistory";
@@ -105,16 +105,49 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
 
     const currentBalance = totalOwed - totalPayments;
 
-    // --- SEASON DATA ---
+    // --- SEASON DATA & BADGES ---
     // Fetch active season for dynamic season badge
     let activeSeason: { season_number: number; name: string; status: string } | null = null;
+    let seasonBadges: Array<{
+        season_number: number;
+        season_name: string;
+        final_rank: number;
+        final_cock_rating: number;
+        wins: number;
+        losses: number;
+    }> = [];
+
     try {
-        const { data: seasonData } = await supabase
-            .from("seasons")
-            .select("season_number, name, status")
-            .eq("status", "active")
-            .maybeSingle();
+        const [
+            { data: seasonData },
+            { data: pastResultsData }
+        ] = await Promise.all([
+            supabase
+                .from("seasons")
+                .select("season_number, name, status")
+                .eq("status", "active")
+                .maybeSingle(),
+            supabase
+                .from("season_player_results")
+                .select("final_rank, final_cock_rating, wins, losses, seasons(season_number, name)")
+                .eq("player_id", id)
+        ]);
+
         activeSeason = seasonData;
+
+        if (pastResultsData && pastResultsData.length > 0) {
+            seasonBadges = pastResultsData.map((r: any) => {
+                const s = Array.isArray(r.seasons) ? r.seasons[0] : r.seasons;
+                return {
+                    season_number: s?.season_number || 1,
+                    season_name: s?.name || `Season ${s?.season_number || 1}`,
+                    final_rank: r.final_rank,
+                    final_cock_rating: r.final_cock_rating,
+                    wins: r.wins,
+                    losses: r.losses
+                };
+            }).sort((a, b) => b.season_number - a.season_number);
+        }
     } catch {
         // Seasons table may not exist yet, fallback gracefully
     }
@@ -334,9 +367,48 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
                                 )}
                             </div>
 
-                            <div className="flex flex-wrap gap-2 pt-2">
+                            <div className="flex flex-wrap items-center gap-2 pt-2">
                                 <span className="px-3 py-1 bg-slate-800/50 rounded-full border border-slate-700 text-[9px] font-bold text-slate-500 uppercase tracking-widest">Season {seasonNumber} Active</span>
                                 <span className="px-3 py-1 bg-slate-800/50 rounded-full border border-slate-700 text-[9px] font-bold text-slate-500 uppercase tracking-widest">Global Ranking</span>
+                                
+                                {/* Historical Season Achievements / Badges */}
+                                {seasonBadges.map((b) => {
+                                    const isChamp = b.final_rank === 1;
+                                    const isRunnerUp = b.final_rank === 2;
+                                    const isThird = b.final_rank === 3;
+                                    const isTop5 = b.final_rank <= 5 && b.final_rank > 3;
+
+                                    return (
+                                        <div 
+                                            key={b.season_number}
+                                            className={clsx(
+                                                "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border shadow-sm transition-transform hover:scale-105",
+                                                isChamp && "bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-300 border-amber-400/40 shadow-amber-500/10",
+                                                isRunnerUp && "bg-gradient-to-r from-slate-300/20 to-slate-400/20 text-slate-200 border-slate-300/40",
+                                                isThird && "bg-gradient-to-r from-amber-700/20 to-orange-700/20 text-orange-300 border-orange-500/40",
+                                                isTop5 && "bg-emerald-500/10 text-emerald-300 border-emerald-500/30",
+                                                !isChamp && !isRunnerUp && !isThird && !isTop5 && "bg-slate-800/80 text-slate-400 border-slate-700"
+                                            )}
+                                            title={`Season ${b.season_number} Rank #${b.final_rank} (${b.final_cock_rating} CR)`}
+                                        >
+                                            {isChamp && <Trophy className="size-3 text-amber-400 animate-pulse" />}
+                                            {isRunnerUp && <Medal className="size-3 text-slate-300" />}
+                                            {isThird && <Medal className="size-3 text-orange-400" />}
+                                            {isTop5 && <Award className="size-3 text-emerald-400" />}
+                                            <span>
+                                                {isChamp 
+                                                    ? `S${b.season_number} Champion 🥇` 
+                                                    : isRunnerUp 
+                                                    ? `S${b.season_number} Runner-Up 🥈` 
+                                                    : isThird 
+                                                    ? `S${b.season_number} 3rd Place 🥉` 
+                                                    : isTop5 
+                                                    ? `S${b.season_number} Top 5 (#${b.final_rank})` 
+                                                    : `S${b.season_number} Rank #${b.final_rank}`}
+                                            </span>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     </header>
