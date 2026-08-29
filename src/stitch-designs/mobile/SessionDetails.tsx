@@ -31,6 +31,8 @@ import { useRole } from "@/context/AuthContext";
 import { useEffect } from 'react';
 import { SessionForm } from '@/app/[mode]/sessions/SessionForm';
 import { StoryPreviewModal } from '@/components/story/StoryPreviewModal';
+import { VIEWER_PERMISSIONS } from '@/lib/constants';
+import { ViewerUnlockButton } from '@/components/viewer/ViewerUnlockButton';
 
 interface SessionMeta {
   id: string;
@@ -110,7 +112,10 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
   const [isEditingSession, setIsEditingSession] = useState(false);
   const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
   const [leaderboardMode, setLeaderboardMode] = React.useState<"wins" | "winRate">("wins");
-  const { isAdmin } = useRole();
+  const { isAdmin, canPerform } = useRole();
+  const canLogMatch = isAdmin || canPerform(VIEWER_PERMISSIONS.LOG_MATCH);
+  const canEditMatch = isAdmin || canPerform(VIEWER_PERMISSIONS.EDIT_MATCH);
+  const canDeleteMatch = isAdmin || canPerform(VIEWER_PERMISSIONS.DELETE_MATCH);
 
   useEffect(() => {
     if (isEditingSession) {
@@ -201,7 +206,7 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
   return (
     <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
       <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-200 dark:border-slate-800 shadow-2xl pb-32">
-        <header className="sticky top-0 z-20 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-sky-400/10">
+        <header className="sticky top-0 z-20 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-sky-400/10 relative">
           <div className="flex items-center gap-2 mb-1">
             <div className="size-8 rounded-lg bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-md shadow-sky-500/20">
               <Feather className="size-5 text-white transform rotate-45" />
@@ -216,6 +221,9 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
           <button onClick={() => router.back()} className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center size-10 rounded-xl bg-slate-800 border border-slate-700 transition-all active:scale-95 shadow-sm">
             <ArrowLeft className="size-5 text-slate-100" />
           </button>
+          {!isAdmin && (
+            <ViewerUnlockButton className="absolute right-4 top-1/2 -translate-y-1/2" />
+          )}
         </header>
 
         <main className="flex-1 overflow-y-auto">
@@ -379,13 +387,15 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
             <section className="mb-4">
               <div className="flex items-center justify-between mb-4 px-1">
                 <h3 className="text-slate-900 dark:text-slate-100 text-sm font-black uppercase tracking-[0.15em] italic">Match Results</h3>
-                <button 
-                  onClick={() => router.push(`${basePath}/sessions/${session.id}/record-match`)}
-                  className="text-emerald-400 flex items-center gap-1.5 active:scale-95 transition-transform bg-emerald-400/10 px-3 py-1.5 rounded-lg border border-emerald-400/20"
-                >
-                  <PlusCircle className="size-4" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Log Result</span>
-                </button>
+                {canLogMatch && (
+                  <button 
+                    onClick={() => router.push(`${basePath}/sessions/${session.id}/record-match`)}
+                    className="text-emerald-400 flex items-center gap-1.5 active:scale-95 transition-transform bg-emerald-400/10 px-3 py-1.5 rounded-lg border border-emerald-400/20"
+                  >
+                    <PlusCircle className="size-4" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Log Result</span>
+                  </button>
+                )}
               </div>
 
               <div className="flex flex-col gap-4">
@@ -401,20 +411,28 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                           <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">{match.type} • {new Date(match.played_at || match.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
                         </div>
                         {/* Action Buttons */}
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => startEdit(match)}
-                            className="flex items-center justify-center size-8 rounded-xl bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 active:scale-95 transition-all"
-                          >
-                            <Pencil className="size-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(match.id)}
-                            className="flex items-center justify-center size-8 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 active:scale-95 transition-all"
-                          >
-                            <Trash2 className="size-3.5" />
-                          </button>
-                        </div>
+                        {(canEditMatch || canDeleteMatch) && (
+                          <div className="flex items-center gap-1">
+                            {canEditMatch && (
+                              <button
+                                onClick={() => startEdit(match)}
+                                className="flex items-center justify-center size-8 rounded-xl bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 active:scale-95 transition-all"
+                                title="Edit Match"
+                              >
+                                <Pencil className="size-3.5" />
+                              </button>
+                            )}
+                            {canDeleteMatch && (
+                              <button
+                                onClick={() => handleDelete(match.id)}
+                                className="flex items-center justify-center size-8 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 active:scale-95 transition-all"
+                                title="Delete Match"
+                              >
+                                <Trash2 className="size-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
 
                         <div className="flex flex-col gap-3">

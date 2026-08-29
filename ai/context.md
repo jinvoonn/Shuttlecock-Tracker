@@ -141,19 +141,47 @@ Badge colours: emerald (`+`), rose (`-`), slate (`±0`).
 - **Admin action**: `endAndStartNewSeason(startDate?)` in `src/lib/actions/seasons.ts` — atomic, double-confirmed
 - **Resilient UI**: The Leaderboard card and Season Settings button render unconditionally in admin mode with empty-state indicators and fallback-safe season dropdowns.
 
+## Architecture & Calculations Engine (Phase 92)
+- **Centralized Balance Calculations**: [`src/lib/calculations/balance.ts`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/lib/calculations/balance.ts) provides pure, testable functions (`calculateSessionCosts`, `calculateSessionAttendeeCounts`, `calculateAllPlayerBalances`) ensuring financial numbers are 100% consistent across Dashboard, Player Profiles, and Payments.
+- **Server Action Authorization**: [`src/lib/auth.ts`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/lib/auth.ts) implements `assertAdmin(mode?, actionName?)` guarding mutations across sessions, purchases, and payments with fallback to request headers.
+- **Unified Routing Hook**: [`src/hooks/useAppRoute.ts`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/hooks/useAppRoute.ts) provides `{ basePath, currentMode, isAdmin, getRoute }` eliminating string-splitting route fragmentation.
+- **Database Types**: [`src/types/database.ts`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/types/database.ts) mirrors `schema_v2.sql`.
+
+## Viewer PIN Unlock & Granular Permissions (Phase 93)
+- **3-State Permission Model**:
+  - `Admin` (`/admin-92Kf8s`): Full unrestricted administrative access.
+  - `Viewer Locked` (`/view`): Default read-only browsing experience.
+  - `Viewer Unlocked` (`/view` + PIN): 60-minute temporary unlock granting only configured permissions (`LOG_MATCH`, `EDIT_MATCH`, `DELETE_MATCH`).
+- **Security Architecture**:
+  - PINs are hashed using **bcryptjs** and stored in `viewer_settings.pin_hash`. Plaintext PINs are never returned to clients.
+  - Verification issues an **HTTP-only, Secure, SameSite=Lax signed cookie** (`cockcount_viewer_unlock`) with HMAC-SHA256 signature and 60-minute expiration.
+  - Server actions call `assertAdminOrViewerPermission(permission)` to enforce server-side validation on every mutation.
+- **UI Components**:
+  - `ViewerUnlockButton`: Displays `🔒 Unlock` (opens PIN modal) or `🔓 Unlocked` (with click-to-lock popover).
+  - `ViewerPinModal`: Masked numeric input with error feedback and auto-refresh.
+  - `ViewerAccessModal`: Admin panel under `/admin` to change PIN and toggle granular permission checkboxes.
+
 ## Agent Tips
 - `lib/actions/payments.ts` includes `quickSettle` for zero-click resolution of balances.
 - `src/components/AnalyticsClient.tsx` is the central component for all chart visualizations.
 - FABs on mobile are standardized at `fixed bottom-32 right-8`.
-- `basePath` is computed as `/${currentMode}` where `currentMode` is parsed from the first segment of the URL (either `admin-92Kf8s` or `view`).
+- `basePath` and `currentMode` are resolved via `useAppRoute()` hook in `src/hooks/useAppRoute.ts`. Do NOT use `pathname.split('/')[1]` manually in new components.
+- Admin role is enforced server-side via `assertAdmin(mode?, actionName?)` in `src/lib/auth.ts`.
+- Viewer permissions are enforced server-side via `assertAdminOrViewerPermission(permission, mode?, actionName?)` in `src/lib/auth.ts`.
+- Balance calculations live exclusively in `src/lib/calculations/balance.ts`. Do NOT duplicate session cost or share logic anywhere else.
+- `src/types/database.ts` contains TypeScript interfaces for all 12 Supabase tables — use these instead of `any[]` in new code.
 - `src/components/player/PlayerCard.tsx` accepts `seasonEdition?: string` (e.g. `"Season 2 Edition"`) — defaults to `"Season 1 Edition"` if not passed.
 - Match timestamps use `played_at || created_at` fallback everywhere; sort descending (`timeB - timeA`) for latest-first display.
 - `deltas?.[matchId]?.[playerId]` is the safe-access pattern to read a player's rating change for any given match.
 - `src/lib/actions/seasons.ts` contains all season server actions. Never call `endAndStartNewSeason()` without the admin double-confirmation UI.
 - Season selector in dashboards: `"all-time"` ID = career stats, active season ID = current season, completed season ID = frozen snapshot from `season_player_results`.
 - **PowerShell build**: Always use `npm.cmd run build` not `npm run build` on Windows due to script execution policy.
+- Scratch/migration scripts live in `/scripts` (not `src/`). The `src/` directory is now clean.
 
 ## Current Project Status
-**Phase 91 complete (29 Aug 2026).** CockCount features an **Asymmetric Soft Reset Season System** ($\text{MMR} > 1200$ compresses towards 1200, $\text{MMR} \le 1200$ preserved), historical Season Finish Badges on player profiles, immutable snapshots, season-scoped leaderboards, and an Admin Season Management modal — all with complete financial isolation. Combined with the existing **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Underdog Bonus**, **Match Rating Deltas**, and **FIFA-Style Player Cards**, CockCount is a feature-complete competitive badminton tracking platform. Production build verified (Exit code: 0, all 16 routes).
+**Phase 93 complete (29 Aug 2026).** CockCount features a **secure 3-state permission model** (Admin, Viewer Locked, Viewer Unlocked via bcrypt-hashed PIN & HMAC-signed session cookies), granular match permissions, an Admin Viewer Access panel, centralized balance calculations (`src/lib/calculations/balance.ts`), typed database entities (`src/types/database.ts`), unified auth guards (`assertAdmin` / `assertAdminOrViewerPermission`), and a shared routing hook (`useAppRoute`).
+
+Layered on top of the full **Asymmetric Soft Reset Season System** ($\text{MMR} > 1200$ compresses towards 1200; $\text{MMR} \le 1200$ preserved), historical Season Finish Badges, immutable season snapshots, season-scoped leaderboards, **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Underdog Bonus**, **Match Rating Deltas**, and **FIFA-Style Player Cards**. Production build verified (Exit code: 0, all 16 routes, Turbopack).
 
 *"Because Shuttlecocks Aren't Free."*
+

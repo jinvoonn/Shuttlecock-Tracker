@@ -29,6 +29,8 @@ import { deleteMatch } from "@/lib/actions/matches";
 import { useRole } from "@/context/AuthContext";
 import { SessionForm } from '@/app/[mode]/sessions/SessionForm';
 import { useEffect, useState } from 'react';
+import { VIEWER_PERMISSIONS } from '@/lib/constants';
+import { ViewerUnlockButton } from '@/components/viewer/ViewerUnlockButton';
 
 interface SessionMeta {
   id: string;
@@ -98,7 +100,10 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
   const [isEditingSession, setIsEditingSession] = useState(false);
   const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
   const [leaderboardMode, setLeaderboardMode] = useState<"wins" | "winRate">("wins");
-  const { isAdmin } = useRole();
+  const { isAdmin, canPerform } = useRole();
+  const canLogMatch = isAdmin || canPerform(VIEWER_PERMISSIONS.LOG_MATCH);
+  const canEditMatch = isAdmin || canPerform(VIEWER_PERMISSIONS.EDIT_MATCH);
+  const canDeleteMatch = isAdmin || canPerform(VIEWER_PERMISSIONS.DELETE_MATCH);
 
   useEffect(() => {
     if (isEditingSession) {
@@ -134,6 +139,11 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
               </p>
             </div>
           </div>
+
+          {/* Viewer Unlock on Header */}
+          {!isAdmin && (
+            <ViewerUnlockButton />
+          )}
         </div>
       </header>
 
@@ -175,13 +185,15 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                  Edit
                </button>
              )}
-             <button 
-               onClick={() => setIsModalOpen(true)}
-               className="bg-emerald-400 hover:bg-emerald-500 text-slate-950 px-6 py-3 rounded-xl font-black text-sm uppercase transition-all flex items-center gap-2 shadow-lg shadow-emerald-400/20 active:scale-95"
-             >
-              <Plus className="size-5" />
-              Record Match
-            </button>
+             {canLogMatch && (
+               <button 
+                 onClick={() => setIsModalOpen(true)}
+                 className="bg-emerald-400 hover:bg-emerald-500 text-slate-950 px-6 py-3 rounded-xl font-black text-sm uppercase transition-all flex items-center gap-2 shadow-lg shadow-emerald-400/20 active:scale-95"
+               >
+                 <Plus className="size-5" />
+                 Record Match
+               </button>
+             )}
           </div>
         </section>
 
@@ -386,25 +398,33 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                         </span>
                       )}
                       
-                      <div className="flex items-center gap-1 border-l border-slate-300 dark:border-[#1e293b] ml-2 pl-2">
-                          <button 
-                            onClick={() => setEditingMatch(match)}
-                            className="p-1 hover:bg-slate-300 dark:hover:bg-slate-700 rounded text-slate-400 hover:text-white transition-colors"
-                          >
-                            <Pencil className="size-3.5" />
-                          </button>
-                          <button 
-                            onClick={async () => {
-                              if (window.confirm("Are you sure you want to delete this match?")) {
-                                await deleteMatch(match.id);
-                                window.location.reload();
-                              }
-                            }}
-                            className="p-1 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
-                          >
-                            <Trash2 className="size-3.5" />
-                          </button>
-                      </div>
+                      {(canEditMatch || canDeleteMatch) && (
+                        <div className="flex items-center gap-1 border-l border-slate-300 dark:border-[#1e293b] ml-2 pl-2">
+                          {canEditMatch && (
+                            <button 
+                              onClick={() => setEditingMatch(match)}
+                              className="p-1 hover:bg-slate-300 dark:hover:bg-slate-700 rounded text-slate-400 hover:text-white transition-colors"
+                              title="Edit Match"
+                            >
+                              <Pencil className="size-3.5" />
+                            </button>
+                          )}
+                          {canDeleteMatch && (
+                            <button 
+                              onClick={async () => {
+                                if (window.confirm("Are you sure you want to delete this match?")) {
+                                  await deleteMatch(match.id);
+                                  window.location.reload();
+                                }
+                              }}
+                              className="p-1 hover:bg-rose-500/10 rounded text-slate-500 hover:text-rose-400 transition-colors"
+                              title="Delete Match"
+                            >
+                              <Trash2 className="size-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="p-6 grid grid-cols-7 items-center gap-4">

@@ -4,12 +4,25 @@ import DesktopRecordMatch from "@/stitch-designs/desktop/RecordMatch";
 import MobileRecordMatch from "@/stitch-designs/mobile/RecordMatch";
 import { normalizeMatches } from "@/lib/analytics/normalize";
 import { aggregatePlayerStats } from "@/lib/analytics/core";
+import { getUserRole } from "@/lib/auth";
+import { getViewerUnlockState } from "@/lib/actions/viewerPin";
+import { redirect } from "next/navigation";
+import { VIEWER_PERMISSIONS } from "@/lib/constants";
 
 export const revalidate = 0;
 
 export default async function RecordMatchPage({ params }: { params: Promise<{ mode: string, id: string }> }) {
   const { mode, id } = await params;
   
+  // Enforce server-side authorization: Admin OR Unlocked Viewer with LOG_MATCH permission
+  const role = await getUserRole(mode);
+  if (role !== "admin") {
+    const unlockState = await getViewerUnlockState();
+    if (!unlockState.unlocked || !unlockState.permissions.includes(VIEWER_PERMISSIONS.LOG_MATCH)) {
+      redirect(`/${mode}/sessions/${id}`);
+    }
+  }
+
   if (!isSupabaseConfigured) {
     return (
       <div className="p-8 flex flex-col items-center justify-center min-h-screen text-amber-500 bg-[#020617] text-center max-w-md mx-auto">

@@ -179,3 +179,14 @@ create policy "Allow all operations on seasons" on public.seasons for all using 
 alter table public.season_player_results enable row level security;
 create policy "Allow all operations on season_player_results" on public.season_player_results for all using (true) with check (true);
 
+-- 12. Viewer Settings Table (PIN & Granular Permissions)
+create table if not exists public.viewer_settings (
+  id uuid primary key default gen_random_uuid(),
+  pin_hash text,
+  permissions jsonb not null default '["LOG_MATCH", "EDIT_MATCH", "DELETE_MATCH"]'::jsonb,
+  updated_at timestamptz default now()
+);
+
+alter table public.viewer_settings enable row level security;
+create policy "Allow all operations on viewer_settings" on public.viewer_settings for all using (true) with check (true);
+

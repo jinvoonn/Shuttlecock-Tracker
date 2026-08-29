@@ -11,7 +11,8 @@ import {
   TrendingDown,
   Minus,
   Feather,
-  Trophy
+  Trophy,
+  ShieldCheck
 } from 'lucide-react';
 import clsx from 'clsx';
 import Link from 'next/link';
@@ -22,9 +23,12 @@ import { getCockRank } from '@/lib/analytics/rank';
 import RankBadge from '@/components/ui/RankBadge';
 import RankBadgeIcon from '@/components/ui/RankBadgeIcon';
 import PlayerName from '@/components/ui/PlayerName';
+import { useAppRoute } from '@/hooks/useAppRoute';
 import { computeRankDelta, SnapshotRow } from '@/lib/analytics/rankDelta';
 import { useRouteLoading } from '@/hooks/useRouteLoading';
 import { useLoading } from '@/context/LoadingContext';
+import { ViewerUnlockButton } from '@/components/viewer/ViewerUnlockButton';
+import { ViewerAccessModal } from '@/components/admin/ViewerAccessModal';
 
 interface PlayerStat {
   id: string;
@@ -98,13 +102,13 @@ export default function DesktopDashboard({
   onSelectSeason,
   onOpenSeasonModal
 }: DashboardProps) {
-  const pathname = usePathname() || '';
-  const currentMode = pathname.split('/')[1] || 'view';
-  const basePath = `/${currentMode}`;
+  const { basePath, currentMode, isAdmin: routeIsAdmin } = useAppRoute();
   const { canEdit, isAdmin: roleIsAdmin } = useRole();
+  const effectiveIsAdmin = isAdmin || routeIsAdmin || roleIsAdmin;
   const { startLoading } = useRouteLoading();
   const { setLoading } = useLoading();
   const [leaderboardMode, setLeaderboardMode] = React.useState<"wins" | "winRate" | "elo">("elo");
+  const [isViewerModalOpen, setIsViewerModalOpen] = React.useState(false);
 
   const sortedLeaderboard = React.useMemo(() => {
     if (!leaderboard) return [];
@@ -179,7 +183,25 @@ export default function DesktopDashboard({
       {/* Main Content Area */}
       <main className="relative z-20 flex-1 flex flex-col overflow-y-auto">
         {/* Top Header */}
-        <header className="h-14 border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl flex items-center px-8 sticky top-0 z-50" />
+        <header className="h-14 border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl flex items-center justify-between px-8 sticky top-0 z-50">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-black uppercase tracking-widest text-slate-400">Dashboard</span>
+          </div>
+          <div className="flex items-center gap-3">
+            {effectiveIsAdmin ? (
+              <button
+                onClick={() => setIsViewerModalOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 hover:border-emerald-500/40 transition-all cursor-pointer shadow-sm active:scale-95"
+                title="Manage Viewer PIN & Unlock Permissions"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Viewer Access</span>
+              </button>
+            ) : (
+              <ViewerUnlockButton />
+            )}
+          </div>
+        </header>
 
         <div className="p-8 space-y-8 max-w-6xl mx-auto w-full">
           {/* Insights Row */}
@@ -291,7 +313,7 @@ export default function DesktopDashboard({
                 </div>
 
                 {/* Admin Season Button */}
-                {(isAdmin || roleIsAdmin) && onOpenSeasonModal && (
+                {effectiveIsAdmin && onOpenSeasonModal && (
                   <button
                     onClick={onOpenSeasonModal}
                     className="text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-amber-500/10 to-emerald-500/10 hover:from-amber-500/20 hover:to-emerald-500/20 text-amber-400 hover:text-emerald-300 border border-amber-500/30 hover:border-emerald-500/50 px-3 py-1.5 rounded-xl transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-sm"
@@ -615,6 +637,14 @@ export default function DesktopDashboard({
           </div>
         </div>
       </main>
+
+      {/* Admin Viewer Access Settings Modal */}
+      {effectiveIsAdmin && (
+        <ViewerAccessModal 
+          isOpen={isViewerModalOpen} 
+          onClose={() => setIsViewerModalOpen(false)} 
+        />
+      )}
     </div>
   );
 }

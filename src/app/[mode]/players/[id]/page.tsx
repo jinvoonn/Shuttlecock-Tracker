@@ -14,6 +14,7 @@ import { getCockRank } from "@/lib/analytics/rank";
 import RankBadge from "@/components/ui/RankBadge";
 import PlayerName from "@/components/ui/PlayerName";
 import PlayerCard from "@/components/player/PlayerCard";
+import { calculateSessionCosts, calculateSessionAttendeeCounts } from "@/lib/calculations/balance";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import clsx from "clsx";
 
@@ -85,21 +86,13 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
             supabase.from("session_players").select("session_id").in("session_id", playerSessionIds)
         ]);
         
-        const costs: Record<string, number> = {};
-        (allUsageForSessions || []).forEach(su => {
-            const purchase = Array.isArray(su.purchases) ? su.purchases[0] : su.purchases;
-            costs[su.session_id] = (costs[su.session_id] || 0) + (Number(purchase?.price_per_cock || 0) * Number(su.quantity_used || 0));
-        });
-        
-        const counts: Record<string, number> = {};
-        (allPlayersForSessions || []).forEach(sp => {
-            counts[sp.session_id] = (counts[sp.session_id] || 0) + 1;
-        });
+        const costs = calculateSessionCosts((allUsageForSessions as any) || []);
+        const counts = calculateSessionAttendeeCounts((allPlayersForSessions as any) || []);
         
         playerSessionIds.forEach(sid => {
             const sessionCost = costs[sid] || 0;
-            const playerAmount = sessionCost / (counts[sid] || 1);
-            totalOwed += playerAmount;
+            const attendeeCount = counts[sid] || 1;
+            totalOwed += sessionCost / attendeeCount;
         });
     }
 

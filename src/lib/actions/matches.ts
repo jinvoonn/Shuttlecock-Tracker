@@ -2,6 +2,8 @@
 
 import { supabase } from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
+import { assertAdminOrViewerPermission } from "@/lib/auth";
+import { VIEWER_PERMISSIONS } from "@/lib/constants";
 
 interface MatchPayload {
     sessionId: string;
@@ -10,11 +12,14 @@ interface MatchPayload {
     scoreA: number;
     scoreB: number;
     playedAt?: string;
+    mode?: string;
 }
 
-export async function addMatch(payloadJson: string) {
+export async function addMatch(payloadJson: string, mode?: string) {
     try {
         const payload: MatchPayload = JSON.parse(payloadJson);
+        const finalMode = mode || payload.mode;
+        await assertAdminOrViewerPermission(VIEWER_PERMISSIONS.LOG_MATCH, finalMode, "Log Match");
 
         const { teamAIds, teamBIds, scoreA, scoreB, sessionId, playedAt } = payload;
 
@@ -85,9 +90,11 @@ export async function addMatch(payloadJson: string) {
     }
 }
 
-export async function updateMatch(id: string, payloadJson: string) {
+export async function updateMatch(id: string, payloadJson: string, mode?: string) {
     try {
         const payload: Partial<MatchPayload> = JSON.parse(payloadJson);
+        const finalMode = mode || payload.mode;
+        await assertAdminOrViewerPermission(VIEWER_PERMISSIONS.EDIT_MATCH, finalMode, "Edit Match");
 
         const { teamAIds, teamBIds, scoreA, scoreB, playedAt } = payload;
 
@@ -124,8 +131,10 @@ export async function updateMatch(id: string, payloadJson: string) {
     }
 }
 
-export async function deleteMatch(id: string) {
+export async function deleteMatch(id: string, mode?: string) {
     try {
+        await assertAdminOrViewerPermission(VIEWER_PERMISSIONS.DELETE_MATCH, mode, "Delete Match");
+
         const { error } = await supabase
             .from("matches")
             .delete()

@@ -301,17 +301,47 @@
     *   Appears when an active season has $0$ matches recorded (e.g. test transition or mistake).
     *   Deletes empty new season row and cleanly re-opens Season $N-1$ as `active`.
 *   [x] **Historical Season Finish Badges**: Added dynamic achievement pills on the Player Profile bio header (`src/app/[mode]/players/[id]/page.tsx`) derived from immutable `season_player_results` (🥇 S1 Champion, 🥈 S1 Runner-Up, 🥉 S1 3rd Place, S1 Top 5).
-*   [x] **Production Build Verified**: Full `npm run build` passed cleanly (`Exit code: 0`, all 16 routes verified).
+*   [x] **Production Build Verified**: Full `npm run build` passed cleanly (Exit code: 0, all 16 routes compiled).
+
+## Phase 92 — Full Codebase Audit & Architecture Hardening (29 Aug 2026, Complete)
+
+*   [x] **Full Codebase Architecture Audit**: Produced [`ai/architecture-audit.md`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/ai/architecture-audit.md) — system health scores across 6 dimensions, 21 identified improvements, 10 ranked recommendations, and a 3-phase refactoring roadmap.
+*   [x] **Database Type Definitions**: Generated [`src/types/database.ts`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/types/database.ts) strictly matching `schema_v2.sql` — `Brand`, `Purchase`, `Player`, `Session`, `SessionPlayer`, `SessionUsage`, `Payment`, `MatchRow`, `LeaderboardSnapshot`.
+*   [x] **Centralized Balance & Session Cost Engine**: Created [`src/lib/calculations/balance.ts`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/lib/calculations/balance.ts) as the single source of truth for `calculateSessionCosts`, `calculateSessionAttendeeCounts`, `calculateSessionShare`, and `calculateAllPlayerBalances`. Wired into Player Profile page.
+*   [x] **Server Action Security Hardening**: Implemented unified `assertAdmin(mode?: string, actionName?: string)` in [`src/lib/auth.ts`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/lib/auth.ts). Updated `addSession`, `editSession`, `deleteSession`, and `updateSessionMetadata` to use it (replaces fragile referer-only checks).
+*   [x] **Centralized Route & Role Hook**: Created [`src/hooks/useAppRoute.ts`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/hooks/useAppRoute.ts) — returns `{ basePath, currentMode, isAdmin, getRoute }`. Wired into Desktop Dashboard and Mobile Dashboard, replacing manual `pathname.split('/')[1]` strings.
+*   [x] **Admin Detection Hardened**: Both Desktop and Mobile Dashboards now derive `effectiveIsAdmin = isAdmin || routeIsAdmin || roleIsAdmin` to guarantee Season Settings button always renders in admin mode regardless of prop source.
+## Phase 93 — Viewer PIN Unlock & Granular Permissions (29 Aug 2026, Complete)
+
+*   [x] **Database Schema Addition**: Added `viewer_settings` table to `schema_v2.sql` and `src/types/database.ts` with `pin_hash` (bcrypt hash) and `permissions` (JSONB array).
+*   [x] **Bcrypt PIN Hashing & HMAC Session Signing**: Implemented in [`src/lib/actions/viewerPin.ts`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/lib/actions/viewerPin.ts) — `verifyViewerPin`, `changeViewerPin`, `updateViewerPermissions`, `getViewerPinStatus`, `getViewerUnlockState`, and `lockViewerSession`. Sessions use HTTP-only, secure, SameSite=Lax signed cookies (60m TTL).
+*   [x] **Granular Permission Assertion (`assertAdminOrViewerPermission`)**: Implemented in [`src/lib/auth.ts`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/lib/auth.ts). Full admin access bypasses checks, while viewers are verified against their temporary signed token and granted permissions list.
+*   [x] **Secured Match Server Actions**: `addMatch` (requires `LOG_MATCH`), `updateMatch` (requires `EDIT_MATCH`), and `deleteMatch` (requires `DELETE_MATCH`) in [`src/lib/actions/matches.ts`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/lib/actions/matches.ts) are now guarded against unauthorized invocations.
+*   [x] **Client AuthContext Upgrade**: Enhanced [`src/context/AuthContext.tsx`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/context/AuthContext.tsx) with `viewerUnlocked`, `viewerPermissions`, `lockViewer()`, `refreshViewerState()`, and `canPerform(permission)`.
+*   [x] **Viewer Unlock UI & PIN Modal**:
+    *   [`src/components/viewer/ViewerUnlockButton.tsx`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/components/viewer/ViewerUnlockButton.tsx) — renders `🔒 Unlock` (opens modal) or `🔓 Unlocked` (with click-to-lock popover) in desktop and mobile headers.
+    *   [`src/components/viewer/ViewerPinModal.tsx`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/components/viewer/ViewerPinModal.tsx) — masked numeric PIN input, loading state, error alert, and instant optimistic state refresh.
+*   [x] **Admin Viewer Access Modal**: [`src/components/admin/ViewerAccessModal.tsx`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/components/admin/ViewerAccessModal.tsx) — allows admins to configure/change the Viewer PIN with bcrypt hashing and toggle granular permissions with instant feedback.
+*   [x] **UI Permission Integration**:
+    *   `DesktopDashboard.tsx` & `MobileDashboard.tsx`: Integrated `ViewerUnlockButton` for viewers and `Viewer Access` settings button for admins.
+    *   `DesktopSessionDetails.tsx` & `MobileSessionDetails.tsx`: Log Match, Edit Match, and Delete Match action buttons are selectively rendered based on `canLogMatch`, `canEditMatch`, and `canDeleteMatch`.
+    *   `SessionMatches.tsx`: Selective button rendering based on `canPerform`.
+    *   `RecordMatchPage`: Server-side route redirect guard prevents locked viewers from directly accessing the record match page via URL.
+*   [x] **Production Build Verified**: Full `npm run build` passed cleanly (`Exit code: 0`, all 16 routes compiled via Turbopack).
 
 ## Current Project Status
 
-The app now has a **full competitive Season System** with soft MMR resets, immutable historical snapshots, season-scoped leaderboards (Current / Final Standings / All-Time Career), and an Admin Season Management modal for atomic season transitions — all with complete financial isolation. Player Cards and profile badges update dynamically per active season. Combined with the existing **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Underdog Bonus**, **Match Rating Deltas**, **FIFA-Style Player Cards**, and the **Synchronized User Guide**, CockCount is now a feature-complete competitive badminton tracking platform. Production build verified.
+**Phase 93 complete (29 Aug 2026).** CockCount now features a **secure 3-state permission model**:
+1. **Admin** (`/admin-92Kf8s`): Full unrestricted administrative access.
+2. **Viewer Locked** (`/view`): Clean read-only mode for browsing stats, leaderboards, player cards, and match history.
+3. **Viewer Unlocked** (`/view` + PIN): 60-minute temporary unlock granting only admin-configured permissions (`LOG_MATCH`, `EDIT_MATCH`, `DELETE_MATCH` by default).
+
+All mutations are securely verified server-side with bcrypt PIN hashing and HMAC signed HTTP-only cookies. Production build verified (Exit code: 0, all 16 routes).
 
 ## Known Issues / Backlog
 
-*   **Environment Variables**: `.env.local` requires real Supabase keys for public distribution.
+*   **Environment Variables**: Add `VIEWER_UNLOCK_SECRET` (optional random string, falls back to secure default) and real Supabase keys for public distribution.
 *   **Static Pre-rendering**: Some pages might benefit from partial pre-rendering (PPR) if Next.js version allows.
-
 
 ## Roadmap & Next Steps
 
@@ -320,8 +350,11 @@ The app now has a **full competitive Season System** with soft MMR resets, immut
 3.  **Ranking Architecture Overhaul**: (Complete) Floor-protected Glicko-Lite + Attendance Streak XP engine live.
 4.  **Rating Deltas on Match Logs**: (Complete) Per-match `+/-` rating change badges on all session and profile pages.
 5.  **Light Social Adjustments**: (Complete) Surgical underdog bonus live.
-6.  **Auto-Grouping**: Smart team generation based on skill ratings and partner history.
-7.  **Settle Tracking**: Auto-suggest who pays what based on complex debt chains.
+6.  **Competitive Seasons & Badges**: (Complete) Asymmetric soft reset, custom start dates, 0-match rollback safety, and immutable snapshot finish badges live.
+7.  **Architecture Optimization (Phase 92)**: (Complete) Centralized balance calculations, typed database entities, server action authorization guards, and unified routing hook.
+8.  **Viewer PIN & Granular Permissions (Phase 93)**: (Complete) 3-state permission model, bcrypt PIN hashing, signed HTTP-only session cookies, and Admin Viewer Access controls.
+9.  **Auto-Grouping**: Smart team generation based on skill ratings and partner history — `suggestNextMatchFromPool()` engine planned in `src/lib/analytics/autoGroup.ts`.
+10. **Settle Tracking**: Auto-suggest who pays what based on complex debt chains.
 
 
 ## Agent Tips
@@ -329,4 +362,15 @@ The app now has a **full competitive Season System** with soft MMR resets, immut
 - `lib/actions/payments.ts` includes `quickSettle` for zero-click resolution of balances.
 - `src/components/AnalyticsClient.tsx` is the central component for all chart visualizations.
 - FABs on mobile are standardized at `fixed bottom-32 right-8`.
-- `basePath` is computed as `/${currentMode}` where `currentMode` is parsed from the first segment of the URL (either `admin-92Kf8s` or `view`).
+- `basePath` and `currentMode` are resolved via `useAppRoute()` hook (`src/hooks/useAppRoute.ts`). Do NOT use `pathname.split('/')[1]` manually in new components.
+- Admin role is enforced server-side via `assertAdmin(mode?, actionName?)` in `src/lib/auth.ts`.
+- Viewer permissions are enforced via `assertAdminOrViewerPermission(permission, mode?, actionName?)` in `src/lib/auth.ts`.
+- Balance calculations live exclusively in `src/lib/calculations/balance.ts`. Do NOT duplicate the cost/share logic anywhere else.
+- `src/types/database.ts` contains TypeScript interfaces for all 12 Supabase tables — use these instead of `any[]` in new code.
+- `src/components/player/PlayerCard.tsx` accepts `seasonEdition?: string` (e.g. `"Season 2 Edition"`) — defaults to `"Season 1 Edition"` if not passed.
+- Match timestamps use `played_at || created_at` fallback everywhere; sort descending (`timeB - timeA`) for latest-first display.
+- `deltas?.[matchId]?.[playerId]` is the safe-access pattern to read a player's rating change for any given match.
+- `src/lib/actions/seasons.ts` contains all season server actions. Never call `endAndStartNewSeason()` without the admin double-confirmation UI.
+- Season selector in dashboards: `"all-time"` ID = career stats, active season ID = current season, completed season ID = frozen snapshot from `season_player_results`.
+- **PowerShell build**: Always use `npm.cmd run build` not `npm run build` on Windows due to script execution policy.
+- Scratch/migration scripts live in `/scripts` (not `src/`).

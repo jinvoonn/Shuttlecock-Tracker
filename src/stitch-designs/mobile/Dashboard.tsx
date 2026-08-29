@@ -17,11 +17,13 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
-  Trophy
+  Trophy,
+  ShieldCheck
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useRole } from '@/context/AuthContext';
+import { useAppRoute } from '@/hooks/useAppRoute';
 import { useState, useEffect } from 'react';
 import { AnalyticsClient } from '@/components/AnalyticsClient';
 import clsx from 'clsx';
@@ -32,6 +34,8 @@ import PlayerName from '@/components/ui/PlayerName';
 import { computeRankDelta, SnapshotRow } from '@/lib/analytics/rankDelta';
 import { useRouteLoading } from '@/hooks/useRouteLoading';
 import { useLoading } from '@/context/LoadingContext';
+import { ViewerUnlockButton } from '@/components/viewer/ViewerUnlockButton';
+import { ViewerAccessModal } from '@/components/admin/ViewerAccessModal';
 
 interface PlayerStat {
   id: string;
@@ -112,15 +116,15 @@ export default function MobileDashboard({
   onOpenSeasonModal
 }: DashboardProps) {
   const router = useRouter();
-  const pathname = usePathname() || '';
-  const currentMode = pathname.split('/')[1] || 'view';
-  const basePath = `/${currentMode}`;
+  const { basePath, currentMode, isAdmin: routeIsAdmin } = useAppRoute();
   const { canEdit, isAdmin: roleIsAdmin } = useRole();
+  const effectiveIsAdmin = isAdmin || routeIsAdmin || roleIsAdmin;
   const { startLoading } = useRouteLoading();
   const { setLoading } = useLoading();
   const [settlingId, setSettlingId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'spending' | 'usage'>('spending');
   const [leaderboardMode, setLeaderboardMode] = useState<"wins" | "winRate" | "elo">("elo");
+  const [isViewerModalOpen, setIsViewerModalOpen] = useState(false);
 
   const sortedLeaderboard = React.useMemo(() => {
     if (!leaderboard) return [];
@@ -156,7 +160,7 @@ export default function MobileDashboard({
     <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-100 min-h-screen antialiased overflow-x-hidden">
       <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-800 shadow-2xl pb-24">
         {/* Header Section */}
-        <header className="sticky top-0 z-10 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-white/5">
+        <header className="sticky top-0 z-10 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-white/5 relative">
           <div className="flex items-center gap-2 mb-1">
             <div className="size-8 rounded-lg bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-md shadow-sky-500/20">
               <Feather className="size-5 text-white transform rotate-45" />
@@ -168,6 +172,21 @@ export default function MobileDashboard({
           <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">
              Because Shuttlecocks Aren't Free
           </p>
+
+          {/* Action on Header */}
+          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+            {effectiveIsAdmin ? (
+              <button
+                onClick={() => setIsViewerModalOpen(true)}
+                className="p-2 rounded-xl bg-slate-800 border border-slate-700 text-emerald-400 active:scale-95 transition-transform shadow-sm"
+                title="Viewer Access Settings"
+              >
+                <ShieldCheck className="size-4" />
+              </button>
+            ) : (
+              <ViewerUnlockButton />
+            )}
+          </div>
         </header>
 
         <main className="flex flex-col gap-6 p-6 flex-1 text-left">
@@ -244,7 +263,7 @@ export default function MobileDashboard({
                   🏆 Leaderboard
                 </h3>
 
-                {(isAdmin || roleIsAdmin) && onOpenSeasonModal && (
+                {effectiveIsAdmin && onOpenSeasonModal && (
                   <button
                     onClick={onOpenSeasonModal}
                     className="text-[9px] font-black uppercase tracking-widest bg-gradient-to-r from-amber-500/10 to-emerald-500/10 hover:from-amber-500/20 hover:to-emerald-500/20 text-amber-400 hover:text-emerald-300 border border-amber-500/30 hover:border-emerald-500/50 px-2.5 py-1 rounded-lg transition-all active:scale-95 flex items-center gap-1 cursor-pointer shadow-sm"
@@ -592,6 +611,14 @@ export default function MobileDashboard({
           </div>
         </nav>
       </div>
+
+      {/* Admin Viewer Access Settings Modal */}
+      {effectiveIsAdmin && (
+        <ViewerAccessModal 
+          isOpen={isViewerModalOpen} 
+          onClose={() => setIsViewerModalOpen(false)} 
+        />
+      )}
     </div>
   );
 }

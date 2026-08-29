@@ -6,6 +6,7 @@ import { PlusCircle, X, Check, Trash2, Swords, Users, Edit3, Activity } from "lu
 import clsx from "clsx";
 import { useRole } from "@/context/AuthContext";
 import { useMatches } from "@/context/MatchesContext";
+import { VIEWER_PERMISSIONS } from "@/lib/constants";
 
 interface SessionPlayer {
     players: { id: string, name: string } | null;
@@ -27,7 +28,11 @@ interface Match {
 }
 
 export function SessionMatches({ sessionId, sessionDate, sessionPlayers, matches }: { sessionId: string, sessionDate: string, sessionPlayers: SessionPlayer[], matches: Match[] }) {
-    const { isAdmin } = useRole();
+    const { isAdmin, canPerform } = useRole();
+    const canLogMatch = isAdmin || canPerform(VIEWER_PERMISSIONS.LOG_MATCH);
+    const canEditMatch = isAdmin || canPerform(VIEWER_PERMISSIONS.EDIT_MATCH);
+    const canDeleteMatch = isAdmin || canPerform(VIEWER_PERMISSIONS.DELETE_MATCH);
+
     const { addOptimisticMatch } = useMatches();
     const [isAdding, setIsAdding] = useState(false);
     const [editingMatchId, setEditingMatchId] = useState<string | null>(null);
@@ -144,7 +149,7 @@ export function SessionMatches({ sessionId, sessionDate, sessionPlayers, matches
                 <h4 className="text-[10px] font-bold uppercase text-slate-500 flex items-center gap-2">
                     <Swords className="w-4 h-4" /> Matches ({matches?.length || 0})
                 </h4>
-                {!isAdding && (
+                {!isAdding && canLogMatch && (
                     <button
                         onClick={() => setIsAdding(true)}
                         className="text-xs flex items-center gap-1 text-emerald-400 hover:text-emerald-300 transition-colors bg-emerald-500/10 px-2 py-1.5 rounded-lg border border-emerald-500/20"
@@ -271,14 +276,16 @@ export function SessionMatches({ sessionId, sessionDate, sessionPlayers, matches
                     return (
                         <div key={m.id} className="flex flex-col bg-slate-950/50 rounded-xl border border-slate-800/80 p-3.5 relative group">
                             <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button
-                                    onClick={() => startEdit(m)}
-                                    className="bg-slate-800 text-slate-400 p-1.5 rounded-full border border-slate-700 hover:text-sky-400 hover:bg-sky-500/10 transition-all"
-                                    title="Edit Match"
-                                >
-                                    <Edit3 className="w-3.5 h-3.5" />
-                                </button>
-                                {isAdmin && (
+                                {canEditMatch && (
+                                    <button
+                                        onClick={() => startEdit(m)}
+                                        className="bg-slate-800 text-slate-400 p-1.5 rounded-full border border-slate-700 hover:text-sky-400 hover:bg-sky-500/10 transition-all"
+                                        title="Edit Match"
+                                    >
+                                        <Edit3 className="w-3.5 h-3.5" />
+                                    </button>
+                                )}
+                                {canDeleteMatch && (
                                     <button
                                         onClick={() => deleteMatch(m.id)}
                                         className="bg-rose-500/10 text-rose-500 p-1.5 rounded-full border border-rose-500/20 hover:bg-rose-500/20 hover:scale-110 shadow-xl backdrop-blur-md"
