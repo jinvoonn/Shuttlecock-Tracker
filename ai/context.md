@@ -157,7 +157,7 @@ Badge colours: emerald (`+`), rose (`-`), slate (`±0`).
   - Verification issues an **HTTP-only, Secure, SameSite=Lax signed cookie** (`cockcount_viewer_unlock`) with HMAC-SHA256 signature and 60-minute expiration.
   - Server actions call `assertAdminOrViewerPermission(permission)` to enforce server-side validation on every mutation.
 - **UI Components**:
-  - `ViewerUnlockButton`: Displays `🔒 Unlock` (opens PIN modal) or `🔓 Unlocked` (with click-to-lock popover).
+  - `ViewerUnlockButton`: Displays `🔒 Unlock` (opens PIN modal) or `🔓 Unlocked` (with click-to-lock popover), supporting an `icon` variant placed discreetly in the top-right header on mobile.
   - `ViewerPinModal`: Masked numeric input with error feedback and auto-refresh.
   - `ViewerAccessModal`: Admin panel under `/admin` to change PIN and toggle granular permission checkboxes.
 

@@ -22,6 +22,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useRole } from '@/context/AuthContext';
 import { SessionForm } from '@/app/[mode]/sessions/SessionForm';
+import { ViewerUnlockButton } from '@/components/viewer/ViewerUnlockButton';
 
 interface Player { id: string; name: string; }
 interface Purchase { id: string; remaining_quantity: number; tube_number: number; brands: { name: string } | null; price_per_tube: number; price_per_cock: number; }
@@ -84,7 +85,7 @@ export default function MobileSessions({ sessions, allPlayers, allPurchases }: M
     <div className="bg-slate-900 font-['Lexend',_sans-serif] text-slate-100 min-h-screen flex flex-col antialiased">
       <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-800 shadow-2xl pb-24">
         {/* Header Section */}
-        <header className="sticky top-0 z-20 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-sky-400/10">
+        <header className="sticky top-0 z-20 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-sky-400/10 relative">
           <div className="flex items-center gap-2 mb-1">
             <div className="size-8 rounded-lg bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-md shadow-sky-500/20">
               <Feather className="size-5 text-white transform rotate-45" />
@@ -96,6 +97,11 @@ export default function MobileSessions({ sessions, allPlayers, allPurchases }: M
           <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">
              Because Shuttlecocks Aren't Free
           </p>
+          {!isAdmin && (
+            <div className="absolute right-4 top-1/2 -translate-y-1/2">
+              <ViewerUnlockButton variant="icon" />
+            </div>
+          )}
         </header>
 
 

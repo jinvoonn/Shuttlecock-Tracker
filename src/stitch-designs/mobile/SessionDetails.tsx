@@ -221,6 +221,11 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
           <button onClick={() => router.back()} className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center size-10 rounded-xl bg-slate-800 border border-slate-700 transition-all active:scale-95 shadow-sm">
             <ArrowLeft className="size-5 text-slate-100" />
           </button>
+          {!isAdmin && (
+            <div className="absolute right-4 top-1/2 -translate-y-1/2">
+              <ViewerUnlockButton variant="icon" />
+            </div>
+          )}
         </header>
 
         <main className="flex-1 overflow-y-auto">

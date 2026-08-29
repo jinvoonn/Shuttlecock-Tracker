@@ -20,6 +20,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { editPurchase, deletePurchase } from '@/lib/actions/purchases';
 import { useRole } from '@/context/AuthContext';
+import { ViewerUnlockButton } from '@/components/viewer/ViewerUnlockButton';
 import { useState } from 'react';
 import { DatePicker } from '@/components/DatePicker';
 
@@ -60,7 +61,7 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
-  const { canEdit } = useRole();
+  const { isAdmin, canEdit } = useRole();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [activeEditingId, setActiveEditingId] = useState<string | null>(null);
   const [expandedHistory, setExpandedHistory] = useState(false);
@@ -80,7 +81,7 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
     <div className="bg-slate-900 font-['Inter',_sans-serif] text-slate-100 antialiased min-h-screen pb-40">
       <div className="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto border-x border-slate-800 shadow-2xl">
         {/* Header Section */}
-        <header className="sticky top-0 z-20 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-sky-400/10">
+        <header className="sticky top-0 z-20 flex flex-col items-center justify-center px-6 py-5 bg-slate-900/80 backdrop-blur-md border-b border-sky-400/10 relative">
           <div className="flex items-center gap-2 mb-1">
             <div className="size-8 rounded-lg bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center shadow-md shadow-sky-500/20">
               <Feather className="size-5 text-white transform rotate-45" />
@@ -92,6 +93,11 @@ export default function MobileStockInventory({ stats, activeTubes, history }: Mo
           <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">
              Because Shuttlecocks Aren't Free
           </p>
+          {!isAdmin && (
+            <div className="absolute right-4 top-1/2 -translate-y-1/2">
+              <ViewerUnlockButton variant="icon" />
+            </div>
+          )}
         </header>
 
         <main className="px-6 mt-10 space-y-10 text-left">

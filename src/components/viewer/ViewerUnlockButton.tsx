@@ -8,7 +8,7 @@ import { ViewerPinModal } from "./ViewerPinModal";
 
 interface ViewerUnlockButtonProps {
   className?: string;
-  variant?: "header" | "button" | "banner" | "inline";
+  variant?: "header" | "button" | "banner" | "inline" | "icon";
   label?: string;
 }
 
@@ -145,6 +145,33 @@ export function ViewerUnlockButton({
           >
             <Lock className="w-3.5 h-3.5" />
             <span>{label || "Unlock"}</span>
+          </button>
+        )
+      )}
+
+      {/* 4. Icon Variant (Compact icon-only button for top-right mobile header) */}
+      {variant === "icon" && (
+        viewerUnlocked ? (
+          <button
+            onClick={() => setSessionModalOpen(true)}
+            className={clsx(
+              "p-2 rounded-xl bg-slate-800 border border-emerald-500/30 text-emerald-400 hover:border-emerald-400 active:scale-95 transition-all shadow-sm shadow-emerald-500/10 flex items-center justify-center",
+              className
+            )}
+            title="Viewer Mode Unlocked (Click to manage session)"
+          >
+            <Unlock className="size-4" />
+          </button>
+        ) : (
+          <button
+            onClick={() => setPinModalOpen(true)}
+            className={clsx(
+              "p-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-400 hover:text-emerald-400 hover:border-emerald-500/40 active:scale-95 transition-all shadow-sm flex items-center justify-center",
+              className
+            )}
+            title="Unlock Viewer Features"
+          >
+            <Lock className="size-4" />
           </button>
         )
       )}
