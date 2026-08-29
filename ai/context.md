@@ -133,10 +133,12 @@ Badge colours: emerald (`+`), rose (`-`), slate (`±0`).
   - If $\text{OLD\_MMR} \le 1200$: $\text{NEW\_MMR} = \text{OLD\_MMR}$ (no free lifts or drops)
 - **Uncertainty Increase**: $\text{NEW\_RD} = \min(\text{OLD\_RD} + 75, 350)$ (allows fast mobility with early season wins)
 - **Base MMR**: 1200 (user-specified)
+- **Custom Season Start Date**: Admin modal allows selecting any official calendar start date for Season $N+1$.
+- **Safe Rollback**: `rollbackToPreviousSeason()` allows admins to cleanly undo a season transition provided the active season has $0$ recorded matches.
 - **Historical Season Badges**: Displayed dynamically on player bio headers from immutable `season_player_results` (🥇 S1 Champion, 🥈 S1 Runner-Up, 🥉 S1 3rd Place, S1 Top 5).
 - **Season affects**: MMR, RD, season rank, season wins/losses/games, season leaderboard
 - **Season does NOT affect**: money owed, payments, purchases, session costs, balances
-- **Admin action**: `endAndStartNewSeason()` in `src/lib/actions/seasons.ts` — atomic, double-confirmed
+- **Admin action**: `endAndStartNewSeason(startDate?)` in `src/lib/actions/seasons.ts` — atomic, double-confirmed
 - **Resilient UI**: The Leaderboard card and Season Settings button render unconditionally in admin mode with empty-state indicators and fallback-safe season dropdowns.
 
 ## Agent Tips
