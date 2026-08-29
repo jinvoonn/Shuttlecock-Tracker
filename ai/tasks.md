@@ -289,6 +289,14 @@
 *   [x] **Snapshot Immutability**: Historical seasons render frozen rows from `season_player_results` directly; ranks never shift after a season closes.
 *   [x] **Production Build Verified**: Full `npm run build` passed cleanly (Exit code: 0, all 16 routes compiled).
 
+## Phase 90 — Season UI Resiliency & Admin Access Enhancements (29 Aug 2026, Complete)
+
+*   [x] **Unconditional Leaderboard Header Rendering**: Removed the outer `leaderboard && leaderboard.length > 0` condition from both desktop and mobile dashboards so the Leaderboard card and Season management tools always display, even when an active season has 0 recorded matches.
+*   [x] **Empty State UI**: Added a dedicated, styled empty-state card (*"No matches recorded this season"*) with trophy icon and guidance text on both desktop and mobile views.
+*   [x] **Fallback-Safe Season Selector**: Updated the `<select>` dropdown to always render fallback options (`[activeSeason]` + `All-Time (Career)`) even if the remote Supabase `seasons` table is unpopulated or returns an empty array.
+*   [x] **Dual-Layer Admin Role Detection**: Integrated client-side `useRole()` (`roleIsAdmin`) alongside server-passed `isAdmin` prop (`isAdmin || roleIsAdmin`) on both desktop and mobile dashboards to guarantee the amber "Season Settings" button is immediately visible upon navigating to `/admin-92Kf8s`.
+*   [x] **Production Build Verified**: Confirmed successful Next.js 16 build (`Exit code: 0`, all 16 routes statically optimized and verified).
+
 ## Current Project Status
 
 The app now has a **full competitive Season System** with soft MMR resets, immutable historical snapshots, season-scoped leaderboards (Current / Final Standings / All-Time Career), and an Admin Season Management modal for atomic season transitions — all with complete financial isolation. Player Cards and profile badges update dynamically per active season. Combined with the existing **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Underdog Bonus**, **Match Rating Deltas**, **FIFA-Style Player Cards**, and the **Synchronized User Guide**, CockCount is now a feature-complete competitive badminton tracking platform. Production build verified.

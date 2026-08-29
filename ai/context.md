@@ -134,6 +134,7 @@ Badge colours: emerald (`+`), rose (`-`), slate (`±0`).
 - **Season affects**: MMR, RD, season rank, season wins/losses/games, season leaderboard
 - **Season does NOT affect**: money owed, payments, purchases, session costs, balances
 - **Admin action**: `endAndStartNewSeason()` in `src/lib/actions/seasons.ts` — atomic, double-confirmed
+- **Resilient UI**: The Leaderboard card and Season Settings button render unconditionally in admin mode with empty-state indicators and fallback-safe season dropdowns.
 
 ## Agent Tips
 - `lib/actions/payments.ts` includes `quickSettle` for zero-click resolution of balances.
@@ -148,6 +149,6 @@ Badge colours: emerald (`+`), rose (`-`), slate (`±0`).
 - **PowerShell build**: Always use `npm.cmd run build` not `npm run build` on Windows due to script execution policy.
 
 ## Current Project Status
-**Phase 89 complete (22 Aug 2026).** CockCount now features a **full competitive Season System** with soft MMR resets (base 1200, 50% compression), immutable historical snapshots, season-scoped leaderboards, and an Admin Season Management modal — all with complete financial isolation. Combined with the existing **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Underdog Bonus**, **Match Rating Deltas**, **FIFA-Style Player Cards** with dynamic season edition branding, and the **Synchronized User Guide**, CockCount is a feature-complete competitive badminton tracking platform. Production build verified (Exit code: 0, all 16 routes).
+**Phase 90 complete (29 Aug 2026).** CockCount now features a **resilient competitive Season System** with soft MMR resets (base 1200, 50% compression), immutable historical snapshots, season-scoped leaderboards, fallback-safe season dropdowns, dual-layer admin detection, and an Admin Season Management modal — all with complete financial isolation. Combined with the existing **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Underdog Bonus**, **Match Rating Deltas**, **FIFA-Style Player Cards** with dynamic season edition branding, and the **Synchronized User Guide**, CockCount is a feature-complete competitive badminton tracking platform. Production build verified (Exit code: 0, all 16 routes).
 
 *"Because Shuttlecocks Aren't Free."*
