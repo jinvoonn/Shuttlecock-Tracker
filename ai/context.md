@@ -172,21 +172,19 @@ Badge colours: emerald (`+`), rose (`-`), slate (`±0`).
 - **Server Action Coverage**: ALL 10 viewer permissions are now wired end-to-end: `LOG_MATCH` / `EDIT_MATCH` / `DELETE_MATCH` (matches.ts), `ADD_SESSION` / `EDIT_SESSION` / `DELETE_SESSION` (sessions.ts), `EDIT_STOCK` / `DELETE_STOCK` (purchases.ts), `EDIT_PAYMENT` / `DELETE_PAYMENT` (payments.ts).
 - **UI Permission Pattern**: Always use `canPerform(VIEWER_PERMISSIONS.X)` (or derived `canAddSession` / `canEditSession` / etc.) to gate action buttons that have corresponding viewer permissions. Use `isAdmin` ONLY for admin-exclusive features (e.g., PIN config, season resets).
 - Balance calculations live exclusively in `src/lib/calculations/balance.ts`. Do NOT duplicate session cost or share logic anywhere else.
-- `src/types/database.ts` contains TypeScript interfaces for all 12 Supabase tables — use these instead of `any[]` in new code.
-- `src/components/player/PlayerCard.tsx` accepts `seasonEdition?: string` (e.g. `"Season 2 Edition"`) — defaults to `"Season 1 Edition"` if not passed.
-- Match timestamps use `played_at || created_at` fallback everywhere; sort descending (`timeB - timeA`) for latest-first display.
-- **Court Shuffler & Session Tournament Engine**: `src/lib/analytics/autoGroup.ts` exports `shuffleCourts()` (random rotation-fair multi-court shuffler with locked pairs + resting queue), `initializeTournament()`, `advanceTournamentRound()` (King of the Court ladder state machine with 5/6 player bench rotation and multi-court promotion), `generateBalanced2v2()`, and `evaluatePairing()`. Modal UI: `src/components/session/AutoGroupModal.tsx`.
-- **Tournament Mode Flow**: User clicks "Accept & Start" on initial shuffle → opens interactive live tournament HUD with round indicator (e.g. Round 1, Round 2), winner selection buttons per court, 1-tap "Log Official Score" to session history, and "Advance to Next Round" (winners stay/promote, losers demote/rotate to bench).
+- **Player Shuffler & Tournament Engine**: `src/lib/tournament/` contains modular utilities:
+  - `pairing.ts`: `generatePairingOptions()` generates 5 distinct non-duplicate combinations (`normalizeOptionSignature()`), minimizes repeated partner frequency from past session matches, and balances rest equity.
+  - `progression.ts`: `initializeTournamentState()` and `advanceTournamentState()` (King of the Court ladder state machine with 5/6 player bench rotation and multi-court promotion).
+  - Modal UI: `src/components/session/PlayerShufflerModal.tsx` (5-option carousel browser, swipe/prev/next, "Accept Pairing & Start Tournament", live round HUD, 1-tap "Log Score to Session", and `sessionStorage` tournament persistence).
 - **PowerShell build**: Always use `npm.cmd run build` not `npm run build` on Windows due to script execution policy.
 - Scratch/migration scripts live in `/scripts` (not `src/`). The `src/` directory is now clean.
 
 ## Current Project Status
-**Phase 94 complete — Session Tournament Mode (King of the Court) Live (30 Aug 2026).** CockCount features:
-1. **King of the Court / Session Tournament**: Winner vs Winner / Loser vs Loser ladder progression, 5-player & 6-player odd bench rotation, multi-court promotion, and 1-tap match logging.
-2. **Random Court Shuffler**: Multi-court fair-rotation player assignment (rotation-fairness, locked pairs, resting queue), random pairings unbiased by Elo, 1-tap "Record Match" prefill.
-3. **Custom 2v2 Team Balancer**: Elo-based split optimizer for any 4 chosen players.
-4. **Secure 3-State Permission Model**: Admin, Viewer Locked, Viewer Unlocked (10 granular permissions).
-5. **Competitive Seasons & Ranking Engine**: Asymmetric soft reset, historical finish badges, Floor-Protected Glicko-Lite + Attendance Streak XP.
+**Phase 94 complete — Player Shuffler & Tournament Mode Live (30 Aug 2026).** CockCount features:
+1. **Player Shuffler (Option 1/5 Carousel)**: Dynamic 1v1/2v2 pairing combinations, partner frequency penalty, rest rotation equity, duplicate combination normalization, and "Accept Pairing".
+2. **Session Tournament & King of the Court**: Live ladder progression (Winner vs Winner, Loser vs Loser), 5-player & 6-player odd bench rotation, multi-court promotion, and 1-tap match logging.
+3. **Secure 3-State Permission Model**: Admin, Viewer Locked, Viewer Unlocked (10 granular permissions).
+4. **Competitive Seasons & Ranking Engine**: Asymmetric soft reset, historical finish badges, Floor-Protected Glicko-Lite + Attendance Streak XP.
 
 Production build verified (Exit code: 0, all 16 routes, Turbopack 4.6s).
 

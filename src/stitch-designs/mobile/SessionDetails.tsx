@@ -33,6 +33,7 @@ import { useEffect } from 'react';
 import { SessionForm } from '@/app/[mode]/sessions/SessionForm';
 import { StoryPreviewModal } from '@/components/story/StoryPreviewModal';
 import { AutoGroupModal } from '@/components/session/AutoGroupModal';
+import { PlayerShufflerModal } from '@/components/session/PlayerShufflerModal';
 import { VIEWER_PERMISSIONS } from '@/lib/constants';
 import { ViewerUnlockButton } from '@/components/viewer/ViewerUnlockButton';
 
@@ -407,13 +408,13 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                 <h3 className="text-slate-900 dark:text-slate-100 text-sm font-black uppercase tracking-[0.15em] italic">Match Results</h3>
                 {canLogMatch ? (
                   <div className="flex items-center gap-2">
-                    {attendees.length >= 4 && (
+                    {attendees.length >= 2 && (
                       <button
                         onClick={() => setIsAutoGroupOpen(true)}
-                        className="text-amber-400 flex items-center gap-1 active:scale-95 transition-transform bg-amber-400/10 px-2.5 py-1.5 rounded-lg border border-amber-400/20 text-[10px] font-black uppercase tracking-widest shadow-sm"
+                        className="text-emerald-400 flex items-center gap-1 active:scale-95 transition-transform bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest shadow-sm"
                       >
                         <Sparkles className="size-3.5" />
-                        <span>Auto-Group</span>
+                        <span>Shuffler</span>
                       </button>
                     )}
                     {!isAdmin && <ViewerUnlockButton variant="inline" />}
@@ -648,18 +649,19 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
         isAdmin={isAdmin}
       />
 
-      {/* Auto Group Modal */}
+      {/* Player Shuffler Modal */}
       {isAutoGroupOpen && (
-        <AutoGroupModal
+        <PlayerShufflerModal
           isOpen={isAutoGroupOpen}
           onClose={() => setIsAutoGroupOpen(false)}
+          sessionId={session.id}
+          sessionDate={session.date}
           attendees={attendees.map(a => ({
             id: a.id,
             name: a.name,
-            elo: a.elo,
-            placementMatchesPlayed: a.placementMatchesPlayed
+            elo: a.elo
           }))}
-          matchCountPerPlayer={matchCountPerPlayer}
+          pastMatches={matches}
           onSelectMatchup={(teamAIds, teamBIds) => {
             const params = new URLSearchParams({
               teamA: teamAIds.join(','),

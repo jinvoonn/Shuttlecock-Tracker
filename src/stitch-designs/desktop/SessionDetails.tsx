@@ -23,6 +23,7 @@ import clsx from 'clsx';
 import RankBadge from '@/components/ui/RankBadge';
 import { StoryPreviewModal } from '@/components/story/StoryPreviewModal';
 import { AutoGroupModal } from '@/components/session/AutoGroupModal';
+import { PlayerShufflerModal } from '@/components/session/PlayerShufflerModal';
 import { usePathname, useRouter } from 'next/navigation';
 import AddMatchModal from "@/components/AddMatchModal";
 import PlayerName from "@/components/ui/PlayerName";
@@ -202,13 +203,13 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                  Edit
                </button>
              )}
-             {canLogMatch && attendees.length >= 4 && (
+             {canLogMatch && attendees.length >= 2 && (
                <button 
                  onClick={() => setIsAutoGroupOpen(true)}
-                 className="bg-amber-400/10 hover:bg-amber-400/20 text-amber-400 border border-amber-400/30 px-5 py-3 rounded-xl font-black text-sm uppercase transition-all flex items-center gap-2 shadow-lg shadow-amber-400/10 active:scale-95 cursor-pointer"
+                 className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-5 py-3 rounded-xl font-black text-sm uppercase transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/10 active:scale-95 cursor-pointer"
                >
-                 <Activity className="size-4 text-amber-400" />
-                 Auto-Group
+                 <Activity className="size-4 text-emerald-400" />
+                 Player Shuffler
                </button>
              )}
              {canLogMatch ? (
@@ -230,16 +231,17 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
         </section>
 
         {isAutoGroupOpen && (
-          <AutoGroupModal
+          <PlayerShufflerModal
             isOpen={isAutoGroupOpen}
             onClose={() => setIsAutoGroupOpen(false)}
+            sessionId={session.id}
+            sessionDate={session.date}
             attendees={attendees.map(a => ({
               id: a.id,
               name: a.name,
-              elo: a.elo,
-              placementMatchesPlayed: a.placementMatchesPlayed
+              elo: a.elo
             }))}
-            matchCountPerPlayer={matchCountPerPlayer}
+            pastMatches={matches}
             onSelectMatchup={(teamAIds, teamBIds) => {
               setPresetTeamA(teamAIds);
               setPresetTeamB(teamBIds);
