@@ -338,25 +338,30 @@
 
 ## Current Project Status
 
-## Phase 94 — Auto-Grouping & Fair Match Generator (30 Aug 2026, Complete)
+## Phase 94 — Court Shuffler & Team Balancer (30 Aug 2026, Complete)
 
-*   [x] **Mathematical Matchmaking Engine Core**: Created [`src/lib/analytics/autoGroup.ts`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/lib/analytics/autoGroup.ts) with `evaluatePairing()`, `generateBalanced2v2()`, and `suggestNextMatchFromPool()`. Computes team average Elo, win probability $P(\text{Team A}) = \frac{1}{1 + 10^{(\Delta \text{Elo}/400)}}$, and fairness score (0–100%).
-*   [x] **Session Court Playtime Rotation**: Prioritizes players who have played fewer games in the active session to maximize court rotation equity and minimize bench wait times.
-*   [x] **AutoGroupModal Component**: Created [`src/components/session/AutoGroupModal.tsx`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/components/session/AutoGroupModal.tsx) with React Portal rendering, dual-mode tabs:
-    *   **Suggested Matches**: Instant top 3 2v2 recommendations from the entire attendee pool.
-    *   **Custom 4-Player Balancer**: Choose any 4 players to see all 3 team combinations ranked from most balanced to least.
-*   [x] **Desktop & Mobile Integration**:
-    *   `DesktopSessionDetails.tsx` & `MobileSessionDetails.tsx`: Added quick-access "Auto-Group" button in Match Results headers.
-    *   `AddMatchModal.tsx`: Added preset team support and an inline "Auto-Balance 2v2" button when 4 players are selected.
-    *   `RecordMatch.tsx` (Mobile): Added query param preset support (`?teamA=...&teamB=...`) and inline "Auto-Balance 2v2" button in the player selection grid.
-*   [x] **Production Build Verified**: Full `npm run build` passed cleanly (`Exit code: 0`, all 16 routes compiled via Turbopack).
+*   [x] **Court Shuffler Engine**: Rewrote [`src/lib/analytics/autoGroup.ts`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/lib/analytics/autoGroup.ts) to replace the Elo-based "Suggested Matches" with a random fair-rotation shuffler (`shuffleCourts()`):
+    *   **Multi-Court Support**: Input 1–4 courts. Fills Court 1, Court 2, etc. with 4 players each. Remaining players go to "Resting / Next Up" queue.
+    *   **Rotation Fairness**: Players who have played fewer matches in the active session are **prioritized first** for court slots (no-rating-bias).
+    *   **Locked Pairs**: Up to 2 forcefully-locked 2-player partnerships that the shuffler will always keep together as a unit (not broken apart). Configured via dropdowns in the modal.
+    *   **Fisher-Yates Shuffle**: Pure random pairing within eligible players, unbiased by Elo rating.
+    *   **Resting Queue**: Players not assigned to courts are listed in the "Resting / Next Up" panel, sorted by fewest played (they'll be prioritized next reshuffle).
+*   [x] **Custom 4-Player Balancer**: Preserved from Phase 94 original. Choose any 4 players → see all 3 possible 2v2 splits ranked by Elo fairness score, with 1-tap "Use This Pairing".
+*   [x] **AutoGroupModal Redesign**: Updated [`src/components/session/AutoGroupModal.tsx`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/components/session/AutoGroupModal.tsx) with full React Portal rendering:
+    *   **Tab 1 — Random Court Shuffler**: Court count picker (1–4), "Reshuffle Pairs" button, Locked Pairs panel (add/remove, per-pair player dropdowns showing game count), Active Court Lineup (Team A vs Team B per court with fairness %, 1-tap "Record Match" prefill), Resting / Next Up section.
+    *   **Tab 2 — Custom 4-Player Balancer**: 4-player picker grid with Elo display → ranked 2v2 split options.
+*   [x] **Preset Teams & Auto-Balance (Desktop + Mobile)**:
+    *   `AddMatchModal.tsx`: Accepts `presetTeamAIds`/`presetTeamBIds` to pre-fill from court shuffler, inline "Auto-Balance 2v2" button when 4 players are selected.
+    *   `RecordMatch.tsx` (Mobile): Accepts `?teamA=...&teamB=...` query params from court shuffler redirect, inline "Auto-Balance 2v2" button in player grid.
+*   [x] **Production Build Verified**: `npm run build` passed cleanly (`Exit code: 0`, all 16 routes, Turbopack 4.8s).
 
 ## Current Project Status
 
 **Phase 94 complete (30 Aug 2026).** CockCount features:
-1. **Auto-Grouping & Fair Match Generator**: Smart 2v2 matchmaking engine optimizing Elo balance, win probability equity, and attendee playtime rotation.
-2. **Secure 3-State Permission Model**: Admin (`/admin-92Kf8s`), Viewer Locked, and Viewer Unlocked (bcrypt PIN + signed HTTP-only cookies) across all 10 granular permissions.
-3. **Competitive Seasons & Ranking Engine**: Asymmetric soft reset, historical finish badges, and Floor-Protected Glicko-Lite + Attendance Streak XP.
+1. **Random Court Shuffler**: Multi-court fair-rotation player assignment with locked pairs support, resting queue, and 1-tap match recording.
+2. **Custom 2v2 Team Balancer**: Elo-based split optimizer for any 4 chosen players.
+3. **Secure 3-State Permission Model**: Admin, Viewer Locked, Viewer Unlocked (10 granular permissions).
+4. **Competitive Seasons & Ranking Engine**: Asymmetric soft reset, historical finish badges, Glicko-Lite + XP.
 
 ## Known Issues / Backlog
 

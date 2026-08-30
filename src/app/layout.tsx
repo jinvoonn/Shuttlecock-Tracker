@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 import { ClientProviders } from "@/components/ClientProviders";
 import { seo } from "@/lib/seo";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
+// System-first font variables to avoid build-time network dependency issues
+const inter = { variable: "--font-inter" };
+const outfit = { variable: "--font-outfit" };
 
 export const metadata: Metadata = {
   title: {

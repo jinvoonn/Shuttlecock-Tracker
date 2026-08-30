@@ -1,6 +1,11 @@
 /**
- * Auto-Grouping & Fair Match Generator
- * Balances teams based on skill ratings (Elo/CockRating) and session court playtime.
+ * Auto-Grouping, Court Shuffler & Match Balancing Engine
+ * 
+ * Capabilities:
+ * 1. Random Court Shuffler with Rotation Fairness (prioritizes least-played players in the session).
+ * 2. Multi-court support (e.g. 1 court, 2 courts, 3 courts) with Active vs Resting / Next Up queues.
+ * 3. Locked Pairings support (forcefully locks specific 2-player pairs so they stay together).
+ * 4. Custom 4-Player Balancer (generates all 3 2v2 combinations ranked by Elo fairness).
  */
 
 export interface GroupingPlayer {
@@ -20,6 +25,21 @@ export interface MatchRecommendation {
   fairnessScore: number; // 0 to 100% (100% = perfectly balanced)
   winProbabilityA: number; // 0 to 100%
   description: string;
+}
+
+export interface LockedPair {
+  player1Id: string;
+  player2Id: string;
+}
+
+export interface CourtAssignment {
+  courtNumber: number;
+  match: MatchRecommendation;
+}
+
+export interface CourtShuffleResult {
+  courtAssignments: CourtAssignment[];
+  restingPlayers: GroupingPlayer[];
 }
 
 /**
@@ -89,73 +109,160 @@ export function generateBalanced2v2(players: GroupingPlayer[]): MatchRecommendat
 }
 
 /**
- * Helper to compute number of combinations nCr
+ * Modern Fisher-Yates shuffle algorithm
  */
-function getCombinations<T>(array: T[], size: number): T[][] {
-  if (size === 1) return array.map(item => [item]);
-  const combinations: T[][] = [];
-  array.forEach((item, index) => {
-    const smallerCombinations = getCombinations(array.slice(index + 1), size - 1);
-    smallerCombinations.forEach(smallerCombination => {
-      combinations.push([item, ...smallerCombination]);
-    });
-  });
-  return combinations;
+function shuffleArray<T>(array: T[]): T[] {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
 }
 
 /**
- * Suggests the best match from an active session pool of players.
- * Prioritizes players with fewer played matches in the session (fair court rotation),
- * while finding the most competitively balanced 2v2 combination.
+ * Court Shuffler with Rotation Fairness and Locked Pairs.
+ * 
+ * Rules:
+ * 1. Locked Pairs (up to 2 pairs): Players in locked pairs are guaranteed to be placed on the same team.
+ * 2. Playtime Fairness: Players with FEWER matches in the current session are selected first to play on courts.
+ * 3. Random Shuffling: Among players eligible to play, assignments and pairings are randomized (not based on rating).
+ * 4. Multi-court & Resting: Fills Court 1, Court 2, etc. (4 players per court). Excess players are marked as "Resting / Next Up".
  */
-export function suggestNextMatchFromPool(
+export function shuffleCourts(
   attendees: GroupingPlayer[],
   matchCountPerPlayer: Record<string, number> = {},
-  topN: number = 3
-): MatchRecommendation[] {
-  if (!attendees || attendees.length < 4) return [];
+  numCourts: number = 1,
+  lockedPairs: LockedPair[] = []
+): CourtShuffleResult {
+  if (!attendees || attendees.length === 0) {
+    return { courtAssignments: [], restingPlayers: [] };
+  }
 
-  // Attach match count
-  const poolWithCounts = attendees.map(p => ({
+  const maxActivePlayers = numCourts * 4;
+  const playerMap = new Map(attendees.map(p => [p.id, {
     ...p,
     matchesPlayedInSession: matchCountPerPlayer[p.id] || 0
-  }));
+  }]));
 
-  // Sort players primarily by matches played (ascending)
-  const sorted = [...poolWithCounts].sort((a, b) => {
-    const countA = a.matchesPlayedInSession ?? 0;
-    const countB = b.matchesPlayedInSession ?? 0;
-    return countA - countB;
-  });
+  // Validate and extract locked pair units
+  const lockedUnits: { type: "locked"; players: GroupingPlayer[]; avgMatches: number }[] = [];
+  const lockedPlayerIds = new Set<string>();
 
-  // Pick candidates: if pool <= 6, use all. If larger, prioritize the bottom 6-8 least-played players
-  const candidateSize = Math.min(sorted.length, Math.max(4, 6));
-  const candidatePool = sorted.slice(0, candidateSize);
-
-  // Generate all 4-player subsets from candidate pool
-  const fourPlayerSubsets = getCombinations(candidatePool, 4);
-
-  const allRecommendations: MatchRecommendation[] = [];
-
-  for (const subset of fourPlayerSubsets) {
-    const balancedPairings = generateBalanced2v2(subset);
-    if (balancedPairings.length > 0) {
-      allRecommendations.push(balancedPairings[0]);
+  for (const pair of lockedPairs) {
+    const p1 = playerMap.get(pair.player1Id);
+    const p2 = playerMap.get(pair.player2Id);
+    if (p1 && p2 && p1.id !== p2.id && !lockedPlayerIds.has(p1.id) && !lockedPlayerIds.has(p2.id)) {
+      lockedPlayerIds.add(p1.id);
+      lockedPlayerIds.add(p2.id);
+      lockedUnits.push({
+        type: "locked",
+        players: [p1, p2],
+        avgMatches: ((p1.matchesPlayedInSession ?? 0) + (p2.matchesPlayedInSession ?? 0)) / 2
+      });
     }
   }
 
-  // Sort recommendations by:
-  // 1. Total matches played by the 4 players (lowest sum first)
-  // 2. Elo difference (lowest first)
-  allRecommendations.sort((a, b) => {
-    const countSumA = [...a.teamA, ...a.teamB].reduce((acc, p) => acc + (p.matchesPlayedInSession || 0), 0);
-    const countSumB = [...b.teamA, ...b.teamB].reduce((acc, p) => acc + (p.matchesPlayedInSession || 0), 0);
-    
-    if (countSumA !== countSumB) {
-      return countSumA - countSumB;
+  // Extract individual unlocked units
+  const individualUnits: { type: "individual"; player: GroupingPlayer; matches: number }[] = [];
+  for (const p of attendees) {
+    if (!lockedPlayerIds.has(p.id)) {
+      const fullPlayer = playerMap.get(p.id) || p;
+      individualUnits.push({
+        type: "individual",
+        player: fullPlayer,
+        matches: fullPlayer.matchesPlayedInSession ?? 0
+      });
     }
-    return a.eloDifference - b.eloDifference;
+  }
+
+  // Priority selection based on fewest matches played
+  // Shuffle within the same match count bracket for fairness & randomness
+  const sortedIndividuals = [...individualUnits].sort((a, b) => {
+    if (a.matches !== b.matches) return a.matches - b.matches;
+    return Math.random() - 0.5; // randomize tie breaks
   });
 
-  return allRecommendations.slice(0, topN);
+  const sortedLocked = [...lockedUnits].sort((a, b) => {
+    if (a.avgMatches !== b.avgMatches) return a.avgMatches - b.avgMatches;
+    return Math.random() - 0.5;
+  });
+
+  // Assemble active pool respecting maxActivePlayers
+  // Prioritize locked pairs if their average match count is competitive
+  const activeTeams: GroupingPlayer[][] = [];
+  const activeIndividuals: GroupingPlayer[] = [];
+  let availableSlots = maxActivePlayers;
+
+  // Insert locked pairs first if space permits
+  for (const lUnit of sortedLocked) {
+    if (availableSlots >= 2) {
+      activeTeams.push(lUnit.players);
+      availableSlots -= 2;
+    }
+  }
+
+  // Fill remaining slots with individual players who played least
+  const selectedIndividualIds = new Set<string>();
+  for (const iUnit of sortedIndividuals) {
+    if (availableSlots > 0) {
+      activeIndividuals.push(iUnit.player);
+      selectedIndividualIds.add(iUnit.player.id);
+      availableSlots--;
+    }
+  }
+
+  // If we couldn't fit a locked pair, release them into individuals if slots remain
+  for (const lUnit of sortedLocked) {
+    if (!activeTeams.includes(lUnit.players)) {
+      for (const p of lUnit.players) {
+        if (availableSlots > 0 && !selectedIndividualIds.has(p.id)) {
+          activeIndividuals.push(p);
+          selectedIndividualIds.add(p.id);
+          availableSlots--;
+        }
+      }
+    }
+  }
+
+  // Randomize the active individuals and form 2-player teams
+  const shuffledIndividuals = shuffleArray(activeIndividuals);
+  for (let i = 0; i < shuffledIndividuals.length; i += 2) {
+    if (i + 1 < shuffledIndividuals.length) {
+      activeTeams.push([shuffledIndividuals[i], shuffledIndividuals[i + 1]]);
+    } else {
+      // Odd 1 player leftover in active queue, push to resting
+      // (Will be handled below)
+    }
+  }
+
+  // Randomly pair teams into 2v2 courts
+  const shuffledTeams = shuffleArray(activeTeams);
+  const courtAssignments: CourtAssignment[] = [];
+  const activeAssignedIds = new Set<string>();
+
+  const fullCourtsPossible = Math.min(numCourts, Math.floor(shuffledTeams.length / 2));
+  for (let c = 0; c < fullCourtsPossible; c++) {
+    const teamA = shuffledTeams[c * 2];
+    const teamB = shuffledTeams[c * 2 + 1];
+
+    teamA.forEach(p => activeAssignedIds.add(p.id));
+    teamB.forEach(p => activeAssignedIds.add(p.id));
+
+    courtAssignments.push({
+      courtNumber: c + 1,
+      match: evaluatePairing(teamA, teamB)
+    });
+  }
+
+  // Resting players are anyone in attendees who wasn't assigned to a court
+  const restingPlayers: GroupingPlayer[] = attendees
+    .filter(p => !activeAssignedIds.has(p.id))
+    .map(p => playerMap.get(p.id) || p)
+    .sort((a, b) => (a.matchesPlayedInSession ?? 0) - (b.matchesPlayedInSession ?? 0));
+
+  return {
+    courtAssignments,
+    restingPlayers
+  };
 }

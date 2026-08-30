@@ -178,17 +178,20 @@ Badge colours: emerald (`+`), rose (`-`), slate (`±0`).
 - `deltas?.[matchId]?.[playerId]` is the safe-access pattern to read a player's rating change for any given match.
 - `src/lib/actions/seasons.ts` contains all season server actions. Never call `endAndStartNewSeason()` without the admin double-confirmation UI.
 - Season selector in dashboards: `"all-time"` ID = career stats, active season ID = current season, completed season ID = frozen snapshot from `season_player_results`.
-- **Auto-Grouping & Matchmaking Engine**: Core mathematical balancing and court playtime rotation engine lives in `src/lib/analytics/autoGroup.ts`. Modal UI lives in `src/components/session/AutoGroupModal.tsx`.
+- **Court Shuffler & Matchmaking Engine**: `src/lib/analytics/autoGroup.ts` exports `shuffleCourts()` (random rotation-fair multi-court shuffler with locked pairs + resting queue), `generateBalanced2v2()` (Elo-split optimizer for custom 4-player balancer), and `evaluatePairing()`. Modal UI: `src/components/session/AutoGroupModal.tsx`.
+- **AutoGroupModal tab 1 (Random Court Shuffler)**: Accepts number of courts (1–4), locked pairs (up to 2 forced 2-player partnerships not broken by shuffler), performs Fisher-Yates random pairing, prioritizes less-played players, shows "Resting / Next Up" queue for extras.
+- **AutoGroupModal tab 2 (Custom 4-Player Balancer)**: Pick any 4 players → shows all 3 possible 2v2 splits ranked by Elo fairness score.
 - **PowerShell build**: Always use `npm.cmd run build` not `npm run build` on Windows due to script execution policy.
 - Scratch/migration scripts live in `/scripts` (not `src/`). The `src/` directory is now clean.
 
 ## Current Project Status
-**Phase 94 complete — Auto-Grouping & Fair Match Generator Live (30 Aug 2026).** CockCount features:
-1. **Auto-Grouping & Fair Match Generator**: Smart 2v2 doubles matchmaking algorithm balancing team average Elo ratings, win probability equity, and attendee playtime rotation (prioritizing players with fewer matches played).
-2. **Secure 3-State Permission Model**: Admin (`/admin-92Kf8s`), Viewer Locked, and Viewer Unlocked (bcrypt PIN + signed HTTP-only cookies) across all 10 granular permissions (`LOG_MATCH`, `EDIT_MATCH`, `DELETE_MATCH`, `ADD_SESSION`, `EDIT_SESSION`, `DELETE_SESSION`, `EDIT_STOCK`, `DELETE_STOCK`, `EDIT_PAYMENT`, `DELETE_PAYMENT`).
-3. **Competitive Seasons & Ranking Engine**: Asymmetric soft reset, historical finish badges, immutable season snapshots, and Floor-Protected Glicko-Lite + Attendance Streak XP.
+**Phase 94 complete — Court Shuffler & Team Balancer Live (30 Aug 2026).** CockCount features:
+1. **Random Court Shuffler**: Multi-court fair-rotation player assignment (rotation-fairness, locked pairs, resting queue), random pairings unbiased by Elo, 1-tap "Record Match" prefill.
+2. **Custom 2v2 Team Balancer**: Elo-based split optimizer (all 3 combinations ranked) for any 4 chosen players.
+3. **Secure 3-State Permission Model**: Admin, Viewer Locked, Viewer Unlocked (bcrypt PIN + HTTP-only cookies) across all 10 granular permissions.
+4. **Competitive Seasons & Ranking Engine**: Asymmetric soft reset, historical finish badges, Floor-Protected Glicko-Lite + Attendance Streak XP.
 
-Production build verified (Exit code: 0, all 16 routes, Turbopack).
+Production build verified (Exit code: 0, all 16 routes, Turbopack 4.8s).
 
 Layered on top of the full **Asymmetric Soft Reset Season System** ($\text{MMR} > 1200$ compresses towards 1200; $\text{MMR} \le 1200$ preserved), historical Season Finish Badges, immutable season snapshots, season-scoped leaderboards, **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Underdog Bonus**, **Match Rating Deltas**, and **FIFA-Style Player Cards**. Production build verified (Exit code: 0, all 16 routes, Turbopack).
 
