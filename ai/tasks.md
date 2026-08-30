@@ -328,11 +328,12 @@
     *   `DesktopSessionDetails.tsx` & `MobileSessionDetails.tsx`: Log Match, Edit Match, and Delete Match action buttons are selectively rendered based on `canLogMatch`, `canEditMatch`, and `canDeleteMatch`.
     *   `SessionMatches.tsx`: Selective button rendering based on `canPerform`.
     *   `RecordMatchPage`: Server-side route redirect guard prevents locked viewers from directly accessing the record match page via URL.
-*   [x] **Production Build Verified**: Full `npm run build` passed cleanly (`Exit code: 0`, all 16 routes compiled via Turbopack).
-*   [x] **Permission Wiring Fix (30 Aug 2026)**: Repaired the broken connection between the Admin-configured permissions and actual viewer access:
-    *   **Server Actions**: `editSession`, `deleteSession`, `updateSessionMetadata` now use `assertAdminOrViewerPermission(EDIT_SESSION / DELETE_SESSION)` instead of `assertAdmin`. `editPurchase`, `deletePurchase` now use `EDIT_STOCK / DELETE_STOCK`. `editPayment`, `deletePayment` now use `EDIT_PAYMENT / DELETE_PAYMENT`.
-    *   **UI — Session List**: `DesktopSessionList.tsx` and `MobileSessions.tsx` edit/delete buttons now use `canEditSession` / `canDeleteSession` flags (derived from `canPerform`) instead of raw `isAdmin`.
-    *   **UI — Session Details**: `DesktopSessionDetails.tsx` and `MobileSessionDetails.tsx` Edit Session button now uses `canEditSession` instead of `isAdmin`.
+*   [x] **Permission Wiring & ADD_SESSION Feature (30 Aug 2026)**:
+    *   **New Permission**: Added `ADD_SESSION` (`"ADD_SESSION"`) to `VIEWER_PERMISSIONS` in `constants.ts` and `ViewerAccessModal.tsx` under Session Permissions.
+    *   **Server Actions**: `addSession` now uses `assertAdminOrViewerPermission(ADD_SESSION)`. `editSession`, `deleteSession`, `updateSessionMetadata` use `EDIT_SESSION / DELETE_SESSION`. `editPurchase`, `deletePurchase` use `EDIT_STOCK / DELETE_STOCK`. `editPayment`, `deletePayment` use `EDIT_PAYMENT / DELETE_PAYMENT`.
+    *   **Route Protection**: `src/app/[mode]/sessions/log/page.tsx` now enforces server-side redirect guard if a viewer without `ADD_SESSION` attempts direct navigation.
+    *   **UI — Session List**: "Log New" button in `DesktopSessionList.tsx` and the Floating Action Button (`Plus`) in `MobileSessions.tsx` are now visible to viewers when `ADD_SESSION` is unlocked.
+    *   **UI — Session Details**: Edit Session button in `DesktopSessionDetails.tsx` and `MobileSessionDetails.tsx` respects `canEditSession`.
 
 ## Current Project Status
 

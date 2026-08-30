@@ -59,6 +59,7 @@ export default function MobileSessions({ sessions, allPlayers, allPurchases }: M
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
   const { isAdmin, canPerform } = useRole();
+  const canAddSession = isAdmin || canPerform(VIEWER_PERMISSIONS.ADD_SESSION);
   const canEditSession = isAdmin || canPerform(VIEWER_PERMISSIONS.EDIT_SESSION);
   const canDeleteSession = isAdmin || canPerform(VIEWER_PERMISSIONS.DELETE_SESSION);
   const [editingSession, setEditingSession] = useState<SessionData | null>(null);
@@ -217,7 +218,7 @@ export default function MobileSessions({ sessions, allPlayers, allPurchases }: M
         </main>
   
         {/* Floating Action Button */}
-        {isAdmin && (
+        {canAddSession && (
           <button 
             onClick={() => router.push(`${basePath}/sessions/log`)}
             className="fixed bottom-32 right-8 z-[100] bg-emerald-400 hover:bg-emerald-500 text-white rounded-full p-4 shadow-lg cursor-pointer flex items-center justify-center transition-all"

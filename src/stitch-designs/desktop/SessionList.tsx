@@ -33,6 +33,7 @@ export default function SessionListUI({ sessions, allPlayers, allPurchases }: De
   const pathname = usePathname() || '';
   const router = useRouter();
   const { isAdmin, canPerform } = useRole();
+  const canAddSession = isAdmin || canPerform(VIEWER_PERMISSIONS.ADD_SESSION);
   const canEditSession = isAdmin || canPerform(VIEWER_PERMISSIONS.EDIT_SESSION);
   const canDeleteSession = isAdmin || canPerform(VIEWER_PERMISSIONS.DELETE_SESSION);
   const [expanded, setExpanded] = useState(false);
@@ -107,7 +108,7 @@ export default function SessionListUI({ sessions, allPlayers, allPurchases }: De
                 Active matches & shuttle tracking
               </p>
             </div>
-            {isAdmin && (
+            {canAddSession && (
               <button 
                 onClick={() => router.push(`${basePath}/sessions/log`)}
                 className="bg-[#13ec80] text-slate-950 font-black px-6 py-3 rounded uppercase tracking-tighter flex items-center gap-2 hover:brightness-110 transition-all shadow-lg shadow-[#13ec80]/20 cursor-pointer"

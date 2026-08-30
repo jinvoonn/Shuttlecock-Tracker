@@ -107,9 +107,9 @@ export default function DesktopSessions({ tubes, players, initialData }: Desktop
       });
       
       if (isEdit) {
-        await editSession(initialData.id, payload);
+        await editSession(initialData.id, payload, currentMode);
       } else {
-        await addSession(payload);
+        await addSession(payload, currentMode);
       }
       
       router.push(`${basePath}/sessions`);

@@ -169,8 +169,8 @@ Badge colours: emerald (`+`), rose (`-`), slate (`±0`).
 - `basePath` and `currentMode` are resolved via `useAppRoute()` hook in `src/hooks/useAppRoute.ts`. Do NOT use `pathname.split('/')[1]` manually in new components.
 - Admin role is enforced server-side via `assertAdmin(mode?, actionName?)` in `src/lib/auth.ts`.
 - Viewer permissions are enforced server-side via `assertAdminOrViewerPermission(permission, mode?, actionName?)` in `src/lib/auth.ts`.
-- **Server Action Coverage**: ALL 9 viewer permissions are now wired end-to-end: `LOG_MATCH` / `EDIT_MATCH` / `DELETE_MATCH` (matches.ts), `EDIT_SESSION` / `DELETE_SESSION` (sessions.ts), `EDIT_STOCK` / `DELETE_STOCK` (purchases.ts), `EDIT_PAYMENT` / `DELETE_PAYMENT` (payments.ts).
-- **UI Permission Pattern**: Always use `canPerform(VIEWER_PERMISSIONS.X)` (not `isAdmin`) to gate edit/delete buttons that have corresponding viewer permissions. Use `isAdmin` ONLY for admin-exclusive features (e.g., PIN config, season resets, adding new sessions/payments/stock).
+- **Server Action Coverage**: ALL 10 viewer permissions are now wired end-to-end: `LOG_MATCH` / `EDIT_MATCH` / `DELETE_MATCH` (matches.ts), `ADD_SESSION` / `EDIT_SESSION` / `DELETE_SESSION` (sessions.ts), `EDIT_STOCK` / `DELETE_STOCK` (purchases.ts), `EDIT_PAYMENT` / `DELETE_PAYMENT` (payments.ts).
+- **UI Permission Pattern**: Always use `canPerform(VIEWER_PERMISSIONS.X)` (or derived `canAddSession` / `canEditSession` / etc.) to gate action buttons that have corresponding viewer permissions. Use `isAdmin` ONLY for admin-exclusive features (e.g., PIN config, season resets).
 - Balance calculations live exclusively in `src/lib/calculations/balance.ts`. Do NOT duplicate session cost or share logic anywhere else.
 - `src/types/database.ts` contains TypeScript interfaces for all 12 Supabase tables — use these instead of `any[]` in new code.
 - `src/components/player/PlayerCard.tsx` accepts `seasonEdition?: string` (e.g. `"Season 2 Edition"`) — defaults to `"Season 1 Edition"` if not passed.
@@ -182,7 +182,7 @@ Badge colours: emerald (`+`), rose (`-`), slate (`±0`).
 - Scratch/migration scripts live in `/scripts` (not `src/`). The `src/` directory is now clean.
 
 ## Current Project Status
-**Phase 93 complete + Permission Wiring Fixed (30 Aug 2026).** CockCount features a fully end-to-end **secure 3-state permission model** (Admin, Viewer Locked, Viewer Unlocked via bcrypt-hashed PIN & HMAC-signed session cookies). All 9 granular permissions (`LOG_MATCH`, `EDIT_MATCH`, `DELETE_MATCH`, `EDIT_SESSION`, `DELETE_SESSION`, `EDIT_STOCK`, `DELETE_STOCK`, `EDIT_PAYMENT`, `DELETE_PAYMENT`) are now enforced both server-side (via `assertAdminOrViewerPermission`) and in the UI (via `canPerform()`). An Admin Viewer Access panel allows toggling permissions, and unlocked viewers see exactly the actions the admin has enabled.
+**Phase 93 complete + ADD_SESSION Permission Added (30 Aug 2026).** CockCount features a fully end-to-end **secure 3-state permission model** (Admin, Viewer Locked, Viewer Unlocked via bcrypt-hashed PIN & HMAC-signed session cookies). All 10 granular permissions (`LOG_MATCH`, `EDIT_MATCH`, `DELETE_MATCH`, `ADD_SESSION`, `EDIT_SESSION`, `DELETE_SESSION`, `EDIT_STOCK`, `DELETE_STOCK`, `EDIT_PAYMENT`, `DELETE_PAYMENT`) are now enforced both server-side (via `assertAdminOrViewerPermission`) and in the UI (via `canPerform()`). An Admin Viewer Access panel allows toggling permissions, and unlocked viewers see exactly the actions the admin has enabled.
 
 Layered on top of the full **Asymmetric Soft Reset Season System** ($\text{MMR} > 1200$ compresses towards 1200; $\text{MMR} \le 1200$ preserved), historical Season Finish Badges, immutable season snapshots, season-scoped leaderboards, **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Underdog Bonus**, **Match Rating Deltas**, and **FIFA-Style Player Cards**. Production build verified (Exit code: 0, all 16 routes, Turbopack).
 

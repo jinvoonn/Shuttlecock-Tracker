@@ -47,6 +47,7 @@ const PERMISSION_GROUPS: {
   {
     title: "Session Permissions (Admin Only by Default)",
     items: [
+      { key: VIEWER_PERMISSIONS.ADD_SESSION, label: "Add Session", description: "Allow creating and logging new badminton sessions" },
       { key: VIEWER_PERMISSIONS.EDIT_SESSION, label: "Edit Session", description: "Allow modifying session dates/locations/attendees" },
       { key: VIEWER_PERMISSIONS.DELETE_SESSION, label: "Delete Session", description: "Allow removing entire sessions" },
     ],

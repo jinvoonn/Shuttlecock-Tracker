@@ -7,7 +7,7 @@ import { VIEWER_PERMISSIONS } from "@/lib/constants";
 
 export async function addSession(payloadStr: string, mode?: string) {
     const payload = JSON.parse(payloadStr);
-    await assertAdmin(mode || payload.mode, "addSession");
+    await assertAdminOrViewerPermission(VIEWER_PERMISSIONS.ADD_SESSION, mode || payload.mode, "addSession");
     const { date, startTime, location, notes, playerIds, newPlayerNames, usage } = payload;
 
     if (!date || (playerIds.length === 0 && newPlayerNames.length === 0)) {

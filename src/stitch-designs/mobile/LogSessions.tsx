@@ -87,7 +87,7 @@ export default function MobileLogSessions({ tubes, players }: MobileLogSessionsP
         ]
       };
 
-      await addSession(JSON.stringify(payload));
+      await addSession(JSON.stringify(payload), currentMode);
       router.push(`${basePath}/sessions`);
     } catch (error) {
       console.error(error);

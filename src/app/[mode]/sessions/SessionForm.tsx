@@ -6,6 +6,8 @@ import { PlusCircle, Target, Users, MapPin, X, Check, Edit3 } from "lucide-react
 import { DatePicker } from "@/components/DatePicker";
 import clsx from "clsx";
 import { useRole } from "@/context/AuthContext";
+import { VIEWER_PERMISSIONS } from "@/lib/constants";
+import { useAppRoute } from "@/hooks/useAppRoute";
 
 interface Player {
     id: string;
@@ -44,7 +46,10 @@ export function SessionForm({
     isEdit?: boolean,
     onCancel?: () => void
 }) {
-    const { isAdmin } = useRole();
+    const { currentMode } = useAppRoute();
+    const { isAdmin, canPerform } = useRole();
+    const canAddSession = isAdmin || canPerform(VIEWER_PERMISSIONS.ADD_SESSION);
+    const canEditSession = isAdmin || canPerform(VIEWER_PERMISSIONS.EDIT_SESSION);
     const [date, setDate] = useState<string>(initialData?.date || new Date().toISOString().split('T')[0]);
     const [location, setLocation] = useState(initialData?.location || "");
     const [notes, setNotes] = useState(initialData?.notes || "");
@@ -60,7 +65,7 @@ export function SessionForm({
 
     const [usage, setUsage] = useState<Record<string, number>>(initialData?.usage || {});
 
-    if (!isAdmin && !isEdit) return null;
+    if (isEdit ? !canEditSession : !canAddSession) return null;
 
     const togglePlayer = (id: string, e: React.MouseEvent) => {
         e.preventDefault();
@@ -100,10 +105,10 @@ export function SessionForm({
 
         try {
             if (isEdit && initialData) {
-                await editSession(initialData.id, JSON.stringify(payload));
+                await editSession(initialData.id, JSON.stringify(payload), currentMode);
                 if (onCancel) onCancel();
             } else {
-                await addSession(JSON.stringify(payload));
+                await addSession(JSON.stringify(payload), currentMode);
                 setSelectedPlayerIds([]);
                 setNewPlayers([]);
                 setUsage({});

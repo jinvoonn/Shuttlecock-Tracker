@@ -4,11 +4,24 @@ import DesktopSessions from "@/stitch-designs/desktop/Sessions";
 import MobileLogSessions from "@/stitch-designs/mobile/LogSessions";
 import { normalizeMatches } from "@/lib/analytics/normalize";
 import { aggregatePlayerStats } from "@/lib/analytics/core";
+import { getUserRole } from "@/lib/auth";
+import { getViewerUnlockState } from "@/lib/actions/viewerPin";
+import { redirect } from "next/navigation";
+import { VIEWER_PERMISSIONS } from "@/lib/constants";
 
 export const revalidate = 0;
 
 export default async function LogSessionPage({ params }: { params: Promise<{ mode: string }> }) {
   const { mode } = await params;
+  
+  // Enforce server-side authorization: Admin OR Unlocked Viewer with ADD_SESSION permission
+  const role = await getUserRole(mode);
+  if (role !== "admin") {
+    const unlockState = await getViewerUnlockState();
+    if (!unlockState.unlocked || !unlockState.permissions.includes(VIEWER_PERMISSIONS.ADD_SESSION)) {
+      redirect(`/${mode}/sessions`);
+    }
+  }
   
   if (!isSupabaseConfigured) {
     return (

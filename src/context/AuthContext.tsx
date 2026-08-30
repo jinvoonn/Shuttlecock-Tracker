@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const canEdit = (feature: 'sessions' | 'purchases' | 'payments' | 'players') => {
         if (isAdmin) return true;
-        if (feature === 'sessions' && viewerUnlocked && viewerPermissions.includes(VIEWER_PERMISSIONS.EDIT_SESSION)) {
+        if (feature === 'sessions' && viewerUnlocked && (viewerPermissions.includes(VIEWER_PERMISSIONS.EDIT_SESSION) || viewerPermissions.includes(VIEWER_PERMISSIONS.ADD_SESSION))) {
             return true;
         }
         if (feature === 'purchases' && viewerUnlocked && viewerPermissions.includes(VIEWER_PERMISSIONS.EDIT_STOCK)) {
