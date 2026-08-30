@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { deleteSession } from "@/lib/actions/sessions";
 import { useRole } from '@/context/AuthContext';
+import { VIEWER_PERMISSIONS } from '@/lib/constants';
 import { SessionForm } from '@/app/[mode]/sessions/SessionForm';
 
 // Interfaces
@@ -31,7 +32,9 @@ interface DesktopSessionsListProps {
 export default function SessionListUI({ sessions, allPlayers, allPurchases }: DesktopSessionsListProps) {
   const pathname = usePathname() || '';
   const router = useRouter();
-  const { isAdmin } = useRole();
+  const { isAdmin, canPerform } = useRole();
+  const canEditSession = isAdmin || canPerform(VIEWER_PERMISSIONS.EDIT_SESSION);
+  const canDeleteSession = isAdmin || canPerform(VIEWER_PERMISSIONS.DELETE_SESSION);
   const [expanded, setExpanded] = useState(false);
   const [editingSession, setEditingSession] = useState<SessionData | null>(null);
 
@@ -178,31 +181,35 @@ export default function SessionListUI({ sessions, allPlayers, allPurchases }: De
                       <span className={clsx("font-mono text-2xl font-black leading-none", session.totalNet >= 0 ? 'text-emerald-400' : 'text-rose-400')}>
                         {session.totalNet >= 0 ? '+' : '-'}RM{Math.abs(session.totalNet).toFixed(2)}
                       </span>
-                      {isAdmin && (
+                      {(canEditSession || canDeleteSession) && (
                         <div className="mt-4 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
-                          <button 
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setEditingSession(session);
-                            }}
-                            className="rounded p-2 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white"
-                          >
-                            <Pencil className="size-4" />
-                          </button>
-                          <button 
-                             onClick={async (e) => {
-                               e.preventDefault();
-                               e.stopPropagation();
-                               if (window.confirm("Are you sure you want to delete this session? This will also restore used shuttlecocks to inventory.")) {
-                                  await deleteSession(session.id);
-                                  window.location.reload();
-                               }
-                             }}
-                             className="rounded p-2 text-slate-500 transition-colors hover:bg-rose-500/10 hover:text-rose-400"
-                           >
-                            <Trash2 className="size-4" />
-                          </button>
+                          {canEditSession && (
+                            <button 
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setEditingSession(session);
+                              }}
+                              className="rounded p-2 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white"
+                            >
+                              <Pencil className="size-4" />
+                            </button>
+                          )}
+                          {canDeleteSession && (
+                            <button 
+                               onClick={async (e) => {
+                                 e.preventDefault();
+                                 e.stopPropagation();
+                                 if (window.confirm("Are you sure you want to delete this session? This will also restore used shuttlecocks to inventory.")) {
+                                    await deleteSession(session.id);
+                                    window.location.reload();
+                                 }
+                               }}
+                               className="rounded p-2 text-slate-500 transition-colors hover:bg-rose-500/10 hover:text-rose-400"
+                             >
+                              <Trash2 className="size-4" />
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>

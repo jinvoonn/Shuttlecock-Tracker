@@ -21,6 +21,7 @@ import { deleteSession } from '@/lib/actions/sessions';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useRole } from '@/context/AuthContext';
+import { VIEWER_PERMISSIONS } from '@/lib/constants';
 import { SessionForm } from '@/app/[mode]/sessions/SessionForm';
 import { ViewerUnlockButton } from '@/components/viewer/ViewerUnlockButton';
 
@@ -57,7 +58,9 @@ export default function MobileSessions({ sessions, allPlayers, allPurchases }: M
   const pathname = usePathname() || '';
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
-  const { isAdmin } = useRole();
+  const { isAdmin, canPerform } = useRole();
+  const canEditSession = isAdmin || canPerform(VIEWER_PERMISSIONS.EDIT_SESSION);
+  const canDeleteSession = isAdmin || canPerform(VIEWER_PERMISSIONS.DELETE_SESSION);
   const [editingSession, setEditingSession] = useState<SessionData | null>(null);
   const [expanded, setExpanded] = useState(false);
 
@@ -141,21 +144,21 @@ export default function MobileSessions({ sessions, allPlayers, allPurchases }: M
                     >
                       <Target className="size-4" />
                     </button>
-                    {isAdmin && (
-                      <>
-                        <button 
-                          onClick={() => setEditingSession(session)}
-                          className="relative z-50 size-8 rounded-lg bg-slate-900 text-slate-400 flex items-center justify-center active:scale-90 transition-all border border-slate-800"
-                        >
-                          <Pencil className="size-4" />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(session.id, session.location)}
-                          className="size-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center active:scale-90 transition-all border border-rose-500/10"
-                        >
-                          <Trash className="size-4" />
-                        </button>
-                      </>
+                    {canEditSession && (
+                      <button 
+                        onClick={() => setEditingSession(session)}
+                        className="relative z-50 size-8 rounded-lg bg-slate-900 text-slate-400 flex items-center justify-center active:scale-90 transition-all border border-slate-800"
+                      >
+                        <Pencil className="size-4" />
+                      </button>
+                    )}
+                    {canDeleteSession && (
+                      <button 
+                        onClick={() => handleDelete(session.id, session.location)}
+                        className="size-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center active:scale-90 transition-all border border-rose-500/10"
+                      >
+                        <Trash className="size-4" />
+                      </button>
                     )}
                   </div>
                 </div>

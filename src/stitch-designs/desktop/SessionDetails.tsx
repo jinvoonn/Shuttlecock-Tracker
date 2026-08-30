@@ -104,6 +104,7 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
   const canLogMatch = isAdmin || canPerform(VIEWER_PERMISSIONS.LOG_MATCH);
   const canEditMatch = isAdmin || canPerform(VIEWER_PERMISSIONS.EDIT_MATCH);
   const canDeleteMatch = isAdmin || canPerform(VIEWER_PERMISSIONS.DELETE_MATCH);
+  const canEditSession = isAdmin || canPerform(VIEWER_PERMISSIONS.EDIT_SESSION);
 
   useEffect(() => {
     if (isEditingSession) {
@@ -176,7 +177,7 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                <Camera className="size-5" />
                Story
              </button>
-             {isAdmin && (
+             {canEditSession && (
                <button 
                  onClick={() => setIsEditingSession(true)}
                  className="bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 px-6 py-3 rounded font-bold text-sm uppercase transition-all flex items-center gap-2 relative z-50"

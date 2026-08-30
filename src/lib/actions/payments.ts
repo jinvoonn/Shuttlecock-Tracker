@@ -2,7 +2,8 @@
 
 import { supabase } from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
-import { ADMIN_SECRET } from "@/lib/constants";
+import { ADMIN_SECRET, VIEWER_PERMISSIONS } from "@/lib/constants";
+import { assertAdminOrViewerPermission } from "@/lib/auth";
 
 export async function addPayment(formData: FormData, mode?: string) {
     const finalMode = mode || (formData.get("mode") as string);
@@ -55,9 +56,7 @@ export async function addPayment(formData: FormData, mode?: string) {
 
 export async function editPayment(id: string, formData: FormData, mode?: string) {
     const finalMode = mode || (formData.get("mode") as string);
-    if (finalMode !== ADMIN_SECRET) {
-        throw new Error("Unauthorized: Admin access required to edit payments");
-    }
+    await assertAdminOrViewerPermission(VIEWER_PERMISSIONS.EDIT_PAYMENT, finalMode, "editPayment");
     const date = formData.get("date") as string;
     const player_id = formData.get("player_id") as string;
     const amount = parseFloat(formData.get("amount") as string);
@@ -82,9 +81,7 @@ export async function editPayment(id: string, formData: FormData, mode?: string)
 }
 
 export async function deletePayment(id: string, mode?: string) {
-    if (mode !== ADMIN_SECRET) {
-        throw new Error("Unauthorized: Admin access required to delete payments");
-    }
+    await assertAdminOrViewerPermission(VIEWER_PERMISSIONS.DELETE_PAYMENT, mode, "deletePayment");
     const { error } = await supabase.from("payments").delete().eq("id", id);
 
     if (error) {

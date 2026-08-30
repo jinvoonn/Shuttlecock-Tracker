@@ -116,6 +116,7 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
   const canLogMatch = isAdmin || canPerform(VIEWER_PERMISSIONS.LOG_MATCH);
   const canEditMatch = isAdmin || canPerform(VIEWER_PERMISSIONS.EDIT_MATCH);
   const canDeleteMatch = isAdmin || canPerform(VIEWER_PERMISSIONS.DELETE_MATCH);
+  const canEditSession = isAdmin || canPerform(VIEWER_PERMISSIONS.EDIT_SESSION);
 
   useEffect(() => {
     if (isEditingSession) {
@@ -252,7 +253,7 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                       <Camera className="size-3.5" />
                       <span className="text-[10px] font-black uppercase tracking-widest">Story</span>
                     </button>
-                    {isAdmin && (
+                    {canEditSession && (
                       <button 
                         onClick={() => setIsEditingSession(true)}
                         className="bg-slate-800/80 backdrop-blur-md text-emerald-400 border border-emerald-400/20 px-3 py-1.5 rounded-lg flex items-center gap-1.5 active:scale-95 transition-transform"

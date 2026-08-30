@@ -2,7 +2,8 @@
 
 import { supabase } from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
-import { assertAdmin } from "../auth";
+import { assertAdmin, assertAdminOrViewerPermission } from "../auth";
+import { VIEWER_PERMISSIONS } from "@/lib/constants";
 
 export async function addSession(payloadStr: string, mode?: string) {
     const payload = JSON.parse(payloadStr);
@@ -113,7 +114,7 @@ export async function addSession(payloadStr: string, mode?: string) {
 
 export async function editSession(id: string, payloadStr: string, mode?: string) {
     const payload = JSON.parse(payloadStr);
-    await assertAdmin(mode || payload.mode, "editSession");
+    await assertAdminOrViewerPermission(VIEWER_PERMISSIONS.EDIT_SESSION, mode || payload.mode, "editSession");
 
     const { date, startTime, location, notes, playerIds, newPlayerNames, usage } = payload;
 
@@ -185,7 +186,7 @@ export async function editSession(id: string, payloadStr: string, mode?: string)
 
 export async function deleteSession(id: string, modeOrFormData?: string | FormData) {
     const mode = typeof modeOrFormData === "string" ? modeOrFormData : undefined;
-    await assertAdmin(mode, "deleteSession");
+    await assertAdminOrViewerPermission(VIEWER_PERMISSIONS.DELETE_SESSION, mode, "deleteSession");
 
     // 1. Revert usage before cascade deletion to restore stock
     const { data: usages } = await supabase.from("session_usage").select("purchase_id, quantity_used").eq("session_id", id);
@@ -211,7 +212,7 @@ export async function deleteSession(id: string, modeOrFormData?: string | FormDa
 
 export async function updateSessionMetadata(id: string, formData: FormData, mode?: string) {
     const finalMode = mode || (formData.get("mode") as string);
-    await assertAdmin(finalMode, "updateSessionMetadata");
+    await assertAdminOrViewerPermission(VIEWER_PERMISSIONS.EDIT_SESSION, finalMode, "updateSessionMetadata");
 
     const date = formData.get("date") as string;
     const location = formData.get("location") as string;

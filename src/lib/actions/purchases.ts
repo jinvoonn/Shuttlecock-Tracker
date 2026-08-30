@@ -2,7 +2,8 @@
 
 import { supabase } from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
-import { ADMIN_SECRET } from "@/lib/constants";
+import { ADMIN_SECRET, VIEWER_PERMISSIONS } from "@/lib/constants";
+import { assertAdmin, assertAdminOrViewerPermission } from "@/lib/auth";
 
 export async function addPurchase(formData: FormData, mode?: string) {
     const finalMode = mode || (formData.get("mode") as string);
@@ -100,9 +101,7 @@ export async function addPurchase(formData: FormData, mode?: string) {
 
 export async function editPurchase(id: string, formData: FormData, mode?: string) {
     const finalMode = mode || (formData.get("mode") as string);
-    if (finalMode !== ADMIN_SECRET) {
-        throw new Error("Unauthorized: Admin access required to edit stock");
-    }
+    await assertAdminOrViewerPermission(VIEWER_PERMISSIONS.EDIT_STOCK, finalMode, "editPurchase");
 
     const purchase_date = formData.get("date") as string;
     const brand_id = formData.get("brand_id") as string;
@@ -159,9 +158,7 @@ export async function editPurchase(id: string, formData: FormData, mode?: string
 }
 
 export async function deletePurchase(id: string, mode?: string) {
-    if (mode !== ADMIN_SECRET) {
-        throw new Error("Unauthorized: Admin access required to delete stock");
-    }
+    await assertAdminOrViewerPermission(VIEWER_PERMISSIONS.DELETE_STOCK, mode, "deletePurchase");
     const { error } = await supabase.from("purchases").delete().eq("id", id);
 
     if (error) {

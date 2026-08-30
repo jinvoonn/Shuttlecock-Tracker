@@ -321,6 +321,7 @@
 *   [x] **Viewer Unlock UI & PIN Modal**:
     *   [`src/components/viewer/ViewerUnlockButton.tsx`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/components/viewer/ViewerUnlockButton.tsx) — renders `🔒 Unlock` (opens modal) or `🔓 Unlocked` (with click-to-lock popover) in desktop and mobile headers, supporting a discreet `icon` variant for mobile top-right placement (matching admin shield button position).
     *   [`src/components/viewer/ViewerPinModal.tsx`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/components/viewer/ViewerPinModal.tsx) — masked numeric PIN input, loading state, error alert, and instant optimistic state refresh.
+    *   **React Portals for True Centering**: Wrapped `ViewerPinModal`, the active session popup in `ViewerUnlockButton`, and `ViewerAccessModal` with `createPortal(..., document.body)` to escape CSS transform containing-blocks (`-translate-y-1/2` and `backdrop-filter`) on header containers, eliminating modal squeezing and ensuring perfect viewport centering.
 *   [x] **Admin Viewer Access Modal**: [`src/components/admin/ViewerAccessModal.tsx`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/components/admin/ViewerAccessModal.tsx) — allows admins to configure/change the Viewer PIN with bcrypt hashing and toggle granular permissions with instant feedback.
 *   [x] **UI Permission Integration**:
     *   `DesktopDashboard.tsx` & `MobileDashboard.tsx`: Integrated discreet `ViewerUnlockButton` for viewers and `Viewer Access` settings button for admins in the header; removed prominent "Viewer Mode" center banners.
@@ -328,6 +329,10 @@
     *   `SessionMatches.tsx`: Selective button rendering based on `canPerform`.
     *   `RecordMatchPage`: Server-side route redirect guard prevents locked viewers from directly accessing the record match page via URL.
 *   [x] **Production Build Verified**: Full `npm run build` passed cleanly (`Exit code: 0`, all 16 routes compiled via Turbopack).
+*   [x] **Permission Wiring Fix (30 Aug 2026)**: Repaired the broken connection between the Admin-configured permissions and actual viewer access:
+    *   **Server Actions**: `editSession`, `deleteSession`, `updateSessionMetadata` now use `assertAdminOrViewerPermission(EDIT_SESSION / DELETE_SESSION)` instead of `assertAdmin`. `editPurchase`, `deletePurchase` now use `EDIT_STOCK / DELETE_STOCK`. `editPayment`, `deletePayment` now use `EDIT_PAYMENT / DELETE_PAYMENT`.
+    *   **UI — Session List**: `DesktopSessionList.tsx` and `MobileSessions.tsx` edit/delete buttons now use `canEditSession` / `canDeleteSession` flags (derived from `canPerform`) instead of raw `isAdmin`.
+    *   **UI — Session Details**: `DesktopSessionDetails.tsx` and `MobileSessionDetails.tsx` Edit Session button now uses `canEditSession` instead of `isAdmin`.
 
 ## Current Project Status
 
