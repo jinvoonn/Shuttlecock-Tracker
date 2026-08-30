@@ -22,13 +22,14 @@ import Link from 'next/link';
 import clsx from 'clsx';
 import RankBadge from '@/components/ui/RankBadge';
 import { StoryPreviewModal } from '@/components/story/StoryPreviewModal';
+import { AutoGroupModal } from '@/components/session/AutoGroupModal';
 import { usePathname, useRouter } from 'next/navigation';
 import AddMatchModal from "@/components/AddMatchModal";
 import PlayerName from "@/components/ui/PlayerName";
 import { deleteMatch } from "@/lib/actions/matches";
 import { useRole } from "@/context/AuthContext";
 import { SessionForm } from '@/app/[mode]/sessions/SessionForm';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { VIEWER_PERMISSIONS } from '@/lib/constants';
 import { ViewerUnlockButton } from '@/components/viewer/ViewerUnlockButton';
 
@@ -96,6 +97,9 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
   const currentMode = pathname.split('/')[1] || 'view';
   const basePath = `/${currentMode}`;
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAutoGroupOpen, setIsAutoGroupOpen] = useState(false);
+  const [presetTeamA, setPresetTeamA] = useState<string[] | undefined>(undefined);
+  const [presetTeamB, setPresetTeamB] = useState<string[] | undefined>(undefined);
   const [editingMatch, setEditingMatch] = useState<Match | null>(null);
   const [isEditingSession, setIsEditingSession] = useState(false);
   const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
@@ -105,6 +109,18 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
   const canEditMatch = isAdmin || canPerform(VIEWER_PERMISSIONS.EDIT_MATCH);
   const canDeleteMatch = isAdmin || canPerform(VIEWER_PERMISSIONS.DELETE_MATCH);
   const canEditSession = isAdmin || canPerform(VIEWER_PERMISSIONS.EDIT_SESSION);
+
+  // Compute matches played per player in this session
+  const matchCountPerPlayer: Record<string, number> = useMemo(() => {
+    const counts: Record<string, number> = {};
+    matches.forEach(m => {
+      const pIds = [m.team_a_player1, m.team_a_player2, m.team_b_player1, m.team_b_player2].filter(Boolean);
+      pIds.forEach(id => {
+        if (id) counts[id] = (counts[id] || 0) + 1;
+      });
+    });
+    return counts;
+  }, [matches]);
 
   useEffect(() => {
     if (isEditingSession) {
@@ -186,9 +202,22 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
                  Edit
                </button>
              )}
+             {canLogMatch && attendees.length >= 4 && (
+               <button 
+                 onClick={() => setIsAutoGroupOpen(true)}
+                 className="bg-amber-400/10 hover:bg-amber-400/20 text-amber-400 border border-amber-400/30 px-5 py-3 rounded-xl font-black text-sm uppercase transition-all flex items-center gap-2 shadow-lg shadow-amber-400/10 active:scale-95 cursor-pointer"
+               >
+                 <Activity className="size-4 text-amber-400" />
+                 Auto-Group
+               </button>
+             )}
              {canLogMatch ? (
                <button 
-                 onClick={() => setIsModalOpen(true)}
+                 onClick={() => {
+                   setPresetTeamA(undefined);
+                   setPresetTeamB(undefined);
+                   setIsModalOpen(true);
+                 }}
                  className="bg-emerald-400 hover:bg-emerald-500 text-slate-950 px-6 py-3 rounded-xl font-black text-sm uppercase transition-all flex items-center gap-2 shadow-lg shadow-emerald-400/20 active:scale-95 cursor-pointer"
                >
                  <Plus className="size-5" />
@@ -200,14 +229,37 @@ export default function DesktopSessionDetails({ session, matches, attendees, all
           </div>
         </section>
 
+        {isAutoGroupOpen && (
+          <AutoGroupModal
+            isOpen={isAutoGroupOpen}
+            onClose={() => setIsAutoGroupOpen(false)}
+            attendees={attendees.map(a => ({
+              id: a.id,
+              name: a.name,
+              elo: a.elo,
+              placementMatchesPlayed: a.placementMatchesPlayed
+            }))}
+            matchCountPerPlayer={matchCountPerPlayer}
+            onSelectMatchup={(teamAIds, teamBIds) => {
+              setPresetTeamA(teamAIds);
+              setPresetTeamB(teamBIds);
+              setIsModalOpen(true);
+            }}
+          />
+        )}
+
         {(isModalOpen || editingMatch) && (
           <AddMatchModal 
             sessionId={session.id}
             sessionDate={session.date}
-            players={attendees.map(a => ({ id: a.id, name: a.name }))}
+            players={attendees.map(a => ({ id: a.id, name: a.name, elo: a.elo, placementMatchesPlayed: a.placementMatchesPlayed }))}
+            presetTeamAIds={presetTeamA}
+            presetTeamBIds={presetTeamB}
             onClose={() => {
                 setIsModalOpen(false);
                 setEditingMatch(null);
+                setPresetTeamA(undefined);
+                setPresetTeamB(undefined);
             }}
             onSuccess={() => {
               // The server action handles revalidation

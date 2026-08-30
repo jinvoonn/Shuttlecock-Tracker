@@ -1,13 +1,16 @@
 "use client";
 
 import React, { useState } from 'react';
-import { X, Trophy, AlertCircle, Check, Trash2 } from 'lucide-react';
+import { X, Trophy, AlertCircle, Check, Trash2, Scale } from 'lucide-react';
 import { addMatch, updateMatch, deleteMatch } from "@/lib/actions/matches";
+import { generateBalanced2v2, GroupingPlayer } from "@/lib/analytics/autoGroup";
 import clsx from 'clsx';
 
 interface Player {
   id: string;
   name: string;
+  elo?: number;
+  placementMatchesPlayed?: number;
 }
 
 interface MatchModalProps {
@@ -16,6 +19,8 @@ interface MatchModalProps {
   players: Player[];
   onClose: () => void;
   onSuccess: () => void;
+  presetTeamAIds?: string[];
+  presetTeamBIds?: string[];
   initialMatch?: {
     id?: string;
     team_a_player1: string;
@@ -28,20 +33,37 @@ interface MatchModalProps {
   };
 }
 
-export default function AddMatchModal({ sessionId, sessionDate, players, onClose, onSuccess, initialMatch }: MatchModalProps) {
+export default function AddMatchModal({ 
+  sessionId, 
+  sessionDate, 
+  players, 
+  onClose, 
+  onSuccess, 
+  presetTeamAIds,
+  presetTeamBIds,
+  initialMatch 
+}: MatchModalProps) {
   const isEdit = !!initialMatch;
   const [playerTeams, setPlayerTeams] = useState<Record<string, number>>(() => {
-    if (!initialMatch) return {};
-    const teams: Record<string, number> = {};
-    if (initialMatch.team_a_player1) teams[initialMatch.team_a_player1] = 1;
-    if (initialMatch.team_a_player2 && initialMatch.team_a_player2 !== initialMatch.team_a_player1) teams[initialMatch.team_a_player2] = 1;
-    if (initialMatch.team_b_player1) teams[initialMatch.team_b_player1] = 2;
-    if (initialMatch.team_b_player2 && initialMatch.team_b_player2 !== initialMatch.team_b_player1) teams[initialMatch.team_b_player2] = 2;
-    return teams;
+    if (initialMatch) {
+      const teams: Record<string, number> = {};
+      if (initialMatch.team_a_player1) teams[initialMatch.team_a_player1] = 1;
+      if (initialMatch.team_a_player2 && initialMatch.team_a_player2 !== initialMatch.team_a_player1) teams[initialMatch.team_a_player2] = 1;
+      if (initialMatch.team_b_player1) teams[initialMatch.team_b_player1] = 2;
+      if (initialMatch.team_b_player2 && initialMatch.team_b_player2 !== initialMatch.team_b_player1) teams[initialMatch.team_b_player2] = 2;
+      return teams;
+    }
+    if (presetTeamAIds || presetTeamBIds) {
+      const teams: Record<string, number> = {};
+      presetTeamAIds?.forEach(id => { teams[id] = 1; });
+      presetTeamBIds?.forEach(id => { teams[id] = 2; });
+      return teams;
+    }
+    return {};
   });
 
-  const [scoreA, setScoreA] = useState<number>(isEdit ? initialMatch.team_a_score : 0);
-  const [scoreB, setScoreB] = useState<number>(isEdit ? initialMatch.team_b_score : 0);
+  const [scoreA, setScoreA] = useState<number>(isEdit ? initialMatch.team_a_score : 21);
+  const [scoreB, setScoreB] = useState<number>(isEdit ? initialMatch.team_b_score : 19);
   const [playedAt, setPlayedAt] = useState<string>(
     initialMatch?.played_at 
       ? new Date(initialMatch.played_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
@@ -49,6 +71,26 @@ export default function AddMatchModal({ sessionId, sessionDate, players, onClose
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Auto-balance selected players if exactly 4 are selected
+  const handleAutoBalance = () => {
+    const selectedIds = Object.entries(playerTeams).filter(([, v]) => v === 1 || v === 2).map(([k]) => k);
+    if (selectedIds.length !== 4) return;
+
+    const chosen: GroupingPlayer[] = players
+      .filter(p => selectedIds.includes(p.id))
+      .map(p => ({ id: p.id, name: p.name, elo: p.elo ?? 1200 }));
+
+    const recommendations = generateBalanced2v2(chosen);
+    if (recommendations.length > 0) {
+      const best = recommendations[0];
+      const newTeams: Record<string, number> = {};
+      best.teamA.forEach(p => { newTeams[p.id] = 1; });
+      best.teamB.forEach(p => { newTeams[p.id] = 2; });
+      setPlayerTeams(newTeams);
+      setError(null);
+    }
+  };
 
   // Cycle: None (0) → Team A (1) → Team B (2) → None (0)
   const cyclePlayer = (id: string) => {
@@ -167,7 +209,19 @@ export default function AddMatchModal({ sessionId, sessionDate, players, onClose
           </div>
 
           <div className="space-y-4">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Tap to cycle: A → B → Out</p>
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Tap to cycle: A → B → Out</p>
+              {Object.values(playerTeams).filter(v => v === 1 || v === 2).length === 4 && (
+                <button
+                  type="button"
+                  onClick={handleAutoBalance}
+                  className="px-3 py-1 bg-amber-400/10 border border-amber-400/30 text-amber-400 hover:bg-amber-400/20 active:scale-95 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all flex items-center gap-1.5 shadow-sm"
+                >
+                  <Scale className="size-3.5" />
+                  Auto-Balance 2v2
+                </button>
+              )}
+            </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {players.map(p => {
                 const state = playerTeams[p.id] ?? 0;

@@ -311,7 +311,7 @@
 *   [x] **Server Action Security Hardening**: Implemented unified `assertAdmin(mode?: string, actionName?: string)` in [`src/lib/auth.ts`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/lib/auth.ts). Updated `addSession`, `editSession`, `deleteSession`, and `updateSessionMetadata` to use it (replaces fragile referer-only checks).
 *   [x] **Centralized Route & Role Hook**: Created [`src/hooks/useAppRoute.ts`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/hooks/useAppRoute.ts) — returns `{ basePath, currentMode, isAdmin, getRoute }`. Wired into Desktop Dashboard and Mobile Dashboard, replacing manual `pathname.split('/')[1]` strings.
 *   [x] **Admin Detection Hardened**: Both Desktop and Mobile Dashboards now derive `effectiveIsAdmin = isAdmin || routeIsAdmin || roleIsAdmin` to guarantee Season Settings button always renders in admin mode regardless of prop source.
-## Phase 93 — Viewer PIN Unlock & Granular Permissions (29 Aug 2026, Complete)
+## Phase 93 — Viewer PIN Unlock & Granular Permissions (29–30 Aug 2026, Complete)
 
 *   [x] **Database Schema Addition**: Added `viewer_settings` table to `schema_v2.sql` and `src/types/database.ts` with `pin_hash` (bcrypt hash) and `permissions` (JSONB array).
 *   [x] **Bcrypt PIN Hashing & HMAC Session Signing**: Implemented in [`src/lib/actions/viewerPin.ts`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/lib/actions/viewerPin.ts) — `verifyViewerPin`, `changeViewerPin`, `updateViewerPermissions`, `getViewerPinStatus`, `getViewerUnlockState`, and `lockViewerSession`. Sessions use HTTP-only, secure, SameSite=Lax signed cookies (60m TTL).
@@ -322,27 +322,41 @@
     *   [`src/components/viewer/ViewerUnlockButton.tsx`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/components/viewer/ViewerUnlockButton.tsx) — renders `🔒 Unlock` (opens modal) or `🔓 Unlocked` (with click-to-lock popover) in desktop and mobile headers, supporting a discreet `icon` variant for mobile top-right placement (matching admin shield button position).
     *   [`src/components/viewer/ViewerPinModal.tsx`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/components/viewer/ViewerPinModal.tsx) — masked numeric PIN input, loading state, error alert, and instant optimistic state refresh.
     *   **React Portals for True Centering**: Wrapped `ViewerPinModal`, the active session popup in `ViewerUnlockButton`, and `ViewerAccessModal` with `createPortal(..., document.body)` to escape CSS transform containing-blocks (`-translate-y-1/2` and `backdrop-filter`) on header containers, eliminating modal squeezing and ensuring perfect viewport centering.
-*   [x] **Admin Viewer Access Modal**: [`src/components/admin/ViewerAccessModal.tsx`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/components/admin/ViewerAccessModal.tsx) — allows admins to configure/change the Viewer PIN with bcrypt hashing and toggle granular permissions with instant feedback.
+*   [x] **Admin Viewer Access Modal**: [`src/components/admin/ViewerAccessModal.tsx`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/components/admin/ViewerAccessModal.tsx) — allows admins to configure/change the Viewer PIN with bcrypt hashing and toggle granular permissions (all 10 permission keys) with instant feedback.
 *   [x] **UI Permission Integration**:
     *   `DesktopDashboard.tsx` & `MobileDashboard.tsx`: Integrated discreet `ViewerUnlockButton` for viewers and `Viewer Access` settings button for admins in the header; removed prominent "Viewer Mode" center banners.
-    *   `DesktopSessionDetails.tsx` & `MobileSessionDetails.tsx`: Log Match, Edit Match, and Delete Match action buttons are selectively rendered based on `canLogMatch`, `canEditMatch`, and `canDeleteMatch`.
+    *   `DesktopSessionDetails.tsx` & `MobileSessionDetails.tsx`: Log Match, Edit Match, Delete Match, and Edit Session action buttons are selectively rendered based on `canLogMatch`, `canEditMatch`, `canDeleteMatch`, and `canEditSession`.
     *   `SessionMatches.tsx`: Selective button rendering based on `canPerform`.
-    *   `RecordMatchPage`: Server-side route redirect guard prevents locked viewers from directly accessing the record match page via URL.
+    *   `RecordMatchPage` & `LogSessionPage`: Server-side route redirect guards prevent unauthorized viewers from directly accessing record match or log session pages via URL.
 *   [x] **Permission Wiring & ADD_SESSION Feature (30 Aug 2026)**:
     *   **New Permission**: Added `ADD_SESSION` (`"ADD_SESSION"`) to `VIEWER_PERMISSIONS` in `constants.ts` and `ViewerAccessModal.tsx` under Session Permissions.
-    *   **Server Actions**: `addSession` now uses `assertAdminOrViewerPermission(ADD_SESSION)`. `editSession`, `deleteSession`, `updateSessionMetadata` use `EDIT_SESSION / DELETE_SESSION`. `editPurchase`, `deletePurchase` use `EDIT_STOCK / DELETE_STOCK`. `editPayment`, `deletePayment` use `EDIT_PAYMENT / DELETE_PAYMENT`.
-    *   **Route Protection**: `src/app/[mode]/sessions/log/page.tsx` now enforces server-side redirect guard if a viewer without `ADD_SESSION` attempts direct navigation.
-    *   **UI — Session List**: "Log New" button in `DesktopSessionList.tsx` and the Floating Action Button (`Plus`) in `MobileSessions.tsx` are now visible to viewers when `ADD_SESSION` is unlocked.
+    *   **Server Actions**: `addSession` uses `assertAdminOrViewerPermission(ADD_SESSION)`. `editSession`, `deleteSession`, `updateSessionMetadata` use `EDIT_SESSION / DELETE_SESSION`. `editPurchase`, `deletePurchase` use `EDIT_STOCK / DELETE_STOCK`. `editPayment`, `deletePayment` use `EDIT_PAYMENT / DELETE_PAYMENT`.
+    *   **Route Protection**: `src/app/[mode]/sessions/log/page.tsx` enforces server-side redirect guard if a viewer without `ADD_SESSION` attempts direct navigation.
+    *   **UI — Session List**: "Log New" button in `DesktopSessionList.tsx` and Floating Action Button (`+`) in `MobileSessions.tsx` are visible to viewers when `ADD_SESSION` is unlocked.
     *   **UI — Session Details**: Edit Session button in `DesktopSessionDetails.tsx` and `MobileSessionDetails.tsx` respects `canEditSession`.
+*   [x] **Production Build Verified**: Full `npm run build` passed cleanly (`Exit code: 0`, all 16 routes compiled via Turbopack).
 
 ## Current Project Status
 
-**Phase 93 complete (29 Aug 2026).** CockCount now features a **secure 3-state permission model**:
-1. **Admin** (`/admin-92Kf8s`): Full unrestricted administrative access.
-2. **Viewer Locked** (`/view`): Clean read-only mode for browsing stats, leaderboards, player cards, and match history.
-3. **Viewer Unlocked** (`/view` + PIN): 60-minute temporary unlock granting only admin-configured permissions (`LOG_MATCH`, `EDIT_MATCH`, `DELETE_MATCH` by default).
+## Phase 94 — Auto-Grouping & Fair Match Generator (30 Aug 2026, Complete)
 
-All mutations are securely verified server-side with bcrypt PIN hashing and HMAC signed HTTP-only cookies. Production build verified (Exit code: 0, all 16 routes).
+*   [x] **Mathematical Matchmaking Engine Core**: Created [`src/lib/analytics/autoGroup.ts`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/lib/analytics/autoGroup.ts) with `evaluatePairing()`, `generateBalanced2v2()`, and `suggestNextMatchFromPool()`. Computes team average Elo, win probability $P(\text{Team A}) = \frac{1}{1 + 10^{(\Delta \text{Elo}/400)}}$, and fairness score (0–100%).
+*   [x] **Session Court Playtime Rotation**: Prioritizes players who have played fewer games in the active session to maximize court rotation equity and minimize bench wait times.
+*   [x] **AutoGroupModal Component**: Created [`src/components/session/AutoGroupModal.tsx`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/components/session/AutoGroupModal.tsx) with React Portal rendering, dual-mode tabs:
+    *   **Suggested Matches**: Instant top 3 2v2 recommendations from the entire attendee pool.
+    *   **Custom 4-Player Balancer**: Choose any 4 players to see all 3 team combinations ranked from most balanced to least.
+*   [x] **Desktop & Mobile Integration**:
+    *   `DesktopSessionDetails.tsx` & `MobileSessionDetails.tsx`: Added quick-access "Auto-Group" button in Match Results headers.
+    *   `AddMatchModal.tsx`: Added preset team support and an inline "Auto-Balance 2v2" button when 4 players are selected.
+    *   `RecordMatch.tsx` (Mobile): Added query param preset support (`?teamA=...&teamB=...`) and inline "Auto-Balance 2v2" button in the player selection grid.
+*   [x] **Production Build Verified**: Full `npm run build` passed cleanly (`Exit code: 0`, all 16 routes compiled via Turbopack).
+
+## Current Project Status
+
+**Phase 94 complete (30 Aug 2026).** CockCount features:
+1. **Auto-Grouping & Fair Match Generator**: Smart 2v2 matchmaking engine optimizing Elo balance, win probability equity, and attendee playtime rotation.
+2. **Secure 3-State Permission Model**: Admin (`/admin-92Kf8s`), Viewer Locked, and Viewer Unlocked (bcrypt PIN + signed HTTP-only cookies) across all 10 granular permissions.
+3. **Competitive Seasons & Ranking Engine**: Asymmetric soft reset, historical finish badges, and Floor-Protected Glicko-Lite + Attendance Streak XP.
 
 ## Known Issues / Backlog
 
@@ -359,7 +373,7 @@ All mutations are securely verified server-side with bcrypt PIN hashing and HMAC
 6.  **Competitive Seasons & Badges**: (Complete) Asymmetric soft reset, custom start dates, 0-match rollback safety, and immutable snapshot finish badges live.
 7.  **Architecture Optimization (Phase 92)**: (Complete) Centralized balance calculations, typed database entities, server action authorization guards, and unified routing hook.
 8.  **Viewer PIN & Granular Permissions (Phase 93)**: (Complete) 3-state permission model, bcrypt PIN hashing, signed HTTP-only session cookies, and Admin Viewer Access controls.
-9.  **Auto-Grouping**: Smart team generation based on skill ratings and partner history — `suggestNextMatchFromPool()` engine planned in `src/lib/analytics/autoGroup.ts`.
+9.  **Auto-Grouping (Phase 94)**: (Complete) Smart team generation based on skill ratings, playtime rotation, and 1-tap match recording pre-fill.
 10. **Settle Tracking**: Auto-suggest who pays what based on complex debt chains.
 
 

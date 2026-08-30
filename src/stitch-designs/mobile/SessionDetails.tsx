@@ -19,7 +19,8 @@ import {
   X,
   Feather,
   Trophy,
-  Camera
+  Camera,
+  Sparkles
 } from 'lucide-react';
 import { useRouter, usePathname } from "next/navigation";
 import PlayerName from "@/components/ui/PlayerName";
@@ -31,6 +32,7 @@ import { useRole } from "@/context/AuthContext";
 import { useEffect } from 'react';
 import { SessionForm } from '@/app/[mode]/sessions/SessionForm';
 import { StoryPreviewModal } from '@/components/story/StoryPreviewModal';
+import { AutoGroupModal } from '@/components/session/AutoGroupModal';
 import { VIEWER_PERMISSIONS } from '@/lib/constants';
 import { ViewerUnlockButton } from '@/components/viewer/ViewerUnlockButton';
 
@@ -111,12 +113,25 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
   const [isSaving, setIsSaving] = useState(false);
   const [isEditingSession, setIsEditingSession] = useState(false);
   const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
+  const [isAutoGroupOpen, setIsAutoGroupOpen] = useState(false);
   const [leaderboardMode, setLeaderboardMode] = React.useState<"wins" | "winRate">("wins");
   const { isAdmin, canPerform } = useRole();
   const canLogMatch = isAdmin || canPerform(VIEWER_PERMISSIONS.LOG_MATCH);
   const canEditMatch = isAdmin || canPerform(VIEWER_PERMISSIONS.EDIT_MATCH);
   const canDeleteMatch = isAdmin || canPerform(VIEWER_PERMISSIONS.DELETE_MATCH);
   const canEditSession = isAdmin || canPerform(VIEWER_PERMISSIONS.EDIT_SESSION);
+
+  // Compute matches played per player in this session
+  const matchCountPerPlayer: Record<string, number> = React.useMemo(() => {
+    const counts: Record<string, number> = {};
+    matches.forEach(m => {
+      const pIds = [m.team_a_player1, m.team_a_player2, m.team_b_player1, m.team_b_player2].filter(Boolean);
+      pIds.forEach(id => {
+        if (id) counts[id] = (counts[id] || 0) + 1;
+      });
+    });
+    return counts;
+  }, [matches]);
 
   useEffect(() => {
     if (isEditingSession) {
@@ -392,6 +407,15 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
                 <h3 className="text-slate-900 dark:text-slate-100 text-sm font-black uppercase tracking-[0.15em] italic">Match Results</h3>
                 {canLogMatch ? (
                   <div className="flex items-center gap-2">
+                    {attendees.length >= 4 && (
+                      <button
+                        onClick={() => setIsAutoGroupOpen(true)}
+                        className="text-amber-400 flex items-center gap-1 active:scale-95 transition-transform bg-amber-400/10 px-2.5 py-1.5 rounded-lg border border-amber-400/20 text-[10px] font-black uppercase tracking-widest shadow-sm"
+                      >
+                        <Sparkles className="size-3.5" />
+                        <span>Auto-Group</span>
+                      </button>
+                    )}
                     {!isAdmin && <ViewerUnlockButton variant="inline" />}
                     <button 
                       onClick={() => router.push(`${basePath}/sessions/${session.id}/record-match`)}
@@ -623,6 +647,28 @@ export default function MobileSessionDetails({ session, matches, attendees, sess
         sessionStats={sessionStats || { mostWins: [] }}
         isAdmin={isAdmin}
       />
+
+      {/* Auto Group Modal */}
+      {isAutoGroupOpen && (
+        <AutoGroupModal
+          isOpen={isAutoGroupOpen}
+          onClose={() => setIsAutoGroupOpen(false)}
+          attendees={attendees.map(a => ({
+            id: a.id,
+            name: a.name,
+            elo: a.elo,
+            placementMatchesPlayed: a.placementMatchesPlayed
+          }))}
+          matchCountPerPlayer={matchCountPerPlayer}
+          onSelectMatchup={(teamAIds, teamBIds) => {
+            const params = new URLSearchParams({
+              teamA: teamAIds.join(','),
+              teamB: teamBIds.join(',')
+            });
+            router.push(`${basePath}/sessions/${session.id}/record-match?${params.toString()}`);
+          }}
+        />
+      )}
     </div>
   );
 }

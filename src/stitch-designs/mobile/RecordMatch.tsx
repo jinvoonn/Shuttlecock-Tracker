@@ -10,16 +10,18 @@ import {
   LayoutGrid, 
   Activity, 
   Package, 
-  Banknote,
-  X,
-  PlusCircle,
-  Feather
+  Banknote, 
+  X, 
+  PlusCircle, 
+  Feather,
+  Scale
 } from 'lucide-react';
 
 interface Player {
   id: string;
   name: string;
   elo?: number;
+  placementMatchesPlayed?: number;
 }
 
 interface MobileRecordMatchProps {
@@ -30,17 +32,46 @@ interface MobileRecordMatchProps {
 
 import { useState } from 'react';
 import { addMatch } from "@/lib/actions/matches";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import PlayerName from "@/components/ui/PlayerName";
+import { generateBalanced2v2, GroupingPlayer } from "@/lib/analytics/autoGroup";
 
 export default function MobileRecordMatch({ sessionId, players, sessionDate }: MobileRecordMatchProps) {
   const router = useRouter();
-  const [playerTeams, setPlayerTeams] = useState<Record<string, number>>({});
+  const searchParams = useSearchParams();
+  const presetTeamA = searchParams?.get('teamA')?.split(',').filter(Boolean);
+  const presetTeamB = searchParams?.get('teamB')?.split(',').filter(Boolean);
+
+  const [playerTeams, setPlayerTeams] = useState<Record<string, number>>(() => {
+    const teams: Record<string, number> = {};
+    presetTeamA?.forEach(id => { teams[id] = 1; });
+    presetTeamB?.forEach(id => { teams[id] = 2; });
+    return teams;
+  });
   // 0 = unselected, 1 = Team A, 2 = Team B
   const [scoreA, setScoreA] = useState(21);
   const [scoreB, setScoreB] = useState(19);
   const [playedAt, setPlayedAt] = useState(new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }));
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Auto-balance selected players if exactly 4 are selected
+  const handleAutoBalance = () => {
+    const selectedIds = Object.entries(playerTeams).filter(([, v]) => v === 1 || v === 2).map(([k]) => k);
+    if (selectedIds.length !== 4) return;
+
+    const chosen: GroupingPlayer[] = players
+      .filter(p => selectedIds.includes(p.id))
+      .map(p => ({ id: p.id, name: p.name, elo: p.elo ?? 1200, placementMatchesPlayed: p.placementMatchesPlayed }));
+
+    const recommendations = generateBalanced2v2(chosen);
+    if (recommendations.length > 0) {
+      const best = recommendations[0];
+      const newTeams: Record<string, number> = {};
+      best.teamA.forEach(p => { newTeams[p.id] = 1; });
+      best.teamB.forEach(p => { newTeams[p.id] = 2; });
+      setPlayerTeams(newTeams);
+    }
+  };
 
   // Cycle: None (0) → Team A (1) → Team B (2) → None (0)
   const cyclePlayer = (id: string) => {
@@ -128,7 +159,19 @@ export default function MobileRecordMatch({ sessionId, players, sessionDate }: M
 
           {/* Player Toggle Grid */}
           <div className="px-6 py-8">
-            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4 ml-1">Select Players</h3>
+            <div className="flex items-center justify-between mb-4 ml-1">
+              <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Select Players</h3>
+              {Object.values(playerTeams).filter(v => v === 1 || v === 2).length === 4 && (
+                <button
+                  type="button"
+                  onClick={handleAutoBalance}
+                  className="px-3 py-1 bg-amber-400/10 border border-amber-400/30 text-amber-400 hover:bg-amber-400/20 active:scale-95 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all flex items-center gap-1.5 shadow-sm"
+                >
+                  <Scale className="size-3.5" />
+                  Auto-Balance 2v2
+                </button>
+              )}
+            </div>
             <div className="grid grid-cols-2 gap-3">
                {players.map(player => {
                  const state = playerTeams[player.id] ?? 0;
