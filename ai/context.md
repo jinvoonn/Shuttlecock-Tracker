@@ -175,23 +175,20 @@ Badge colours: emerald (`+`), rose (`-`), slate (`±0`).
 - `src/types/database.ts` contains TypeScript interfaces for all 12 Supabase tables — use these instead of `any[]` in new code.
 - `src/components/player/PlayerCard.tsx` accepts `seasonEdition?: string` (e.g. `"Season 2 Edition"`) — defaults to `"Season 1 Edition"` if not passed.
 - Match timestamps use `played_at || created_at` fallback everywhere; sort descending (`timeB - timeA`) for latest-first display.
-- `deltas?.[matchId]?.[playerId]` is the safe-access pattern to read a player's rating change for any given match.
-- `src/lib/actions/seasons.ts` contains all season server actions. Never call `endAndStartNewSeason()` without the admin double-confirmation UI.
-- Season selector in dashboards: `"all-time"` ID = career stats, active season ID = current season, completed season ID = frozen snapshot from `season_player_results`.
-- **Court Shuffler & Matchmaking Engine**: `src/lib/analytics/autoGroup.ts` exports `shuffleCourts()` (random rotation-fair multi-court shuffler with locked pairs + resting queue), `generateBalanced2v2()` (Elo-split optimizer for custom 4-player balancer), and `evaluatePairing()`. Modal UI: `src/components/session/AutoGroupModal.tsx`.
-- **AutoGroupModal tab 1 (Random Court Shuffler)**: Accepts number of courts (1–4), locked pairs (up to 2 forced 2-player partnerships not broken by shuffler), performs Fisher-Yates random pairing, prioritizes less-played players, shows "Resting / Next Up" queue for extras.
-- **AutoGroupModal tab 2 (Custom 4-Player Balancer)**: Pick any 4 players → shows all 3 possible 2v2 splits ranked by Elo fairness score.
+- **Court Shuffler & Session Tournament Engine**: `src/lib/analytics/autoGroup.ts` exports `shuffleCourts()` (random rotation-fair multi-court shuffler with locked pairs + resting queue), `initializeTournament()`, `advanceTournamentRound()` (King of the Court ladder state machine with 5/6 player bench rotation and multi-court promotion), `generateBalanced2v2()`, and `evaluatePairing()`. Modal UI: `src/components/session/AutoGroupModal.tsx`.
+- **Tournament Mode Flow**: User clicks "Accept & Start" on initial shuffle → opens interactive live tournament HUD with round indicator (e.g. Round 1, Round 2), winner selection buttons per court, 1-tap "Log Official Score" to session history, and "Advance to Next Round" (winners stay/promote, losers demote/rotate to bench).
 - **PowerShell build**: Always use `npm.cmd run build` not `npm run build` on Windows due to script execution policy.
 - Scratch/migration scripts live in `/scripts` (not `src/`). The `src/` directory is now clean.
 
 ## Current Project Status
-**Phase 94 complete — Court Shuffler & Team Balancer Live (30 Aug 2026).** CockCount features:
-1. **Random Court Shuffler**: Multi-court fair-rotation player assignment (rotation-fairness, locked pairs, resting queue), random pairings unbiased by Elo, 1-tap "Record Match" prefill.
-2. **Custom 2v2 Team Balancer**: Elo-based split optimizer (all 3 combinations ranked) for any 4 chosen players.
-3. **Secure 3-State Permission Model**: Admin, Viewer Locked, Viewer Unlocked (bcrypt PIN + HTTP-only cookies) across all 10 granular permissions.
-4. **Competitive Seasons & Ranking Engine**: Asymmetric soft reset, historical finish badges, Floor-Protected Glicko-Lite + Attendance Streak XP.
+**Phase 94 complete — Session Tournament Mode (King of the Court) Live (30 Aug 2026).** CockCount features:
+1. **King of the Court / Session Tournament**: Winner vs Winner / Loser vs Loser ladder progression, 5-player & 6-player odd bench rotation, multi-court promotion, and 1-tap match logging.
+2. **Random Court Shuffler**: Multi-court fair-rotation player assignment (rotation-fairness, locked pairs, resting queue), random pairings unbiased by Elo, 1-tap "Record Match" prefill.
+3. **Custom 2v2 Team Balancer**: Elo-based split optimizer for any 4 chosen players.
+4. **Secure 3-State Permission Model**: Admin, Viewer Locked, Viewer Unlocked (10 granular permissions).
+5. **Competitive Seasons & Ranking Engine**: Asymmetric soft reset, historical finish badges, Floor-Protected Glicko-Lite + Attendance Streak XP.
 
-Production build verified (Exit code: 0, all 16 routes, Turbopack 4.8s).
+Production build verified (Exit code: 0, all 16 routes, Turbopack 4.6s).
 
 Layered on top of the full **Asymmetric Soft Reset Season System** ($\text{MMR} > 1200$ compresses towards 1200; $\text{MMR} \le 1200$ preserved), historical Season Finish Badges, immutable season snapshots, season-scoped leaderboards, **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Underdog Bonus**, **Match Rating Deltas**, and **FIFA-Style Player Cards**. Production build verified (Exit code: 0, all 16 routes, Turbopack).
 

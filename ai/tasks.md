@@ -338,30 +338,30 @@
 
 ## Current Project Status
 
-## Phase 94 — Court Shuffler & Team Balancer (30 Aug 2026, Complete)
+## Phase 94 — Court Shuffler & Session Tournament / Ladder Mode (30 Aug 2026, Complete)
 
-*   [x] **Court Shuffler Engine**: Rewrote [`src/lib/analytics/autoGroup.ts`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/lib/analytics/autoGroup.ts) to replace the Elo-based "Suggested Matches" with a random fair-rotation shuffler (`shuffleCourts()`):
-    *   **Multi-Court Support**: Input 1–4 courts. Fills Court 1, Court 2, etc. with 4 players each. Remaining players go to "Resting / Next Up" queue.
-    *   **Rotation Fairness**: Players who have played fewer matches in the active session are **prioritized first** for court slots (no-rating-bias).
-    *   **Locked Pairs**: Up to 2 forcefully-locked 2-player partnerships that the shuffler will always keep together as a unit (not broken apart). Configured via dropdowns in the modal.
-    *   **Fisher-Yates Shuffle**: Pure random pairing within eligible players, unbiased by Elo rating.
-    *   **Resting Queue**: Players not assigned to courts are listed in the "Resting / Next Up" panel, sorted by fewest played (they'll be prioritized next reshuffle).
-*   [x] **Custom 4-Player Balancer**: Preserved from Phase 94 original. Choose any 4 players → see all 3 possible 2v2 splits ranked by Elo fairness score, with 1-tap "Use This Pairing".
-*   [x] **AutoGroupModal Redesign**: Updated [`src/components/session/AutoGroupModal.tsx`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/components/session/AutoGroupModal.tsx) with full React Portal rendering:
-    *   **Tab 1 — Random Court Shuffler**: Court count picker (1–4), "Reshuffle Pairs" button, Locked Pairs panel (add/remove, per-pair player dropdowns showing game count), Active Court Lineup (Team A vs Team B per court with fairness %, 1-tap "Record Match" prefill), Resting / Next Up section.
-    *   **Tab 2 — Custom 4-Player Balancer**: 4-player picker grid with Elo display → ranked 2v2 split options.
-*   [x] **Preset Teams & Auto-Balance (Desktop + Mobile)**:
-    *   `AddMatchModal.tsx`: Accepts `presetTeamAIds`/`presetTeamBIds` to pre-fill from court shuffler, inline "Auto-Balance 2v2" button when 4 players are selected.
-    *   `RecordMatch.tsx` (Mobile): Accepts `?teamA=...&teamB=...` query params from court shuffler redirect, inline "Auto-Balance 2v2" button in player grid.
-*   [x] **Production Build Verified**: `npm run build` passed cleanly (`Exit code: 0`, all 16 routes, Turbopack 4.8s).
+*   [x] **Court Shuffler Engine**: Built [`src/lib/analytics/autoGroup.ts`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/lib/analytics/autoGroup.ts) with `shuffleCourts()`, `initializeTournament()`, and `advanceTournamentRound()`:
+    *   **Multi-Court Support**: 1–4 courts assigned automatically with rotation fairness (players who played fewer games prioritized for active courts).
+    *   **Locked Pairs Protection**: Up to 2 pairs guaranteed to stay partnered together.
+    *   **Resting Queue**: Extra players wait in the "Resting / Next Up" queue with next-round rotation priority.
+*   [x] **King of the Court / Tournament Mode State Machine**:
+    *   **"Accept & Start"**: Organizers can review the initial shuffled lineups and launch a live tournament round.
+    *   **5-Player Single-Court Rotation**: Winning pair stays intact on Court 1. Losing team rotates 1 player to bench (random or least-rested); the resting player from previous round enters as a challenger pair.
+    *   **6-Player Single-Court Rotation**: Winning pair stays intact on Court 1. The 2 resting players enter together as the new challenger pair on Court 1, and the losing pair moves to the resting bench.
+    *   **Multi-Court Progression (2+ Courts)**: Court 2 winners promote to Court 1 (King Court), Court 1 losers demote to Court 2, and bench players rotate onto Court 2.
+    *   **Interactive Round HUD**: Organizers can select winners directly on court cards or tap "Log Official Score" to pre-fill and record the match to the session history.
+    *   **Round Advancement**: Once court winners are chosen, tapping "Advance to Round X" computes the next round pairings and bench queue automatically.
+*   [x] **Custom 4-Player Balancer**: Choose any 4 players → see all 3 possible 2v2 splits ranked by Elo fairness score.
+*   [x] **Production Build Verified**: Full `npm run build` passed cleanly (`Exit code: 0`, all 16 routes, Turbopack 4.6s).
 
 ## Current Project Status
 
 **Phase 94 complete (30 Aug 2026).** CockCount features:
-1. **Random Court Shuffler**: Multi-court fair-rotation player assignment with locked pairs support, resting queue, and 1-tap match recording.
-2. **Custom 2v2 Team Balancer**: Elo-based split optimizer for any 4 chosen players.
-3. **Secure 3-State Permission Model**: Admin, Viewer Locked, Viewer Unlocked (10 granular permissions).
-4. **Competitive Seasons & Ranking Engine**: Asymmetric soft reset, historical finish badges, Glicko-Lite + XP.
+1. **Session Tournament & King of the Court**: Live ladder progression (Winner vs Winner, Loser vs Loser / Demote), 5-player & 6-player odd bench rotation, multi-court promotion, and 1-tap official score logging.
+2. **Random Court Shuffler**: Rotation-fair player assignment with locked pairs and resting queue.
+3. **Custom 2v2 Team Balancer**: Elo-based split optimizer for any 4 chosen players.
+4. **Secure 3-State Permission Model**: Admin, Viewer Locked, Viewer Unlocked (10 granular permissions).
+5. **Competitive Seasons & Ranking Engine**: Asymmetric soft reset, historical finish badges, Glicko-Lite + XP.
 
 ## Known Issues / Backlog
 

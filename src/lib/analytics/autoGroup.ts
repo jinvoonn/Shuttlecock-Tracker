@@ -1,11 +1,18 @@
 /**
- * Auto-Grouping, Court Shuffler & Match Balancing Engine
+ * Auto-Grouping, Court Shuffler & Session Tournament / Ladder Engine
  * 
  * Capabilities:
- * 1. Random Court Shuffler with Rotation Fairness (prioritizes least-played players in the session).
- * 2. Multi-court support (e.g. 1 court, 2 courts, 3 courts) with Active vs Resting / Next Up queues.
+ * 1. Random Court Shuffler with Rotation Fairness (prioritizes least-played players).
+ * 2. Multi-court support (1 to 4 courts) with Active vs Resting / Next Up queues.
  * 3. Locked Pairings support (forcefully locks specific 2-player pairs so they stay together).
  * 4. Custom 4-Player Balancer (generates all 3 2v2 combinations ranked by Elo fairness).
+ * 5. King of the Court / Tournament Mode:
+ *    - "Accept & Start Tournament" from initial pairing list.
+ *    - Winner vs Winner / King stays.
+ *    - Loser vs Loser or rotation to bench.
+ *    - 5-player rotation: Loser randomly rotates 1 player out to bench; resting player enters.
+ *    - 6-player rotation: 2 resting players enter together; losing pair takes the rest slot.
+ *    - Multi-court promotion / demotion (Court 2 winners promote to Court 1, Court 1 losers move to Court 2).
  */
 
 export interface GroupingPlayer {
@@ -40,6 +47,29 @@ export interface CourtAssignment {
 export interface CourtShuffleResult {
   courtAssignments: CourtAssignment[];
   restingPlayers: GroupingPlayer[];
+}
+
+export interface TournamentCourtMatch {
+  courtNumber: number;
+  teamA: GroupingPlayer[];
+  teamB: GroupingPlayer[];
+  winner?: "A" | "B";
+  scoreA?: number;
+  scoreB?: number;
+  isRecorded?: boolean;
+}
+
+export interface TournamentRound {
+  roundNumber: number;
+  courts: TournamentCourtMatch[];
+  restingPlayers: GroupingPlayer[];
+}
+
+export interface TournamentState {
+  isActive: boolean;
+  currentRound: TournamentRound;
+  roundHistory: TournamentRound[];
+  numCourts: number;
 }
 
 /**
@@ -93,10 +123,6 @@ export function generateBalanced2v2(players: GroupingPlayer[]): MatchRecommendat
 
   const [p1, p2, p3, p4] = players;
 
-  // 3 possible unique pairings of 4 players into two 2-player teams:
-  // Option 1: (p1, p2) vs (p3, p4)
-  // Option 2: (p1, p3) vs (p2, p4)
-  // Option 3: (p1, p4) vs (p2, p3)
   const pairings = [
     { teamA: [p1, p2], teamB: [p3, p4] },
     { teamA: [p1, p3], teamB: [p2, p4] },
@@ -109,7 +135,7 @@ export function generateBalanced2v2(players: GroupingPlayer[]): MatchRecommendat
 }
 
 /**
- * Modern Fisher-Yates shuffle algorithm
+ * Fisher-Yates shuffle
  */
 function shuffleArray<T>(array: T[]): T[] {
   const result = [...array];
@@ -122,12 +148,6 @@ function shuffleArray<T>(array: T[]): T[] {
 
 /**
  * Court Shuffler with Rotation Fairness and Locked Pairs.
- * 
- * Rules:
- * 1. Locked Pairs (up to 2 pairs): Players in locked pairs are guaranteed to be placed on the same team.
- * 2. Playtime Fairness: Players with FEWER matches in the current session are selected first to play on courts.
- * 3. Random Shuffling: Among players eligible to play, assignments and pairings are randomized (not based on rating).
- * 4. Multi-court & Resting: Fills Court 1, Court 2, etc. (4 players per court). Excess players are marked as "Resting / Next Up".
  */
 export function shuffleCourts(
   attendees: GroupingPlayer[],
@@ -177,10 +197,9 @@ export function shuffleCourts(
   }
 
   // Priority selection based on fewest matches played
-  // Shuffle within the same match count bracket for fairness & randomness
   const sortedIndividuals = [...individualUnits].sort((a, b) => {
     if (a.matches !== b.matches) return a.matches - b.matches;
-    return Math.random() - 0.5; // randomize tie breaks
+    return Math.random() - 0.5;
   });
 
   const sortedLocked = [...lockedUnits].sort((a, b) => {
@@ -188,8 +207,6 @@ export function shuffleCourts(
     return Math.random() - 0.5;
   });
 
-  // Assemble active pool respecting maxActivePlayers
-  // Prioritize locked pairs if their average match count is competitive
   const activeTeams: GroupingPlayer[][] = [];
   const activeIndividuals: GroupingPlayer[] = [];
   let availableSlots = maxActivePlayers;
@@ -212,7 +229,7 @@ export function shuffleCourts(
     }
   }
 
-  // If we couldn't fit a locked pair, release them into individuals if slots remain
+  // If locked pairs couldn't fit as a pair, release individuals if slots remain
   for (const lUnit of sortedLocked) {
     if (!activeTeams.includes(lUnit.players)) {
       for (const p of lUnit.players) {
@@ -230,9 +247,6 @@ export function shuffleCourts(
   for (let i = 0; i < shuffledIndividuals.length; i += 2) {
     if (i + 1 < shuffledIndividuals.length) {
       activeTeams.push([shuffledIndividuals[i], shuffledIndividuals[i + 1]]);
-    } else {
-      // Odd 1 player leftover in active queue, push to resting
-      // (Will be handled below)
     }
   }
 
@@ -264,5 +278,190 @@ export function shuffleCourts(
   return {
     courtAssignments,
     restingPlayers
+  };
+}
+
+/**
+ * Initializes a Tournament from an accepted Shuffle result.
+ */
+export function initializeTournament(
+  shuffleResult: CourtShuffleResult,
+  numCourts: number
+): TournamentState {
+  const currentRound: TournamentRound = {
+    roundNumber: 1,
+    courts: shuffleResult.courtAssignments.map(ca => ({
+      courtNumber: ca.courtNumber,
+      teamA: ca.match.teamA,
+      teamB: ca.match.teamB
+    })),
+    restingPlayers: shuffleResult.restingPlayers
+  };
+
+  return {
+    isActive: true,
+    currentRound,
+    roundHistory: [],
+    numCourts
+  };
+}
+
+/**
+ * Advances the tournament to the next round based on match outcomes:
+ * 
+ * Rules:
+ * 1. Single Court (1 Court):
+ *    - 4 Players Total: Winners vs Losers (losers rematch or players swap partners).
+ *    - 5 Players Total: Winning pair stays intact on Court 1.
+ *      From the losing pair, 1 player is randomly rotated to rest (or player with higher games).
+ *      The resting player from the previous round enters and partners with the remaining loser to challenge the winners.
+ *    - 6 Players Total: Winning pair stays intact on Court 1.
+ *      Losing pair moves to the resting bench.
+ *      The 2 resting players from previous round enter as a fresh pair on Court 1.
+ *    - 7+ Players Total: Winners stay, fresh resting pair enters from top of bench queue, losing pair joins end of bench.
+ * 
+ * 2. Multi-Court (2+ Courts):
+ *    - Court 1 Winners stay on Court 1 (King Court).
+ *    - Court 2 Winners promote to Court 1 to face Court 1 Winners.
+ *    - Court 1 Losers demote to Court 2.
+ *    - If there are resting players: Top resting pair enters Court 2, Court 2 Losers rotate to bench.
+ *    - If no resting players: Court 1 Losers vs Court 2 Losers on Court 2.
+ */
+export function advanceTournamentRound(
+  currentState: TournamentState,
+  updatedCourtsWithWinners: TournamentCourtMatch[]
+): TournamentState {
+  const prevRound = currentState.currentRound;
+  const numCourts = currentState.numCourts;
+  const nextRoundNumber = prevRound.roundNumber + 1;
+
+  const totalPlayersInTournament = 
+    updatedCourtsWithWinners.reduce((sum, c) => sum + c.teamA.length + c.teamB.length, 0) +
+    prevRound.restingPlayers.length;
+
+  const newCourts: TournamentCourtMatch[] = [];
+  let newRestingPlayers: GroupingPlayer[] = [];
+
+  if (numCourts === 1) {
+    const court = updatedCourtsWithWinners[0];
+    const winningTeam = court.winner === "B" ? court.teamB : court.teamA;
+    const losingTeam = court.winner === "B" ? court.teamA : court.teamB;
+
+    if (totalPlayersInTournament === 4) {
+      // 4 Players: Shuffle/rematch on same court
+      newCourts.push({
+        courtNumber: 1,
+        teamA: winningTeam,
+        teamB: losingTeam
+      });
+      newRestingPlayers = [];
+    } else if (totalPlayersInTournament === 5) {
+      // 5 Players: Winner pair stays.
+      // Randomly pick 1 player from losing team to rest (or pick the one who played more)
+      const shuffledLosing = shuffleArray(losingTeam);
+      const loserResting = shuffledLosing[0];
+      const loserStaying = shuffledLosing[1];
+
+      // Resting player from previous round comes in
+      const incomingPlayer = prevRound.restingPlayers[0];
+
+      newCourts.push({
+        courtNumber: 1,
+        teamA: winningTeam,
+        teamB: [loserStaying, incomingPlayer]
+      });
+
+      newRestingPlayers = [loserResting];
+    } else if (totalPlayersInTournament === 6) {
+      // 6 Players: Winner pair stays on Court 1.
+      // 2 Resting players from previous round come in as Team B.
+      // Losing pair takes the bench.
+      const incomingPair = prevRound.restingPlayers.slice(0, 2);
+
+      newCourts.push({
+        courtNumber: 1,
+        teamA: winningTeam,
+        teamB: incomingPair
+      });
+
+      newRestingPlayers = losingTeam;
+    } else {
+      // 7+ Players (1 court): Winners stay.
+      // Top 2 resting players come in as challengers.
+      // Losers join the end of the resting queue.
+      const incomingPair = prevRound.restingPlayers.slice(0, 2);
+      const remainingResting = prevRound.restingPlayers.slice(2);
+
+      newCourts.push({
+        courtNumber: 1,
+        teamA: winningTeam,
+        teamB: incomingPair
+      });
+
+      newRestingPlayers = [...remainingResting, ...losingTeam];
+    }
+  } else {
+    // Multi-Court logic (2+ courts)
+    // Extract winners and losers per court
+    const courtResults = updatedCourtsWithWinners.map(c => ({
+      courtNumber: c.courtNumber,
+      winner: c.winner === "B" ? c.teamB : c.teamA,
+      loser: c.winner === "B" ? c.teamA : c.teamB
+    }));
+
+    // Court 1: Top Court (King Court)
+    // Team A: Court 1 Winner
+    // Team B: Court 2 Winner (promoted)
+    const court1Winner = courtResults[0].winner;
+    const court2Winner = courtResults[1]?.winner || courtResults[0].loser;
+
+    newCourts.push({
+      courtNumber: 1,
+      teamA: court1Winner,
+      teamB: court2Winner
+    });
+
+    // Lower Courts (Court 2, 3, etc.)
+    const court1Loser = courtResults[0].loser;
+    const court2Loser = courtResults[1]?.loser;
+
+    if (prevRound.restingPlayers.length >= 2) {
+      // Resting pair enters Court 2
+      const incomingRestingPair = prevRound.restingPlayers.slice(0, 2);
+      const benchTail = prevRound.restingPlayers.slice(2);
+
+      newCourts.push({
+        courtNumber: 2,
+        teamA: court1Loser,
+        teamB: incomingRestingPair
+      });
+
+      // Court 2 Loser goes to bench
+      newRestingPlayers = [...benchTail, ...(court2Loser ? court2Loser : [])];
+    } else {
+      // No full resting pair, Court 1 Loser plays Court 2 Loser on Court 2
+      newCourts.push({
+        courtNumber: 2,
+        teamA: court1Loser,
+        teamB: court2Loser || court1Winner
+      });
+
+      newRestingPlayers = prevRound.restingPlayers;
+    }
+  }
+
+  const newRound: TournamentRound = {
+    roundNumber: nextRoundNumber,
+    courts: newCourts,
+    restingPlayers: newRestingPlayers
+  };
+
+  return {
+    ...currentState,
+    currentRound: newRound,
+    roundHistory: [...currentState.roundHistory, {
+      ...prevRound,
+      courts: updatedCourtsWithWinners
+    }]
   };
 }
