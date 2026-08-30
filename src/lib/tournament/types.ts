@@ -1,5 +1,5 @@
 /**
- * Player Shuffler & Tournament Engine Types
+ * Player Shuffler & 3-Round Rotation Tournament Types
  */
 
 export interface ShufflerPlayer {
@@ -23,8 +23,8 @@ export interface ShufflerCourtMatch {
 export interface ShufflerOption {
   id: string;
   courtMatches: ShufflerCourtMatch[];
-  waitingPairs: ShufflerPair[];
-  restingPlayers: ShufflerPlayer[];
+  restingPairs: ShufflerPair[];       // Planned resting pairs (e.g. AB + CD)
+  oddRestingPlayer: ShufflerPlayer | null; // Odd resting player (e.g. EF)
   fairnessScore?: number;
 }
 
@@ -40,23 +40,28 @@ export interface TournamentMatch {
   teamA: ShufflerPlayer[];
   teamB: ShufflerPlayer[];
   winner?: "A" | "B";
+  scoreA?: number;
+  scoreB?: number;
   isRecorded?: boolean;
 }
 
 export interface TournamentRound {
-  roundNumber: number;
+  roundNumber: number; // 1, 2, 3
   courts: TournamentMatch[];
-  waitingPairs: ShufflerPair[];
-  restingPlayers: ShufflerPlayer[];
+  restingPairs: ShufflerPair[];
+  oddRestingPlayer: ShufflerPlayer | null;
 }
 
 export interface TournamentState {
   sessionId: string;
   isActive: boolean;
+  isCompleted: boolean;
+  totalRounds: number; // 3
   currentRound: TournamentRound;
   roundHistory: TournamentRound[];
   numCourts: number;
   playersPerTeam: number; // 1 for 1v1, 2 for 2v2
+  initialOddRestingPlayerId: string | null;
   restHistory: Record<string, number>; // playerId -> count of times rested
   partnerHistory: Record<string, Record<string, number>>; // p1 -> p2 -> times partnered
 }

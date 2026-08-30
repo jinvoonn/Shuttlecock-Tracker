@@ -16,7 +16,8 @@ import {
   Award, 
   AlertTriangle,
   RotateCcw,
-  Users
+  Users,
+  CheckCircle2
 } from "lucide-react";
 import clsx from "clsx";
 import { 
@@ -199,25 +200,33 @@ export function PlayerShufflerModal({
           <div className="flex items-center gap-3">
             <div className={clsx(
               "size-10 rounded-2xl border flex items-center justify-center shadow-lg transition-all",
-              tournamentState 
+              tournamentState?.isCompleted
+                ? "bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border-emerald-500/40 text-emerald-400 shadow-emerald-500/10"
+                : tournamentState 
                 ? "bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border-amber-500/40 text-amber-400 shadow-amber-500/10" 
                 : "bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border-emerald-500/30 text-emerald-400 shadow-emerald-500/10"
             )}>
-              {tournamentState ? <Trophy className="size-5" /> : <Dices className="size-5" />}
+              {tournamentState?.isCompleted ? <CheckCircle2 className="size-5" /> : tournamentState ? <Trophy className="size-5" /> : <Dices className="size-5" />}
             </div>
             <div>
               <h3 className="text-lg font-black uppercase tracking-tight italic flex items-center gap-2">
-                {tournamentState ? (
+                {tournamentState?.isCompleted ? (
+                  <span className="flex items-center gap-1.5 text-emerald-400">
+                    <Trophy className="size-4" /> Tournament Complete
+                  </span>
+                ) : tournamentState ? (
                   <span className="flex items-center gap-1.5 text-amber-400">
-                    <Crown className="size-4" /> Tournament • Round {tournamentState.currentRound.roundNumber}
+                    <Crown className="size-4" /> Tournament • Round {tournamentState.currentRound.roundNumber} of {tournamentState.totalRounds}
                   </span>
                 ) : (
                   "Player Shuffler"
                 )}
               </h3>
               <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">
-                {tournamentState 
-                  ? "Winner vs Winner • Loser vs Loser • Fair Rotation" 
+                {tournamentState?.isCompleted
+                  ? "All 3 Rounds Finished • Matches Saved to History"
+                  : tournamentState 
+                  ? "Winner Advances • Planned Resting Pairs • Odd Rest Rotation" 
                   : `Session: ${sessionDate} • ${attendees.length} Players`}
               </p>
             </div>
@@ -273,12 +282,45 @@ export function PlayerShufflerModal({
                 Need at least 2 attendees to shuffle pairings.
               </p>
             </div>
+          ) : tournamentState?.isCompleted ? (
+            /* ========================================================================= */
+            /* 1. TOURNAMENT COMPLETED VIEW                                              */
+            /* ========================================================================= */
+            <div className="p-8 bg-slate-950 border border-slate-800 rounded-3xl text-center space-y-5 animate-in fade-in zoom-in-95 duration-200">
+              <div className="size-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/10">
+                <Trophy className="size-8" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-lg font-black uppercase text-slate-100 tracking-tight">
+                  3-Round Tournament Completed!
+                </h4>
+                <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                  All 3 rounds finished successfully. All recorded matches have been updated in session stats and player rankings.
+                </p>
+              </div>
+
+              <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-center gap-4 text-xs font-mono">
+                <span className="text-emerald-400 font-bold">Round 1 ✓</span>
+                <span className="text-slate-600">•</span>
+                <span className="text-emerald-400 font-bold">Round 2 ✓</span>
+                <span className="text-slate-600">•</span>
+                <span className="text-emerald-400 font-bold">Round 3 ✓</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleConfirmExit}
+                className="w-full py-3 bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-emerald-400/20"
+              >
+                Done / Start New
+              </button>
+            </div>
           ) : tournamentState ? (
             /* ========================================================================= */
-            /* 1. ACTIVE TOURNAMENT MODE VIEW                                            */
+            /* 2. ACTIVE TOURNAMENT MODE VIEW (Round 1 of 3, 2 of 3, 3 of 3)             */
             /* ========================================================================= */
             <div className="space-y-5 animate-in fade-in zoom-in-95 duration-200">
-              {/* Tournament Banner & Actions */}
+              {/* Tournament Banner & Progress Tracker */}
               <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <div className="size-8 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black text-sm">
@@ -286,10 +328,14 @@ export function PlayerShufflerModal({
                   </div>
                   <div>
                     <div className="text-xs font-black uppercase text-amber-300">
-                      Tournament Ladder Progression
+                      Round {tournamentState.currentRound.roundNumber} of {tournamentState.totalRounds}
                     </div>
                     <div className="text-[10px] text-slate-400 font-medium">
-                      Winners advance • Losers rotate with bench
+                      {tournamentState.currentRound.roundNumber === 1
+                        ? "Round 1: Initial Matchups"
+                        : tournamentState.currentRound.roundNumber === 2
+                        ? "Round 2: Winner vs Resting Pair"
+                        : "Round 3: Odd Player Enters Court"}
                     </div>
                   </div>
                 </div>
@@ -318,7 +364,7 @@ export function PlayerShufflerModal({
                 <div className="text-[11px] font-black uppercase tracking-widest text-slate-400 flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
                     <Play className="size-3.5 text-amber-400 fill-amber-400" />
-                    Round {tournamentState.currentRound.roundNumber} Matchups
+                    Playing
                   </span>
                   <span className="text-[10px] font-mono text-slate-500">
                     Select winner to advance
@@ -410,74 +456,55 @@ export function PlayerShufflerModal({
                         </button>
                       </div>
 
-                      {/* Log Official Score to Session */}
+                      {/* Log Match Result Button */}
                       <button
                         type="button"
                         onClick={() => handleRecordCourtScore(court.teamA, court.teamB)}
                         className="w-full py-2 bg-slate-900 hover:bg-slate-850 text-slate-300 hover:text-emerald-400 border border-slate-800 hover:border-emerald-500/30 font-bold text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1.5"
                       >
                         <Award className="size-3.5" />
-                        Log Score to Session
+                        Log Match Result
                       </button>
                     </div>
                   );
                 })}
               </div>
 
-              {/* Waiting Pairs Queue */}
-              {tournamentState.currentRound.waitingPairs.length > 0 && (
-                <div className="p-4 bg-slate-950 border border-slate-800 rounded-3xl space-y-2.5">
+              {/* Resting Players Section (Planned Resting Pair + Odd Rest) */}
+              {(tournamentState.currentRound.restingPairs.length > 0 || tournamentState.currentRound.oddRestingPlayer) && (
+                <div className="p-4 bg-slate-950 border border-slate-800 rounded-3xl space-y-3">
                   <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1.5 font-black uppercase text-amber-400 tracking-wider">
-                      <Coffee className="size-3.5 text-amber-400" />
-                      <span>Waiting Pairs ({tournamentState.currentRound.waitingPairs.length})</span>
-                    </div>
-                    <span className="text-[10px] text-slate-400 font-mono">
-                      Will play next round
+                    <span className="font-black uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+                      <Coffee className="size-3.5" /> RESTING
                     </span>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    {tournamentState.currentRound.waitingPairs.map((w, idx) => (
-                      <div key={idx} className="p-2.5 bg-slate-900/80 border border-slate-800 rounded-xl flex items-center justify-between text-xs">
-                        <span className="font-bold text-slate-200">
-                          {w.players.map(p => p.name).join(" + ")}
-                        </span>
-                        <span className="text-[10px] font-black text-amber-400 uppercase">
-                          Queue #{idx + 1}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Resting Players Queue */}
-              {tournamentState.currentRound.restingPlayers.length > 0 && (
-                <div className="p-4 bg-slate-950 border border-slate-800 rounded-3xl space-y-2.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1.5 font-black uppercase text-slate-400 tracking-wider">
-                      <Coffee className="size-3.5 text-sky-400" />
-                      <span>Resting ({tournamentState.currentRound.restingPlayers.length})</span>
-                    </div>
                     <span className="text-[10px] text-slate-500 font-mono">
-                      Next up rotation
+                      Planned future pairings
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {tournamentState.currentRound.restingPlayers.map(p => (
-                      <div
-                        key={p.id}
-                        className="p-2.5 bg-slate-900/80 border border-slate-800 rounded-xl flex items-center justify-between text-xs"
-                      >
-                        <span className="font-bold text-slate-300 truncate">{p.name}</span>
-                        <span className="text-[10px] font-mono text-sky-400 bg-sky-400/10 px-1.5 py-0.5 rounded border border-sky-400/20 shrink-0">
-                          Resting
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                  {/* Planned Resting Pairs */}
+                  {tournamentState.currentRound.restingPairs.map((rp, idx) => (
+                    <div key={idx} className="p-2.5 bg-slate-900/90 border border-slate-800 rounded-xl flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-200">
+                        {rp.players.map(p => p.name).join(" + ")}
+                      </span>
+                      <span className="text-[10px] font-black text-amber-400/90 uppercase tracking-wider bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">
+                        Resting Pair
+                      </span>
+                    </div>
+                  ))}
+
+                  {/* Odd Resting Player */}
+                  {tournamentState.currentRound.oddRestingPlayer && (
+                    <div className="p-2.5 bg-slate-900/90 border border-slate-800 rounded-xl flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-300">
+                        {tournamentState.currentRound.oddRestingPlayer.name}
+                      </span>
+                      <span className="text-[10px] font-black text-sky-400 uppercase tracking-wider bg-sky-400/10 px-2 py-0.5 rounded border border-sky-400/20 flex items-center gap-1">
+                        Odd Rest <span className="text-[9px] text-slate-400">(enters Round 3)</span>
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -496,14 +523,14 @@ export function PlayerShufflerModal({
                 >
                   <Sparkles className="size-4" />
                   {allCourtsDecided 
-                    ? `Advance to Round ${tournamentState.currentRound.roundNumber + 1}` 
+                    ? (tournamentState.currentRound.roundNumber === 2 ? "Advance to Round 3 (Odd Player Enters)" : tournamentState.currentRound.roundNumber === 3 ? "Complete Tournament" : `Advance to Round ${tournamentState.currentRound.roundNumber + 1}`)
                     : "Select Winners on All Courts to Advance"}
                 </button>
               </div>
             </div>
           ) : (
             /* ========================================================================= */
-            /* 2. PLAYER SHUFFLER BROWSER VIEW (Options 1/5)                             */
+            /* 3. PLAYER SHUFFLER BROWSER VIEW (Pairing 1 / 5 .. 5 / 5)                  */
             /* ========================================================================= */
             <div className="space-y-5">
               {/* Top Controls: Court Selector */}
@@ -561,7 +588,7 @@ export function PlayerShufflerModal({
                     {/* Indicators */}
                     <div className="flex flex-col items-center gap-1">
                       <span className="text-xs font-black uppercase tracking-widest text-emerald-400">
-                        Pairing Option {currentOptionIndex + 1} / {generatedOptions.length}
+                        Pairing {currentOptionIndex + 1} / {generatedOptions.length}
                       </span>
                       <div className="flex items-center gap-1.5">
                         {generatedOptions.map((_, idx) => (
@@ -593,6 +620,10 @@ export function PlayerShufflerModal({
                   <div className="p-5 bg-slate-950/90 border border-slate-800 rounded-3xl space-y-4 shadow-xl relative animate-in fade-in zoom-in-98 duration-150">
                     {/* Court Matches */}
                     <div className="space-y-3">
+                      <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        PLAYING
+                      </div>
+
                       {currentOption.courtMatches.map((court) => (
                         <div
                           key={court.courtNumber}
@@ -625,35 +656,28 @@ export function PlayerShufflerModal({
                       ))}
                     </div>
 
-                    {/* Waiting Pairs (if any) */}
-                    {currentOption.waitingPairs.length > 0 && (
-                      <div className="p-3 bg-slate-900/50 border border-slate-800/80 rounded-2xl space-y-1.5">
-                        <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider flex items-center gap-1">
-                          <Coffee className="size-3" /> Waiting Next ({currentOption.waitingPairs.length} Pair)
-                        </span>
-                        <div className="space-y-1">
-                          {currentOption.waitingPairs.map((w, idx) => (
-                            <div key={idx} className="text-xs font-bold text-slate-300">
-                              • {w.players.map(p => p.name).join(" + ")}
-                            </div>
-                          ))}
+                    {/* Planned Resting Pairs & Odd Player */}
+                    {(currentOption.restingPairs.length > 0 || currentOption.oddRestingPlayer) && (
+                      <div className="p-3.5 bg-slate-900/50 border border-slate-800/80 rounded-2xl space-y-2">
+                        <div className="text-[10px] font-black uppercase tracking-widest text-sky-400">
+                          RESTING
                         </div>
-                      </div>
-                    )}
 
-                    {/* Resting Players (if any) */}
-                    {currentOption.restingPlayers.length > 0 && (
-                      <div className="p-3 bg-slate-900/50 border border-slate-800/80 rounded-2xl space-y-1.5">
-                        <span className="text-[10px] font-black uppercase text-sky-400 tracking-wider flex items-center gap-1">
-                          <Coffee className="size-3" /> Rest:
-                        </span>
-                        <div className="flex flex-wrap gap-2">
-                          {currentOption.restingPlayers.map(p => (
-                            <span key={p.id} className="text-xs font-bold text-slate-300 bg-slate-900 px-2 py-1 rounded-lg border border-slate-800">
-                              {p.name}
-                            </span>
-                          ))}
-                        </div>
+                        {/* Planned Pairs */}
+                        {currentOption.restingPairs.map((rp, idx) => (
+                          <div key={idx} className="p-2 bg-slate-950 rounded-xl border border-slate-800 text-xs font-bold text-slate-200 flex items-center justify-between">
+                            <span>{rp.players.map(p => p.name).join(" + ")}</span>
+                            <span className="text-[9px] font-bold text-amber-400 uppercase">Planned Pair</span>
+                          </div>
+                        ))}
+
+                        {/* Odd Player */}
+                        {currentOption.oddRestingPlayer && (
+                          <div className="p-2 bg-slate-950 rounded-xl border border-slate-800 text-xs font-bold text-slate-300 flex items-center justify-between">
+                            <span>{currentOption.oddRestingPlayer.name}</span>
+                            <span className="text-[9px] font-bold text-sky-400 uppercase">Odd Rest (Enters R3)</span>
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -665,7 +689,7 @@ export function PlayerShufflerModal({
                         className="w-full py-3 bg-emerald-400 hover:bg-emerald-300 active:scale-98 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-400/20 cursor-pointer"
                       >
                         <Check className="size-4" />
-                        Accept Pairing & Start Tournament
+                        Accept Pairing
                       </button>
                     </div>
                   </div>

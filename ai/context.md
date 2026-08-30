@@ -171,22 +171,21 @@ Badge colours: emerald (`+`), rose (`-`), slate (`±0`).
 - Viewer permissions are enforced server-side via `assertAdminOrViewerPermission(permission, mode?, actionName?)` in `src/lib/auth.ts`.
 - **Server Action Coverage**: ALL 10 viewer permissions are now wired end-to-end: `LOG_MATCH` / `EDIT_MATCH` / `DELETE_MATCH` (matches.ts), `ADD_SESSION` / `EDIT_SESSION` / `DELETE_SESSION` (sessions.ts), `EDIT_STOCK` / `DELETE_STOCK` (purchases.ts), `EDIT_PAYMENT` / `DELETE_PAYMENT` (payments.ts).
 - **UI Permission Pattern**: Always use `canPerform(VIEWER_PERMISSIONS.X)` (or derived `canAddSession` / `canEditSession` / etc.) to gate action buttons that have corresponding viewer permissions. Use `isAdmin` ONLY for admin-exclusive features (e.g., PIN config, season resets).
-- Balance calculations live exclusively in `src/lib/calculations/balance.ts`. Do NOT duplicate session cost or share logic anywhere else.
-- **Player Shuffler & Tournament Engine**: `src/lib/tournament/` contains modular utilities:
-  - `pairing.ts`: `generatePairingOptions()` generates 5 distinct non-duplicate combinations (`normalizeOptionSignature()`), minimizes repeated partner frequency from past session matches, and balances rest equity.
-  - `progression.ts`: `initializeTournamentState()` and `advanceTournamentState()` (King of the Court ladder state machine with 5/6 player bench rotation and multi-court promotion).
-  - Modal UI: `src/components/session/PlayerShufflerModal.tsx` (5-option carousel browser, swipe/prev/next, "Accept Pairing & Start Tournament", live round HUD, 1-tap "Log Score to Session", and `sessionStorage` tournament persistence).
+- **Player Shuffler & 3-Round Rotation Tournament**: `src/lib/tournament/` contains:
+  - `pairing.ts`: `generatePairingOptions()` generates 5 distinct non-duplicate combinations (`normalizeOptionSignature()`), determines planned resting pairs (e.g. `AB + CD`), and flags the odd resting player (e.g. `EF`).
+  - `progression.ts`: `initializeTournamentState()` and `advanceTournamentState()` (Round 1 → Round 2 with Winner vs Planned Resting Pair → Round 3 with guaranteed Odd Player entry and random 1-player bench rotation → Tournament Complete).
+  - Modal UI: `src/components/session/PlayerShufflerModal.tsx` (Option 1/5 carousel, planned resting pair display, Round 1 of 3 progress HUD, 1-tap "Log Match Result", and `sessionStorage` persistence).
 - **PowerShell build**: Always use `npm.cmd run build` not `npm run build` on Windows due to script execution policy.
 - Scratch/migration scripts live in `/scripts` (not `src/`). The `src/` directory is now clean.
 
 ## Current Project Status
-**Phase 94 complete — Player Shuffler & Tournament Mode Live (30 Aug 2026).** CockCount features:
-1. **Player Shuffler (Option 1/5 Carousel)**: Dynamic 1v1/2v2 pairing combinations, partner frequency penalty, rest rotation equity, duplicate combination normalization, and "Accept Pairing".
-2. **Session Tournament & King of the Court**: Live ladder progression (Winner vs Winner, Loser vs Loser), 5-player & 6-player odd bench rotation, multi-court promotion, and 1-tap match logging.
+**Phase 94 complete — Player Shuffler & 3-Round Rotation Tournament Live (30 Aug 2026).** CockCount features:
+1. **Player Shuffler (Pairing 1/5 Carousel)**: Dynamic 1v1/2v2 pairing combinations, partner frequency penalty, rest rotation equity, planned resting pairs (`AB + CD`), and odd resting player (`EF`).
+2. **3-Round Rotation Tournament**: Round 1 (Initial Matchups) → Round 2 (Winner vs Planned Resting Pair) → Round 3 (Guaranteed Odd Player Entry + 1 Rotated Out) → Tournament Complete.
 3. **Secure 3-State Permission Model**: Admin, Viewer Locked, Viewer Unlocked (10 granular permissions).
 4. **Competitive Seasons & Ranking Engine**: Asymmetric soft reset, historical finish badges, Floor-Protected Glicko-Lite + Attendance Streak XP.
 
-Production build verified (Exit code: 0, all 16 routes, Turbopack 4.6s).
+Production build verified (Exit code: 0, all 16 routes, Turbopack 5.0s).
 
 Layered on top of the full **Asymmetric Soft Reset Season System** ($\text{MMR} > 1200$ compresses towards 1200; $\text{MMR} \le 1200$ preserved), historical Season Finish Badges, immutable season snapshots, season-scoped leaderboards, **Floor-Protected Glicko-Lite + Attendance Streak XP** ranking engine, **Underdog Bonus**, **Match Rating Deltas**, and **FIFA-Style Player Cards**. Production build verified (Exit code: 0, all 16 routes, Turbopack).
 

@@ -338,27 +338,29 @@
 
 ## Current Project Status
 
-## Phase 94 — Player Shuffler & Tournament Mode (30 Aug 2026, Complete)
+## Phase 94 — Player Shuffler & 3-Round Rotation Tournament (30 Aug 2026, Complete)
 
-*   [x] **Modular Tournament Engine**: Created [`src/lib/tournament/`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/lib/tournament/):
-    *   `types.ts`: Defined `ShufflerPlayer`, `ShufflerPair`, `ShufflerOption`, `TournamentState`, `TournamentRound`, `TournamentMatch`.
-    *   `pairing.ts`: Implemented `generatePairingOptions()` generating up to 5 distinct non-duplicate combinations (`Option 1 / 5 → Option 5 / 5`), partner history frequency penalization, rest rotation fairness, and duplicate combination normalization (`normalizeOptionSignature()`).
-    *   `progression.ts`: Implemented `initializeTournamentState()` and `advanceTournamentState()` with Winner vs Winner / Loser vs Loser ladder progression, 5-player single-court bench rotation, 6-player waiting pair queue, and multi-court ladder promotion/demotion.
-*   [x] **Player Shuffler Modal Component**: Created [`src/components/session/PlayerShufflerModal.tsx`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/components/session/PlayerShufflerModal.tsx) with:
-    *   **5-Option Carousel Browser**: Prev/Next buttons, pagination indicators, active courts breakdown, waiting pairs, and resting players list.
-    *   **"Accept Pairing & Start Tournament"**: Transitions seamlessly into live tournament mode.
-    *   **Tournament HUD**: Shows round counter (`Round X`), winner selection cards, "Log Score to Session" 1-tap pre-fill, resting queue, "Advance to Round X" trigger, and double-confirmation dialogs for "End Tournament" and "Reshuffle".
-    *   **Session Persistence**: Active tournament state persists to `sessionStorage` (`tournament_state_${sessionId}`) so page refreshes or modal toggles preserve round progress.
+*   [x] **Modular Tournament & Shuffler Engine**: Built in [`src/lib/tournament/`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/lib/tournament/):
+    *   `types.ts`: Defined `ShufflerPlayer`, `ShufflerPair`, `ShufflerOption` (with planned `restingPairs` and explicit `oddRestingPlayer`), `TournamentState`, `TournamentRound`, `TournamentMatch`.
+    *   `pairing.ts`: Implemented `generatePairingOptions()` generating 5 distinct non-duplicate combinations (`Option 1 / 5 → Option 5 / 5`), partner frequency penalization, rest rotation equity, planned resting pairs (e.g. `AB + CD`), odd resting player identification (e.g. `EF`), and duplicate signature normalization (`normalizeOptionSignature()`).
+    *   `progression.ts`: Implemented **3-Round Rotation Tournament Engine** (`advanceTournamentState()`):
+        *   **Round 1 → Round 2**: Winner advances. Planned resting pair from Round 1 (`AB + CD`) enters as challengers on Court 1. Round 1 loser and odd player become the new resting bench.
+        *   **Round 2 → Round 3**: The odd resting player (`EF`) is **guaranteed to enter the court**. 1 player is randomly rotated out to the bench.
+        *   **Tournament Completion**: Automatic `TOURNAMENT COMPLETE` state after Round 3 with summary banner.
+*   [x] **Player Shuffler & Tournament Modal**: Created [`src/components/session/PlayerShufflerModal.tsx`](file:///c:/Users/jinvo/OneDrive/Documents/Antigravity/Shuttlecocks/shuttle-tracker/src/components/session/PlayerShufflerModal.tsx):
+    *   **Pairing 1/5 Carousel**: Clear "PLAYING" and "RESTING" (planned pairs + odd rest) breakdown, Prev/Next pagination, dot indicators, and "Accept Pairing".
+    *   **3-Round Tournament HUD**: Shows `Round 1 of 3`, `Round 2 of 3`, `Round 3 of 3`, Winner pickers, "Log Match Result" 1-tap pre-fill, resting pairs, odd rest reminder, and confirmation dialogs.
+    *   **Session Persistence**: Active tournament state persists to `sessionStorage` (`tournament_state_${sessionId}`).
 *   [x] **Desktop & Mobile Integration**:
     *   `DesktopSessionDetails.tsx`: Added "Player Shuffler" button in session header.
     *   `MobileSessionDetails.tsx`: Added "Shuffler" button in Match Results header.
-*   [x] **Production Build Verified**: Full `npm run build` passed cleanly (`Exit code: 0`, all 16 routes compiled via Turbopack).
+*   [x] **Production Build Verified**: Full `npm run build` passed cleanly (`Exit code: 0`, all 16 routes compiled via Turbopack 5.0s).
 
 ## Current Project Status
 
 **Phase 94 complete (30 Aug 2026).** CockCount features:
-1. **Player Shuffler**: 5-option non-duplicate pairing generator with partner frequency weighting, rest rotation equity, and 1v1/2v2 dynamic compatibility.
-2. **Tournament Mode (King of the Court)**: Winner vs Winner / Loser vs Loser progression, 5/6 player odd bench rotation, multi-court promotion, and 1-tap official score logging.
+1. **Player Shuffler**: 5-option non-duplicate pairing generator with partner frequency weighting, rest rotation equity, planned resting pairs (`AB + CD`), and odd resting player (`EF`).
+2. **3-Round Rotation Tournament**: Round 1 (Initial) → Round 2 (Winner vs Planned Resting Pair) → Round 3 (Guaranteed Odd Player Entry + 1 Rotated Out) → Tournament Complete.
 3. **Secure 3-State Permission Model**: Admin, Viewer Locked, Viewer Unlocked (10 granular permissions).
 4. **Competitive Seasons & Ranking Engine**: Asymmetric soft reset, historical finish badges, Glicko-Lite + XP.
 

@@ -9,7 +9,7 @@ export function normalizePairKey(p1Id: string, p2Id?: string): string {
 }
 
 /**
- * Normalizes a match of 2 teams (or 2 players) so order doesn't create duplicate keys.
+ * Normalizes a match of 2 teams so order doesn't create duplicate keys.
  */
 export function normalizeMatchKey(teamA: ShufflerPlayer[], teamB: ShufflerPlayer[]): string {
   const keyA = teamA.map(p => p.id).sort().join("_");
@@ -27,17 +27,14 @@ export function normalizeOptionSignature(option: ShufflerOption): string {
     .sort()
     .join("||");
 
-  const waitingKeys = option.waitingPairs
+  const restingPairKeys = option.restingPairs
     .map(w => w.players.map(p => p.id).sort().join("_"))
     .sort()
     .join("||");
 
-  const restingKeys = option.restingPlayers
-    .map(p => p.id)
-    .sort()
-    .join("||");
+  const oddKey = option.oddRestingPlayer ? option.oddRestingPlayer.id : "none";
 
-  return `C:[${courtKeys}]_W:[${waitingKeys}]_R:[${restingKeys}]`;
+  return `C:[${courtKeys}]_RP:[${restingPairKeys}]_ODD:[${oddKey}]`;
 }
 
 /**
@@ -75,44 +72,19 @@ export function buildPartnerHistoryMap(pastMatches: MatchHistoryRecord[] = []): 
 }
 
 /**
- * Computes a penalty score for a proposed pairing set:
- * - High penalty for players who have partnered together frequently
- * - Slight penalty for extreme skill imbalances if skill/Elo exists
- */
-export function evaluatePairingPenalty(
-  pairs: ShufflerPair[],
-  partnerHistory: Record<string, Record<string, number>> = {}
-): number {
-  let penalty = 0;
-
-  for (const pair of pairs) {
-    if (pair.players.length === 2) {
-      const [p1, p2] = pair.players;
-      const timesPartnered = partnerHistory[p1.id]?.[p2.id] || 0;
-      penalty += timesPartnered * 10; // heavier penalty for repeated partners
-
-      // Optional slight skill delta penalty (soft)
-      const elo1 = p1.elo ?? 1200;
-      const elo2 = p2.elo ?? 1200;
-      const eloDiff = Math.abs(elo1 - elo2);
-      if (eloDiff > 250) {
-        penalty += (eloDiff - 250) * 0.05;
-      }
-    }
-  }
-
-  return penalty;
-}
-
-/**
- * Generates N unique, high-quality, randomized pairing options from attendees.
+ * Generates N unique, non-duplicate pairing arrangements from session players.
  * 
- * Capabilities:
- * - Handles any player count (2, 3, 4, 5, 6, 7, 8, 10+)
- * - Automatically computes complete pairs, waiting pairs, and resting players
- * - Avoids duplicate combinations
- * - Reduces repeated partners using past match history
- * - Supports 1v1 (2 or 3 players) or Doubles 2v2 (4+ players)
+ * Arrangement structure:
+ * - Court 1..C matches (Playing: Team A vs Team B)
+ * - Planned Resting Pairs: e.g. AB + CD (future pairings)
+ * - Odd Resting Player: e.g. EF (the single odd resting player guaranteed to enter later)
+ * 
+ * Examples:
+ * - 5 players, 1 court: Playing: A+B vs C+D, Resting: E (odd)
+ * - 6 players, 1 court: Playing: A+B vs C+D, Resting: E+F (pair)
+ * - 7 players, 1 court: Playing: A+B vs C+D, Resting: E+F (pair), G (odd)
+ * - 8 players, 1 court: Playing: A+B vs C+D, Resting: E+F, G+H
+ * - 9 players, 1 court: Playing: A+B vs C+D, Resting: E+F, G+H, I (odd)
  */
 export function generatePairingOptions(
   players: ShufflerPlayer[],
@@ -131,75 +103,68 @@ export function generatePairingOptions(
   const options: ShufflerOption[] = [];
   const seenSignatures = new Set<string>();
 
+  const totalPlayers = players.length;
+  const maxActivePlayers = Math.min(totalPlayers - (totalPlayers % 2), numCourts * playersPerCourtMatch);
+
   // Maximum attempts to find distinct non-duplicate combinations
-  const MAX_ATTEMPTS = 150;
+  const MAX_ATTEMPTS = 200;
 
   for (let attempt = 0; attempt < MAX_ATTEMPTS && options.length < requestedCount; attempt++) {
-    // 1. Prioritize resting players: sort players who rested least first, add random jitter
+    // 1. Sort players by rest history to distribute odd rest/resting fairly across sessions
     const sortedForRest = [...players].sort((a, b) => {
       const restA = restHistory[a.id] || 0;
       const restB = restHistory[b.id] || 0;
-      if (restA !== restB) return restA - restB; // players with FEWEST rests are chosen first to PLAY
+      if (restA !== restB) return restA - restB; // least rested prioritized to play
       return Math.random() - 0.5;
     });
 
-    // Determine how many can play at once
-    const totalPlayers = players.length;
-    const maxActivePlayers = numCourts * playersPerCourtMatch;
-    
-    // Total complete teams we can make
-    const totalTeams = Math.floor(totalPlayers / playersPerTeam);
-    const activeTeamsCount = Math.min(totalTeams - (totalTeams % 2), numCourts * 2);
-    const activePlayersCount = activeTeamsCount * playersPerTeam;
+    // 2. Select active players and resting players
+    const activePool = shuffleArray(sortedForRest.slice(0, maxActivePlayers));
+    const restingPool = sortedForRest.slice(maxActivePlayers);
 
-    // The remainder players (e.g. 5 players -> 4 play, 1 rests)
-    // Select active players (prioritizing least rested)
-    const activePlayers = sortedForRest.slice(0, activePlayersCount);
-    const excessPlayers = sortedForRest.slice(activePlayersCount);
-
-    // Shuffle active players to generate pairings
-    const shuffledActive = shuffleArray(activePlayers);
-    const formedPairs: ShufflerPair[] = [];
-
-    for (let i = 0; i < shuffledActive.length; i += playersPerTeam) {
-      const teamPlayers = shuffledActive.slice(i, i + playersPerTeam);
-      formedPairs.push({
-        id: `pair-${teamPlayers.map(p => p.id).join("-")}`,
-        players: teamPlayers
-      });
-    }
-
-    // Assign pairs to courts (2 pairs per court)
+    // 3. Form active court matches
     const courtMatches: ShufflerCourtMatch[] = [];
-    for (let c = 0; c < Math.floor(formedPairs.length / 2); c++) {
-      courtMatches.push({
-        courtNumber: c + 1,
-        teamA: formedPairs[c * 2].players,
-        teamB: formedPairs[c * 2 + 1].players
+    for (let c = 0; c < numCourts; c++) {
+      const offset = c * playersPerCourtMatch;
+      if (offset + playersPerCourtMatch <= activePool.length) {
+        const teamA = activePool.slice(offset, offset + playersPerTeam);
+        const teamB = activePool.slice(offset + playersPerTeam, offset + playersPerCourtMatch);
+        courtMatches.push({
+          courtNumber: c + 1,
+          teamA,
+          teamB
+        });
+      }
+    }
+
+    if (courtMatches.length === 0) continue;
+
+    // 4. Form planned resting pairs and identify odd resting player
+    const restingPairs: ShufflerPair[] = [];
+    let oddRestingPlayer: ShufflerPlayer | null = null;
+
+    const shuffledResting = shuffleArray(restingPool);
+    const completePairsCount = Math.floor(shuffledResting.length / playersPerTeam);
+
+    for (let p = 0; p < completePairsCount; p++) {
+      const pairPlayers = shuffledResting.slice(p * playersPerTeam, (p + 1) * playersPerTeam);
+      restingPairs.push({
+        id: `resting-pair-${pairPlayers.map(x => x.id).join("-")}`,
+        players: pairPlayers
       });
     }
 
-    // Handle excess complete pairs (e.g. 6 players on 1 court -> Pair C is waiting)
-    const waitingPairs: ShufflerPair[] = [];
-    const restingPlayers: ShufflerPlayer[] = [];
-
-    for (let i = 0; i < excessPlayers.length; i += playersPerTeam) {
-      const group = excessPlayers.slice(i, i + playersPerTeam);
-      if (group.length === playersPerTeam) {
-        waitingPairs.push({
-          id: `waiting-pair-${group.map(p => p.id).join("-")}`,
-          players: group
-        });
-      } else {
-        group.forEach(p => restingPlayers.push(p));
-      }
+    // Remainder single player is the odd resting player
+    const remainderIndex = completePairsCount * playersPerTeam;
+    if (remainderIndex < shuffledResting.length) {
+      oddRestingPlayer = shuffledResting[remainderIndex];
     }
 
     const candidateOption: ShufflerOption = {
       id: `option-${options.length + 1}`,
       courtMatches,
-      waitingPairs,
-      restingPlayers
+      restingPairs,
+      oddRestingPlayer
     };
 
     const signature = normalizeOptionSignature(candidateOption);
@@ -209,6 +174,5 @@ export function generatePairingOptions(
     }
   }
 
-  // Fallback: If player count is small and fewer than requested options exist, return whatever distinct options we have
   return options;
 }
